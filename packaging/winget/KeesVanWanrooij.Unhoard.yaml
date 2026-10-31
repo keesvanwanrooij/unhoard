@@ -1,0 +1,8 @@
+# winget version manifest for Unhoard. The release workflow fills in the version, the
+# installer URL and its SHA-256; submitting to microsoft/winget-pkgs needs the maintainer.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.9.0.schema.json
+PackageIdentifier: KeesVanWanrooij.Unhoard
+PackageVersion: 0.1.0
+DefaultLocale: en-US
+ManifestType: version
+ManifestVersion: 1.9.0
