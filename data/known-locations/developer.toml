@@ -1,6 +1,7 @@
 # Known locations: developer caches and per-project build folders. Build folders are found
 # by a sibling marker, so a folder called "target" is only a Rust build folder next to a
-# Cargo.toml.
+# Cargo.toml. They never match inside app folders, hidden folders in the profile or another
+# node_modules: there they are what an installed app or extension runs from.
 
 [[rule]]
 id = "npm-cache"
@@ -115,6 +116,7 @@ nearMiss = "%USERPROFILE%\\.m2\\settings"
 [[rule]]
 id = "node-modules"
 parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
 name = "node_modules"
 kind = "dir"
 sibling = "package.json"
@@ -127,6 +129,7 @@ nearMiss = "C:\\code\\lib\\node_modules"
 [[rule]]
 id = "rust-target"
 parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
 name = "target"
 kind = "dir"
 sibling = "Cargo.toml"
@@ -139,6 +142,7 @@ nearMiss = "C:\\code\\other\\target"
 [[rule]]
 id = "python-venv"
 parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
 name = ".venv"
 kind = "dir"
 category = "developer"
@@ -150,6 +154,7 @@ nearMiss = "C:\\code\\py\\.venv-notes"
 [[rule]]
 id = "dotnet-bin"
 parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
 name = "bin"
 kind = "dir"
 sibling = "*.csproj"
@@ -162,6 +167,7 @@ nearMiss = "C:\\code\\scripts\\bin"
 [[rule]]
 id = "dotnet-obj"
 parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
 name = "obj"
 kind = "dir"
 sibling = "*.csproj"

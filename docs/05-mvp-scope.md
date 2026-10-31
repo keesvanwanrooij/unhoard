@@ -94,9 +94,9 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   selection are synced between list and map.
 - AC2.6 Items smaller than 0.5% of the current view are grouped into one "N smaller
   items" cell.
-- AC2.7 During a scan the cells grow smoothly as sizes arrive. At rest they breathe
-  subtly. With Windows animation effects off (`prefers-reduced-motion`), all ambient
-  motion stops and transitions last at most 200 ms.
+- AC2.7 During a scan the cells grow smoothly as sizes arrive. Once the layout has
+  settled after the scan, the map stands still until the user acts. With Windows
+  animation effects off (`prefers-reduced-motion`), transitions last at most 200 ms.
 - AC2.8 Keyboard: arrow keys move between cells, Enter zooms in, the Menu key or
   Shift+F10 opens the actions for the selected item.
 - AC2.9 The map holds 60 frames per second at rest with up to 300 visible cells on
@@ -135,8 +135,9 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   (Storage settings, Storage Sense, Disk Cleanup, Apps), open an app's uninstaller or
   launcher, show in Explorer, explain only. There is no "delete now" action: permanent
   deletion happens only in the purge (F5).
-- AC4.7 A "Suggestions" view lists all matched items by size, grouped by tier. Nothing in
-  it is pre-selected (S1).
+- AC4.7 A "Suggestions" view lists all matched items by size on disk, grouped by tier.
+  Items under 1 MiB on disk, such as online-only files, are left out because they free
+  nothing worth a click. Nothing in it is pre-selected (S1).
 - AC4.8 Items under a protected path never offer a move (S4).
 - AC4.9 When several rules match one item, the most specific rule wins (the longest
   matched path). On a tie, the strictest tier wins (Keep over Review over Likely safe

@@ -137,19 +137,25 @@ pub struct Suggestion {
     pub description: crate::classify::Description,
 }
 
-/// Every matched item plus large unmatched files, largest first. An item inside another
-/// suggested item is left out, so nothing is counted twice. Nothing is pre-selected (S1).
+/// Suggestions smaller than this on disk free too little to be worth a click.
+pub const SUGGESTION_MIN_BYTES: u64 = 1 << 20;
+
+/// Every matched item plus large unmatched files, largest first, counted by size on disk.
+/// An item inside another suggested item is left out, so nothing is counted twice, and so
+/// is anything under [`SUGGESTION_MIN_BYTES`] on disk, such as online-only files. Nothing
+/// is pre-selected (S1).
 pub fn suggestions(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<Suggestion> {
+    // Size on disk decides: an online-only file or an empty cache frees nothing here.
     let mut picked: Vec<NodeId> = tree
         .iter()
         .filter(|(_, n)| n.flags & FLAG_HARD_LINK_DUP == 0 && n.kind != NodeKind::Link)
+        .filter(|(_, n)| n.on_disk >= SUGGESTION_MIN_BYTES)
         .filter(|(_, n)| {
-            n.rule.is_some()
-                || (n.kind == NodeKind::File && n.logical.max(n.on_disk) >= GENERIC_MIN_BYTES)
+            n.rule.is_some() || (n.kind == NodeKind::File && n.on_disk >= GENERIC_MIN_BYTES)
         })
         .map(|(id, _)| id)
         .collect();
-    let all = picked.clone();
+    let all: std::collections::HashSet<NodeId> = picked.iter().copied().collect();
     picked.retain(|&id| {
         let mut cur = tree.get(id).and_then(|n| n.parent);
         while let Some(c) = cur {

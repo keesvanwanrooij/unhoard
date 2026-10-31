@@ -118,6 +118,56 @@ fn f4_every_rule_matches_its_fixture_and_not_its_near_miss() {
 }
 
 #[test]
+fn f4_s4_project_rules_never_match_inside_installed_apps_or_dependencies() {
+    let rules = Rules::builtin(&roots()).unwrap();
+    // Dependencies an app or extension runs from: moving them breaks the app.
+    let app_owned = [
+        r"C:\Users\u\AppData\Local\Programs\editor\resources\app\node_modules",
+        r"C:\Program Files\nodejs\node_modules\npm\node_modules",
+        r"C:\Users\u\AppData\Roaming\npm\node_modules\tool\node_modules",
+        r"C:\Users\u\.vscode\extensions\ext-1.0.0\node_modules",
+        r"C:\Users\u\.agent\extensions\chat\node_modules",
+        r"C:\ProgramData\Vendor\Plugin\node_modules",
+        r"C:\code\mono\node_modules\pkg\node_modules",
+        r"C:\Users\u\AppData\Roaming\app\runtime\python\.venv",
+        r"C:\Users\u\AppData\Local\app\target",
+    ];
+    for path in app_owned {
+        let fs = FakeFs::new();
+        fs.create_dir_all(&parent_of(path).unwrap()).unwrap();
+        fs.add_dir(path);
+        let parent = parent_of(path).unwrap();
+        for sib in ["package.json", "Cargo.toml"] {
+            fs.add_file(&unhoard_core::roots::join(&parent, sib), 1);
+        }
+        assert_eq!(best_rule_id(&rules, &fs, path), None, "{path}");
+    }
+    // The user's own projects still match.
+    for (path, id) in [
+        (r"C:\code\app\node_modules", "node-modules"),
+        (
+            r"C:\Users\u\OneDrive\archive\app\node_modules",
+            "node-modules",
+        ),
+        (r"C:\Users\u\.venv", "python-venv"),
+        (r"C:\Users\u\Documents\tool\target", "rust-target"),
+    ] {
+        let fs = FakeFs::new();
+        fs.create_dir_all(&parent_of(path).unwrap()).unwrap();
+        fs.add_dir(path);
+        let parent = parent_of(path).unwrap();
+        for sib in ["package.json", "Cargo.toml"] {
+            fs.add_file(&unhoard_core::roots::join(&parent, sib), 1);
+        }
+        assert_eq!(
+            best_rule_id(&rules, &fs, path).as_deref(),
+            Some(id),
+            "{path}"
+        );
+    }
+}
+
+#[test]
 fn f4_every_rule_has_english_and_dutch_text() {
     let en: serde_json::Value =
         serde_json::from_str(include_str!("../../../src/i18n/en.json")).unwrap();

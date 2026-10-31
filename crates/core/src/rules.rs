@@ -113,6 +113,8 @@ pub struct Rule {
     /// A similar path that must not match this rule.
     pub near_miss: Option<String>,
     name: GlobMatcher,
+    /// Folders (and everything below them) where the rule never matches.
+    exclude: GlobSet,
     sibling_glob: Option<GlobMatcher>,
     specificity: usize,
 }
@@ -159,6 +161,8 @@ struct RawRule {
     #[serde(default)]
     kind: RuleKind,
     sibling: Option<String>,
+    #[serde(default)]
+    exclude: Vec<String>,
     #[serde(default)]
     stem_sibling: bool,
     min_age_days: Option<u32>,
@@ -294,6 +298,15 @@ impl Rules {
                     ),
                     None => None,
                 };
+                let mut exclude = GlobSetBuilder::new();
+                // A pattern whose variable is not set names a folder this PC does not
+                // have, so there is nothing to exclude.
+                for pattern in raw.exclude.iter().filter_map(|e| expand(e, roots)) {
+                    let pattern = norm(&pattern);
+                    exclude.add(glob(&pattern).map_err(pattern_err)?);
+                    exclude.add(glob(&format!("{pattern}/**")).map_err(pattern_err)?);
+                }
+                let exclude = exclude.build().map_err(pattern_err)?;
                 let specificity = format!("{parent}/{name}")
                     .chars()
                     .filter(|c| !"*?[]{}".contains(*c))
@@ -314,6 +327,7 @@ impl Rules {
                     example: raw.example.and_then(|e| expand(&e, roots)),
                     near_miss: raw.near_miss.and_then(|e| expand(&e, roots)),
                     name: name_glob,
+                    exclude,
                     sibling_glob,
                     specificity,
                 });
@@ -354,7 +368,13 @@ impl Rules {
         if self.rules.is_empty() {
             return out;
         }
-        let candidates = self.parents.matches(norm(dir));
+        let dir = norm(dir);
+        let candidates: Vec<usize> = self
+            .parents
+            .matches(&dir)
+            .into_iter()
+            .filter(|&ri| !self.rules[ri].exclude.is_match(&dir))
+            .collect();
         if candidates.is_empty() {
             return out;
         }

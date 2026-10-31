@@ -47,6 +47,7 @@ nearMiss = "C:\\code\\lib\\node_modules"
 | `action` | `quarantine`, `freeUpSpace`, `windowsTool:<name>`, `uninstaller`, `showInExplorer` or `explainOnly` |
 | `requiresAdmin` | The action needs admin, so Unhoard explains and points to the Windows tool |
 | `docs` | Official pages the explanation is based on |
+| `exclude` | Optional list of folders, with environment variables, where the rule never matches, in the folder itself or anywhere below it. The project rules use it to skip app folders, hidden folders in the profile and nested `node_modules` |
 | `example`, `nearMiss` | A path that must match and a similar path that must not; the tests generate both |
 
 The text is not in the rule. It lives in the locale files under
