@@ -69,8 +69,6 @@ case, and a protected path is refused with a reason (AC5.12).
   drive root: full control for the current user, SYSTEM and Administrators only. Without
   it, other accounts on the PC could read items moved there from a private profile
   (see [Threat model](32-threat-model.md)).
-- If `X:\Unhoard Quarantine\` already exists and belongs to another Windows user, Unhoard
-  uses `X:\Unhoard Quarantine - <user name>\`.
 - Cloud items have their own quarantine inside the sync root
   ([Cloud storage](13-cloud-storage.md#removing-cloud-items)). They never enter a local
   quarantine (S3).
@@ -105,8 +103,8 @@ written, for example on a full disk, the move does not start.
 | `items[].ruleId`, `tier` | Why it was offered |
 | `items[].status` | `moving`, `quarantined`, `restored`, `deletedByUser` or `purged` |
 
-The app keeps an index of all batches in `%LOCALAPPDATA%\Unhoard\`. It can always be
-rebuilt from the manifests, so the manifests are the source of truth.
+The app rebuilds its list of batches from the manifests at every start, so the manifests
+are the only source of truth.
 
 ### A move, step by step
 
@@ -175,8 +173,7 @@ information is never dropped.
 
 Every move, restore and purge appends one line to `%LOCALAPPDATA%\Unhoard\activity.jsonl`:
 the time, the operation, the item IDs and the result. It never holds file contents. It
-stays on the PC, and the Quarantine view shows it as a readable history ("what did
-Unhoard do, and when").
+stays on the PC as a JSON Lines file, one record per operation.
 
 ## What Unhoard tells you never to do
 

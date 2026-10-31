@@ -127,7 +127,13 @@ options and trade-offs, before they are built.
 | Test-driven development for every Medium or higher change | The tests prove the safety invariants |
 | Test data is always generated, never real photos or scans | Privacy, and reproducible tests |
 | `unsafe` only in the Windows FFI module | Keeps the unsafe surface small and reviewable |
-| Enumeration through `NtQueryDirectoryFile(Ex)` with a `FindFirstFileExW` fallback | Sizes, IDs and reparse tags in one batched call |
+| Enumeration through `GetFileInformationByHandleEx` with `FileIdExtdDirectoryInfo`, falling back to `FileIdBothDirectoryInfo` on FAT and exFAT | Sizes, 128-bit file IDs and reparse tags in one batched call per folder, through a documented Win32 API |
+| The minimum Rust version is 1.97 | The patched releases of `quick-xml` and `time`, needed to clear RustSec advisories, require it |
+| Known-location rule IDs are kebab-case (`node-modules`) and match their text keys | One ID links the rule, its text, the manifest and the CLI output |
+| The generic Review case also covers unmatched files of 1 GiB or more | A large unknown file is exactly what the user asks about; it gets context without a guess that it is safe |
+| A known location is added only when its path and behaviour are confirmed in official documentation | A wrong explanation or tier would break trust; unconfirmed entries wait for a contributor who can verify them |
+| The overview screen stays mounted and is hidden when another screen shows | Switching back is instant and the cell map keeps its settled layout (P2) |
+| The performance runs use a production build with a fake core that generates a tree of a set size | The numbers measure the UI itself, repeatable on any PC and on CI, without a real disk |
 | The UI asks for views of the tree, never the whole tree | Memory and IPC stay bounded |
 | Canvas 2D for the cell map; WebGL only if the frame-rate target fails | Simplest first |
 | Our own power-diagram layout | No maintained library does weighted Voronoi treemaps with per-frame relaxation |
@@ -165,15 +171,17 @@ package.
 | `serde`, `serde_json`, `toml` | Manifests, settings, rule files and CLI JSON |
 | `thiserror`, `anyhow` | Typed errors in libraries, context at the binary edge |
 | `clap` | CLI arguments |
-| `tracing` | Local diagnostic logging, off by default |
+| `globset` | Matches all parent globs of the known-locations rules in one pass; part of ripgrep, widely used and maintained |
 | `blake3` | Fast, chunked content hashing |
 | `tempfile` (dev) | Generated test trees |
-| `react`, `react-dom`, `typescript`, `vite` | The UI |
+| `react`, `react-dom`, `typescript`, `vite`, `@vitejs/plugin-react` | The UI |
+| `@tauri-apps/api`, `@tauri-apps/cli` | IPC from the UI to the Rust core, and the build and bundle tool |
+| `@fontsource/rajdhani`, `@fontsource/jetbrains-mono` | The bundled fonts as local files, so the app loads nothing from the network |
 | `i18next`, `react-i18next` | Translations with plurals |
 | `zustand` | Small state stores |
-| `motion` | UI transitions |
-| `d3-hierarchy` | The squarified treemap |
-| `vitest`, `@testing-library/react`, `eslint`, `prettier` | Tests and checks |
+| `vitest`, `jsdom`, `@testing-library/react` (dev) | UI unit tests in a simulated DOM |
+| `eslint`, `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `globals`, `prettier` (dev) | Lints and formatting; `typescript-eslint` supplies the type-aware rules such as no floating promises |
+| `@types/react`, `@types/react-dom`, `@types/node` (dev) | Types for React and for the Node-based perf scripts |
 | `criterion` (dev) | Statistically sound Rust benchmarks for the performance budgets |
 | `@playwright/test` (dev) | Drives the UI to measure interaction budgets; widely used and maintained by Microsoft |
 | GitHub Actions: `actions/checkout`, `actions/setup-node`, `dtolnay/rust-toolchain`, `Swatinem/rust-cache`, `EmbarkStudios/cargo-deny-action`, `gitleaks/gitleaks-action` | CI, each pinned to a full commit SHA |

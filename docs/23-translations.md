@@ -89,8 +89,7 @@ The [Glossary](31-glossary.md) explains every term.
 
 ## Testing text
 
-- A **pseudo-locale** (`en-XA`) makes every string about 40% longer and adds accents, so
-  overflow and hard-coded text show up during development.
+- A lint rule refuses hard-coded text in JSX, so every visible string goes through i18n.
 - Tests check that both languages have the same keys, that every companion trigger and
   every known-location rule has text in both, and that the language follows Windows with
   an English fallback (T-8.1, T-4.2, T-9.1, T-9.2).

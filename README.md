@@ -10,8 +10,8 @@
 
 </div>
 
-> **Status: early development.** The documentation is written and the first build is
-> next. There is no download yet.
+> **Status: early development.** The first version is built and being tested. There is
+> no release yet; you can run it from source, see [Start the app](#start-the-app).
 
 Unhoard is a free, open-source Windows app for everyone whose disk is full and who does
 not know why. It maps your whole drive as a living cell map, explains what each big item
@@ -71,6 +71,48 @@ bubbles that never block your work.
 No telemetry, ever. The first version opens no network connection at all. Scan results
 stay in memory, and anything you export replaces your user folder with `%USERPROFILE%`.
 See [Privacy](docs/30-privacy.md).
+
+## Start the app
+
+**From a release.** Once there is one, install Unhoard from an official source under
+[Download](#download) and start it from the Start menu, or run the portable exe.
+
+**From source.** You need Windows 10 or 11, Rust, the Visual Studio Build Tools with
+"Desktop development with C++", and Node.js; the full list is in
+[Development](docs/22-development.md#setup). Then, in PowerShell:
+
+```powershell
+git clone https://github.com/keesvanwanrooij/unhoard.git
+cd unhoard
+npm ci
+npm run tauri dev
+```
+
+The first start compiles the Rust code and takes a few minutes; then the Unhoard window
+opens. To build your own installer and portable exe:
+
+```powershell
+npm run tauri build
+```
+
+The installer, which needs no admin, is
+`target\release\bundle\nsis\Unhoard_<version>_x64-setup.exe`. The portable exe is
+`target\release\unhoard-app.exe`.
+
+**Only the interface**, with generated example data and no disk access, runs in a browser
+after `npm ci`:
+
+```powershell
+npx vite --mode fake
+```
+
+Then open <http://localhost:5173>.
+
+**The CLI:**
+
+```powershell
+cargo run --release -p unhoard-cli -- scan "$env:USERPROFILE\Downloads" --json
+```
 
 ## Download
 

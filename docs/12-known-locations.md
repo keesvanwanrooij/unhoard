@@ -21,26 +21,33 @@ Rules live in TOML files in `data/known-locations/`, one file per group (`window
 
 ```toml
 [[rule]]
-id = "dev.node-modules"
-match = { path = "**/node_modules", sibling = "package.json" }
+id = "node-modules"
+parent = "**"
+name = "node_modules"
+kind = "dir"
+sibling = "package.json"
 category = "developer"
 tier = "likelySafe"
 action = "quarantine"
-requiresAdmin = false
-docs = ["https://docs.npmjs.com/cli/commands/npm-install"]
+example = "C:\\code\\app\\node_modules"
+nearMiss = "C:\\code\\lib\\node_modules"
 ```
 
 | Field | Meaning |
 |---|---|
-| `id` | Stable ID, used in text keys, the manifest and the CLI output |
-| `match.path` | Path pattern with environment variables (`%LOCALAPPDATA%`) and globs (`*`, `**`) |
-| `match.sibling` | Optional marker that must exist next to the match, so `target` is only a Rust build folder when `Cargo.toml` sits beside it |
-| `match.minAgeDays`, `match.minBytes` | Optional limits, for example installers older than 30 days |
+| `id` | Stable kebab-case ID, used in text keys, the manifest and the CLI output |
+| `parent` | Glob of the folder that holds the match, with environment variables (`%LOCALAPPDATA%`; `%DOWNLOADS%` is the Downloads Known Folder) |
+| `name` | Glob of the item's name, for example `*.{exe,msi}` |
+| `kind` | `dir`, `file` or `any` |
+| `sibling` | Optional glob of a file or folder that must sit next to the match, so `target` is only a Rust build folder next to a `Cargo.toml` |
+| `stemSibling` | Optional: a folder named like the match without its extension must sit next to it (an extracted archive) |
+| `minAgeDays`, `minBytes` | Optional limits, for example installers older than 30 days |
 | `category` | The kind of content, which sets the map colour ([Storage map](10-storage-map.md)) |
 | `tier` | `safe`, `likelySafe`, `review` or `keep` ([Cleanup and safety](11-cleanup-safety.md#risk-tiers)) |
 | `action` | `quarantine`, `freeUpSpace`, `windowsTool:<name>`, `uninstaller`, `showInExplorer` or `explainOnly` |
 | `requiresAdmin` | The action needs admin, so Unhoard explains and points to the Windows tool |
 | `docs` | Official pages the explanation is based on |
+| `example`, `nearMiss` | A path that must match and a similar path that must not; the tests generate both |
 
 The text is not in the rule. It lives in the locale files under
 `knownLocations.<id>.title`, `.explain`, `.reason` and `.action`, in English and Dutch. A
@@ -97,7 +104,8 @@ passwords, history).
 | Firefox `cache2` | Safe |
 | Shader caches: `D3DSCache`, NVIDIA `DXCache` and `GLCache`, AMD `DxCache`, Steam `shadercache` | Safe |
 | Thumbnail cache | Safe; points to Disk Cleanup |
-| Teams, Discord and Spotify caches (verify each path) | Safe |
+| Discord cache | Safe |
+| Adobe Media Cache | Safe |
 
 ### Large containers
 
@@ -121,7 +129,7 @@ the launcher stays consistent. Tier Review.
 
 | Entry | Tier |
 |---|---|
-| npm, pnpm and Yarn caches (verify paths) | Safe |
+| npm, pnpm and Yarn caches | Safe |
 | pip cache | Safe |
 | cargo `registry` and `git` | Safe |
 | NuGet `packages` and `v3-cache` | Safe |
@@ -141,9 +149,6 @@ the launcher stays consistent. Tier Review.
 | Downloads: ISO files | Review |
 | Downloads: ZIP files with an extracted sibling folder | Likely safe |
 | Phone backups in `Apple\MobileSync\Backup` | Review |
-| Video editor caches: Adobe Media Cache, DaVinci Resolve CacheClip (verify) | Safe |
-| Files over 1 GB not changed for a year | Review |
-| WhatsApp Desktop transfers (verify) | Review |
 
 ## Adding a rule
 

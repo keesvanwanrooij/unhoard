@@ -306,7 +306,7 @@ JSON shape (field names are part of the contract):
       "onDiskBytes": 0,
       "files": 0,
       "category": "downloads",
-      "knownLocation": { "id": "downloads.old-installers", "tier": "likelySafe" },
+      "knownLocation": { "id": "downloads-old-installers", "tier": "likelySafe" },
       "cloud": null,
       "children": []
     }
