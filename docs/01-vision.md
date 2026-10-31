@@ -110,7 +110,7 @@ Unhoard is not, and will not become:
    map is alive. Inspired by the feel of film-style holographic interfaces, built as our
    own design.
 2. **Living map.** Organic cells (a Voronoi treemap) that grow while the scan runs and
-   gently breathe at rest. The treemap stays available for people who prefer plain
+   stand still once it is done, so the map is easy to read. The treemap stays available for people who prefer plain
    rectangles. See [Storage map](10-storage-map.md).
 3. **A guide, not a popup.** An original companion character explains, suggests and
    warns in speech bubbles. See [Companion](15-companion.md).

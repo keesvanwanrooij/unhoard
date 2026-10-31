@@ -29,7 +29,7 @@ with an explanation and a safe next step for every big item.
 ## Features
 
 **A living map of your drive.** Your disk as organic cells that grow while the scan runs
-and breathe at rest, coloured by kind of content. Prefer something plain? Switch to a
+and settle when it is done, coloured by kind of content. Prefer something plain? Switch to a
 simple treemap. A sorted list next to the map shows the same data.
 
 **Hidden space, explained.** The space Windows keeps out of sight (restore points, other

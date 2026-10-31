@@ -75,6 +75,9 @@ export function ItemList({ resp }: { resp: ViewResponse | null }): JSX.Element {
   );
 }
 
+/** Revealed folders below this size are summed into one line. */
+const REVEAL_MIN_BYTES = 1 << 20;
+
 function isMove(a: Action): boolean {
   return a.type === "quarantine";
 }
@@ -125,11 +128,23 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
   }, [generation, id, selected, say, t, refresh]);
 
   if (id === -1 && resp?.hiddenBytes !== null && resp?.hiddenBytes !== undefined) {
+    // The largest revealed folders first; the many tiny ones are summed into one line.
+    const shown = (revealed ?? []).filter((r) => r.error !== null || r.onDisk >= REVEAL_MIN_BYTES).sort((a, b) => b.onDisk - a.onDisk);
+    const small = (revealed ?? []).filter((r) => r.error === null && r.onDisk < REVEAL_MIN_BYTES);
     return (
       <div className="panel details">
         <div className="d-head">
           <span className="sw" style={{ background: "var(--c-hidden)" }} />
           <div className="d-name">{t("map.hiddenSpace")}</div>
+          <button
+            className="x d-close"
+            aria-label={t("companion.close")}
+            onClick={() => {
+              useApp.getState().select(null);
+            }}
+          >
+            ×
+          </button>
         </div>
         <div className="stats">
           <div>
@@ -140,11 +155,14 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
         <p className="info">{t("companion.script.hiddenSpace.0", { size: fmtBytes(resp.hiddenBytes, lang) })}</p>
         {revealed ? (
           <ul className="note">
-            {revealed.map((r) => (
+            {shown.map((r) => (
               <li key={r.path}>
                 {r.path} · {r.error ? t(errorKey({ code: "fs", error: r.error })) : fmtBytes(r.onDisk, lang)}
               </li>
             ))}
+            {small.length > 0 ? (
+              <li>{t("details.revealSmall", { count: small.length, size: fmtBytes(small.reduce((s, r) => s + r.onDisk, 0), lang) })}</li>
+            ) : null}
           </ul>
         ) : null}
         <div className="btns">

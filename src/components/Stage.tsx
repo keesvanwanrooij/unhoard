@@ -28,9 +28,9 @@ const ARROWS: Partial<Record<string, Direction>> = { ArrowLeft: "left", ArrowRig
 /** Category order of the legend. */
 const LEGEND = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other"] as const;
 
-/** How often the map and the details reload while a scan runs. Once a second keeps the
+/** How often the map and the details reload while a scan runs. Every three seconds keeps the
  * map calm to watch while it still visibly grows. */
-export const SCAN_TICK_MS = 1000;
+export const SCAN_TICK_MS = 3000;
 
 /** Loads the view of the focused node, again every tick while the scan runs. */
 export function useView(): ViewResponse | null {

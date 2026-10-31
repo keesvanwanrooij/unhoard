@@ -71,6 +71,8 @@
     "protected": "Beschermd: Unhoard verplaatst dit nooit.",
     "folder_one": "Een map met {{files}} bestand.",
     "folder_other": "Een map met {{files}} bestanden.",
+    "revealSmall_one": "en {{count}} kleinere map · {{size}}",
+    "revealSmall_other": "en {{count}} kleinere mappen · {{size}}",
     "unreadable": "Deze map kon zonder adminrechten niet gelezen worden. De grootte is onbekend.",
     "generic": "Een groot item waar Unhoard geen uitleg voor heeft. Alleen jij weet of je het nog nodig hebt.",
     "genericReason": "Groot en niet herkend.",

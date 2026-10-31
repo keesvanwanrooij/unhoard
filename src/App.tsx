@@ -283,32 +283,37 @@ export function App(): JSX.Element {
             {scan ? t("top.rescan") : t("top.scan")}
           </button>
         )}
-        <input
-          value={query}
-          placeholder={t("top.search")}
-          aria-label={t("top.search")}
-          onChange={(e) => {
-            setQuery(e.target.value);
-          }}
-        />
-        <div className="seg" role="group">
-          <button
-            aria-pressed={settings.mapStyle === "cells"}
-            onClick={() => {
-              updateSettings({ mapStyle: "cells" });
-            }}
-          >
-            {t("top.cells")}
-          </button>
-          <button
-            aria-pressed={settings.mapStyle === "treemap"}
-            onClick={() => {
-              updateSettings({ mapStyle: "treemap" });
-            }}
-          >
-            {t("top.treemap")}
-          </button>
-        </div>
+        {/* Search and the map style act on the map, so they show only with the overview. */}
+        {screen === "overview" ? (
+          <>
+            <input
+              value={query}
+              placeholder={t("top.search")}
+              aria-label={t("top.search")}
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+            />
+            <div className="seg" role="group">
+              <button
+                aria-pressed={settings.mapStyle === "cells"}
+                onClick={() => {
+                  updateSettings({ mapStyle: "cells" });
+                }}
+              >
+                {t("top.cells")}
+              </button>
+              <button
+                aria-pressed={settings.mapStyle === "treemap"}
+                onClick={() => {
+                  updateSettings({ mapStyle: "treemap" });
+                }}
+              >
+                {t("top.treemap")}
+              </button>
+            </div>
+          </>
+        ) : null}
         <span className="status">
           {scan
             ? t(scan.done ? "top.scanDone" : "top.scanning", { files: fmtInt(scan.files, lang), seconds: (scan.elapsedMs / 1000).toFixed(1) })

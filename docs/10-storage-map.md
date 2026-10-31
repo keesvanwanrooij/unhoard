@@ -69,7 +69,8 @@ heads-up display.
   stage labels, and JetBrains Mono for numbers and paths. Both are open-source (SIL Open
   Font License) and bundled with the app, because the app loads nothing from the network.
 - The shell (navigation, lists, settings) stays calm and readable; the motion lives on
-  the stage. Reduced motion and the "calm" setting stop the sweep and the breathing.
+  the stage. The radar sweep turns only while a scan runs; reduced motion and the "calm"
+  setting shorten every transition.
 
 ## Zoom, small items and keyboard
 
@@ -101,23 +102,25 @@ For one level with n cells (at most about 50, thanks to the "smaller items" grou
    iteration. A cell that vanished gets the largest weight back and recovers.
 3. If one weight overpowers a neighbour (`wᵢ − wⱼ > dist²`), it is clamped, so no cell
    vanishes. In the design explorations this converges to within 2.5% of every target
-   area, breathing included.
+   area.
 4. Levels nest: the children of a cell are laid out inside that cell's polygon.
 
 Starting sites come from a seeded pseudo-random generator keyed on the item ID, so the
 same input always gives the same layout (T-2.4).
 
-### Why it is "alive" at no extra cost
+### How it moves
 
 The layout runs **one relaxation step per frame**, starting from the previous frame's
-state. That gives the motion for free:
+state:
 
-- **During a scan** the target sizes change as results arrive, and the cells grow and
-  settle smoothly.
-- **At rest** each cell's target oscillates by about ±2% with its own phase, so the map
-  breathes. The area stays within 3% of the true share (AC2.2).
-- **Reduced motion** (Windows animation effects off, or the "calm" motion setting): the
-  relaxation runs to convergence once and stops. Transitions last at most 200 ms.
+- **During a scan** the target sizes change as results arrive, and the cells grow towards
+  them smoothly.
+- **At rest** the relaxation runs until the layout has settled and then stops, cells
+  inside large cells included. The map stands still and redraws only on interaction, so
+  nothing moves while the user reads it. The area stays within 3% of the true share
+  (AC2.2).
+- **Reduced motion** (Windows animation effects off, or the "calm" motion setting):
+  transitions last at most 200 ms.
 
 ### Rendering
 
@@ -161,7 +164,7 @@ never negative (T-3.1). It shows as one hatched cell with its size.
 ## Live build-up during a scan
 
 - The first results reach the map within 1 second. The scan reports progress at most
-  every 250 ms (AC1.3); the map, the list and the details reload once per second, so the
+  every 250 ms (AC1.3); the map, the list and the details reload every three seconds, so the
   cells grow calmly instead of jumping at every batch.
 - The UI never receives the whole tree. It asks the core for a view: the node ID, the
   depth and the top N children plus "others" ([Architecture](20-architecture.md#ipc)).

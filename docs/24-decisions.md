@@ -31,8 +31,8 @@ options and trade-offs, before they are built.
 | The **elevated read-only "Reveal hidden space"** rescan is in the MVP | Hidden space is often the biggest unexplained block; a read-only, short-lived helper keeps the risk low |
 | Unhoard **never selects anything by itself**; every move is a user click (S1) | Trust: the user stays in control |
 | The **organic cell map is the default view**, with a simple treemap switch | The living map makes "where did it go" fun and memorable; the treemap stays for people who want it plain |
-| Default motion is **"living", subtle**: cells breathe by about ±2%; a "calm" setting and reduced motion stop it | Premium feel without becoming tiring in daily use |
-| During a scan the map, list and details reload once per second, and cells move one layout step per frame | Faster updates made the cells jump; once a second still shows the drive filling in |
+| Motion lives in the scan and the transitions: cells grow while the scan runs, then the map **stands still**; the radar sweeps only during a scan; "calm" and reduced motion shorten transitions | A map that keeps moving is hard to read and was experienced as restless |
+| During a scan the map, list and details reload every three seconds, and cells move one layout step per frame | Faster updates made the cells jump; every three seconds still shows the drive filling in |
 | The companion shows one bubble and never a stack: newer messages replace older ones, progress updates in place, and closing a bubble silences its topic until the operation ends | Stacked, repeated progress bubbles buried the message the user wanted and came back right after being closed |
 | The companion can be dragged anywhere on the stage, and its spot is remembered on this PC | The best spot depends on what the user is looking at; a fixed corner can cover a cell |
 | Colour by kind of content | A glance shows what fills the disk, not just how big things are |
@@ -77,6 +77,8 @@ options and trade-offs, before they are built.
 | `12-known-locations.md` is its own doc | It is a large, community-curated list |
 | The most specific rule wins; on a tie the strictest tier | A Keep item is never shown as safer than it is |
 | Unmatched large items get a generic explanation and tier Review | Every big item still gets context, without guessing it is safe |
+| Project rules (`node_modules`, `.venv`, `target`, `bin`, `obj`) never match inside app folders (`%LOCALAPPDATA%`, `%APPDATA%`, Program Files, `%PROGRAMDATA%`), hidden folders in the profile or another `node_modules` | There they are what an installed app or extension runs from; moving them breaks the app |
+| Suggestions count size on disk and leave out items under 1 MiB | An online-only file or an empty cache frees nothing; hundreds of tiny entries hid the ones that matter |
 
 ## Cloud
 
@@ -107,7 +109,7 @@ options and trade-offs, before they are built.
 | **Size on disk** is the default measure; logical size is a switch | It is what the drive actually loses |
 | **Binary units labelled "GB"**, as Explorer does | The numbers match what users see in Explorer and Settings |
 | Items under 0.5% of the current view are grouped into "N smaller items" | Keeps the map readable and the layout fast |
-| Cell areas are within 3% of their share after settling | Accurate enough to trust, loose enough to breathe |
+| Cell areas are within 3% of their share after settling | Accurate enough to trust, and the layout converges in a fraction of a second |
 | An unknown size is `null` or "unknown", never 0 | A 0 would mislead |
 
 ## Privacy and network

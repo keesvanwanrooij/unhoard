@@ -71,6 +71,8 @@
     "protected": "Protected: Unhoard never moves this.",
     "folder_one": "A folder with {{files}} file.",
     "folder_other": "A folder with {{files}} files.",
+    "revealSmall_one": "and {{count}} smaller folder · {{size}}",
+    "revealSmall_other": "and {{count}} smaller folders · {{size}}",
     "unreadable": "This folder could not be read without admin rights. Its size is unknown.",
     "generic": "A large item Unhoard has no explanation for. Only you can judge whether you still need it.",
     "genericReason": "Large and not recognised.",

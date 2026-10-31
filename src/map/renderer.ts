@@ -1,13 +1,13 @@
 // The stage renderer: draws the living cell map or the treemap on a canvas.
 //
-// One relaxation step per frame keeps the cells alive: they grow while a scan streams in
-// and breathe (±2%) at rest. With the "calm" setting or reduced motion the layout is
-// solved once and the canvas only redraws on interaction. Transitions (zoom, map style)
-// morph each cell from its previous outline. Colours come from CSS variables, so the
-// light and dark themes both work.
+// While a scan streams in, one relaxation step per frame lets the cells grow towards
+// their new sizes. Once the layout has settled the map stands still and the canvas only
+// redraws on interaction, so nothing moves while the user reads it. Transitions (zoom, map
+// style) morph each cell from its previous outline; the "calm" setting and reduced motion
+// shorten them. Colours come from CSS variables, so the light and dark themes both work.
 import { bbox, centroid, ease, inset, inside, lerpPoly, perimeter, rectPoly, area, type Poly, type Point } from "./geometry";
 import type { Spot } from "./navigate";
-import { hash, makeLevel, relax, rescale, type Level } from "./powerLayout";
+import { makeLevel, relax, rescale, type Level } from "./powerLayout";
 import { squarify } from "./treemap";
 import { mark, measureSince } from "../perf/marks";
 
@@ -179,6 +179,10 @@ export class Renderer {
   setCells(key: string, cells: Cell[]): void {
     this.levelKey = key;
     this.cells = cells;
+    this.subLevels.forEach((l) => {
+      l.settled = false;
+      l.steps = 0;
+    });
     const level = this.levels.get(key);
     if (level) {
       level.settled = false;
@@ -271,20 +275,14 @@ export class Renderer {
     return l;
   }
 
-  private entries(t: number): { id: string; value: number }[] {
-    const breathe = this.living && !this.scanning && this.mode === "cells";
-    return this.cells
-      .filter((c) => c.value > 0)
-      .map((c) => ({
-        id: c.id,
-        value: breathe ? c.value * (1 + 0.02 * Math.sin(t * 1.1 + (hash(c.id) % 1000) / 159)) : c.value,
-      }));
+  private entries(): { id: string; value: number }[] {
+    return this.cells.filter((c) => c.value > 0).map((c) => ({ id: c.id, value: c.value }));
   }
 
   private frame = (now: number): void => {
     this.raf = requestAnimationFrame(this.frame);
     if (!this.active) return;
-    const animating = this.living || this.scanning || this.trans !== null || this.expanding !== null;
+    const animating = this.scanning || this.trans !== null || this.expanding !== null;
     if (!animating && !this.dirty) return;
     const started = performance.now();
     this.dirty = false;
@@ -298,7 +296,7 @@ export class Renderer {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.W, this.H);
     this.overlay(t, true);
-    const entries = this.entries(t);
+    const entries = this.entries();
     const level = this.level();
     // With many cells, relax every other frame: effects give way before frames drop (AC2.9).
     this.frameCount++;
@@ -310,9 +308,9 @@ export class Renderer {
       const n = this.scanning ? 1 : level.steps < WARM_STEPS ? 3 : 1;
       relax(level, entries, n);
       level.steps += n;
-      if (!this.living && !this.scanning && level.steps >= SETTLE_STEPS) level.settled = true;
+      if (!this.scanning && level.steps >= SETTLE_STEPS) level.settled = true;
     }
-    if (this.living || this.scanning) level.settled = false;
+    if (this.scanning) level.settled = false;
     this.dirty = this.dirty || !level.settled;
     const rects = this.mode === "treemap" ? this.treemapRects(entries) : null;
     let tr: number | null = null;
@@ -349,7 +347,7 @@ export class Renderer {
       this.subPolys.clear();
       for (const d of drawn) {
         const info = this.drawCell(d.poly, d.cell, this.mode === "cells" ? "cells" : "rect", 0, 1);
-        if (info && d.cell.sub && d.cell.sub.length > 1 && info.area > this.W * this.H * 0.03) this.drawSub(d, t);
+        if (info && d.cell.sub && d.cell.sub.length > 1 && info.area > this.W * this.H * 0.03) this.drawSub(d);
       }
       for (const d of drawn) this.drawLabel(d.poly, d.cell);
       this.drawn = drawn;
@@ -370,12 +368,9 @@ export class Renderer {
     return squarify(entries, b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
   }
 
-  private drawSub(d: { cell: Cell; poly: Poly }, t: number): void {
+  private drawSub(d: { cell: Cell; poly: Poly }): void {
     const sub = d.cell.sub ?? [];
-    const entries = sub.map((s) => ({
-      id: s.id,
-      value: this.living && !this.scanning ? s.value * (1 + 0.02 * Math.sin(t * 1.3 + (hash(s.id) % 997) / 151)) : s.value,
-    }));
+    const entries = sub.map((s) => ({ id: s.id, value: s.value }));
     const out = new Map<string, Poly>();
     if (this.mode === "cells") {
       const container = inset(d.poly, GAP * 2.6);
@@ -390,7 +385,12 @@ export class Renderer {
         relax(l, entries, 6);
       }
       l.poly = container;
-      relax(l, entries, this.living || this.scanning ? 1 : 0);
+      if (!l.settled) {
+        relax(l, entries, 1);
+        l.steps++;
+        if (!this.scanning && l.steps >= SETTLE_STEPS) l.settled = true;
+        this.dirty = true;
+      }
       for (const s of sub) {
         const p = l.sites.get(s.id)?.cell;
         if (p) {
@@ -546,8 +546,8 @@ export class Renderer {
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
     }
-    const moving = this.living || this.scanning;
-    const ang = moving ? t * (this.scanning ? 2.4 : 0.35) : -Math.PI / 2;
+    // The radar line sweeps only while a scan runs; at rest it points up and stays put.
+    const ang = this.scanning ? t * 2.4 : -Math.PI / 2;
     if (this.scanning) {
       // The sweep's trailing glow is a full-canvas fill, so it only runs during a scan.
       const g = ctx.createConicGradient(ang - 0.9, cx, cy);
