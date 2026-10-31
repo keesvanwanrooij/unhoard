@@ -38,9 +38,11 @@ pub fn thumbnail(path: &str, side: u32, in_cloud: bool) -> Result<Thumbnail, FsE
 pub fn to_gray(t: &Thumbnail) -> Gray {
     let data = t
         .bgra
-        .chunks_exact(4)
-        .map(|p| {
-            ((u32::from(p[2]) * 299 + u32::from(p[1]) * 587 + u32::from(p[0]) * 114) / 1000) as u8
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .map(|[b, g, r, _]| {
+            ((u32::from(*r) * 299 + u32::from(*g) * 587 + u32::from(*b) * 114) / 1000) as u8
         })
         .collect();
     Gray {

@@ -248,8 +248,10 @@ struct RawEntry {
 fn name_at(buf: &[u8], offset: usize, len_bytes: usize) -> Option<(String, bool)> {
     let bytes = buf.get(offset..offset + len_bytes)?;
     let units: Vec<u16> = bytes
-        .chunks_exact(2)
-        .map(|c| u16::from_le_bytes([c[0], c[1]]))
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|c| u16::from_le_bytes(*c))
         .collect();
     Some(match String::from_utf16(&units) {
         Ok(s) => (s, false),
