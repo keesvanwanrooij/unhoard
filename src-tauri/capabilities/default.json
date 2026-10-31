@@ -1,0 +1,33 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The main window may call Unhoard's own commands and listen to its events. Nothing else: no file system, shell, HTTP or opener plugin.",
+  "windows": ["main"],
+  "permissions": [
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "allow-app-info",
+    "allow-settings-get",
+    "allow-settings-set",
+    "allow-scan-start",
+    "allow-scan-cancel",
+    "allow-scan-status",
+    "allow-view",
+    "allow-details",
+    "allow-suggestions",
+    "allow-quarantine-preview",
+    "allow-quarantine-move",
+    "allow-quarantine-state",
+    "allow-quarantine-restore",
+    "allow-quarantine-warning-shown",
+    "allow-quarantine-open",
+    "allow-show-in-explorer",
+    "allow-open-tool",
+    "allow-free-up-preview",
+    "allow-free-up-apply",
+    "allow-reveal-hidden",
+    "allow-photos-analyze",
+    "allow-photo-thumbnail",
+    "allow-cloud-roots"
+  ]
+}
