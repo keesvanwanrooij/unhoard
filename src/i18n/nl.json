@@ -241,6 +241,8 @@
   "companion": {
     "name": "Lumen",
     "history": "Eerdere berichten",
+    "earlier": "Eerder",
+    "drag": "Sleep om te verplaatsen, klik voor eerdere berichten",
     "close": "Sluiten",
     "types": {
       "tip": "Tip",

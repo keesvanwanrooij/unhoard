@@ -437,9 +437,11 @@ select {
   padding: 40px;
 }
 
+/* The details panel takes what it needs and scrolls when that is more than fits; the list
+   keeps at least a few rows. */
 .side {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(140px, 1fr) minmax(0, auto);
   gap: 14px;
   min-height: 0;
 }
@@ -551,6 +553,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow: auto;
 }
 .d-head {
   display: flex;
@@ -691,7 +694,62 @@ select {
   width: 88px;
   height: 88px;
   pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
   filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+.companion .char:active {
+  cursor: grabbing;
+}
+.cmp-pop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+/* A dragged companion is an anchor at the orb's centre; the bubble opens towards the
+   middle of the stage. */
+.companion.placed {
+  right: auto;
+  bottom: auto;
+  width: 0;
+  height: 0;
+  display: block;
+}
+.companion.placed .char {
+  position: absolute;
+  left: -44px;
+  top: -44px;
+}
+.companion.placed .cmp-pop {
+  position: absolute;
+  right: 26px;
+  bottom: 38px;
+  width: max-content;
+  max-width: 320px;
+}
+.companion.placed.right .cmp-pop {
+  right: auto;
+  left: 26px;
+  align-items: flex-start;
+}
+.companion.placed.below .cmp-pop {
+  bottom: auto;
+  top: 38px;
+  flex-direction: column-reverse;
+}
+.companion.placed .bubble,
+.companion.placed .history-list {
+  margin: 0 0 8px;
+}
+.companion.placed.below .bubble,
+.companion.placed.below .history-list {
+  margin: 8px 0 0;
+}
+.history-list .kind {
+  font: 700 10px var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .bubble {
   pointer-events: auto;
@@ -825,6 +883,10 @@ select {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+/* Sections keep their full height and the page scrolls, so they never overlap. */
+.page > * {
+  flex: none;
 }
 .page > header {
   display: flex;

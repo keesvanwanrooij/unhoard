@@ -1,6 +1,7 @@
 // Lumen, the companion: a holographic orb that speaks in bubbles, never in popups. One
-// bubble at a time; Esc closes it; earlier bubbles stay in a history panel.
-import { useEffect, useState, type JSX } from "react";
+// bubble at a time; Esc or × closes it; a click on the orb shows earlier bubbles, and
+// dragging the orb moves it to another spot on the stage.
+import { useEffect, useRef, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
@@ -41,21 +42,58 @@ export function Lumen(): JSX.Element {
 }
 
 const TTL: Record<string, number> = { tip: 7000, explanation: 11000, progress: 60000, celebration: 6000, warning: 20000 };
+/** Where the dragged position is remembered. */
+const POS_KEY = "unhoard:lumen-position";
+/** Half the orb's size, in pixels: the orb's centre keeps this distance from the edges. */
+const HALF = 44;
+/** Pointer travel, in pixels, that turns a press into a drag instead of a click. */
+const DRAG_START = 5;
 
-/** The companion with its current bubble. */
+/** The orb's centre as fractions of the stage, or `null` for the default corner. */
+type Position = { x: number; y: number } | null;
+
+function loadPosition(): Position {
+  try {
+    const raw = window.localStorage.getItem(POS_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as unknown;
+    if (p && typeof p === "object" && "x" in p && "y" in p && typeof p.x === "number" && typeof p.y === "number") {
+      return { x: Math.min(1, Math.max(0, p.x)), y: Math.min(1, Math.max(0, p.y)) };
+    }
+  } catch {
+    // Storage can be unavailable; the orb then starts in its corner.
+  }
+  return null;
+}
+
+function savePosition(p: Position): void {
+  try {
+    window.localStorage.setItem(POS_KEY, JSON.stringify(p));
+  } catch {
+    // Not remembering the position is harmless; the orb stays where it was dropped.
+  }
+}
+
+/** The companion with its current bubble. Drag the orb to move it; click it for history. */
 export function Companion(): JSX.Element {
   const { t } = useTranslation();
-  const { queue, dismiss, bubbleVersion } = useApp(useShallow((s) => ({ queue: s.queue, dismiss: s.dismiss, bubbleVersion: s.bubbleVersion })));
-  const [showHistory, setShowHistory] = useState(false);
+  const { queue, dismiss, expire, bubbleVersion } = useApp(useShallow((s) => ({ queue: s.queue, dismiss: s.dismiss, expire: s.expire, bubbleVersion: s.bubbleVersion })));
+  // The history belongs to the bubble that was showing when it was opened, so any new
+  // bubble closes it and old messages never stay on screen.
+  const [historyFor, setHistoryFor] = useState<number | null>(null);
+  const [pos, setPos] = useState<Position>(loadPosition);
+  const drag = useRef<{ x: number; y: number; moved: boolean; box: DOMRect } | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const current = queue.current;
+  const showHistory = historyFor === (current?.id ?? 0);
 
   useEffect(() => {
     if (!current) return;
-    const timer = window.setTimeout(dismiss, TTL[current.type] ?? 8000);
+    const timer = window.setTimeout(expire, TTL[current.type] ?? 8000);
     return () => {
       window.clearTimeout(timer);
     };
-  }, [current, bubbleVersion, dismiss]);
+  }, [current, bubbleVersion, expire]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -67,36 +105,71 @@ export function Companion(): JSX.Element {
     };
   }, [dismiss]);
 
+  const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>): void => {
+    const box = rootRef.current?.parentElement?.getBoundingClientRect();
+    if (!box || e.button !== 0) return;
+    drag.current = { x: e.clientX, y: e.clientY, moved: false, box };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLButtonElement>): void => {
+    const d = drag.current;
+    if (!d) return;
+    if (!d.moved && Math.hypot(e.clientX - d.x, e.clientY - d.y) < DRAG_START) return;
+    d.moved = true;
+    const mx = HALF / d.box.width;
+    const my = HALF / d.box.height;
+    setPos({
+      x: Math.min(1 - mx, Math.max(mx, (e.clientX - d.box.left) / d.box.width)),
+      y: Math.min(1 - my, Math.max(my, (e.clientY - d.box.top) / d.box.height)),
+    });
+  };
+  const onPointerUp = (): void => {
+    if (drag.current?.moved) savePosition(pos);
+  };
+  const onClick = (): void => {
+    // A drag ends with a click event too; only a press without movement opens the history.
+    const moved = drag.current?.moved ?? false;
+    drag.current = null;
+    if (!moved) setHistoryFor(showHistory ? null : (current?.id ?? 0));
+  };
+
+  // The bubble opens towards the middle of the stage, so it never leaves the screen.
+  const side = `${pos && pos.x < 0.5 ? " right" : ""}${pos && pos.y < 0.45 ? " below" : ""}`;
+  const style = pos ? { left: `${String(pos.x * 100)}%`, top: `${String(pos.y * 100)}%` } : undefined;
   return (
-    <div className={`companion${current ? " talking" : ""}`}>
-      <div role="status" aria-live="polite">
-        {current ? (
-          <div className={`bubble ${current.type}`}>
-            <div className="kind">{t(`companion.types.${current.type}`)}</div>
-            <div>{current.text}</div>
-            <button className="x" onClick={dismiss} aria-label={t("companion.close")}>
-              ×
-            </button>
+    <div ref={rootRef} className={`companion${current ? " talking" : ""}${pos ? " placed" : ""}${side}`} style={style}>
+      <div className="cmp-pop">
+        {showHistory && queue.history.length > 0 ? (
+          <div className="history-list">
+            <div className="kind">{t("companion.earlier")}</div>
+            {queue.history
+              .slice(-20)
+              .reverse()
+              .map((b) => (
+                <div key={b.id}>{b.text}</div>
+              ))}
           </div>
         ) : null}
-      </div>
-      {showHistory && queue.history.length > 0 ? (
-        <div className="history-list">
-          {queue.history
-            .slice(-20)
-            .reverse()
-            .map((b) => (
-              <div key={b.id}>{b.text}</div>
-            ))}
+        <div role="status" aria-live="polite">
+          {current ? (
+            <div className={`bubble ${current.type}`}>
+              <div className="kind">{t(`companion.types.${current.type}`)}</div>
+              <div>{current.text}</div>
+              <button className="x" onClick={dismiss} aria-label={t("companion.close")}>
+                ×
+              </button>
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      </div>
       <button
         className="char"
-        onClick={() => {
-          setShowHistory((s) => !s);
-        }}
+        onClick={onClick}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
         aria-label={t("companion.history")}
-        title={t("companion.history")}
+        title={t("companion.drag")}
       >
         <Lumen />
       </button>

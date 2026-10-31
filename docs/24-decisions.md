@@ -32,6 +32,9 @@ options and trade-offs, before they are built.
 | Unhoard **never selects anything by itself**; every move is a user click (S1) | Trust: the user stays in control |
 | The **organic cell map is the default view**, with a simple treemap switch | The living map makes "where did it go" fun and memorable; the treemap stays for people who want it plain |
 | Default motion is **"living", subtle**: cells breathe by about ±2%; a "calm" setting and reduced motion stop it | Premium feel without becoming tiring in daily use |
+| During a scan the map, list and details reload once per second, and cells move one layout step per frame | Faster updates made the cells jump; once a second still shows the drive filling in |
+| The companion shows one bubble and never a stack: newer messages replace older ones, progress updates in place, and closing a bubble silences its topic until the operation ends | Stacked, repeated progress bubbles buried the message the user wanted and came back right after being closed |
+| The companion can be dragged anywhere on the stage, and its spot is remembered on this PC | The best spot depends on what the user is looking at; a fixed corner can cover a cell |
 | Colour by kind of content | A glance shows what fills the disk, not just how big things are |
 | A calm, readable shell around a show-piece centre stage | Balances a futuristic command-center look with ease of use |
 | The look is **Holo Command**: black-navy, cyan and ice hologram, HUD rings and a radar sweep on the stage ([Storage map](10-storage-map.md#look-and-feel)) | Chosen from four design explorations; it is the clearest command-center feel |

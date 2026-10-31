@@ -241,6 +241,8 @@
   "companion": {
     "name": "Lumen",
     "history": "Earlier messages",
+    "earlier": "Earlier",
+    "drag": "Drag to move, click for earlier messages",
     "close": "Close",
     "types": {
       "tip": "Tip",

@@ -1,6 +1,6 @@
 // The list next to the map (its accessible equivalent) and the details panel with the
 // explanation, the tier and the actions. Every move starts with a preview.
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
@@ -13,7 +13,7 @@ import { MovePreview, actionLabel } from "./Preview";
 /** The sorted list of the focused folder's children. */
 export function ItemList({ resp }: { resp: ViewResponse | null }): JSX.Element {
   const { t } = useTranslation();
-  const { lang, selected, select, setFocus, measure, scan } = useApp(useShallow((s) => ({ lang: s.lang, selected: s.selected, select: s.select, setFocus: s.setFocus, measure: s.settings.measure, scan: s.scan })));
+  const { lang, selected, select, hover, setFocus, measure, scan } = useApp(useShallow((s) => ({ lang: s.lang, selected: s.selected, select: s.select, hover: s.hover, setFocus: s.setFocus, measure: s.settings.measure, scan: s.scan })));
   const logical = measure === "logical";
   const children = resp?.view.children ?? [];
   const total = (logical ? resp?.view.node.logical : resp?.view.node.onDisk) ?? 1;
@@ -22,9 +22,16 @@ export function ItemList({ resp }: { resp: ViewResponse | null }): JSX.Element {
   return (
     <div className="panel">
       <h2>{t("list.title")}</h2>
-      <div className="list" role="listbox" aria-label={t("list.title")}>
+      <div
+        className="list"
+        role="listbox"
+        aria-label={t("list.title")}
+        onMouseLeave={() => {
+          hover(null);
+        }}
+      >
         {resp && resp.hiddenBytes !== null && resp.hiddenBytes > 0 ? (
-          <button className="row" role="option" aria-selected={selected === -1} onClick={() => { select(-1); }}>
+          <button className="row" role="option" aria-selected={selected === -1} onClick={() => { select(-1); }} onMouseEnter={() => { hover(-1); }}>
             <span className="sw" style={{ background: "repeating-linear-gradient(45deg,var(--c-hidden) 0 3px,transparent 3px 6px)" }} />
             <span className="nm">{t("map.hiddenSpace")}</span>
             <span className="sz">{fmtBytes(resp.hiddenBytes, lang)}</span>
@@ -42,6 +49,9 @@ export function ItemList({ resp }: { resp: ViewResponse | null }): JSX.Element {
               aria-selected={selected === c.id}
               onClick={() => {
                 select(c.id);
+              }}
+              onMouseEnter={() => {
+                hover(c.id);
               }}
               onDoubleClick={() => {
                 if (c.hasChildren && !scanning) setFocus(c.id);
@@ -77,8 +87,12 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
   const [planFor, setPlanFor] = useState<{ key: string; plan: MovePlan } | null>(null);
   const [revealed, setRevealed] = useState<RevealedFolder[] | null>(null);
   const [busy, setBusy] = useState(false);
+  /** The selection the companion last explained, so a refresh does not repeat it. */
+  const announced = useRef<string | null>(null);
   const generation = scan?.generation;
   const id = selected ?? focus;
+  // While a scan runs, each new view (once per tick) reloads the sizes shown here.
+  const refresh = scan && !scan.done ? resp : null;
   const key = `${String(generation)}-${String(id)}`;
   const details = loaded?.key === key ? loaded.details : null;
   const plan = planFor?.key === key ? planFor.plan : null;
@@ -95,7 +109,8 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
       .then((d) => {
         if (!alive) return;
         setLoaded({ key: k, details: d });
-        if (selected !== null) {
+        if (selected !== null && announced.current !== k) {
+          announced.current = k;
           const tierKey = d.description.protected ? "protected" : d.description.tier;
           if (tierKey) say({ type: "explanation", text: t(`companion.script.selected.${tierKey}.0`, { name: d.node.name }) });
           if (d.description.cloud && d.node.onDisk > 0) say({ type: "tip", text: t("companion.script.cloudIntro.0") });
@@ -107,7 +122,7 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
     return () => {
       alive = false;
     };
-  }, [generation, id, selected, say, t]);
+  }, [generation, id, selected, say, t, refresh]);
 
   if (id === -1 && resp?.hiddenBytes !== null && resp?.hiddenBytes !== undefined) {
     return (

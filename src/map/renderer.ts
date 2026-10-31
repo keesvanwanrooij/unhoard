@@ -100,6 +100,7 @@ export class Renderer {
   private scanning = false;
   private hovered: string | null = null;
   private selected: string | null = null;
+  private highlighted: string | null = null;
   private query = "";
   private theme: Theme;
   private hatch: CanvasPattern | null = null;
@@ -240,6 +241,14 @@ export class Renderer {
     return this.drawn.filter((d) => d.cell.nodeId !== null).map((d) => ({ id: d.cell.id, at: centroid(d.poly), cell: d.cell }));
   }
 
+  /** Marks the cell of the item under the pointer in the list, drawn like a selection. */
+  setHighlight(id: string | null): void {
+    if (id !== this.highlighted) {
+      this.highlighted = id;
+      this.dirty = true;
+    }
+  }
+
   /** Marks a hovered cell. */
   setHover(id: string | null): void {
     if (id !== this.hovered) {
@@ -296,7 +305,9 @@ export class Renderer {
     // Convergence is spread over frames (a few steps each) so no frame becomes a long task.
     const skip = entries.length > 150 && level.steps >= WARM_STEPS && this.frameCount % 2 === 1;
     if (!level.settled && !skip) {
-      const n = this.scanning ? 2 : level.steps < WARM_STEPS ? 3 : 1;
+      // While a scan streams in, one step per frame lets cells glide to their new size
+      // instead of jumping at every update.
+      const n = this.scanning ? 1 : level.steps < WARM_STEPS ? 3 : 1;
       relax(level, entries, n);
       level.steps += n;
       if (!this.living && !this.scanning && level.steps >= SETTLE_STEPS) level.settled = true;
@@ -443,7 +454,7 @@ export class Renderer {
     const c = centroid(shape);
     const A = Math.abs(area(shape));
     const r = Math.sqrt(A) * 0.75;
-    const sel = depth === 0 && this.selected === cell.id;
+    const sel = depth === 0 && (this.selected === cell.id || this.highlighted === cell.id);
     const hov = depth === 0 && this.hovered === cell.id;
     const dim = this.query !== "" && depth === 0 && !cell.name.toLowerCase().includes(this.query);
     ctx.save();

@@ -166,6 +166,17 @@ export function installFakeCore(): void {
           return { batches: [], warnings: [], space: [] };
         case "cloud_roots":
           return [];
+        case "reveal_hidden":
+          return {
+            Ok: Array.from({ length: 14 }, (_, i) => ({
+              path: `C:\\Protected folder ${String(i + 1)}`,
+              logical: (14 - i) * GB,
+              onDisk: (14 - i) * GB,
+              files: 1000 * (i + 1),
+              children: [],
+              error: null,
+            })),
+          };
         default:
           return null;
       }

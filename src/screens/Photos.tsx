@@ -14,7 +14,7 @@ import { useApp } from "../store";
 /** The Photos screen. */
 export function Photos(): JSX.Element {
   const { t } = useTranslation();
-  const { lang, scan, say, sayError, treeChanged } = useApp(useShallow((s) => ({ lang: s.lang, scan: s.scan, say: s.say, sayError: s.sayError, treeChanged: s.treeChanged })));
+  const { lang, scan, say, sayError, treeChanged, endTopic } = useApp(useShallow((s) => ({ lang: s.lang, scan: s.scan, say: s.say, sayError: s.sayError, treeChanged: s.treeChanged, endTopic: s.endTopic })));
   const [state, setState] = useState<PhotoState | null>(null);
   const [busy, setBusy] = useState(false);
   const [current, setCurrent] = useState(0);
@@ -35,6 +35,7 @@ export function Photos(): JSX.Element {
       })
       .finally(() => {
         setBusy(false);
+        endTopic("photos");
       });
   };
 

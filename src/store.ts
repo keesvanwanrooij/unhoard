@@ -30,6 +30,8 @@ interface State {
   scan: ScanStatus | null;
   focus: number;
   selected: number | null;
+  /** The item under the pointer in the list, highlighted on the map like a selection. */
+  hovered: number | null;
   query: string;
   /** Bumped whenever the tree changed (a move), so views reload. */
   treeVersion: number;
@@ -39,6 +41,7 @@ interface State {
   setScreen: (s: Screen) => void;
   setFocus: (id: number) => void;
   select: (id: number | null) => void;
+  hover: (id: number | null) => void;
   setQuery: (q: string) => void;
   setDrive: (d: string) => void;
   setScan: (s: ScanStatus) => void;
@@ -47,7 +50,12 @@ interface State {
   updateSettings: (patch: Partial<Settings>) => void;
   treeChanged: () => void;
   say: (b: BubbleInput) => void;
+  /** The user closed the bubble; its topic stays quiet until it ends. */
   dismiss: () => void;
+  /** The bubble's time is up. */
+  expire: () => void;
+  /** The operation behind a topic ended; its bubbles go. */
+  endTopic: (key: string) => void;
   sayError: (e: unknown, t: (k: string, o?: Record<string, unknown>) => string) => void;
 }
 
@@ -60,6 +68,7 @@ export const useApp = create<State>((set, get) => ({
   scan: null,
   focus: 0,
   selected: null,
+  hovered: null,
   query: "",
   treeVersion: 0,
   queue: new BubbleQueue(),
@@ -69,10 +78,13 @@ export const useApp = create<State>((set, get) => ({
     set({ screen });
   },
   setFocus: (focus) => {
-    set({ focus, selected: null });
+    set({ focus, selected: null, hovered: null });
   },
   select: (selected) => {
     set({ selected });
+  },
+  hover: (hovered) => {
+    set({ hovered });
   },
   setQuery: (query) => {
     set({ query });
@@ -108,6 +120,14 @@ export const useApp = create<State>((set, get) => ({
   },
   dismiss: () => {
     get().queue.dismiss();
+    set((s) => ({ bubbleVersion: s.bubbleVersion + 1 }));
+  },
+  expire: () => {
+    get().queue.expire();
+    set((s) => ({ bubbleVersion: s.bubbleVersion + 1 }));
+  },
+  endTopic: (key) => {
+    get().queue.end(key);
     set((s) => ({ bubbleVersion: s.bubbleVersion + 1 }));
   },
   sayError: (e, t) => {

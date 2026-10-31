@@ -17,7 +17,9 @@ command-center look of the app ([Storage map](10-storage-map.md#look-and-feel)).
 - **Colour:** the accent colours of the current theme (cyan and ice in the dark theme).
 - **Motion:** it floats gently. While it speaks, it floats and pulses a little faster.
   With reduced motion or the "calm" setting it stands still.
-- **Size:** about 96 px in the corner of the stage, never over the item it talks about.
+- **Size and place:** about 96 px, in the bottom corner of the stage. Drag it to put it
+  anywhere on the stage; Unhoard remembers the spot, and the bubble opens towards the
+  middle of the stage so it always fits.
 - The name works in English and Dutch.
 
 ### What we avoid
@@ -50,14 +52,22 @@ a copy of any existing one:
 
 ### Rules
 
-- **One bubble at a time**, from a priority queue: warnings first, then explanations,
-  progress and tips (T-8.2).
+- **One bubble at a time, never a stack.** A newer message replaces an older one of the
+  same or lower rank (warnings, then explanations, then celebrations and progress, then
+  tips). A message of lower rank waits, and only the newest of each type waits. Warnings
+  are never dropped (T-8.2).
+- **Progress updates in place.** During a scan, the progress bubble changes its count
+  every 2 seconds instead of adding bubbles, and it never interrupts another message.
+- **Closing a bubble silences its topic** until that operation ends: close the progress
+  bubble, and the rest of that scan stays quiet. A bubble that times out does not
+  silence anything.
 - **Never modal.** A bubble never blocks a click, never covers the item it talks about,
   and Esc dismisses it.
 - **No sound** by default.
 - **Quiet mode** in Settings shows only warnings.
-- Bubbles are announced through an `aria-live="polite"` region, and a **history panel**
-  lists earlier bubbles, so nothing important is lost.
+- Bubbles are announced through an `aria-live="polite"` region. A click on the orb opens
+  a **history panel** with earlier bubbles (progress left out), so nothing important is
+  lost; the next new bubble closes it.
 - With reduced motion, the character stops its idle animation and bubbles fade instead of
   sliding.
 

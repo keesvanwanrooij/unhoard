@@ -14,7 +14,8 @@ accessible equivalent. Acceptance criteria: F2 and F3 in [MVP scope](05-mvp-scop
 - **The breadcrumb** above the map: `C: › Users › you › Videos`. Clicking a part, or
   pressing Backspace, goes up a level.
 - **The list** next to the map: the same children, sorted by size, with size, share,
-  kind and risk tier. Hover and selection are synced between list and map.
+  kind and risk tier. Hover and selection are synced between list and map: pointing at
+  a row outlines its cell the way a selection does.
 - **The details panel:** for the selected item, its size, the known-location explanation
   ([Known locations](12-known-locations.md)), its tier badge and its actions.
 - **The drive bar** below the stage: used, free and "not freed yet" (items in the
@@ -159,8 +160,9 @@ never negative (T-3.1). It shows as one hatched cell with its size.
 
 ## Live build-up during a scan
 
-- The first results reach the map within 1 second. Updates arrive in batches at most every
-  250 ms (AC1.3).
+- The first results reach the map within 1 second. The scan reports progress at most
+  every 250 ms (AC1.3); the map, the list and the details reload once per second, so the
+  cells grow calmly instead of jumping at every batch.
 - The UI never receives the whole tree. It asks the core for a view: the node ID, the
   depth and the top N children plus "others" ([Architecture](20-architecture.md#ipc)).
 - A partial scan is labelled "partial" in the breadcrumb and the drive bar.

@@ -28,7 +28,11 @@ const ARROWS: Partial<Record<string, Direction>> = { ArrowLeft: "left", ArrowRig
 /** Category order of the legend. */
 const LEGEND = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other"] as const;
 
-/** Loads the view of the focused node, again every 500 ms while the scan runs. */
+/** How often the map and the details reload while a scan runs. Once a second keeps the
+ * map calm to watch while it still visibly grows. */
+export const SCAN_TICK_MS = 1000;
+
+/** Loads the view of the focused node, again every tick while the scan runs. */
 export function useView(): ViewResponse | null {
   const { scan, focus, measure, treeVersion } = useApp(useShallow((s) => ({ scan: s.scan, focus: s.focus, measure: s.settings.measure, treeVersion: s.treeVersion })));
   const [resp, setResp] = useState<ViewResponse | null>(null);
@@ -49,7 +53,7 @@ export function useView(): ViewResponse | null {
         });
     };
     load();
-    const timer = scanning ? window.setInterval(load, 500) : undefined;
+    const timer = scanning ? window.setInterval(load, SCAN_TICK_MS) : undefined;
     return () => {
       alive = false;
       if (timer !== undefined) window.clearInterval(timer);
@@ -65,7 +69,7 @@ function valueOf(n: ViewNode, logical: boolean): number {
 /** The stage. */
 export function Stage({ resp, active }: { resp: ViewResponse | null; active: boolean }): JSX.Element {
   const { t } = useTranslation();
-  const { lang, settings, scan, selected, select, setFocus, query, focus } = useApp(useShallow((s) => ({ lang: s.lang, settings: s.settings, scan: s.scan, selected: s.selected, select: s.select, setFocus: s.setFocus, query: s.query, focus: s.focus })));
+  const { lang, settings, scan, selected, select, setFocus, query, focus, hovered } = useApp(useShallow((s) => ({ lang: s.lang, settings: s.settings, scan: s.scan, selected: s.selected, select: s.select, setFocus: s.setFocus, query: s.query, focus: s.focus, hovered: s.hovered })));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const renderer = useRef<Renderer | null>(null);
@@ -214,6 +218,10 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
   useEffect(() => {
     renderer.current?.setMode(settings.mapStyle);
   }, [settings.mapStyle]);
+
+  useEffect(() => {
+    renderer.current?.setHighlight(hovered === null ? null : hovered === -1 ? "hidden" : `n${String(hovered)}`);
+  }, [hovered]);
 
   const onMove = (e: React.MouseEvent<HTMLCanvasElement>): void => {
     const r = renderer.current;

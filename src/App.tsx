@@ -56,10 +56,13 @@ const ICONS: Record<Screen, JSX.Element> = {
     </svg>
   ),
 };
+/** How often the scan's progress bubble updates its count, in place. */
+const PROGRESS_BUBBLE_MS = 2000;
 const SCREENS: Screen[] = ["overview", "suggestions", "quarantine", "cloud", "photos", "settings"];
 
 function startScan(drive: string, t: (k: string, o?: Record<string, unknown>) => string): void {
   const st = useApp.getState();
+  st.endTopic("scan");
   st.say({ type: "progress", text: t("companion.script.scanStart.0", { drive }), key: "scan" });
   api
     .scanStart(drive)
@@ -176,7 +179,7 @@ export function App(): JSX.Element {
       const app = useApp.getState();
       const was = app.scan;
       app.setScan(s);
-      if (!s.done && Math.floor(s.elapsedMs / 4000) !== Math.floor((was?.elapsedMs ?? 0) / 4000)) {
+      if (!s.done && Math.floor(s.elapsedMs / PROGRESS_BUBBLE_MS) !== Math.floor((was?.elapsedMs ?? 0) / PROGRESS_BUBBLE_MS)) {
         app.say({ type: "progress", text: t("companion.script.scanProgress.0", { files: fmtInt(s.files, app.lang) }), key: "scan" });
       }
       if (s.done && was && !was.done) {
@@ -184,12 +187,12 @@ export function App(): JSX.Element {
           .view(s.generation, 0, 3, app.settings.measure === "logical")
           .then((v) => {
             const top = v.view.children.map((c) => `${c.name} (${fmtBytes(c.onDisk, app.lang)})`).join(", ");
-            app.dismiss();
+            app.endTopic("scan");
             app.say({ type: "explanation", text: t("companion.script.scanDone.0", { top }) });
             if (v.hiddenBytes) app.say({ type: "tip", text: t("companion.script.hiddenSpace.0", { size: fmtBytes(v.hiddenBytes, app.lang) }) });
           })
           .catch(() => {
-            app.dismiss();
+            app.endTopic("scan");
           });
       }
     });
