@@ -1,0 +1,16 @@
+{
+  "ui.inputResponse": { "budget": "P1", "maxMs": 50 },
+  "ui.screenSwitchPaint": { "budget": "P2", "maxMs": 100 },
+  "ui.zoomResponse": { "budget": "P5", "maxMs": 100 },
+  "ui.zoomSettle": { "budget": "P6", "maxMs": 600 },
+  "ui.morphResponse": { "budget": "P7", "maxMs": 100 },
+  "ui.search": { "budget": "P8", "maxMs": 150 },
+  "ui.frameTime": { "budget": "P10", "maxMs": 16.7 },
+  "ui.maxFrame": { "budget": "P10", "maxMs": 50 },
+  "ui.longestTask": { "budget": "P11", "maxMs": 50 },
+  "layout.relaxStep.300": { "budget": "P10", "maxMs": 10 },
+  "layout.morphFrame.300": { "budget": "P10", "maxMs": 8 },
+  "core.viewquery": { "budget": "P13", "maxMs": 30 },
+  "core.viewquerydeep": { "budget": "P13", "maxMs": 30 },
+  "core.rescan10k": { "budget": "P14", "maxMs": 50 }
+}
