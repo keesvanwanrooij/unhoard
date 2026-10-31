@@ -1,0 +1,32 @@
+name: Translation
+description: Fix a translation, or propose a new language.
+labels: ["translation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Text lives in `src/i18n/`. Windows terms follow the words Windows itself uses in
+        that language; see docs/23-translations.md.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is it about?
+      options:
+        - A wrong or unclear text in an existing language
+        - A new language
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: Dutch (nl)
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: For a fix, the current text, where it shows, and your proposal. For a new language, whether you can review it as a native speaker.
+    validations:
+      required: true

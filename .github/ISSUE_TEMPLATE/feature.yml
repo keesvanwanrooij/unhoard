@@ -1,0 +1,39 @@
+name: Feature idea
+description: Suggest something Unhoard could do, or a known location it should explain.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the roadmap (docs/06-roadmap.md) first: your idea may be planned already.
+        Unhoard never cleans automatically, never promises speed and never sends data,
+        so ideas in that direction will be declined (see docs/01-vision.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do, and what gets in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of idea
+      options:
+        - New feature
+        - Improvement to an existing feature
+        - New known location (a folder or file Unhoard should explain)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: location
+    attributes:
+      label: For a known location
+      description: The path pattern (with %LOCALAPPDATA% and the like), what it is, whether it is safe to remove, and an official source.

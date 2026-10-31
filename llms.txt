@@ -1,0 +1,45 @@
+# Unhoard
+
+> Free, open-source (GPL-3.0-or-later) Windows app that shows where your disk space went and helps you get it back safely: a living cell map of the drive, an explanation and risk tier for every big item, a 30-day quarantine with restore, OneDrive awareness without downloads, photo review, and a companion character. Tauri 2, Rust core, React/TypeScript UI. English and Dutch.
+
+Start with AGENTS.md for the working rules and docs/README.md for the map of all docs.
+
+## Product
+
+- [Vision](docs/01-vision.md): the problem, the promise and the principles behind Unhoard.
+- [Target users](docs/02-target-users.md): the ideal user profile and four personas.
+- [Market landscape](docs/03-market-landscape.md): existing open-source, paid and built-in tools, with a feature matrix.
+- [Competitive advantage](docs/04-competitive-advantage.md): where Unhoard is better, where it is not, and why.
+- [MVP scope](docs/05-mvp-scope.md): features F1–F11, safety invariants S1–S10, acceptance criteria and the tests that come first.
+- [Roadmap](docs/06-roadmap.md): Now, Next and Later, without version numbers.
+
+## Features
+
+- [Storage map](docs/10-storage-map.md): the power-diagram cell map, the treemap switch, colours, zoom and hidden space.
+- [Cleanup and safety](docs/11-cleanup-safety.md): risk tiers, protected paths, the per-drive quarantine, manifests, restore and the 30-day purge.
+- [Known locations](docs/12-known-locations.md): the TOML rule library that explains big items, its precedence and the MVP entries.
+- [Cloud storage](docs/13-cloud-storage.md): OneDrive placeholders, free up space, the hydration guard and the cloud quarantine.
+- [Photo review](docs/14-photo-review.md): source patterns, duplicate and burst groups, best shot and the review grid, without downloads.
+- [Companion](docs/15-companion.md): the guide character, bubble rules, triggers and the AI roadmap.
+- [Optimise](docs/16-optimise.md): the honest check-up in Next, its six groups and the background-insight limits.
+
+## Engineering
+
+- [Architecture](docs/20-architecture.md): layers, scanning, IPC, the elevated helper and on-disk storage.
+- [Tech stack](docs/21-tech-stack.md): the choices and the rejected alternatives.
+- [Development](docs/22-development.md): setup, checks, risk classes, test-driven development, manual checks and releases.
+- [Translations](docs/23-translations.md): language selection, text files, units, style and terminology.
+- [Decisions](docs/24-decisions.md): every current decision with its reason, plus open questions.
+- [Performance](docs/25-performance.md): speed budgets P1–P14 (for example a screen switch within 100 ms), benchmarks and the regression check.
+
+## Trust
+
+- [Privacy](docs/30-privacy.md): no telemetry, no network in the MVP, and what is stored locally.
+- [Glossary](docs/31-glossary.md): the terms used in the app and the docs, with Dutch equivalents.
+- [Threat model](docs/32-threat-model.md): assets, trust boundaries, threats and mitigations, mapped to S1–S10.
+
+## Project
+
+- [AGENTS.md](AGENTS.md): onboarding and the engineering standards for people and AI agents.
+- [CONTRIBUTING.md](CONTRIBUTING.md): DCO, Conventional Commits, the AI policy and the test-first rule.
+- [SECURITY.md](SECURITY.md): reporting vulnerabilities privately through GitHub.
