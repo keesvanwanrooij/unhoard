@@ -467,7 +467,7 @@ pub async fn photo_thumbnail(
         let (path, in_cloud) = svc.photo_path(generation, index)?;
         let t = media::thumbnail(&path, side.clamp(32, 256), in_cloud)?;
         let mut rgba = t.bgra;
-        for px in rgba.chunks_exact_mut(4) {
+        for px in rgba.as_chunks_mut::<4>().0 {
             px.swap(0, 2);
             px[3] = 255;
         }
