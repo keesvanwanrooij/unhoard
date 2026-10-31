@@ -2,6 +2,7 @@
 //! Recycle Bin, and opening Explorer or a Windows tool on an explicit user click.
 
 use std::collections::BTreeMap;
+use std::os::windows::process::CommandExt;
 use std::process::Command;
 
 use unhoard_core::roots::{QUARANTINE_DIR, Roots, join};
@@ -39,10 +40,18 @@ pub fn recycle_bin_bytes(drive: &str) -> Option<u64> {
 
 /// Opens Explorer with `path` selected. Only on an explicit user click.
 pub fn show_in_explorer(path: &str) -> std::io::Result<()> {
-    Command::new("explorer.exe")
-        .arg(format!("/select,{path}"))
-        .spawn()
-        .map(drop)
+    let arg =
+        select_arg(path).ok_or_else(|| std::io::Error::from(std::io::ErrorKind::InvalidInput))?;
+    // Explorer parses its own command line: it understands `/select,"path"` but not the
+    // fully quoted `"/select,path"` that normal argument quoting produces, and then opens
+    // the default folder instead. So the argument is passed as written.
+    Command::new("explorer.exe").raw_arg(arg).spawn().map(drop)
+}
+
+/// The Explorer argument that selects `path`, or `None` for a path with a quote, which
+/// Windows file names cannot contain.
+fn select_arg(path: &str) -> Option<String> {
+    (!path.contains('"')).then(|| format!("/select,\"{path}\""))
 }
 
 /// Opens a folder in Explorer. Only on an explicit user click.
@@ -65,4 +74,26 @@ pub fn open_tool(tool: WindowsTool) -> std::io::Result<()> {
         c.arg(arg);
     }
     c.spawn().map(drop)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, reason = "test helpers fail loudly on purpose")]
+
+    use super::select_arg;
+
+    #[test]
+    fn select_arg_quotes_only_the_path_so_explorer_understands_it() {
+        let arg =
+            select_arg(r"C:\Program Files (x86)\Steam\steamapps\common\Yu-Gi-Oh!  Master Duel");
+        assert_eq!(
+            arg.unwrap(),
+            r#"/select,"C:\Program Files (x86)\Steam\steamapps\common\Yu-Gi-Oh!  Master Duel""#
+        );
+    }
+
+    #[test]
+    fn select_arg_refuses_a_path_with_a_quote() {
+        assert!(select_arg(r#"C:\a"b"#).is_none());
+    }
 }
