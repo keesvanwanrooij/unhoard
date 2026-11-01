@@ -2,7 +2,9 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "The main window may call Unhoard's own commands and listen to its events. Nothing else: no file system, shell, HTTP or opener plugin.",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:event:allow-listen",
     "core:event:allow-unlisten",
@@ -28,6 +30,12 @@
     "allow-reveal-hidden",
     "allow-photos-analyze",
     "allow-photo-thumbnail",
-    "allow-cloud-roots"
+    "allow-cloud-roots",
+    "allow-matrix",
+    "allow-admin-start",
+    "allow-admin-read",
+    "allow-ollama-models",
+    "allow-docker-usage",
+    "allow-app-uninstall"
   ]
 }

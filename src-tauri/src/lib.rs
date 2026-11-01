@@ -39,12 +39,18 @@ fn build_service() -> anyhow::Result<Service> {
     let now = unhoard_core::fs::FileSystem::now(&WindowsFs);
     Ok(Service::new(
         Arc::new(WindowsFs),
-        ScanContext { rules, roots, now },
+        ScanContext {
+            rules,
+            roots,
+            now,
+            knowledge: Default::default(),
+        },
         Arc::new(WindowsMedia),
         format!(r"{data}\activity.jsonl"),
         qroots,
         commands::readme,
-    ))
+    )
+    .with_knowledge(Arc::new(unhoard_platform::knowledge::gather)))
 }
 
 /// Runs the app.
@@ -53,6 +59,7 @@ pub fn run() -> anyhow::Result<()> {
     let maintenance = service.clone();
     tauri::Builder::default()
         .manage(service)
+        .manage(Arc::new(commands::AdminState::default()))
         .setup(move |app| {
             let handle = app.handle().clone();
             // Settle interrupted moves and run the 30-day purge, off the UI thread.
@@ -86,6 +93,12 @@ pub fn run() -> anyhow::Result<()> {
             commands::photos_analyze,
             commands::photo_thumbnail,
             commands::cloud_roots,
+            commands::matrix,
+            commands::admin_start,
+            commands::admin_read,
+            commands::ollama_models,
+            commands::docker_usage,
+            commands::app_uninstall,
         ])
         .run(tauri::generate_context!())?;
     Ok(())

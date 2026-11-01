@@ -80,6 +80,7 @@ fn run(cli: Cli) -> Result<()> {
         rules,
         roots,
         now: WindowsFs.now(),
+        knowledge: Default::default(),
     };
     let control = ScanControl::default();
     let started = Instant::now();

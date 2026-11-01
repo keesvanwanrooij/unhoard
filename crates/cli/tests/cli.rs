@@ -69,6 +69,7 @@ fn f10_cli_and_core_report_the_same_totals() {
         rules: Rules::empty(),
         roots: Roots::default(),
         now: 0,
+        knowledge: Default::default(),
     };
     let (t, _) = scan(
         &WindowsFs,

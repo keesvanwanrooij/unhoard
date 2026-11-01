@@ -25,6 +25,12 @@ const COMMANDS: &[&str] = &[
     "photos_analyze",
     "photo_thumbnail",
     "cloud_roots",
+    "matrix",
+    "admin_start",
+    "admin_read",
+    "ollama_models",
+    "docker_usage",
+    "app_uninstall",
 ];
 
 fn main() {

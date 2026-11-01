@@ -6,6 +6,7 @@
 //! the item on disk before acting. The service works on any [`FileSystem`], so the tests
 //! run it on the in-memory fake.
 
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Instant;
@@ -17,6 +18,7 @@ use unhoard_core::cloud::{
 };
 use unhoard_core::fs::{FileSystem, FsError, VolumeInfo};
 use unhoard_core::hidden::hidden_bytes;
+use unhoard_core::knowledge::{Knowledge, SteamInfo};
 use unhoard_core::photos::{
     Features, Group, MediaItem, bursts, by_month, cloud_duplicates, exact_duplicates_local,
     media_index, near_duplicates, suggest_keepers, video_duplicates,
@@ -26,10 +28,12 @@ use unhoard_core::quarantine::{
     PurgeReport, Warning, drive_space, execute_move, execute_purge, load_batches, plan_move,
     reconcile, record_warning, refresh, restore, warnings_due,
 };
-use unhoard_core::roots::drive_of;
+use unhoard_core::roots::{Roots, drive_of};
 use unhoard_core::scan::{ScanContext, ScanControl, scan_into};
-use unhoard_core::tree::{NodeId, Tree};
-use unhoard_core::view::{Suggestion, View, ViewNode, node_view, suggestions, view};
+use unhoard_core::tree::{FLAG_UNSCANNED, NodeId, NodeKind, Tree};
+use unhoard_core::view::{
+    MatrixPoint, Suggestion, View, ViewNode, matrix, node_view, suggestions, view,
+};
 
 /// An error a command returns to the UI: a code the UI translates, never internals.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -128,7 +132,41 @@ pub struct Details {
     pub description: Description,
     /// Cloud sizes for an item in a sync root.
     pub cloud: Option<CloudSummary>,
+    /// For a folder read with admin rights: its largest children and their sizes.
+    pub measured: Option<Vec<(String, u64)>>,
 }
+
+/// What the elevated helper measured in one folder.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Measured {
+    /// The folder.
+    pub path: String,
+    /// Logical size.
+    pub logical: u64,
+    /// Size on disk.
+    pub on_disk: u64,
+    /// Number of files.
+    pub files: u64,
+    /// Its largest children.
+    pub children: Vec<(String, u64)>,
+}
+
+/// What reading with admin rights added to the scan.
+#[derive(Clone, Debug, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MeasuredSummary {
+    /// Folders that now have a size.
+    pub folders: u32,
+    /// Their total size on disk.
+    pub on_disk: u64,
+}
+
+/// A folder's largest children: name and size on disk.
+pub type Children = Vec<(String, u64)>;
+
+/// Gathers what is known about this PC besides the files, at the start of every scan.
+pub type Gather = Arc<dyn Fn(&Roots) -> Knowledge + Send + Sync>;
 
 /// One batch for the Quarantine view.
 #[derive(Clone, Debug, Serialize)]
@@ -179,7 +217,11 @@ pub struct PhotoState {
 /// The app service.
 pub struct Service {
     fs: Arc<dyn FileSystem>,
-    ctx: Arc<ScanContext>,
+    /// The context of the current scan; every scan gets a fresh one with fresh knowledge.
+    ctx: Arc<Mutex<Arc<ScanContext>>>,
+    gather: Gather,
+    /// Children of folders read with admin rights, by scan generation and node.
+    measured: Mutex<HashMap<(u64, u32), Children>>,
     media: Arc<dyn MediaSource>,
     audit_log: String,
     quarantine_roots: Vec<String>,
@@ -201,7 +243,9 @@ impl Service {
     ) -> Self {
         Self {
             fs,
-            ctx: Arc::new(ctx),
+            ctx: Arc::new(Mutex::new(Arc::new(ctx))),
+            gather: Arc::new(|_| Knowledge::default()),
+            measured: Mutex::new(HashMap::new()),
             media,
             audit_log,
             quarantine_roots,
@@ -212,9 +256,16 @@ impl Service {
         }
     }
 
-    /// The scan context (rules and roots).
-    pub fn context(&self) -> &ScanContext {
-        &self.ctx
+    /// Gathers knowledge with `gather` at the start of every scan (installed programs,
+    /// program history, Steam), instead of none.
+    pub fn with_knowledge(mut self, gather: Gather) -> Self {
+        self.gather = gather;
+        self
+    }
+
+    /// The scan context (rules, roots and what is known about this PC).
+    pub fn context(&self) -> Arc<ScanContext> {
+        lock(&self.ctx).clone()
     }
 
     /// Starts a scan of `root` on a background thread and returns its session.
@@ -241,8 +292,22 @@ impl Service {
             duration_ms: Arc::new(AtomicU64::new(0)),
         });
         *lock(&self.session) = Some(session.clone());
-        let (fs, ctx, s) = (self.fs.clone(), self.ctx.clone(), session.clone());
+        let (fs, shared, gather, s) = (
+            self.fs.clone(),
+            self.ctx.clone(),
+            self.gather.clone(),
+            session.clone(),
+        );
         std::thread::spawn(move || {
+            // Knowledge is gathered here, off the UI thread, fresh for every scan.
+            let old = lock(&shared).clone();
+            let ctx = Arc::new(ScanContext {
+                rules: old.rules.clone(),
+                roots: old.roots.clone(),
+                now: fs.now(),
+                knowledge: gather(&old.roots),
+            });
+            *lock(&shared) = ctx.clone();
             let start = lock(&s.tree).root();
             scan_into(&*fs, &s.tree, start, &ctx, &s.control);
             s.duration_ms
@@ -301,7 +366,8 @@ impl Service {
         let (s, ids) = self.resolve(generation, &[id])?;
         let tree = lock(&s.tree);
         let top = usize::from(top.clamp(1, 500));
-        let v = view(&tree, ids[0], top, logical, &self.ctx).ok_or(CmdError::UnknownItem { id })?;
+        let v = view(&tree, ids[0], top, logical, &self.context())
+            .ok_or(CmdError::UnknownItem { id })?;
         let scanning = !s.done.load(Ordering::SeqCst);
         let hidden = match (
             &s.volume,
@@ -325,18 +391,19 @@ impl Service {
     pub fn details(&self, generation: u64, id: u32) -> Result<Details, CmdError> {
         let (s, ids) = self.resolve(generation, &[id])?;
         let tree = lock(&s.tree);
-        let node = node_view(&tree, ids[0], &self.ctx).ok_or(CmdError::UnknownItem { id })?;
+        let ctx = self.context();
+        let node = node_view(&tree, ids[0], &ctx).ok_or(CmdError::UnknownItem { id })?;
         let path = tree.path(ids[0]);
-        let cloud = self
-            .ctx
+        let cloud = ctx
             .roots
             .sync_root_of(&path)
             .map(|_| summary(&tree, ids[0]));
         Ok(Details {
             node,
-            description: describe(&tree, ids[0], &self.ctx),
+            description: describe(&tree, ids[0], &ctx),
             path,
             cloud,
+            measured: lock(&self.measured).get(&(generation, id)).cloned(),
         })
     }
 
@@ -346,15 +413,108 @@ impl Service {
         let tree = lock(&s.tree);
         Ok((
             s.generation,
-            suggestions(&tree, &self.ctx, usize::from(limit.clamp(1, 2000))),
+            suggestions(&tree, &self.context(), usize::from(limit.clamp(1, 2000))),
         ))
+    }
+
+    /// The priority matrix of the current scan.
+    pub fn matrix(&self, limit: u16) -> Result<(u64, Vec<MatrixPoint>), CmdError> {
+        let s = self.current()?;
+        let tree = lock(&s.tree);
+        Ok((
+            s.generation,
+            matrix(&tree, &self.context(), usize::from(limit.clamp(1, 1000))),
+        ))
+    }
+
+    /// The paths of folders the scan could not read: the given ones (which must be
+    /// unscanned), or all of them, at most 4,096.
+    pub fn unscanned_paths(
+        &self,
+        generation: u64,
+        ids: Option<&[u32]>,
+    ) -> Result<Vec<String>, CmdError> {
+        let s = self.current()?;
+        if s.generation != generation {
+            return Err(CmdError::StaleScan);
+        }
+        let wanted: Vec<NodeId> = match ids {
+            Some(ids) => self.resolve(generation, ids)?.1,
+            None => lock(&s.tree).unscanned.iter().map(|(id, _)| *id).collect(),
+        };
+        let tree = lock(&s.tree);
+        let mut out = vec![];
+        for id in wanted.into_iter().take(4096) {
+            let n = tree.get(id).ok_or(CmdError::UnknownItem { id: id.0 })?;
+            if n.flags & FLAG_UNSCANNED == 0 || n.kind != NodeKind::Folder {
+                return Err(CmdError::InvalidArgument {
+                    what: "not an unreadable folder".into(),
+                });
+            }
+            out.push(tree.path(id));
+        }
+        Ok(out)
+    }
+
+    /// Fills unscanned folders of scan `generation` with what the elevated helper measured.
+    /// Folders that are not unscanned (or no longer in the tree) are ignored, so nothing is
+    /// counted twice.
+    pub fn apply_measured(
+        &self,
+        generation: u64,
+        results: &[Measured],
+    ) -> Result<MeasuredSummary, CmdError> {
+        let s = self.current()?;
+        if s.generation != generation {
+            return Err(CmdError::StaleScan);
+        }
+        let mut tree = lock(&s.tree);
+        let mut measured = lock(&self.measured);
+        let mut sum = MeasuredSummary::default();
+        for r in results {
+            let Some(id) = tree.find(&r.path) else {
+                continue;
+            };
+            if tree.set_measured(id, r.logical, r.on_disk, r.files) {
+                sum.folders += 1;
+                sum.on_disk += r.on_disk;
+                measured.insert((generation, id.0), r.children.clone());
+            }
+        }
+        Ok(sum)
+    }
+
+    /// The node IDs of paths in the current scan, `None` for a path it does not hold.
+    pub fn ids_for_paths(
+        &self,
+        generation: u64,
+        paths: &[String],
+    ) -> Result<Vec<Option<u32>>, CmdError> {
+        let s = self.current()?;
+        if s.generation != generation {
+            return Err(CmdError::StaleScan);
+        }
+        let tree = lock(&s.tree);
+        Ok(paths.iter().map(|p| tree.find(p).map(|id| id.0)).collect())
+    }
+
+    /// The Steam app ID of a game folder in the current scan.
+    pub fn steam_app_id(&self, generation: u64, id: u32) -> Result<u32, CmdError> {
+        let (s, ids) = self.resolve(generation, &[id])?;
+        let tree = lock(&s.tree);
+        match describe(&tree, ids[0], &self.context()).steam {
+            Some(SteamInfo::Game { app_id, .. }) => Ok(app_id),
+            _ => Err(CmdError::InvalidArgument {
+                what: "not a Steam game".into(),
+            }),
+        }
     }
 
     /// The preview of a move. Writes nothing.
     pub fn quarantine_preview(&self, generation: u64, ids: &[u32]) -> Result<MovePlan, CmdError> {
         let (s, ids) = self.resolve(generation, ids)?;
         let tree = lock(&s.tree);
-        Ok(plan_move(&*self.fs, &tree, &ids, &self.ctx))
+        Ok(plan_move(&*self.fs, &tree, &ids, &self.context()))
     }
 
     /// Moves items to the quarantine. Re-plans (and so re-verifies) before acting, and
@@ -366,7 +526,7 @@ impl Service {
         }
         let plan = {
             let tree = lock(&s.tree);
-            plan_move(&*self.fs, &tree, &ids, &self.ctx)
+            plan_move(&*self.fs, &tree, &ids, &self.context())
         };
         let report = execute_move(
             &*self.fs,
@@ -487,7 +647,7 @@ impl Service {
         }
         let tree = lock(&s.tree);
         Ok(self
-            .ctx
+            .context()
             .roots
             .sync_roots
             .iter()
@@ -506,7 +666,7 @@ impl Service {
     pub fn free_up_preview(&self, generation: u64, ids: &[u32]) -> Result<FreeUpPlan, CmdError> {
         let (s, ids) = self.resolve(generation, ids)?;
         let tree = lock(&s.tree);
-        Ok(plan_free_up(&*self.fs, &tree, &ids, &self.ctx))
+        Ok(plan_free_up(&*self.fs, &tree, &ids, &self.context()))
     }
 
     /// Frees up space (pin state only) and reports what is still on this PC afterwards.
@@ -530,7 +690,7 @@ impl Service {
         }
         let media = {
             let tree = lock(&s.tree);
-            media_index(&tree, &self.ctx)
+            media_index(&tree, &self.context())
         };
         let features: Vec<Features> = {
             use rayon::prelude::*;
@@ -614,6 +774,7 @@ mod tests {
             rules: Rules::empty(),
             roots: Roots::new(env, None, vec![]),
             now: fs.now(),
+            knowledge: Default::default(),
         };
         let svc = Service::new(
             fs.clone(),
@@ -714,5 +875,56 @@ mod tests {
                 what: "daysLeft".into()
             }
         );
+    }
+
+    #[test]
+    fn f3_s7_admin_reading_fills_only_unreadable_folders_once() {
+        let (fs, svc) = service();
+        fs.create_dir_all(r"C:\Users\u\Locked").unwrap();
+        fs.deny(r"C:\Users\u\Locked");
+        let s = scanned(&svc);
+        let g = s.generation;
+        let paths = svc.unscanned_paths(g, None).unwrap();
+        assert_eq!(paths, [r"C:\Users\u\Locked"]);
+        let readable = svc
+            .view(g, 0, 10, false)
+            .unwrap()
+            .view
+            .children
+            .iter()
+            .find(|c| c.name == "Downloads")
+            .unwrap()
+            .id
+            .0;
+        assert!(matches!(
+            svc.unscanned_paths(g, Some(&[readable])),
+            Err(CmdError::InvalidArgument { .. })
+        ));
+        let before = svc.view(g, 0, 10, false).unwrap().view.node.on_disk;
+        let m = Measured {
+            path: r"C:\Users\u\Locked".into(),
+            logical: 9000,
+            on_disk: 12_288,
+            files: 3,
+            children: vec![("a".into(), 12_288)],
+        };
+        let sum = svc.apply_measured(g, std::slice::from_ref(&m)).unwrap();
+        assert_eq!((sum.folders, sum.on_disk), (1, 12_288));
+        assert_eq!(
+            svc.apply_measured(g, std::slice::from_ref(&m))
+                .unwrap()
+                .folders,
+            0,
+            "never counted twice"
+        );
+        assert_eq!(
+            svc.view(g, 0, 10, false).unwrap().view.node.on_disk,
+            before + 12_288
+        );
+        assert!(svc.unscanned_paths(g, None).unwrap().is_empty());
+        assert!(matches!(
+            svc.apply_measured(g + 1, &[m]),
+            Err(CmdError::StaleScan)
+        ));
     }
 }
