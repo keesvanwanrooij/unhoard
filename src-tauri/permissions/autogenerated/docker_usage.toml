@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-docker-usage"
+description = "Enables the docker_usage command without any pre-configured scope."
+commands.allow = ["docker_usage"]
+
+[[permission]]
+identifier = "deny-docker-usage"
+description = "Denies the docker_usage command without any pre-configured scope."
+commands.deny = ["docker_usage"]

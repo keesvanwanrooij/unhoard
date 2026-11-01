@@ -1,0 +1,1037 @@
+{
+  "app": {
+    "name": "Unhoard",
+    "tagline": "See where your disk space went, and get it back safely."
+  },
+  "nav": {
+    "overview": "Overview",
+    "suggestions": "Suggestions",
+    "quarantine": "Quarantine",
+    "cloud": "Cloud",
+    "photos": "Photos",
+    "settings": "Settings"
+  },
+  "top": {
+    "scan": "Scan",
+    "rescan": "Scan again",
+    "cancel": "Stop",
+    "search": "Search this view",
+    "cells": "Cell map",
+    "treemap": "Treemap",
+    "scanning": "Scanning… {{files}} files · {{seconds}} s",
+    "scanDone": "Scan done · {{files}} files · {{seconds}} s",
+    "partial": "partial",
+    "ready": "Ready to scan",
+    "drive": "{{drive}} · {{size}}",
+    "systemDrive": "system drive",
+    "matrix": "Matrix"
+  },
+  "category": {
+    "media": "Photos & videos",
+    "apps": "Apps & games",
+    "downloads": "Downloads",
+    "system": "System",
+    "documents": "Documents",
+    "developer": "Developer",
+    "cloud": "Cloud",
+    "hidden": "Hidden space",
+    "other": "Other"
+  },
+  "tier": {
+    "safe": "Safe",
+    "likelySafe": "Likely safe",
+    "review": "Review",
+    "keep": "Keep (system)"
+  },
+  "map": {
+    "hiddenSpace": "Hidden space",
+    "smaller_one": "{{count}} smaller item",
+    "smaller_other": "{{count}} smaller items",
+    "legend": "Legend",
+    "keys": "Cell map. Arrow keys move between cells, Enter zooms in, Backspace goes up, the Menu key opens the actions.",
+    "others_one": "{{count}} more item",
+    "others_other": "{{count}} more items",
+    "empty": "Scan a drive to see where your space went.",
+    "readouts": {
+      "files": "Files",
+      "scanned": "Scanned",
+      "hidden": "Hidden"
+    },
+    "progress": {
+      "drive": "Scanning · {{share}} of the used space · {{size}}",
+      "folder": "Scanning · {{size}} so far"
+    }
+  },
+  "list": {
+    "title": "Largest items",
+    "unknown": "unreadable"
+  },
+  "details": {
+    "sizeOnDisk": "Size on disk",
+    "logical": "Size",
+    "share": "Share",
+    "kind": "Kind",
+    "files": "Files",
+    "path": "Location",
+    "protected": "Protected: Unhoard never moves this.",
+    "folder_one": "A folder with {{files}} file.",
+    "folder_other": "A folder with {{files}} files.",
+    "revealSmall_one": "and {{count}} smaller folder · {{size}}",
+    "revealSmall_other": "and {{count}} smaller folders · {{size}}",
+    "unreadable": "This folder could not be read without admin rights. Its size is unknown.",
+    "generic": "A large item Unhoard has no explanation for. Only you can judge whether you still need it.",
+    "genericReason": "Large and not recognised.",
+    "cloudState": "{{local}} on this PC · {{cloud}} in the cloud",
+    "requiresAdmin": "Needs admin rights, so Unhoard points you to the Windows tool.",
+    "nothing": "Select an item to see what it is."
+  },
+  "actions": {
+    "quarantine": "Move to quarantine",
+    "freeUpSpace": "Free up space",
+    "showInExplorer": "Show in Explorer",
+    "explainOnly": "Explain only",
+    "uninstaller": "Uninstall through Settings › Apps",
+    "zoomIn": "Zoom in",
+    "reveal": "Reveal hidden space",
+    "windowsTool": {
+      "storageSettings": "Open Storage settings",
+      "storageSense": "Open Storage Sense",
+      "diskCleanup": "Open Disk Cleanup",
+      "apps": "Open Installed apps",
+      "systemProtection": "Open System Protection",
+      "recycleBin": "Open the Recycle Bin"
+    },
+    "appUninstall": "Uninstall in Steam",
+    "adminRead": "Read with admin rights",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "preview": {
+    "title": "Preview: nothing has changed yet",
+    "items_one": "{{count}} item · {{size}}",
+    "items_other": "{{count}} items · {{size}}",
+    "destination": "Goes to",
+    "skipped": "Skipped",
+    "confirm": "Move",
+    "confirmFree": "Free up space",
+    "cancel": "Cancel",
+    "notFreed": "On the same drive this frees nothing yet: the space comes back after 30 days, or when you delete the items yourself.",
+    "freeNote": "Files become online-only. Nothing is deleted and nothing is downloaded.",
+    "reasons": {
+      "protected": "protected",
+      "changed": "changed since the scan; scan again",
+      "link": "a link, takes no space",
+      "unsupportedName": "name not supported",
+      "insideSelection": "already part of a selected folder",
+      "unavailable": "could not be read",
+      "notInSync": "not uploaded yet",
+      "notInSyncRoot": "not in a cloud folder"
+    },
+    "done": "{{moved}} moved, {{failed}} failed."
+  },
+  "drive": {
+    "used": "{{size}} used",
+    "free": "{{size}} free",
+    "notFreed": "{{size}} not freed yet",
+    "of": "of {{size}}"
+  },
+  "quarantine": {
+    "title": "Quarantine",
+    "empty": "The quarantine is empty.",
+    "intro": "Everything you move waits here for 30 days. Restore puts it back exactly where it was.",
+    "batch": "Moved on {{date}} · deleted after {{purge}}",
+    "notFreed": "Not freed yet: {{size}}",
+    "restore": "Restore",
+    "restoreAll": "Restore all",
+    "open": "Open in Explorer",
+    "status": {
+      "moving": "moving",
+      "quarantined": "in quarantine",
+      "restored": "restored",
+      "deletedByUser": "deleted by you",
+      "purged": "deleted"
+    },
+    "restoredAs": "Restored as {{name}}, because the original name is in use.",
+    "cloud": "cloud",
+    "log": "Activity"
+  },
+  "cloud": {
+    "title": "Cloud",
+    "none": "No cloud folders were found on this PC.",
+    "scanFirst": "Scan the drive that holds your cloud folder first.",
+    "cloudSize": "In the cloud",
+    "localSize": "On this PC",
+    "onlineOnly": "Online-only",
+    "locallyAvailable": "Locally available",
+    "alwaysKeep": "Always keep on this device",
+    "freeUp": "Free up space",
+    "tested": "Tested with OneDrive personal.",
+    "notTested": "Detected, not tested.",
+    "freed": "{{size}} is now online-only."
+  },
+  "photos": {
+    "title": "Photos & videos",
+    "analyze": "Find duplicates and bursts",
+    "analyzing": "Looking at your photos… nothing is downloaded.",
+    "scanFirst": "Scan a drive first.",
+    "empty": "No groups found.",
+    "summary": "{{media}} photos and videos · {{groups}} groups",
+    "kind": {
+      "exactDuplicates": "Duplicates",
+      "nearDuplicates": "Very similar",
+      "burst": "Burst",
+      "chatMedia": "Chat media",
+      "screenshots": "Screenshots"
+    },
+    "certainty": {
+      "identical": "Identical",
+      "almostCertainlyIdentical": "Almost certainly identical",
+      "verySimilar": "Very similar",
+      "sameMoment": "Taken within seconds",
+      "sameSource": "Same source and month"
+    },
+    "keeper": "Suggested keeper",
+    "reason": {
+      "sharpest": "sharpest",
+      "highestResolution": "most pixels",
+      "largestFile": "largest file"
+    },
+    "selectAllButKeeper": "Select all but the keeper",
+    "clear": "Clear selection",
+    "move": "Move selected to quarantine",
+    "next": "Next group",
+    "previous": "Previous group",
+    "keys": "Arrows move · Space selects · Enter moves · N next group",
+    "noThumb": "no preview",
+    "selected": "{{count}} selected"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "followWindows": "Follow Windows",
+    "english": "English",
+    "dutch": "Nederlands",
+    "mapStyle": "Map",
+    "motion": "Motion",
+    "living": "Living",
+    "calm": "Calm",
+    "measure": "Size",
+    "onDisk": "Size on disk",
+    "logicalSize": "Logical size",
+    "companion": "Companion",
+    "normal": "All tips",
+    "quiet": "Quiet (warnings only)",
+    "about": "About",
+    "build": "Build {{build}}",
+    "privacy": "Unhoard makes no network connections and sends nothing anywhere.",
+    "license": "Free software under the GNU GPL, version 3 or later.",
+    "adminRead": "Read protected folders",
+    "adminAsk": "Ask",
+    "adminAlways": "Always",
+    "adminNever": "Never"
+  },
+  "firstRun": {
+    "title": "Where did your space go?",
+    "body": "Unhoard maps your drive, explains every big item and helps you clear what you do not need. It never deletes anything without you, and everything you move can be restored for 30 days.",
+    "privacy": "Everything stays on this PC. No account, no network.",
+    "start": "Scan {{drive}}"
+  },
+  "errors": {
+    "noScan": "Scan a drive first.",
+    "staleScan": "This view is out of date. Scan again.",
+    "unknownItem": "This item is no longer there. Scan again.",
+    "invalidArgument": "That did not work. Try again.",
+    "busy": "Wait until the scan has finished.",
+    "fs": {
+      "notFound": "It is no longer there.",
+      "accessDenied": "Windows does not allow this.",
+      "locked": "It is in use by another program. Close that program and try again.",
+      "diskFull": "The disk is full.",
+      "alreadyExists": "Something with that name already exists.",
+      "changed": "It changed since the scan, so Unhoard left it alone. Scan again.",
+      "unsupported": "This is not supported here.",
+      "other": "Windows reported an error."
+    }
+  },
+  "companion": {
+    "name": "Lumen",
+    "history": "Earlier messages",
+    "earlier": "Earlier",
+    "drag": "Drag to move, click for earlier messages",
+    "close": "Close",
+    "types": {
+      "tip": "Tip",
+      "explanation": "Explanation",
+      "progress": "Progress",
+      "warning": "Warning",
+      "celebration": "Done"
+    },
+    "script": {
+      "firstRun": [
+        "Hi, I'm Lumen. I'll explain what you see, in bubbles like this one. Never in a popup."
+      ],
+      "scanStart": [
+        "I'm scanning {{drive}} now. I only look; I change nothing."
+      ],
+      "scanProgress": [
+        "{{files}} files counted. The big blocks are already showing."
+      ],
+      "scanDone": [
+        "Done. The three largest: {{top}}. Click a cell to zoom in."
+      ],
+      "hiddenSpace": [
+        "The striped cell is hidden space: {{size}} in use that the scan could not see, such as restore points. Click it to find out more."
+      ],
+      "revealDeclined": [
+        "No problem. Without admin rights that part stays unknown, and nothing else changes."
+      ],
+      "revealDone": [
+        "Revealed {{size}}. Most of it is usually restore points; manage those in System Protection."
+      ],
+      "selected": {
+        "safe": [
+          "{{name}} is a cache: it is rebuilt by itself. Safe to move to the quarantine."
+        ],
+        "likelySafe": [
+          "You probably no longer need {{name}}. From the quarantine you can restore it for 30 days."
+        ],
+        "review": [
+          "Only you know whether you still need {{name}}. Have a look before you decide."
+        ],
+        "keep": [
+          "{{name}} belongs to Windows or an app. Don't remove it by hand; the right Windows tool does it safely."
+        ],
+        "protected": [
+          "{{name}} is a protected location. I explain it, but I never move it."
+        ]
+      },
+      "previewShown": [
+        "First a preview, so you see exactly what will happen. Nothing has changed yet."
+      ],
+      "quarantineMoved": [
+        "Moved to the quarantine. Note: not freed yet. I'll delete it after 30 days, and warn you first."
+      ],
+      "purgeWarning": {
+        "5": [
+          "In 5 days I'll delete the batch from {{date}} ({{size}}). Restore anything you still want."
+        ],
+        "3": [
+          "In 3 days I'll delete the batch from {{date}} ({{size}})."
+        ],
+        "1": [
+          "Tomorrow I'll delete the batch from {{date}} ({{size}}). Last chance to restore."
+        ]
+      },
+      "deleteEarly": [
+        "Want the space now? Open the folder, select the items and press Shift+Delete, or press Delete and empty the Recycle Bin."
+      ],
+      "restored": [
+        "Put back exactly where it was."
+      ],
+      "freeUpSpaceDone": [
+        "{{size}} is online-only now. It stays safe in the cloud."
+      ],
+      "photoReview": [
+        "Each group starts with nothing selected. 'Select all but the keeper' keeps the best shot."
+      ],
+      "photoNoThumbs": [
+        "Some cloud photos have no cached preview. I group those by name, size and date only, so nothing is downloaded."
+      ],
+      "windowsTool": [
+        "I'm opening the Windows tool. That's the safe place to clean this up."
+      ],
+      "zoomTip": [
+        "Backspace or the breadcrumb takes you back up."
+      ],
+      "cloudIntro": [
+        "These files are also in the cloud. Free up space makes them online-only, without downloading or deleting anything."
+      ],
+      "error": [
+        "That didn't work: {{message}}"
+      ],
+      "adminAsk": [
+        "Some folders cannot be read without admin rights, so their size stays unknown. May I read them? I only read, I change nothing."
+      ],
+      "adminReadDone": [
+        "I read {{count}} protected folders with admin rights: {{size}} is no longer hidden."
+      ]
+    },
+    "adminYes": "Yes, with admin rights",
+    "adminNo": "Not now"
+  },
+  "knownLocations": {
+    "adobe-media-cache": {
+      "title": "Adobe media cache",
+      "explain": "Preview files Premiere Pro and other Adobe apps made of your footage.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "amd-dxcache": {
+      "title": "AMD DirectX cache",
+      "explain": "Shaders the AMD driver prepared for games.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "android-emulators": {
+      "title": "Android emulators",
+      "explain": "Virtual Android phones of Android Studio.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove emulators you no longer use in the Device Manager of Android Studio."
+    },
+    "android-sdk": {
+      "title": "Android SDK",
+      "explain": "Android platforms, system images and tools.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove old platforms in the SDK Manager of Android Studio."
+    },
+    "battlenet": {
+      "title": "Battle.net",
+      "explain": "Games installed with Battle.net. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through Battle.net, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "brave-cache": {
+      "title": "Brave cache",
+      "explain": "Web pages and images Brave saved to load sites faster.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "cargo-git": {
+      "title": "Cargo git checkouts",
+      "explain": "Packages Cargo downloaded once, kept to install them faster next time.",
+      "reason": "Cargo downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "cargo-registry": {
+      "title": "Cargo registry",
+      "explain": "Packages Cargo downloaded once, kept to install them faster next time.",
+      "reason": "Cargo downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "chrome-cache": {
+      "title": "Chrome cache",
+      "explain": "Web pages and images Chrome saved to load sites faster. Bookmarks and passwords are elsewhere.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "chrome-code-cache": {
+      "title": "Chrome code cache",
+      "explain": "Compiled website scripts Chrome keeps to start sites faster.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "chrome-gpu-cache": {
+      "title": "Chrome graphics cache",
+      "explain": "Graphics shaders Chrome prepared for your video card.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "crash-dumps": {
+      "title": "App crash dumps",
+      "explain": "Crash reports that apps saved when they stopped unexpectedly.",
+      "reason": "Only useful to report those crashes.",
+      "action": "Move them to the quarantine."
+    },
+    "d3d-shader-cache": {
+      "title": "DirectX shader cache",
+      "explain": "Graphics shaders Windows prepared for games and apps.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "delivery-optimization": {
+      "title": "Delivery Optimization files",
+      "explain": "Update files Windows shares with other PCs to save bandwidth.",
+      "reason": "Only a cache for sharing updates.",
+      "action": "Clean it with Disk Cleanup › Delivery Optimization Files."
+    },
+    "discord-cache": {
+      "title": "Discord cache",
+      "explain": "Images and media Discord saved from your chats.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "docker-disk": {
+      "title": "Docker Desktop disk",
+      "explain": "Images, containers and volumes of Docker Desktop.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Run docker system prune, then compact the disk in Docker Desktop."
+    },
+    "dotnet-bin": {
+      "title": ".NET build output",
+      "explain": "Build output of a .NET project (found next to its .csproj).",
+      "reason": "It can be rebuilt with dotnet build.",
+      "action": "Move it to the quarantine."
+    },
+    "dotnet-obj": {
+      "title": ".NET intermediate files",
+      "explain": "Intermediate build files of a .NET project.",
+      "reason": "It can be rebuilt with dotnet build.",
+      "action": "Move it to the quarantine."
+    },
+    "downloads-extracted-zip": {
+      "title": "Already extracted archive",
+      "explain": "A ZIP file whose extracted folder is right next to it.",
+      "reason": "The content is already in the folder next to it.",
+      "action": "Move the ZIP to the quarantine."
+    },
+    "downloads-iso": {
+      "title": "Disc images",
+      "explain": "ISO files: copies of installation discs or other disks.",
+      "reason": "Only you know whether you still need it.",
+      "action": "Check it, then move it to the quarantine."
+    },
+    "downloads-old-installers": {
+      "title": "Old installers",
+      "explain": "Installers you downloaded more than a month ago. The programs are usually installed already, and you can download them again.",
+      "reason": "You can usually download them again.",
+      "action": "Move them to the quarantine."
+    },
+    "driver-store": {
+      "title": "Driver store",
+      "explain": "Every driver Windows has installed, so it can reinstall them.",
+      "reason": "Windows needs it for your hardware.",
+      "action": "Leave it alone."
+    },
+    "ea-games": {
+      "title": "EA games",
+      "explain": "Games installed with the EA app. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through the EA app, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "edge-cache": {
+      "title": "Edge cache",
+      "explain": "Web pages and images Edge saved to load sites faster. Favourites and passwords are elsewhere.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "edge-code-cache": {
+      "title": "Edge code cache",
+      "explain": "Compiled website scripts Edge keeps to start sites faster.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "epic-games": {
+      "title": "Epic Games",
+      "explain": "Games installed with the Epic Games Launcher. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through the Epic Games Launcher, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "firefox-cache": {
+      "title": "Firefox cache",
+      "explain": "Web pages and images Firefox saved to load sites faster. Bookmarks and passwords are elsewhere.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "gradle-caches": {
+      "title": "Gradle caches",
+      "explain": "Packages Gradle downloaded once, kept to install them faster next time.",
+      "reason": "Gradle downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "hiberfil": {
+      "title": "Hibernation file",
+      "explain": "Windows writes your memory here for hibernate and Fast Startup. Its size follows your RAM.",
+      "reason": "Windows needs it while hibernation is on.",
+      "action": "To make it smaller, run powercfg /h /type reduced as administrator. That also affects Fast Startup."
+    },
+    "huggingface-cache": {
+      "title": "Hugging Face models",
+      "explain": "AI models downloaded by Hugging Face tools.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove models with huggingface-cli delete-cache."
+    },
+    "hyperv-disks": {
+      "title": "Hyper-V virtual disk",
+      "explain": "The disk of a Hyper-V virtual machine.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove machines you no longer need in Hyper-V Manager."
+    },
+    "maven-repository": {
+      "title": "Maven repository",
+      "explain": "Packages Maven downloaded once, kept to install them faster next time.",
+      "reason": "Maven downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "memory-dump": {
+      "title": "Crash memory dump",
+      "explain": "A full copy of memory from the last system crash, for troubleshooting.",
+      "reason": "Only useful to analyse that crash.",
+      "action": "Remove it with Disk Cleanup › System error memory dump files."
+    },
+    "minidump": {
+      "title": "Crash minidumps",
+      "explain": "Small crash reports from earlier system crashes.",
+      "reason": "Only useful to analyse those crashes.",
+      "action": "Remove them with Disk Cleanup."
+    },
+    "node-modules": {
+      "title": "node_modules",
+      "explain": "The installed packages of a JavaScript project (found next to its package.json).",
+      "reason": "It can be rebuilt with npm install.",
+      "action": "Move it to the quarantine."
+    },
+    "npm-cache": {
+      "title": "npm cache",
+      "explain": "Packages npm downloaded once, kept to install them faster next time.",
+      "reason": "npm downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "nuget-http-cache": {
+      "title": "NuGet HTTP cache",
+      "explain": "Packages NuGet downloaded once, kept to install them faster next time.",
+      "reason": "NuGet downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "nuget-packages": {
+      "title": "NuGet packages",
+      "explain": "Packages NuGet downloaded once, kept to install them faster next time.",
+      "reason": "NuGet downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "nvidia-dxcache": {
+      "title": "NVIDIA DirectX cache",
+      "explain": "Shaders the NVIDIA driver prepared for DirectX games.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "nvidia-glcache": {
+      "title": "NVIDIA OpenGL cache",
+      "explain": "Shaders the NVIDIA driver prepared for OpenGL apps.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "ollama-models": {
+      "title": "Ollama models",
+      "explain": "AI models downloaded by Ollama.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove models with ollama rm <model>."
+    },
+    "package-cache": {
+      "title": "Installer package cache",
+      "explain": "Installers that programs need to repair or uninstall themselves.",
+      "reason": "Without it programs cannot be repaired or removed.",
+      "action": "Leave it alone."
+    },
+    "pagefile": {
+      "title": "Page file",
+      "explain": "Virtual memory: Windows uses it when RAM runs low and for crash dumps.",
+      "reason": "Windows needs it, also with plenty of RAM.",
+      "action": "Leave it alone. Never turn the page file off."
+    },
+    "phone-backup-apple-devices": {
+      "title": "iPhone backup (Apple Devices)",
+      "explain": "A full backup of an iPhone or iPad made by the Apple Devices app.",
+      "reason": "Only you know whether you have a newer backup.",
+      "action": "Check you have a newer backup, then move it to the quarantine."
+    },
+    "phone-backup-itunes": {
+      "title": "iPhone backup (iTunes)",
+      "explain": "A full backup of an iPhone or iPad made by iTunes.",
+      "reason": "Only you know whether you have a newer backup.",
+      "action": "Check you have a newer backup, then move it to the quarantine."
+    },
+    "pip-cache": {
+      "title": "pip cache",
+      "explain": "Packages pip downloaded once, kept to install them faster next time.",
+      "reason": "pip downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "pnpm-store": {
+      "title": "pnpm store",
+      "explain": "Packages pnpm downloaded once, kept to install them faster next time.",
+      "reason": "pnpm downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "python-venv": {
+      "title": "Python virtual environment",
+      "explain": "The installed packages of a Python project.",
+      "reason": "It can be rebuilt with pip install -r requirements.txt.",
+      "action": "Move it to the quarantine."
+    },
+    "recycle-bin": {
+      "title": "Recycle Bin",
+      "explain": "Files you already deleted. They take space until the Recycle Bin is emptied.",
+      "reason": "You already chose to delete them.",
+      "action": "Check it, then empty the Recycle Bin."
+    },
+    "rust-target": {
+      "title": "Rust build folder",
+      "explain": "Build output of a Rust project (found next to its Cargo.toml).",
+      "reason": "It can be rebuilt with cargo build.",
+      "action": "Move it to the quarantine."
+    },
+    "steam-games": {
+      "title": "Steam games",
+      "explain": "Games installed with Steam. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through Steam, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "steam-shadercache": {
+      "title": "Steam shader cache",
+      "explain": "Shaders Steam prepared for your games. Steam rebuilds them when you play.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "swapfile": {
+      "title": "Swap file",
+      "explain": "A small helper file Windows uses for apps from the Store.",
+      "reason": "Windows manages it.",
+      "action": "Leave it alone."
+    },
+    "system-volume-information": {
+      "title": "Restore points",
+      "explain": "Restore points and shadow copies that let Windows undo system changes.",
+      "reason": "Deleting them blindly removes your safety net.",
+      "action": "Manage them in System Protection: choose how much space they may use, or delete old ones."
+    },
+    "thumbnail-cache": {
+      "title": "Thumbnail cache",
+      "explain": "Small previews Explorer made of your pictures and videos.",
+      "reason": "Explorer makes them again when needed.",
+      "action": "Clean it with Disk Cleanup › Thumbnails."
+    },
+    "ubisoft-games": {
+      "title": "Ubisoft games",
+      "explain": "Games installed with Ubisoft Connect. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through Ubisoft Connect, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "update-downloads": {
+      "title": "Windows Update downloads",
+      "explain": "Update files Windows already installed or still has to install.",
+      "reason": "Windows downloads them again when needed.",
+      "action": "Clean it with Disk Cleanup › Clean up system files › Windows Update Cleanup."
+    },
+    "user-temp": {
+      "title": "Your temporary files",
+      "explain": "Apps leave temporary files here and often forget to clean them up.",
+      "reason": "It is at least a day old; apps recreate what they need, and items still in use are skipped.",
+      "action": "Move it to the quarantine."
+    },
+    "virtualbox-vms": {
+      "title": "VirtualBox machine",
+      "explain": "A VirtualBox virtual machine with its disks.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove machines you no longer need in VirtualBox."
+    },
+    "vmware-vms": {
+      "title": "VMware machine",
+      "explain": "A VMware virtual machine with its disks.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove machines you no longer need in VMware."
+    },
+    "windows-installer": {
+      "title": "Windows Installer cache",
+      "explain": "Copies of installers Windows needs to repair, update or remove your programs.",
+      "reason": "Without it programs cannot be repaired or removed.",
+      "action": "Leave it alone. Remove programs you no longer use in Settings › Apps."
+    },
+    "windows-old": {
+      "title": "Previous Windows installation",
+      "explain": "A copy of your previous Windows, kept after an upgrade so you can go back. Windows removes it after about 10 days, or you can remove it yourself.",
+      "reason": "Only needed to roll back an upgrade.",
+      "action": "Remove it with Disk Cleanup › Previous Windows installation(s)."
+    },
+    "windows-temp": {
+      "title": "Windows temporary files",
+      "explain": "Temporary files of Windows and installers.",
+      "reason": "Windows recreates what it needs.",
+      "action": "Clean it with Disk Cleanup › Clean up system files."
+    },
+    "winsxs": {
+      "title": "Windows component store",
+      "explain": "Holds the Windows components and updates. Explorer shows it larger than it is, because many files are hard links shared with System32.",
+      "reason": "Removing files by hand breaks Windows Update and repairs.",
+      "action": "Disk Cleanup cleans old components safely, or run DISM /Online /Cleanup-Image /StartComponentCleanup."
+    },
+    "wsl-disk": {
+      "title": "WSL Linux disk",
+      "explain": "The virtual disk of a Linux distribution in WSL. It grows as you use it, but never shrinks by itself.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Clean up inside Linux, then compact the disk (wsl --manage <distro> --set-sparse true, or Optimize-VHD)."
+    },
+    "wsl-disk-store": {
+      "title": "WSL Linux disk",
+      "explain": "The virtual disk of a Linux distribution in WSL. It grows as you use it, but never shrinks by itself.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Clean up inside Linux, then compact the disk."
+    },
+    "xbox-games": {
+      "title": "Xbox games",
+      "explain": "Games installed with the Xbox app. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through the Xbox app, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "yarn-cache": {
+      "title": "Yarn cache",
+      "explain": "Packages Yarn downloaded once, kept to install them faster next time.",
+      "reason": "Yarn downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "conda-pkgs-miniconda": {
+      "title": "conda package cache",
+      "explain": "Packages conda downloaded and unpacked to build your environments.",
+      "reason": "Your environments keep working; conda downloads packages again when it needs them.",
+      "action": "Run conda clean --all in the Anaconda Prompt."
+    },
+    "conda-pkgs-anaconda": {
+      "title": "conda package cache",
+      "explain": "Packages conda downloaded and unpacked to build your environments.",
+      "reason": "Your environments keep working; conda downloads packages again when it needs them.",
+      "action": "Run conda clean --all in the Anaconda Prompt."
+    },
+    "go-mod-cache": {
+      "title": "Go module cache",
+      "explain": "Source code of Go modules, downloaded once for your projects.",
+      "reason": "Go downloads modules again when a build needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "bun-cache": {
+      "title": "Bun cache",
+      "explain": "Packages Bun downloaded once, kept to install them faster.",
+      "reason": "Bun downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "uv-cache": {
+      "title": "uv cache",
+      "explain": "Python packages uv downloaded and built, shared by your projects.",
+      "reason": "uv downloads or builds them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "poetry-cache": {
+      "title": "Poetry cache",
+      "explain": "Python packages Poetry downloaded once.",
+      "reason": "Poetry downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "whisper-models": {
+      "title": "Whisper speech models",
+      "explain": "Speech-recognition models that Whisper downloaded the first time you used them.",
+      "reason": "Whisper downloads a model again the next time you use it, which can take a while.",
+      "action": "Move it to the quarantine if you no longer transcribe audio."
+    },
+    "torch-hub": {
+      "title": "PyTorch Hub models",
+      "explain": "Models and code PyTorch Hub downloaded for scripts you ran.",
+      "reason": "PyTorch downloads them again when a script needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "ollama-updates": {
+      "title": "Ollama update downloads",
+      "explain": "Installers Ollama downloaded to update itself.",
+      "reason": "Ollama downloads a new one for its next update.",
+      "action": "Move it to the quarantine."
+    },
+    "vscode-caches": {
+      "title": "VS Code caches",
+      "explain": "Caches Visual Studio Code builds up: old versions, extension downloads and web content.",
+      "reason": "VS Code rebuilds them; close it first, or the files are in use.",
+      "action": "Close VS Code, then move it to the quarantine."
+    },
+    "cursor-caches": {
+      "title": "Cursor caches",
+      "explain": "Caches the Cursor editor builds up: old versions, extension downloads and web content.",
+      "reason": "Cursor rebuilds them; close it first, or the files are in use.",
+      "action": "Close Cursor, then move it to the quarantine."
+    },
+    "teams-cache": {
+      "title": "Microsoft Teams cache",
+      "explain": "Cached chats, images and web content of the new Microsoft Teams.",
+      "reason": "Microsoft documents clearing it; Teams downloads what it needs again. Quit Teams first.",
+      "action": "Quit Teams, then move it to the quarantine."
+    },
+    "slack-cache": {
+      "title": "Slack cache",
+      "explain": "Images, files and web content Slack keeps to load faster.",
+      "reason": "Slack rebuilds it; quit Slack first.",
+      "action": "Quit Slack, then move it to the quarantine."
+    },
+    "epic-webcache": {
+      "title": "Epic Games Launcher web cache",
+      "explain": "Web pages and images of the Epic Games Launcher.",
+      "reason": "The launcher rebuilds it; Epic's support suggests clearing it when the launcher misbehaves.",
+      "action": "Quit the launcher, then move it to the quarantine."
+    },
+    "steam-htmlcache": {
+      "title": "Steam web cache",
+      "explain": "Pages and images of Steam's built-in browser (the store and the community).",
+      "reason": "Steam rebuilds it; quit Steam first.",
+      "action": "Quit Steam, then move it to the quarantine."
+    },
+    "outlook-offline-mail": {
+      "title": "Outlook offline mailbox",
+      "explain": "A copy of your mailbox that Outlook keeps on this PC (an .ost file), so mail works offline.",
+      "reason": "The mail itself stays on the server, but Outlook downloads everything again if the file is gone.",
+      "action": "In Outlook, keep less mail offline: Account settings › your account › Change › Mail to keep offline."
+    },
+    "lmstudio-models": {
+      "title": "LM Studio models",
+      "explain": "Language models you downloaded in LM Studio.",
+      "reason": "Only you know which models you still use; downloading one again takes a while.",
+      "action": "Delete models you no longer use in LM Studio, under My Models."
+    },
+    "lmstudio-models-cache": {
+      "title": "LM Studio models",
+      "explain": "Language models you downloaded in LM Studio.",
+      "reason": "Only you know which models you still use; downloading one again takes a while.",
+      "action": "Delete models you no longer use in LM Studio, under My Models."
+    },
+    "jetbrains-caches": {
+      "title": "JetBrains IDE caches",
+      "explain": "Indexes and caches of a JetBrains IDE such as IntelliJ IDEA or PyCharm.",
+      "reason": "The IDE rebuilds them, which takes a while the first time; close the IDE first.",
+      "action": "Close the IDE, then move it to the quarantine."
+    },
+    "unity-cache": {
+      "title": "Unity cache",
+      "explain": "Downloaded packages and assets the Unity editor shares between projects.",
+      "reason": "Unity downloads them again when a project needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "rustup-toolchains": {
+      "title": "Rust toolchains",
+      "explain": "Rust compilers rustup installed, one folder per version.",
+      "reason": "Only you know which versions your projects need.",
+      "action": "List them with rustup toolchain list and remove old ones with rustup toolchain uninstall <name>."
+    },
+    "wsl-rdclient-traces": {
+      "title": "WSL Remote Desktop traces",
+      "explain": "Diagnostic traces of the Remote Desktop client WSL uses to show Linux apps in a window (WSLg). A known issue can make them grow by tens of gigabytes a day.",
+      "reason": "They are only logs; nothing needs them.",
+      "action": "Quit Docker Desktop and run wsl --shutdown, then move it to the quarantine. If you never use Linux apps with a window, add guiApplications=false under [wsl2] in .wslconfig in your profile folder."
+    }
+  },
+  "matrix": {
+    "title": "Priority matrix",
+    "waiting": "The matrix appears when the scan is done.",
+    "empty": "Nothing to suggest yet.",
+    "axisX": "Not used for →",
+    "quadrant": {
+      "bigOld": "Big and unused for long",
+      "bigRecent": "Big but used recently"
+    },
+    "use": {
+      "played": "Last played {{when}}",
+      "started": "Last started {{when}}",
+      "changed": "Last changed {{when}}",
+      "unknown": "Last use unknown"
+    },
+    "axisY": "↑ Space it takes",
+    "ageUnknown": "unknown",
+    "ages": {
+      "1": "1 day",
+      "7": "1 week",
+      "30": "1 month",
+      "365": "1 year",
+      "3650": "10 years"
+    },
+    "zoom": "Zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomFit": "Fit"
+  },
+  "facts": {
+    "program": "This is {{name}} by {{publisher}}.",
+    "unknownPublisher": "an unknown publisher",
+    "installed": "Installed on {{date}}.",
+    "steamGame": "This is the Steam game {{name}}.",
+    "steamLeftover": "A leftover of an uninstalled Steam game: Steam no longer knows this folder.",
+    "steamGameAction": "Uninstall it in Steam, so Steam stays consistent.",
+    "programAction": "Uninstall it through Settings › Apps.",
+    "elevated": "Read with admin rights. Unhoard cannot move it, because the app itself has no rights here."
+  },
+  "adapters": {
+    "ollama": {
+      "show": "Show the models",
+      "none": "No Ollama models found.",
+      "title": "Ollama models",
+      "explain": "The size is what removing a model frees: data other models share stays.",
+      "pulled": "Downloaded {{when}}",
+      "shared": "{{size}} shared with other models",
+      "quarantine": "Move model to quarantine"
+    },
+    "docker": {
+      "title": "Docker Desktop",
+      "explain": "This virtual disk holds all of Docker's images, containers, volumes and build cache. Never delete the file by hand: that resets Docker and everything in it is gone.",
+      "show": "Show what Docker uses",
+      "reclaimable": "{{size}} can go",
+      "kinds": {
+        "Images": "Images",
+        "Containers": "Containers",
+        "LocalVolumes": "Volumes",
+        "BuildCache": "Build cache"
+      },
+      "errors": {
+        "notInstalled": "Docker Desktop is not installed in its usual folder.",
+        "notRunning": "Start Docker Desktop first, then try again.",
+        "timedOut": "Docker did not answer in time.",
+        "failed": "Docker could not be asked."
+      },
+      "never": "Do you no longer use Docker? Uninstall Docker Desktop through Settings › Apps; the disk goes with it.",
+      "buildCache": "The build cache is usually the biggest win and only makes the next build slower:",
+      "containers": "Remove stopped containers of projects you no longer run (their volumes stay):",
+      "images": "Then remove images no container uses, such as old versions:",
+      "volumes": "Volumes hold your databases. Remove unused ones only if their projects are gone for good:",
+      "compact": "The disk file does not shrink by itself. Quit Docker Desktop, run wsl --shutdown, and compact the disk with diskpart as administrator (select vdisk file=…docker_data.vhdx, attach vdisk readonly, compact vdisk, detach vdisk)."
+    },
+    "open": {
+      "dockerDesktop": "Open Docker Desktop",
+      "ollama": "Open Ollama",
+      "steam": "Open Steam",
+      "errors": {
+        "notInstalled": "That app is not in its usual install folder.",
+        "notRunning": "The app did not start.",
+        "timedOut": "The app did not start in time.",
+        "failed": "Windows could not open the app."
+      }
+    }
+  },
+  "hidden": {
+    "kinds": {
+      "restorePoints": {
+        "title": "Restore points",
+        "explain": "Windows keeps restore points and shadow copies here, so you can roll back the system. Choose in System Protection how much space they may use, or delete old ones."
+      },
+      "storeApps": {
+        "title": "Microsoft Store apps",
+        "explain": "Apps installed from the Microsoft Store. Remove the ones you no longer use in Settings › Apps."
+      },
+      "recovery": {
+        "title": "Recovery environment",
+        "explain": "What Windows needs to repair or reset your PC. Leave it alone."
+      },
+      "defender": {
+        "title": "Windows Defender",
+        "explain": "Scan history, definition updates and quarantine of Windows' antivirus. Windows manages it; leave it alone."
+      },
+      "errorReports": {
+        "title": "Error reports",
+        "explain": "Reports Windows kept after crashes. Disk Cleanup removes them safely (Windows error reports)."
+      },
+      "otherAccounts": {
+        "title": "Other accounts",
+        "explain": "Folders of other accounts on this PC, or of Windows' own service accounts. Only that account, or an administrator, can tidy them."
+      },
+      "recycleBin": {
+        "title": "Other Recycle Bins",
+        "explain": "The Recycle Bin of other accounts or of the system. Each account empties its own."
+      },
+      "other": {
+        "title": "Other protected folders",
+        "explain": "Folders apps or Windows protect. Unhoard explains them but never moves them."
+      }
+    }
+  },
+  "suggestions": {
+    "groups": {
+      "steamGames": "Steam games",
+      "steamLeftovers": "Leftovers of uninstalled games",
+      "programs": "Installed programs",
+      "generic": "Large files without an explanation"
+    },
+    "count_one": "{{count}} item",
+    "count_other": "{{count}} items",
+    "moveAll_one": "Move {{count}} to quarantine",
+    "moveAll_other": "Move all {{count}} to quarantine"
+  }
+}

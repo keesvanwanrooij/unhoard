@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-photos-analyze"
+description = "Enables the photos_analyze command without any pre-configured scope."
+commands.allow = ["photos_analyze"]
+
+[[permission]]
+identifier = "deny-photos-analyze"
+description = "Denies the photos_analyze command without any pre-configured scope."
+commands.deny = ["photos_analyze"]

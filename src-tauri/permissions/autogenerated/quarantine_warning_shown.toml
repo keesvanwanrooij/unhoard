@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-quarantine-warning-shown"
+description = "Enables the quarantine_warning_shown command without any pre-configured scope."
+commands.allow = ["quarantine_warning_shown"]
+
+[[permission]]
+identifier = "deny-quarantine-warning-shown"
+description = "Denies the quarantine_warning_shown command without any pre-configured scope."
+commands.deny = ["quarantine_warning_shown"]

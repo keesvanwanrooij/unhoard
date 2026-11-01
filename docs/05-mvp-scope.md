@@ -59,7 +59,8 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
 - AC1.2 The scan runs without admin. Folders that deny access are counted as "unscanned",
   listed with their path, and do not stop the scan.
 - AC1.3 The first results reach the UI within 1 second of starting. Updates arrive at most
-  every 250 ms. The UI never freezes during a scan.
+  every 250 ms. The UI never freezes during a scan. A progress bar on the overview shows
+  how far a drive scan is (scanned size against used space) and that a folder scan runs.
 - AC1.4 A file with several hard links is counted once (by file ID). Two hard links to one
   10 MB file add 10 MB, not 20 MB.
 - AC1.5 Junctions and symbolic links are recorded but not followed. A junction loop does
@@ -94,13 +95,20 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   selection are synced between list and map.
 - AC2.6 Items smaller than 0.5% of the current view are grouped into one "N smaller
   items" cell.
-- AC2.7 During a scan the cells grow smoothly as sizes arrive. At rest they breathe
-  subtly. With Windows animation effects off (`prefers-reduced-motion`), all ambient
-  motion stops and transitions last at most 200 ms.
+- AC2.7 During a scan the cells grow smoothly as sizes arrive. Once the layout has
+  settled after the scan, the map stands still until the user acts. With Windows
+  animation effects off (`prefers-reduced-motion`), transitions last at most 200 ms.
 - AC2.8 Keyboard: arrow keys move between cells, Enter zooms in, the Menu key or
   Shift+F10 opens the actions for the selected item.
 - AC2.9 The map holds 60 frames per second at rest with up to 300 visible cells on
   integrated graphics. If frames drop, visual effects are reduced first.
+- AC2.10 A third view, the **priority matrix**, plots every suggestion as a bubble:
+  x = days since last use and y = size on disk, both on log scales; the bubble size is
+  the size on disk on the same log scale; colour = kind of content. Top right holds big
+  items unused for long. Items of unknown age sit in a strip left of the plot. The wheel
+  or the buttons zoom (bubbles keep their size, so crowded ones come apart), dragging
+  pans, and "Fit" shows everything again. Hover shows name, size, last use and where that
+  date comes from; a click selects the item, as on the map.
 
 ## F3 Â· Hidden space
 
@@ -116,6 +124,17 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
 - AC3.4 If UAC is declined, nothing changes and the companion explains what that means.
 - AC3.5 The helper exits when done and offers no command that moves, changes or deletes
   files (S7).
+- AC3.6 A setting decides how Unhoard reads folders the user may not read: **Ask**
+  (default), **Always** or **Never**.
+- AC3.7 With Ask, the companion asks once when a scan starts, with the reason and two
+  buttons. With Yes, or with Always, the helper starts right away (one UAC prompt) and
+  reads every folder the scan could not read once the scan ends. Their sizes fill the
+  map; such items are marked "read with admin rights" and never offer a move.
+- AC3.8 The details of an unreadable folder offer "Read with admin rights" for that
+  folder, whatever the setting.
+- AC3.9 Revealed folders are grouped by kind (restore points, Microsoft Store apps,
+  recovery, Windows Defender, error reports, other accounts, other), each with an
+  explanation and its action. Folders under 1 MiB are summed into one line.
 
 ## F4 Â· Known locations
 
@@ -135,8 +154,9 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   (Storage settings, Storage Sense, Disk Cleanup, Apps), open an app's uninstaller or
   launcher, show in Explorer, explain only. There is no "delete now" action: permanent
   deletion happens only in the purge (F5).
-- AC4.7 A "Suggestions" view lists all matched items by size, grouped by tier. Nothing in
-  it is pre-selected (S1).
+- AC4.7 A "Suggestions" view lists all matched items by size on disk, grouped by tier.
+  Items under 1 MiB on disk, such as online-only files, are left out because they free
+  nothing worth a click. Nothing in it is pre-selected (S1).
 - AC4.8 Items under a protected path never offer a move (S4).
 - AC4.9 When several rules match one item, the most specific rule wins (the longest
   matched path). On a tie, the strictest tier wins (Keep over Review over Likely safe
@@ -145,6 +165,17 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   category, extension, size and last-modified date (for example "Video file, 12 GB, not
   changed for 3 years"). Its tier is always Review and it has no suggested action beyond
   "Show in Explorer" and "Move to quarantine".
+- AC4.11 A folder that is an installed program's install location (from Windows' list of
+  installed programs) shows the program's name, publisher, install date and size, and
+  offers its uninstall through Settings â€º Apps.
+- AC4.12 App adapters add what only the app knows ([Known locations](12-known-locations.md#app-adapters)):
+  Steam games with name, size and last played, and game folders without a Steam manifest
+  as leftovers; Ollama models with size, download date and shared data, each movable to
+  the quarantine as a whole; Docker Desktop's disk with what uses it (`docker system df`,
+  after a click) and the steps to clean and compact it.
+- AC4.13 Suggestions with the same rule are grouped into one row with their count and
+  total, expandable to the single items. One preview covers the whole group; nothing is
+  pre-selected (S1).
 
 ## F5 Â· Quarantine
 
@@ -306,7 +337,7 @@ JSON shape (field names are part of the contract):
       "onDiskBytes": 0,
       "files": 0,
       "category": "downloads",
-      "knownLocation": { "id": "downloads.old-installers", "tier": "likelySafe" },
+      "knownLocation": { "id": "downloads-old-installers", "tier": "likelySafe" },
       "cloud": null,
       "children": []
     }

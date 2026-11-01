@@ -1,0 +1,1037 @@
+{
+  "app": {
+    "name": "Unhoard",
+    "tagline": "Zie waar je schijfruimte gebleven is, en krijg hem veilig terug."
+  },
+  "nav": {
+    "overview": "Overzicht",
+    "suggestions": "Suggesties",
+    "quarantine": "Quarantaine",
+    "cloud": "Cloud",
+    "photos": "Foto's",
+    "settings": "Instellingen"
+  },
+  "top": {
+    "scan": "Scannen",
+    "rescan": "Opnieuw scannen",
+    "cancel": "Stoppen",
+    "search": "Zoeken in deze weergave",
+    "cells": "Celkaart",
+    "treemap": "Treemap",
+    "scanning": "Scannen… {{files}} bestanden · {{seconds}} s",
+    "scanDone": "Scan klaar · {{files}} bestanden · {{seconds}} s",
+    "partial": "gedeeltelijk",
+    "ready": "Klaar om te scannen",
+    "drive": "{{drive}} · {{size}}",
+    "systemDrive": "systeemschijf",
+    "matrix": "Matrix"
+  },
+  "category": {
+    "media": "Foto's & video's",
+    "apps": "Apps & games",
+    "downloads": "Downloads",
+    "system": "Systeem",
+    "documents": "Documenten",
+    "developer": "Ontwikkelaar",
+    "cloud": "Cloud",
+    "hidden": "Verborgen ruimte",
+    "other": "Overig"
+  },
+  "tier": {
+    "safe": "Veilig",
+    "likelySafe": "Waarschijnlijk veilig",
+    "review": "Bekijken",
+    "keep": "Behouden (systeem)"
+  },
+  "map": {
+    "hiddenSpace": "Verborgen ruimte",
+    "smaller_one": "{{count}} kleiner item",
+    "smaller_other": "{{count}} kleinere items",
+    "legend": "Legenda",
+    "keys": "Celkaart. Met de pijltjestoetsen ga je naar een andere cel, Enter zoomt in, Backspace gaat omhoog, de Menutoets opent de acties.",
+    "others_one": "nog {{count}} item",
+    "others_other": "nog {{count}} items",
+    "empty": "Scan een schijf om te zien waar je ruimte gebleven is.",
+    "readouts": {
+      "files": "Bestanden",
+      "scanned": "Gescand",
+      "hidden": "Verborgen"
+    },
+    "progress": {
+      "drive": "Scannen · {{share}} van de gebruikte ruimte · {{size}}",
+      "folder": "Scannen · {{size}} tot nu toe"
+    }
+  },
+  "list": {
+    "title": "Grootste items",
+    "unknown": "onleesbaar"
+  },
+  "details": {
+    "sizeOnDisk": "Grootte op schijf",
+    "logical": "Grootte",
+    "share": "Aandeel",
+    "kind": "Soort",
+    "files": "Bestanden",
+    "path": "Locatie",
+    "protected": "Beschermd: Unhoard verplaatst dit nooit.",
+    "folder_one": "Een map met {{files}} bestand.",
+    "folder_other": "Een map met {{files}} bestanden.",
+    "revealSmall_one": "en {{count}} kleinere map · {{size}}",
+    "revealSmall_other": "en {{count}} kleinere mappen · {{size}}",
+    "unreadable": "Deze map kon zonder adminrechten niet gelezen worden. De grootte is onbekend.",
+    "generic": "Een groot item waar Unhoard geen uitleg voor heeft. Alleen jij weet of je het nog nodig hebt.",
+    "genericReason": "Groot en niet herkend.",
+    "cloudState": "{{local}} op deze pc · {{cloud}} in de cloud",
+    "requiresAdmin": "Vraagt adminrechten, dus Unhoard wijst je naar de Windows-tool.",
+    "nothing": "Kies een item om te zien wat het is."
+  },
+  "actions": {
+    "quarantine": "Naar quarantaine",
+    "freeUpSpace": "Ruimte vrijmaken",
+    "showInExplorer": "Toon in Verkenner",
+    "explainOnly": "Alleen uitleg",
+    "uninstaller": "Verwijderen via Instellingen › Apps",
+    "zoomIn": "Inzoomen",
+    "reveal": "Verborgen ruimte onthullen",
+    "windowsTool": {
+      "storageSettings": "Open Opslaginstellingen",
+      "storageSense": "Open Opslaginzicht",
+      "diskCleanup": "Open Schijfopruiming",
+      "apps": "Open Geïnstalleerde apps",
+      "systemProtection": "Open Systeembeveiliging",
+      "recycleBin": "Open de Prullenbak"
+    },
+    "appUninstall": "Verwijderen via Steam",
+    "adminRead": "Lees met adminrechten",
+    "copy": "Kopieer",
+    "copied": "Gekopieerd"
+  },
+  "preview": {
+    "title": "Voorbeeld: er is nog niets veranderd",
+    "items_one": "{{count}} item · {{size}}",
+    "items_other": "{{count}} items · {{size}}",
+    "destination": "Gaat naar",
+    "skipped": "Overgeslagen",
+    "confirm": "Verplaatsen",
+    "confirmFree": "Ruimte vrijmaken",
+    "cancel": "Annuleren",
+    "notFreed": "Op dezelfde schijf maakt dit nog niets vrij: de ruimte komt terug na 30 dagen, of als je de items zelf verwijdert.",
+    "freeNote": "Bestanden worden alleen-online. Er wordt niets verwijderd en niets gedownload.",
+    "reasons": {
+      "protected": "beschermd",
+      "changed": "veranderd sinds de scan; scan opnieuw",
+      "link": "een koppeling, neemt geen ruimte in",
+      "unsupportedName": "naam niet ondersteund",
+      "insideSelection": "zit al in een gekozen map",
+      "unavailable": "kon niet gelezen worden",
+      "notInSync": "nog niet geüpload",
+      "notInSyncRoot": "niet in een cloudmap"
+    },
+    "done": "{{moved}} verplaatst, {{failed}} mislukt."
+  },
+  "drive": {
+    "used": "{{size}} gebruikt",
+    "free": "{{size}} vrij",
+    "notFreed": "{{size}} nog niet vrijgemaakt",
+    "of": "van {{size}}"
+  },
+  "quarantine": {
+    "title": "Quarantaine",
+    "empty": "De quarantaine is leeg.",
+    "intro": "Alles wat je verplaatst wacht hier 30 dagen. Terugzetten zet het precies terug waar het stond.",
+    "batch": "Verplaatst op {{date}} · verwijderd na {{purge}}",
+    "notFreed": "Nog niet vrijgemaakt: {{size}}",
+    "restore": "Terugzetten",
+    "restoreAll": "Alles terugzetten",
+    "open": "Open in Verkenner",
+    "status": {
+      "moving": "bezig",
+      "quarantined": "in quarantaine",
+      "restored": "teruggezet",
+      "deletedByUser": "door jou verwijderd",
+      "purged": "verwijderd"
+    },
+    "restoredAs": "Teruggezet als {{name}}, omdat de oorspronkelijke naam bezet is.",
+    "cloud": "cloud",
+    "log": "Activiteit"
+  },
+  "cloud": {
+    "title": "Cloud",
+    "none": "Er zijn geen cloudmappen gevonden op deze pc.",
+    "scanFirst": "Scan eerst de schijf waar je cloudmap op staat.",
+    "cloudSize": "In de cloud",
+    "localSize": "Op deze pc",
+    "onlineOnly": "Alleen online",
+    "locallyAvailable": "Lokaal beschikbaar",
+    "alwaysKeep": "Altijd behouden op dit apparaat",
+    "freeUp": "Ruimte vrijmaken",
+    "tested": "Getest met OneDrive persoonlijk.",
+    "notTested": "Gevonden, niet getest.",
+    "freed": "{{size}} staat nu alleen online."
+  },
+  "photos": {
+    "title": "Foto's & video's",
+    "analyze": "Zoek duplicaten en reeksen",
+    "analyzing": "Ik bekijk je foto's… er wordt niets gedownload.",
+    "scanFirst": "Scan eerst een schijf.",
+    "empty": "Geen groepen gevonden.",
+    "summary": "{{media}} foto's en video's · {{groups}} groepen",
+    "kind": {
+      "exactDuplicates": "Duplicaten",
+      "nearDuplicates": "Heel vergelijkbaar",
+      "burst": "Reeks",
+      "chatMedia": "Chatmedia",
+      "screenshots": "Schermafbeeldingen"
+    },
+    "certainty": {
+      "identical": "Identiek",
+      "almostCertainlyIdentical": "Vrijwel zeker identiek",
+      "verySimilar": "Heel vergelijkbaar",
+      "sameMoment": "Binnen enkele seconden genomen",
+      "sameSource": "Zelfde bron en maand"
+    },
+    "keeper": "Voorgestelde keeper",
+    "reason": {
+      "sharpest": "scherpst",
+      "highestResolution": "meeste pixels",
+      "largestFile": "grootste bestand"
+    },
+    "selectAllButKeeper": "Alles behalve de keeper selecteren",
+    "clear": "Selectie wissen",
+    "move": "Geselecteerde naar quarantaine",
+    "next": "Volgende groep",
+    "previous": "Vorige groep",
+    "keys": "Pijltjes verplaatsen · Spatie selecteert · Enter verplaatst · N volgende groep",
+    "noThumb": "geen voorbeeld",
+    "selected": "{{count}} geselecteerd"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "language": "Taal",
+    "followWindows": "Windows volgen",
+    "english": "English",
+    "dutch": "Nederlands",
+    "mapStyle": "Kaart",
+    "motion": "Beweging",
+    "living": "Levend",
+    "calm": "Kalm",
+    "measure": "Grootte",
+    "onDisk": "Grootte op schijf",
+    "logicalSize": "Logische grootte",
+    "companion": "Metgezel",
+    "normal": "Alle tips",
+    "quiet": "Stil (alleen waarschuwingen)",
+    "about": "Over",
+    "build": "Build {{build}}",
+    "privacy": "Unhoard maakt geen netwerkverbindingen en stuurt niets weg.",
+    "license": "Vrije software onder de GNU GPL, versie 3 of later.",
+    "adminRead": "Beschermde mappen lezen",
+    "adminAsk": "Vragen",
+    "adminAlways": "Altijd",
+    "adminNever": "Nooit"
+  },
+  "firstRun": {
+    "title": "Waar is je ruimte gebleven?",
+    "body": "Unhoard brengt je schijf in kaart, legt elk groot item uit en helpt je opruimen wat je niet nodig hebt. Het verwijdert nooit iets zonder jou, en alles wat je verplaatst kun je 30 dagen terugzetten.",
+    "privacy": "Alles blijft op deze pc. Geen account, geen netwerk.",
+    "start": "Scan {{drive}}"
+  },
+  "errors": {
+    "noScan": "Scan eerst een schijf.",
+    "staleScan": "Deze weergave is verouderd. Scan opnieuw.",
+    "unknownItem": "Dit item is er niet meer. Scan opnieuw.",
+    "invalidArgument": "Dat lukte niet. Probeer het opnieuw.",
+    "busy": "Wacht tot de scan klaar is.",
+    "fs": {
+      "notFound": "Het is er niet meer.",
+      "accessDenied": "Windows staat dit niet toe.",
+      "locked": "Het is in gebruik door een ander programma. Sluit dat programma en probeer het opnieuw.",
+      "diskFull": "De schijf is vol.",
+      "alreadyExists": "Er bestaat al iets met die naam.",
+      "changed": "Het is veranderd sinds de scan, dus Unhoard heeft het laten staan. Scan opnieuw.",
+      "unsupported": "Dit wordt hier niet ondersteund.",
+      "other": "Windows meldde een fout."
+    }
+  },
+  "companion": {
+    "name": "Lumen",
+    "history": "Eerdere berichten",
+    "earlier": "Eerder",
+    "drag": "Sleep om te verplaatsen, klik voor eerdere berichten",
+    "close": "Sluiten",
+    "types": {
+      "tip": "Tip",
+      "explanation": "Uitleg",
+      "progress": "Voortgang",
+      "warning": "Waarschuwing",
+      "celebration": "Gelukt"
+    },
+    "script": {
+      "firstRun": [
+        "Hoi, ik ben Lumen. Ik leg uit wat je ziet, in ballonnen zoals deze. Nooit in een popup."
+      ],
+      "scanStart": [
+        "Ik scan nu {{drive}}. Ik kijk alleen: ik verander niets."
+      ],
+      "scanProgress": [
+        "Al {{files}} bestanden geteld. De grote brokken worden al zichtbaar."
+      ],
+      "scanDone": [
+        "Klaar. De drie grootste: {{top}}. Klik op een cel om in te zoomen."
+      ],
+      "hiddenSpace": [
+        "De gestreepte cel is verborgen ruimte: {{size}} in gebruik die de scan niet kon zien, zoals herstelpunten. Klik erop voor meer."
+      ],
+      "revealDeclined": [
+        "Geen probleem. Zonder adminrechten blijft dat deel onbekend, en verder verandert er niets."
+      ],
+      "revealDone": [
+        "{{size}} onthuld. Meestal zijn dat vooral herstelpunten; die beheer je via Systeembeveiliging."
+      ],
+      "selected": {
+        "safe": [
+          "{{name}} is een cache: het wordt vanzelf opnieuw opgebouwd. Veilig om naar de quarantaine te verplaatsen."
+        ],
+        "likelySafe": [
+          "{{name}} heb je waarschijnlijk niet meer nodig. Vanuit de quarantaine kun je het 30 dagen terugzetten."
+        ],
+        "review": [
+          "Alleen jij weet of je {{name}} nog nodig hebt. Kijk er even in voordat je beslist."
+        ],
+        "keep": [
+          "{{name}} hoort bij Windows of een app. Niet zelf weghalen; de juiste Windows-tool doet het veilig."
+        ],
+        "protected": [
+          "{{name}} is een beschermde plek. Ik leg het uit, maar ik verplaats het nooit."
+        ]
+      },
+      "previewShown": [
+        "Eerst een voorbeeld, zodat je precies ziet wat er gebeurt. Er is nog niets veranderd."
+      ],
+      "quarantineMoved": [
+        "Verplaatst naar de quarantaine. Let op: nog niet vrijgemaakt. Over 30 dagen ruim ik het op, en ik waarschuw je vooraf."
+      ],
+      "purgeWarning": {
+        "5": [
+          "Over 5 dagen ruim ik de batch van {{date}} op ({{size}}). Zet terug wat je nog wilt houden."
+        ],
+        "3": [
+          "Over 3 dagen ruim ik de batch van {{date}} op ({{size}})."
+        ],
+        "1": [
+          "Morgen ruim ik de batch van {{date}} op ({{size}}). Laatste kans om terug te zetten."
+        ]
+      },
+      "deleteEarly": [
+        "Wil je de ruimte nu? Open de map, selecteer de items en druk op Shift+Delete, of druk op Delete en leeg de Prullenbak."
+      ],
+      "restored": [
+        "Precies teruggezet waar het stond."
+      ],
+      "freeUpSpaceDone": [
+        "{{size}} staat nu alleen online. Het blijft veilig in de cloud."
+      ],
+      "photoReview": [
+        "Elke groep begint zonder selectie. 'Alles behalve de keeper' houdt de beste foto."
+      ],
+      "photoNoThumbs": [
+        "Van sommige cloudfoto's is geen voorbeeld bewaard. Die groepeer ik alleen op naam, grootte en datum, zodat er niets gedownload wordt."
+      ],
+      "windowsTool": [
+        "Ik open de Windows-tool. Dat is de veilige plek om dit op te ruimen."
+      ],
+      "zoomTip": [
+        "Backspace of het kruimelpad brengt je terug."
+      ],
+      "cloudIntro": [
+        "Deze bestanden staan ook in de cloud. Ruimte vrijmaken maakt ze alleen-online, zonder iets te downloaden of te verwijderen."
+      ],
+      "error": [
+        "Dat lukte niet: {{message}}"
+      ],
+      "adminAsk": [
+        "Sommige mappen kan ik zonder adminrechten niet lezen, dus hun grootte blijft onbekend. Mag ik ze lezen? Ik lees alleen, ik verander niets."
+      ],
+      "adminReadDone": [
+        "Ik heb {{count}} beschermde mappen met adminrechten gelezen: {{size}} is niet langer verborgen."
+      ]
+    },
+    "adminYes": "Ja, met adminrechten",
+    "adminNo": "Nu niet"
+  },
+  "knownLocations": {
+    "adobe-media-cache": {
+      "title": "Adobe-mediacache",
+      "explain": "Voorbeeldbestanden die Premiere Pro en andere Adobe-apps van je beeldmateriaal maakten.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "amd-dxcache": {
+      "title": "AMD DirectX-cache",
+      "explain": "Shaders die het AMD-stuurprogramma voor games heeft voorbereid.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "android-emulators": {
+      "title": "Android-emulators",
+      "explain": "Virtuele Android-telefoons van Android Studio.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Verwijder emulators die je niet meer gebruikt in de Device Manager van Android Studio."
+    },
+    "android-sdk": {
+      "title": "Android SDK",
+      "explain": "Android-platforms, systeemimages en tools.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Verwijder oude platforms in de SDK Manager van Android Studio."
+    },
+    "battlenet": {
+      "title": "Battle.net",
+      "explain": "Games die met Battle.net zijn geïnstalleerd. Games nemen vaak tientallen gigabytes per stuk in.",
+      "reason": "Alleen jij weet welke games je nog speelt.",
+      "action": "Verwijder games via Battle.net, zodat die blijft kloppen. Unhoard verplaatst nooit een gamemap."
+    },
+    "brave-cache": {
+      "title": "Brave-cache",
+      "explain": "Webpagina's en afbeeldingen die Brave bewaart om sites sneller te laden.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "cargo-git": {
+      "title": "Cargo git-checkouts",
+      "explain": "Pakketten die Cargo eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "Cargo downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "cargo-registry": {
+      "title": "Cargo-register",
+      "explain": "Pakketten die Cargo eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "Cargo downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "chrome-cache": {
+      "title": "Chrome-cache",
+      "explain": "Webpagina's en afbeeldingen die Chrome bewaart om sites sneller te laden. Bladwijzers en wachtwoorden staan ergens anders.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "chrome-code-cache": {
+      "title": "Chrome-codecache",
+      "explain": "Gecompileerde websitescripts die Chrome bewaart om sites sneller te starten.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "chrome-gpu-cache": {
+      "title": "Grafische cache van Chrome",
+      "explain": "Grafische shaders die Chrome voor je videokaart heeft voorbereid.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "crash-dumps": {
+      "title": "Crashdumps van apps",
+      "explain": "Crashrapporten die apps opsloegen toen ze onverwacht stopten.",
+      "reason": "Alleen nuttig om die crashes te melden.",
+      "action": "Verplaats ze naar de quarantaine."
+    },
+    "d3d-shader-cache": {
+      "title": "DirectX-shadercache",
+      "explain": "Grafische shaders die Windows voor games en apps heeft voorbereid.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "delivery-optimization": {
+      "title": "Bestanden voor Delivery Optimization",
+      "explain": "Updatebestanden die Windows deelt met andere pc's om bandbreedte te sparen.",
+      "reason": "Alleen een cache om updates te delen.",
+      "action": "Ruim het op met Schijfopruiming › Bestanden voor Delivery Optimization."
+    },
+    "discord-cache": {
+      "title": "Discord-cache",
+      "explain": "Afbeeldingen en media die Discord uit je chats heeft bewaard.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "docker-disk": {
+      "title": "Docker Desktop-schijf",
+      "explain": "Images, containers en volumes van Docker Desktop.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Gebruik docker system prune en comprimeer daarna de schijf in Docker Desktop."
+    },
+    "dotnet-bin": {
+      "title": ".NET-buildresultaat",
+      "explain": "Buildresultaat van een .NET-project (gevonden naast het .csproj-bestand).",
+      "reason": "Het is opnieuw op te bouwen met dotnet build.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "dotnet-obj": {
+      "title": ".NET-tussenbestanden",
+      "explain": "Tussenbestanden van een .NET-build.",
+      "reason": "Het is opnieuw op te bouwen met dotnet build.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "downloads-extracted-zip": {
+      "title": "Al uitgepakt archief",
+      "explain": "Een ZIP-bestand waarvan de uitgepakte map er direct naast staat.",
+      "reason": "De inhoud staat al in de map ernaast.",
+      "action": "Verplaats de ZIP naar de quarantaine."
+    },
+    "downloads-iso": {
+      "title": "Schijfkopieën",
+      "explain": "ISO-bestanden: kopieën van installatieschijven of andere schijven.",
+      "reason": "Alleen jij weet of je het nog nodig hebt.",
+      "action": "Kijk het na en verplaats het dan naar de quarantaine."
+    },
+    "downloads-old-installers": {
+      "title": "Oude installatiebestanden",
+      "explain": "Installatieprogramma's die je meer dan een maand geleden hebt gedownload. Meestal staan de programma's er al op, en je kunt ze opnieuw downloaden.",
+      "reason": "Je kunt ze meestal opnieuw downloaden.",
+      "action": "Verplaats ze naar de quarantaine."
+    },
+    "driver-store": {
+      "title": "Stuurprogrammaopslag",
+      "explain": "Alle stuurprogramma's die Windows heeft geïnstalleerd, zodat het ze opnieuw kan installeren.",
+      "reason": "Windows heeft hem nodig voor je hardware.",
+      "action": "Laat hem staan."
+    },
+    "ea-games": {
+      "title": "EA-games",
+      "explain": "Games die met de EA-app zijn geïnstalleerd. Games nemen vaak tientallen gigabytes per stuk in.",
+      "reason": "Alleen jij weet welke games je nog speelt.",
+      "action": "Verwijder games via de EA-app, zodat die blijft kloppen. Unhoard verplaatst nooit een gamemap."
+    },
+    "edge-cache": {
+      "title": "Edge-cache",
+      "explain": "Webpagina's en afbeeldingen die Edge bewaart om sites sneller te laden. Favorieten en wachtwoorden staan ergens anders.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "edge-code-cache": {
+      "title": "Edge-codecache",
+      "explain": "Gecompileerde websitescripts die Edge bewaart om sites sneller te starten.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "epic-games": {
+      "title": "Epic Games",
+      "explain": "Games die met de Epic Games Launcher zijn geïnstalleerd. Games nemen vaak tientallen gigabytes per stuk in.",
+      "reason": "Alleen jij weet welke games je nog speelt.",
+      "action": "Verwijder games via de Epic Games Launcher, zodat die blijft kloppen. Unhoard verplaatst nooit een gamemap."
+    },
+    "firefox-cache": {
+      "title": "Firefox-cache",
+      "explain": "Webpagina's en afbeeldingen die Firefox bewaart om sites sneller te laden. Bladwijzers en wachtwoorden staan ergens anders.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "gradle-caches": {
+      "title": "Gradle-caches",
+      "explain": "Pakketten die Gradle eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "Gradle downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "hiberfil": {
+      "title": "Sluimerstandbestand",
+      "explain": "Windows schrijft hier je werkgeheugen naartoe voor sluimerstand en Snel opstarten. De grootte volgt je RAM.",
+      "reason": "Windows heeft het nodig zolang sluimerstand aanstaat.",
+      "action": "Kleiner maken kan met powercfg /h /type reduced als administrator. Dat raakt ook Snel opstarten."
+    },
+    "huggingface-cache": {
+      "title": "Hugging Face-modellen",
+      "explain": "AI-modellen die Hugging Face-tools hebben gedownload.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Verwijder modellen met huggingface-cli delete-cache."
+    },
+    "hyperv-disks": {
+      "title": "Hyper-V virtuele schijf",
+      "explain": "De schijf van een virtuele Hyper-V-machine.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Verwijder machines die je niet meer nodig hebt in Hyper-V-beheer."
+    },
+    "maven-repository": {
+      "title": "Maven-repository",
+      "explain": "Pakketten die Maven eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "Maven downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "memory-dump": {
+      "title": "Geheugendump na een crash",
+      "explain": "Een volledige kopie van het geheugen van de laatste systeemcrash, voor foutonderzoek.",
+      "reason": "Alleen nuttig om die crash te onderzoeken.",
+      "action": "Verwijder hem met Schijfopruiming › Geheugendumpbestanden van systeemfouten."
+    },
+    "minidump": {
+      "title": "Kleine crashdumps",
+      "explain": "Kleine crashrapporten van eerdere systeemcrashes.",
+      "reason": "Alleen nuttig om die crashes te onderzoeken.",
+      "action": "Verwijder ze met Schijfopruiming."
+    },
+    "node-modules": {
+      "title": "node_modules",
+      "explain": "De geïnstalleerde pakketten van een JavaScript-project (gevonden naast package.json).",
+      "reason": "Het is opnieuw op te bouwen met npm install.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "npm-cache": {
+      "title": "npm-cache",
+      "explain": "Pakketten die npm eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "npm downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "nuget-http-cache": {
+      "title": "NuGet HTTP-cache",
+      "explain": "Pakketten die NuGet eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "NuGet downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "nuget-packages": {
+      "title": "NuGet-pakketten",
+      "explain": "Pakketten die NuGet eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "NuGet downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "nvidia-dxcache": {
+      "title": "NVIDIA DirectX-cache",
+      "explain": "Shaders die het NVIDIA-stuurprogramma voor DirectX-games heeft voorbereid.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "nvidia-glcache": {
+      "title": "NVIDIA OpenGL-cache",
+      "explain": "Shaders die het NVIDIA-stuurprogramma voor OpenGL-apps heeft voorbereid.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "ollama-models": {
+      "title": "Ollama-modellen",
+      "explain": "AI-modellen die Ollama heeft gedownload.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Verwijder modellen met ollama rm <model>."
+    },
+    "package-cache": {
+      "title": "Cache van installatiepakketten",
+      "explain": "Installatieprogramma's die programma's nodig hebben om zichzelf te repareren of te verwijderen.",
+      "reason": "Zonder deze map kun je programma's niet meer repareren of verwijderen.",
+      "action": "Laat hem staan."
+    },
+    "pagefile": {
+      "title": "Wisselbestand",
+      "explain": "Virtueel geheugen: Windows gebruikt het als het RAM vol raakt en voor crashgegevens.",
+      "reason": "Windows heeft het nodig, ook met veel RAM.",
+      "action": "Laat het staan. Zet het wisselbestand nooit uit."
+    },
+    "phone-backup-apple-devices": {
+      "title": "iPhone-back-up (Apple Apparaten)",
+      "explain": "Een volledige back-up van een iPhone of iPad, gemaakt door de app Apple Apparaten.",
+      "reason": "Alleen jij weet of je een nieuwere back-up hebt.",
+      "action": "Controleer of je een nieuwere back-up hebt en verplaats hem dan naar de quarantaine."
+    },
+    "phone-backup-itunes": {
+      "title": "iPhone-back-up (iTunes)",
+      "explain": "Een volledige back-up van een iPhone of iPad, gemaakt door iTunes.",
+      "reason": "Alleen jij weet of je een nieuwere back-up hebt.",
+      "action": "Controleer of je een nieuwere back-up hebt en verplaats hem dan naar de quarantaine."
+    },
+    "pip-cache": {
+      "title": "pip-cache",
+      "explain": "Pakketten die pip eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "pip downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "pnpm-store": {
+      "title": "pnpm-store",
+      "explain": "Pakketten die pnpm eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "pnpm downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "python-venv": {
+      "title": "Python-omgeving",
+      "explain": "De geïnstalleerde pakketten van een Python-project.",
+      "reason": "Het is opnieuw op te bouwen met pip install -r requirements.txt.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "recycle-bin": {
+      "title": "Prullenbak",
+      "explain": "Bestanden die je al hebt verwijderd. Ze nemen ruimte in tot je de Prullenbak leegt.",
+      "reason": "Je hebt al gekozen om ze te verwijderen.",
+      "action": "Kijk er even in en leeg dan de Prullenbak."
+    },
+    "rust-target": {
+      "title": "Rust-buildmap",
+      "explain": "Buildresultaat van een Rust-project (gevonden naast Cargo.toml).",
+      "reason": "Het is opnieuw op te bouwen met cargo build.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "steam-games": {
+      "title": "Steam-games",
+      "explain": "Games die met Steam zijn geïnstalleerd. Games nemen vaak tientallen gigabytes per stuk in.",
+      "reason": "Alleen jij weet welke games je nog speelt.",
+      "action": "Verwijder games via Steam, zodat die blijft kloppen. Unhoard verplaatst nooit een gamemap."
+    },
+    "steam-shadercache": {
+      "title": "Steam-shadercache",
+      "explain": "Shaders die Steam voor je games heeft voorbereid. Steam bouwt ze opnieuw op als je speelt.",
+      "reason": "De app bouwt het vanzelf opnieuw op. Sluit de app eerst.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "swapfile": {
+      "title": "Swapbestand",
+      "explain": "Een klein hulpbestand dat Windows gebruikt voor apps uit de Store.",
+      "reason": "Windows beheert het.",
+      "action": "Laat het staan."
+    },
+    "system-volume-information": {
+      "title": "Herstelpunten",
+      "explain": "Herstelpunten en schaduwkopieën waarmee Windows systeemwijzigingen ongedaan kan maken.",
+      "reason": "Blind verwijderen haalt je vangnet weg.",
+      "action": "Beheer ze via Systeembeveiliging: kies hoeveel ruimte ze mogen gebruiken, of verwijder oude."
+    },
+    "thumbnail-cache": {
+      "title": "Miniaturencache",
+      "explain": "Kleine voorbeelden die Verkenner van je foto's en video's maakte.",
+      "reason": "Verkenner maakt ze opnieuw als het nodig is.",
+      "action": "Ruim het op met Schijfopruiming › Miniaturen."
+    },
+    "ubisoft-games": {
+      "title": "Ubisoft-games",
+      "explain": "Games die met Ubisoft Connect zijn geïnstalleerd. Games nemen vaak tientallen gigabytes per stuk in.",
+      "reason": "Alleen jij weet welke games je nog speelt.",
+      "action": "Verwijder games via Ubisoft Connect, zodat die blijft kloppen. Unhoard verplaatst nooit een gamemap."
+    },
+    "update-downloads": {
+      "title": "Downloads van Windows Update",
+      "explain": "Updatebestanden die Windows al heeft geïnstalleerd of nog moet installeren.",
+      "reason": "Windows downloadt ze opnieuw als het nodig is.",
+      "action": "Ruim het op met Schijfopruiming › Systeembestanden opschonen › Windows Update opschonen."
+    },
+    "user-temp": {
+      "title": "Je tijdelijke bestanden",
+      "explain": "Apps laten hier tijdelijke bestanden achter en vergeten vaak ze op te ruimen.",
+      "reason": "Het is minstens een dag oud; apps maken opnieuw aan wat ze nodig hebben, en wat nog in gebruik is wordt overgeslagen.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "virtualbox-vms": {
+      "title": "VirtualBox-machine",
+      "explain": "Een virtuele VirtualBox-machine met zijn schijven.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Verwijder machines die je niet meer nodig hebt in VirtualBox."
+    },
+    "vmware-vms": {
+      "title": "VMware-machine",
+      "explain": "Een virtuele VMware-machine met zijn schijven.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Verwijder machines die je niet meer nodig hebt in VMware."
+    },
+    "windows-installer": {
+      "title": "Windows Installer-cache",
+      "explain": "Kopieën van installatieprogramma's die Windows nodig heeft om je programma's te repareren, bij te werken of te verwijderen.",
+      "reason": "Zonder deze map kun je programma's niet meer repareren of verwijderen.",
+      "action": "Laat hem staan. Verwijder programma's die je niet meer gebruikt via Instellingen › Apps."
+    },
+    "windows-old": {
+      "title": "Vorige Windows-installatie",
+      "explain": "Een kopie van je vorige Windows, bewaard na een upgrade zodat je terug kunt. Windows ruimt hem na ongeveer 10 dagen op, of je doet het zelf.",
+      "reason": "Alleen nodig om een upgrade terug te draaien.",
+      "action": "Verwijder hem met Schijfopruiming › Vorige Windows-installatie(s)."
+    },
+    "windows-temp": {
+      "title": "Tijdelijke Windows-bestanden",
+      "explain": "Tijdelijke bestanden van Windows en installatieprogramma's.",
+      "reason": "Windows maakt opnieuw aan wat het nodig heeft.",
+      "action": "Ruim het op met Schijfopruiming › Systeembestanden opschonen."
+    },
+    "winsxs": {
+      "title": "Windows-componentenopslag",
+      "explain": "Bevat de onderdelen en updates van Windows. Verkenner toont hem groter dan hij is, omdat veel bestanden harde koppelingen met System32 zijn.",
+      "reason": "Met de hand verwijderen breekt Windows Update en reparaties.",
+      "action": "Schijfopruiming ruimt oude onderdelen veilig op, of gebruik DISM /Online /Cleanup-Image /StartComponentCleanup."
+    },
+    "wsl-disk": {
+      "title": "WSL-Linuxschijf",
+      "explain": "De virtuele schijf van een Linux-distributie in WSL. Hij groeit mee, maar krimpt nooit vanzelf.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Ruim op binnen Linux en comprimeer daarna de schijf (wsl --manage <distro> --set-sparse true, of Optimize-VHD)."
+    },
+    "wsl-disk-store": {
+      "title": "WSL-Linuxschijf",
+      "explain": "De virtuele schijf van een Linux-distributie in WSL. Hij groeit mee, maar krimpt nooit vanzelf.",
+      "reason": "Het bevat je gegevens in één groot bestand of één grote map.",
+      "action": "Ruim op binnen Linux en comprimeer daarna de schijf."
+    },
+    "xbox-games": {
+      "title": "Xbox-games",
+      "explain": "Games die met de Xbox-app zijn geïnstalleerd. Games nemen vaak tientallen gigabytes per stuk in.",
+      "reason": "Alleen jij weet welke games je nog speelt.",
+      "action": "Verwijder games via de Xbox-app, zodat die blijft kloppen. Unhoard verplaatst nooit een gamemap."
+    },
+    "yarn-cache": {
+      "title": "Yarn-cache",
+      "explain": "Pakketten die Yarn eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
+      "reason": "Yarn downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "conda-pkgs-miniconda": {
+      "title": "conda-pakketcache",
+      "explain": "Pakketten die conda heeft gedownload en uitgepakt om je omgevingen te bouwen.",
+      "reason": "Je omgevingen blijven werken; conda downloadt pakketten opnieuw als het ze nodig heeft.",
+      "action": "Voer conda clean --all uit in de Anaconda Prompt."
+    },
+    "conda-pkgs-anaconda": {
+      "title": "conda-pakketcache",
+      "explain": "Pakketten die conda heeft gedownload en uitgepakt om je omgevingen te bouwen.",
+      "reason": "Je omgevingen blijven werken; conda downloadt pakketten opnieuw als het ze nodig heeft.",
+      "action": "Voer conda clean --all uit in de Anaconda Prompt."
+    },
+    "go-mod-cache": {
+      "title": "Go-modulecache",
+      "explain": "Broncode van Go-modules, eenmalig gedownload voor je projecten.",
+      "reason": "Go downloadt modules opnieuw als een build ze nodig heeft.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "bun-cache": {
+      "title": "Bun-cache",
+      "explain": "Pakketten die Bun eerder heeft gedownload, bewaard om sneller te installeren.",
+      "reason": "Bun downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "uv-cache": {
+      "title": "uv-cache",
+      "explain": "Python-pakketten die uv heeft gedownload en gebouwd, gedeeld door je projecten.",
+      "reason": "uv downloadt of bouwt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "poetry-cache": {
+      "title": "Poetry-cache",
+      "explain": "Python-pakketten die Poetry eerder heeft gedownload.",
+      "reason": "Poetry downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "whisper-models": {
+      "title": "Whisper-spraakmodellen",
+      "explain": "Spraakherkenningsmodellen die Whisper downloadde toen je ze voor het eerst gebruikte.",
+      "reason": "Whisper downloadt een model opnieuw als je het weer gebruikt; dat kan even duren.",
+      "action": "Verplaats het naar de quarantaine als je geen audio meer omzet naar tekst."
+    },
+    "torch-hub": {
+      "title": "PyTorch Hub-modellen",
+      "explain": "Modellen en code die PyTorch Hub downloadde voor scripts die je draaide.",
+      "reason": "PyTorch downloadt ze opnieuw als een script ze nodig heeft.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "ollama-updates": {
+      "title": "Updates van Ollama",
+      "explain": "Installatiebestanden die Ollama downloadde om zichzelf bij te werken.",
+      "reason": "Ollama downloadt een nieuwe voor de volgende update.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "vscode-caches": {
+      "title": "Caches van VS Code",
+      "explain": "Caches die Visual Studio Code opbouwt: oude versies, extensiedownloads en webinhoud.",
+      "reason": "VS Code bouwt ze opnieuw op; sluit het eerst, anders zijn de bestanden in gebruik.",
+      "action": "Sluit VS Code en verplaats het daarna naar de quarantaine."
+    },
+    "cursor-caches": {
+      "title": "Caches van Cursor",
+      "explain": "Caches die de Cursor-editor opbouwt: oude versies, extensiedownloads en webinhoud.",
+      "reason": "Cursor bouwt ze opnieuw op; sluit het eerst, anders zijn de bestanden in gebruik.",
+      "action": "Sluit Cursor en verplaats het daarna naar de quarantaine."
+    },
+    "teams-cache": {
+      "title": "Cache van Microsoft Teams",
+      "explain": "Opgeslagen chats, afbeeldingen en webinhoud van de nieuwe Microsoft Teams.",
+      "reason": "Microsoft beschrijft hoe je hem leegmaakt; Teams downloadt opnieuw wat het nodig heeft. Sluit Teams eerst af.",
+      "action": "Sluit Teams af en verplaats het daarna naar de quarantaine."
+    },
+    "slack-cache": {
+      "title": "Slack-cache",
+      "explain": "Afbeeldingen, bestanden en webinhoud die Slack bewaart om sneller te laden.",
+      "reason": "Slack bouwt hem opnieuw op; sluit Slack eerst af.",
+      "action": "Sluit Slack af en verplaats het daarna naar de quarantaine."
+    },
+    "epic-webcache": {
+      "title": "Webcache van de Epic Games Launcher",
+      "explain": "Webpagina's en afbeeldingen van de Epic Games Launcher.",
+      "reason": "De launcher bouwt hem opnieuw op; Epic raadt aan hem leeg te maken als de launcher hapert.",
+      "action": "Sluit de launcher af en verplaats het daarna naar de quarantaine."
+    },
+    "steam-htmlcache": {
+      "title": "Webcache van Steam",
+      "explain": "Pagina's en afbeeldingen van de ingebouwde browser van Steam (winkel en community).",
+      "reason": "Steam bouwt hem opnieuw op; sluit Steam eerst af.",
+      "action": "Sluit Steam af en verplaats het daarna naar de quarantaine."
+    },
+    "outlook-offline-mail": {
+      "title": "Offline mailbox van Outlook",
+      "explain": "Een kopie van je mailbox die Outlook op deze pc bewaart (een .ost-bestand), zodat mail offline werkt.",
+      "reason": "De mail zelf blijft op de server, maar Outlook downloadt alles opnieuw als het bestand weg is.",
+      "action": "Bewaar in Outlook minder mail offline: Accountinstellingen › je account › Wijzigen › Offline te bewaren e-mail."
+    },
+    "lmstudio-models": {
+      "title": "LM Studio-modellen",
+      "explain": "Taalmodellen die je in LM Studio hebt gedownload.",
+      "reason": "Alleen jij weet welke modellen je nog gebruikt; opnieuw downloaden duurt even.",
+      "action": "Verwijder modellen die je niet meer gebruikt in LM Studio, onder My Models."
+    },
+    "lmstudio-models-cache": {
+      "title": "LM Studio-modellen",
+      "explain": "Taalmodellen die je in LM Studio hebt gedownload.",
+      "reason": "Alleen jij weet welke modellen je nog gebruikt; opnieuw downloaden duurt even.",
+      "action": "Verwijder modellen die je niet meer gebruikt in LM Studio, onder My Models."
+    },
+    "jetbrains-caches": {
+      "title": "Caches van een JetBrains-IDE",
+      "explain": "Indexen en caches van een JetBrains-IDE zoals IntelliJ IDEA of PyCharm.",
+      "reason": "De IDE bouwt ze opnieuw op, wat de eerste keer even duurt; sluit de IDE eerst.",
+      "action": "Sluit de IDE en verplaats het daarna naar de quarantaine."
+    },
+    "unity-cache": {
+      "title": "Unity-cache",
+      "explain": "Gedownloade pakketten en assets die de Unity-editor tussen projecten deelt.",
+      "reason": "Unity downloadt ze opnieuw als een project ze nodig heeft.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "rustup-toolchains": {
+      "title": "Rust-toolchains",
+      "explain": "Rust-compilers die rustup installeerde, een map per versie.",
+      "reason": "Alleen jij weet welke versies je projecten nodig hebben.",
+      "action": "Bekijk ze met rustup toolchain list en verwijder oude met rustup toolchain uninstall <naam>."
+    },
+    "wsl-rdclient-traces": {
+      "title": "Remote Desktop-traces van WSL",
+      "explain": "Diagnostische traces van de Remote Desktop-client die WSL gebruikt om Linux-apps in een venster te tonen (WSLg). Door een bekend probleem kunnen ze tientallen gigabytes per dag groeien.",
+      "reason": "Het zijn alleen logbestanden; niets heeft ze nodig.",
+      "action": "Sluit Docker Desktop af en voer wsl --shutdown uit, en verplaats het daarna naar de quarantaine. Gebruik je nooit Linux-apps met een venster, zet dan guiApplications=false onder [wsl2] in .wslconfig in je profielmap."
+    }
+  },
+  "matrix": {
+    "title": "Prioriteitsmatrix",
+    "waiting": "De matrix verschijnt als de scan klaar is.",
+    "empty": "Nog niets om voor te stellen.",
+    "axisX": "Niet gebruikt sinds →",
+    "quadrant": {
+      "bigOld": "Groot en lang niet gebruikt",
+      "bigRecent": "Groot maar recent gebruikt"
+    },
+    "use": {
+      "played": "Laatst gespeeld {{when}}",
+      "started": "Laatst gestart {{when}}",
+      "changed": "Laatst gewijzigd {{when}}",
+      "unknown": "Laatste gebruik onbekend"
+    },
+    "axisY": "↑ Ruimte die het inneemt",
+    "ageUnknown": "onbekend",
+    "ages": {
+      "1": "1 dag",
+      "7": "1 week",
+      "30": "1 maand",
+      "365": "1 jaar",
+      "3650": "10 jaar"
+    },
+    "zoom": "Zoomen",
+    "zoomIn": "Inzoomen",
+    "zoomOut": "Uitzoomen",
+    "zoomFit": "Passend"
+  },
+  "facts": {
+    "program": "Dit is {{name}} van {{publisher}}.",
+    "unknownPublisher": "een onbekende uitgever",
+    "installed": "Geïnstalleerd op {{date}}.",
+    "steamGame": "Dit is het Steam-spel {{name}}.",
+    "steamLeftover": "Een restant van een verwijderd Steam-spel: Steam kent deze map niet meer.",
+    "steamGameAction": "Verwijder het via Steam, zodat Steam blijft kloppen.",
+    "programAction": "Verwijder het via Instellingen › Apps.",
+    "elevated": "Gelezen met adminrechten. Unhoard kan het niet verplaatsen, want de app zelf heeft hier geen rechten."
+  },
+  "adapters": {
+    "ollama": {
+      "show": "Toon de modellen",
+      "none": "Geen Ollama-modellen gevonden.",
+      "title": "Ollama-modellen",
+      "explain": "De grootte is wat verwijderen oplevert: data die andere modellen delen blijft staan.",
+      "pulled": "Gedownload {{when}}",
+      "shared": "{{size}} gedeeld met andere modellen",
+      "quarantine": "Model naar quarantaine"
+    },
+    "docker": {
+      "title": "Docker Desktop",
+      "explain": "Deze virtuele schijf bevat alle images, containers, volumes en build-cache van Docker. Verwijder het bestand nooit met de hand: dan wordt Docker gereset en is alles erin weg.",
+      "show": "Toon wat Docker gebruikt",
+      "reclaimable": "{{size}} kan weg",
+      "kinds": {
+        "Images": "Images",
+        "Containers": "Containers",
+        "LocalVolumes": "Volumes",
+        "BuildCache": "Build-cache"
+      },
+      "errors": {
+        "notInstalled": "Docker Desktop is niet in de gebruikelijke map geïnstalleerd.",
+        "notRunning": "Start eerst Docker Desktop en probeer het opnieuw.",
+        "timedOut": "Docker antwoordde niet op tijd.",
+        "failed": "Docker kon niet gevraagd worden."
+      },
+      "never": "Gebruik je Docker niet meer? Verwijder Docker Desktop via Instellingen › Apps; de schijf gaat mee.",
+      "buildCache": "De build-cache levert meestal het meeste op en maakt alleen de volgende build trager:",
+      "containers": "Verwijder gestopte containers van projecten die je niet meer draait (hun volumes blijven):",
+      "images": "Verwijder daarna images die geen container meer gebruikt, zoals oude versies:",
+      "volumes": "Volumes bevatten je databases. Verwijder ongebruikte alleen als die projecten echt weg mogen:",
+      "compact": "Het schijfbestand krimpt niet vanzelf. Sluit Docker Desktop af, voer wsl --shutdown uit en comprimeer de schijf met diskpart als administrator (select vdisk file=…docker_data.vhdx, attach vdisk readonly, compact vdisk, detach vdisk)."
+    },
+    "open": {
+      "dockerDesktop": "Open Docker Desktop",
+      "ollama": "Open Ollama",
+      "steam": "Open Steam",
+      "errors": {
+        "notInstalled": "Die app staat niet in de gebruikelijke installatiemap.",
+        "notRunning": "De app startte niet.",
+        "timedOut": "De app startte niet op tijd.",
+        "failed": "Windows kon de app niet openen."
+      }
+    }
+  },
+  "hidden": {
+    "kinds": {
+      "restorePoints": {
+        "title": "Herstelpunten",
+        "explain": "Windows bewaart hier herstelpunten en schaduwkopieën, zodat je het systeem kunt terugzetten. Kies in Systeembeveiliging hoeveel ruimte ze mogen gebruiken, of verwijder oude."
+      },
+      "storeApps": {
+        "title": "Apps uit de Microsoft Store",
+        "explain": "Apps die je uit de Microsoft Store hebt geïnstalleerd. Verwijder de apps die je niet meer gebruikt via Instellingen › Apps."
+      },
+      "recovery": {
+        "title": "Herstelomgeving",
+        "explain": "Wat Windows nodig heeft om je pc te repareren of opnieuw in te stellen. Laat het staan."
+      },
+      "defender": {
+        "title": "Windows Defender",
+        "explain": "Scangeschiedenis, definitie-updates en quarantaine van de virusscanner van Windows. Windows beheert het; laat het staan."
+      },
+      "errorReports": {
+        "title": "Foutrapporten",
+        "explain": "Rapporten die Windows na crashes bewaarde. Schijfopruiming ruimt ze veilig op (Windows-foutrapportage)."
+      },
+      "otherAccounts": {
+        "title": "Andere accounts",
+        "explain": "Mappen van andere accounts op deze pc, of van serviceaccounts van Windows zelf. Alleen dat account of een beheerder kan ze opruimen."
+      },
+      "recycleBin": {
+        "title": "Andere prullenbakken",
+        "explain": "De prullenbak van andere accounts of van het systeem. Elk account leegt zijn eigen."
+      },
+      "other": {
+        "title": "Overige beschermde mappen",
+        "explain": "Mappen die apps of Windows afschermen. Unhoard legt ze uit, maar verplaatst ze nooit."
+      }
+    }
+  },
+  "suggestions": {
+    "groups": {
+      "steamGames": "Steam-spellen",
+      "steamLeftovers": "Restanten van verwijderde spellen",
+      "programs": "Geïnstalleerde programma's",
+      "generic": "Grote bestanden zonder uitleg"
+    },
+    "count_one": "{{count}} item",
+    "count_other": "{{count}} items",
+    "moveAll_one": "Zet {{count}} in quarantaine",
+    "moveAll_other": "Zet alle {{count}} in quarantaine"
+  }
+}

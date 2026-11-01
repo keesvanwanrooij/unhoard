@@ -27,8 +27,8 @@ Layers point inwards, with no cycles.
 
 | Layer | Where | Contents |
 |---|---|---|
-| `core` | `crates/core` (`unhoard-core`) | The tree arena, sizes and totals, categories, the known-locations matcher, risk tiers, quarantine and purge logic, photo grouping. Platform-neutral, no real I/O |
-| `platform` | `crates/platform` (`unhoard-platform`) | A trait for everything that touches the OS, with the Windows implementation and a fake for tests |
+| `core` | `crates/core` (`unhoard-core`) | The tree arena, sizes and totals, categories, the known-locations matcher, risk tiers, quarantine and purge logic, photo grouping, view queries, and the `FileSystem` trait with an in-memory fake (feature `fake`) for tests. Platform-neutral, no real I/O |
+| `platform` | `crates/platform` (`unhoard-platform`) | The Windows implementation of the `FileSystem` trait, plus well-known locations, sync roots, thumbnails, media properties and the elevated helper |
 | `app` | `src-tauri/` | Tauri commands, events and state, plus the elevated helper entry |
 | `ui` | `src/` | React. It renders and never decides safety |
 | `cli` | `crates/cli` (binary `unhoard`) | The command-line tool, on the same core |
@@ -41,13 +41,19 @@ Only the Windows FFI module in `unhoard-platform` may use `unsafe`. Every other 
 ```text
 crates/
   core/          unhoard-core
-  platform/      unhoard-platform (trait, windows/, fake/)
+  platform/      unhoard-platform (WindowsFs, system, media, reveal, win/ FFI)
   cli/           unhoard binary
 src-tauri/       Tauri app, capabilities/, helper entry
 src/
-  app/           shell, routing, stores
-  features/      storage-map, suggestions, quarantine, cloud, photos, companion, settings
+  api/           typed command calls and types
+  map/           power-diagram layout, treemap, morph, canvas renderer
+  components/    stage, side panels, preview, photo grid, companion
+  screens/       suggestions, quarantine, cloud, photos, settings
+  companion/     bubble queue and triggers
   i18n/          en.json, nl.json
+  dev/           fake core for browser runs and the performance scenarios
+perf/            performance scenarios, budgets and baseline
+scripts/         docs check
 data/
   known-locations/*.toml
 packaging/
@@ -57,27 +63,31 @@ docs/
 
 ## The platform layer
 
-The trait covers:
+The core defines the `FileSystem` trait (`crates/core/src/fs.rs`); the platform layer
+implements it for Windows. The trait covers:
 
 - directory enumeration with sizes, attributes, file IDs and reparse tags
 - opening items without following reparse points, the identity check, and rename by
   handle
-- cloud attributes, `CfGetPlaceholderInfo` and `CfSetPinState`
-- shell thumbnails and the property store
-- volume information, free space and the Recycle Bin size
-- Known Folders and the sync-root list
-- privileges for the elevated helper
+- delete through a verified handle, durable writes, small reads and appends
+- the placeholder in-sync state (`CfGetPlaceholderInfo`) and the pin state (`attrib -p +u`)
+- volume information and free space
 
-The **fake** implementation simulates all of this in memory: attributes, placeholders,
+Outside the trait, the platform layer reads the environment, the Downloads Known Folder
+and the sync roots (`system.rs`), shell thumbnails and the property store (`media.rs`)
+and runs the elevated helper (`reveal.rs`). All `unsafe` code sits in its private `win`
+module.
+
+The **fake** (`unhoard-core`, feature `fake`) simulates all of this in memory: attributes, placeholders,
 locked files, access denied, vanishing files, a full disk and a clock. It records every
 open, so a test can prove that no placeholder was opened for data (T-6.2).
 
 ## Scanning
 
-- **Enumeration:** `NtQueryDirectoryFile(Ex)` with `FileIdFullDirectoryInformation`
-  returns, per entry and in batches: `EndOfFile` (logical size), `AllocationSize` (size on
-  disk), attributes, the `FileId` and the reparse tag (in `EaSize`).
-- **Fallback:** `FindFirstFileExW` with `FindExInfoBasic` and `FIND_FIRST_EX_LARGE_FETCH`.
+- **Enumeration:** `GetFileInformationByHandleEx` with `FileIdExtdDirectoryInfo` returns,
+  per entry and in batches of 64 KiB: `EndOfFile` (logical size), `AllocationSize` (size
+  on disk), attributes, the 128-bit file ID and the reparse tag.
+- **Fallback:** `FileIdBothDirectoryInfo` (64-bit file IDs) on FAT and exFAT.
 - **Parallelism:** a work-stealing pool (rayon), one task per folder, with a fixed number
   of workers and cancellation checked between batches.
 - **Hard links** are counted once, keyed on `(volume serial, FileId)`.
@@ -90,12 +100,15 @@ open, so a test can prove that no placeholder was opened for data (T-6.2).
 
 ### Memory budget
 
-Each entry in the tree arena holds: a parent index, a first-child and next-sibling index,
-a name offset into a shared string buffer, two sizes, a file count, attributes, a
-category and a rule ID. The budget is about **250 bytes per entry on average, names
-included**, so 1 million entries stay below the 400 MB peak in
-[MVP scope](05-mvp-scope.md#non-functional-requirements). The build checks this on a
-generated tree of at least 1 million entries and records the numbers.
+Each entry in the tree arena holds its name, a parent, first-child and next-sibling
+index, two sizes, a file count, attributes, the 128-bit file ID, the last-write time, a
+category, a rule ID and flags. A folder also keeps its bytes per category for the colour
+mix, and a set of file IDs counts hard links once. The budget is about **250 bytes per
+entry on average, names included**, so 1 million entries stay below the 400 MB peak in
+[MVP scope](05-mvp-scope.md#non-functional-requirements). To check it, run
+`cargo run --release -p unhoard-core --example memory -- 1000000`: it builds a generated
+tree with realistic name lengths and holds it for three seconds, so the peak working set
+can be read in Task Manager or with `Get-Process`.
 
 ## IPC
 
@@ -113,16 +126,34 @@ generated tree of at least 1 million entries and records the numbers.
 
 The "Reveal hidden space" rescan needs admin. The main app never runs elevated (S7).
 
-- The app starts the same executable with a helper argument through `ShellExecuteW` with
-  the `runas` verb, which shows the UAC prompt.
-- The helper enables `SeBackupPrivilege` and opens folders with
-  `FILE_FLAG_BACKUP_SEMANTICS`, which lets it read the listings of folders the user may
-  not.
-- It scans only the folders the app passes (the unscanned ones plus System Volume
-  Information), each checked against an allowlist of volume roots.
-- It is **read-only**: it has no command that moves, changes or deletes anything.
-- It returns its results over a named pipe that only the calling user's process can open,
-  and exits when done.
+- The app starts the same executable with a helper argument and a random pipe name
+  through `ShellExecuteExW` with the `runas` verb, which shows the UAC prompt.
+- The helper connects to the local-only pipe. The app accepts the connection only from
+  the process ID of the helper it started, then sends the folders to read: the unscanned
+  ones, plus System Volume Information for "Reveal hidden space". Because the list goes
+  over the pipe, the helper can start when a scan starts and get its list when the scan
+  ends.
+- The helper validates every folder (an absolute local path without `.` or `..`
+  components, at most 4,096 folders), enables `SeBackupPrivilege`, and scans them with
+  `FILE_FLAG_BACKUP_SEMANTICS`, which lets it read listings the user may not.
+- It is **read-only**: it has no command that moves, changes or deletes anything. It
+  sends its results back over the same pipe and exits.
+- The app fills the scanned tree with the results. Those items are marked "read with
+  admin rights" and offer no move.
+
+## Local tools
+
+App adapters may run a tool the user has installed, such as `docker system df`, or open
+the app itself (Docker Desktop, Ollama, or Steam through its `steam://` link):
+
+- only after a click, never during a scan
+- from the app's fixed install folder (for Docker, `%LOCALAPPDATA%\Programs\DockerDesktop`
+  or `%ProgramFiles%\Docker\Docker`), never from a path found by the scan, the registry
+  or `PATH`
+- with fixed, read-only arguments and no shell, so nothing the user or a file name
+  supplies reaches the command line
+- with a 15-second time limit, a 64 KiB output limit and no console window; the output
+  is parsed as untrusted data
 
 ## Quarantine operations
 
@@ -142,10 +173,12 @@ See [Cleanup and safety](11-cleanup-safety.md#the-quarantine).
 | What | Where |
 |---|---|
 | Settings | `%APPDATA%\Unhoard\settings.json` |
-| Quarantine index, activity log, caches | `%LOCALAPPDATA%\Unhoard\` |
+| Activity log | `%LOCALAPPDATA%\Unhoard\activity.jsonl` |
 | Quarantine batches and manifests | `X:\Unhoard Quarantine\` per drive, and `Unhoard Quarantine` inside each sync root |
 
-Scan results stay in memory unless the user exports them (S9).
+Scan results stay in memory unless the user exports them (S9). The quarantine view is
+rebuilt from the manifests in the quarantine roots at every start; there is no separate
+index file.
 
 ## Security of the shell
 

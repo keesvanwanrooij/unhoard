@@ -44,7 +44,7 @@ The MVP, described in full in [MVP scope](05-mvp-scope.md):
 | **Quarantine on another drive** | Moving to an external drive or NAS frees space at once instead of after 30 days |
 | **Similar videos** (ffmpeg) | Find re-encoded or trimmed copies, not only exact duplicates |
 | **Local AI photo categories and faces** | Sort photos by what is in them, on the device, never in the cloud |
-| **Leftovers of uninstalled apps** | Find folders in AppData and ProgramData that belong to apps that are gone |
+| **Leftovers of uninstalled apps** | Find folders in AppData and ProgramData that belong to apps that are gone; Steam game leftovers are already recognised |
 | **Opt-in update check** | Off by default; one request to GitHub Releases when switched on |
 | **Other cloud providers tested** | Dropbox, iCloud for Windows, Box and Synology Drive use the same Cloud Files API; test and label them |
 | **Explorer context menu** | "Show in Unhoard" on any folder |

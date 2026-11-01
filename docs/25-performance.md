@@ -97,7 +97,7 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
 
 ### UI benchmarks (TypeScript)
 
-- **Vitest bench** for pure functions: one cell-map relaxation step, the treemap layout,
+- A **timing script** (`perf/layout.perf.ts`, run by Vitest) for pure functions: one cell-map relaxation step, the treemap layout,
   the polygon morph and the "smaller items" grouping, each with 50 and 300 cells.
 
 ### Interaction tests (the real UI)
@@ -109,7 +109,8 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
 - The UI marks each step with the User Timing API (`performance.mark` and
   `performance.measure`), and a `PerformanceObserver` records long tasks and frame times.
   The marks exist only in the performance build.
-- The scenarios write `perf-report.json` with the p95 of every budget ID.
+- The scenarios run against a production build with the fake core serving a generated
+  tree of 200,000 entries, and write the p95 of every measure to `perf/results/`.
 - Run with `npm run perf`.
 
 ### Regression check
@@ -140,7 +141,7 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
 
 - [Architecture](20-architecture.md): the IPC views and the worker threads behind these numbers.
 - [Development](22-development.md): the checks and the manual checks.
-- [Tech stack](21-tech-stack.md): criterion, Vitest bench and Playwright.
+- [Tech stack](21-tech-stack.md): criterion, Vitest and Playwright.
 - [Decisions](24-decisions.md): why the budgets are what they are.
 
 Back to the [docs hub](README.md).

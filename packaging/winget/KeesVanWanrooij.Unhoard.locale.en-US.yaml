@@ -1,0 +1,22 @@
+# winget default locale manifest.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.9.0.schema.json
+PackageIdentifier: KeesVanWanrooij.Unhoard
+PackageVersion: 0.1.0
+PackageLocale: en-US
+Publisher: Kees van Wanrooij
+PublisherUrl: https://github.com/keesvanwanrooij
+PackageName: Unhoard
+PackageUrl: https://github.com/keesvanwanrooij/unhoard
+License: GPL-3.0-or-later
+LicenseUrl: https://github.com/keesvanwanrooij/unhoard/blob/main/LICENSE
+ShortDescription: See where your disk space went, and get it back safely.
+Description: A free, open-source Windows app that maps your drive as a living cell map, explains every big item and its risk, keeps everything you remove restorable for 30 days, understands OneDrive placeholders and helps review photos without downloading them.
+Moniker: unhoard
+Tags:
+  - disk-space
+  - storage
+  - cleanup
+  - onedrive
+  - treemap
+ManifestType: defaultLocale
+ManifestVersion: 1.9.0

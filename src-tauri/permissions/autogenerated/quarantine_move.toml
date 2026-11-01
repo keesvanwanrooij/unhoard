@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-quarantine-move"
+description = "Enables the quarantine_move command without any pre-configured scope."
+commands.allow = ["quarantine_move"]
+
+[[permission]]
+identifier = "deny-quarantine-move"
+description = "Denies the quarantine_move command without any pre-configured scope."
+commands.deny = ["quarantine_move"]
