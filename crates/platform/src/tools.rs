@@ -1,7 +1,9 @@
 //! Local tools an app adapter may use, only on an explicit user click: Docker's
-//! `docker system df` and Steam's own uninstall dialog.
+//! `docker system df`, Steam's own uninstall dialog, and opening Docker Desktop, Ollama or
+//! Steam.
 //!
-//! A tool runs from the app's own install folder (never from `PATH` or a scanned path),
+//! A tool runs from the app's fixed install folder (never from `PATH`, the registry or a
+//! scanned path),
 //! with fixed arguments, no shell and no console window, a time limit and an output
 //! limit. Its output is untrusted data for the core's parsers.
 
@@ -34,15 +36,76 @@ pub enum ToolError {
     Failed,
 }
 
+/// An app Unhoard can open on a click.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum App {
+    /// Docker Desktop.
+    DockerDesktop,
+    /// The Ollama app.
+    Ollama,
+    /// Steam's library.
+    Steam,
+}
+
+fn path_of(base: &str, parts: &[&str]) -> String {
+    parts
+        .iter()
+        .fold(base.to_string(), |p, part| join(&p, part))
+}
+
+/// Docker Desktop's install folders: per user (the default) and per machine.
+fn docker_roots(roots: &Roots) -> Vec<String> {
+    let mut out = vec![];
+    if let Some(local) = roots.var("LOCALAPPDATA") {
+        out.push(path_of(local, &["Programs", "DockerDesktop"]));
+    }
+    if let Some(pf) = roots
+        .var("PROGRAMW6432")
+        .or_else(|| roots.var("PROGRAMFILES"))
+    {
+        out.push(path_of(pf, &["Docker", "Docker"]));
+    }
+    out
+}
+
+/// The first of `candidates` that exists.
+fn existing(candidates: Vec<String>) -> Option<String> {
+    candidates
+        .into_iter()
+        .find(|p| std::path::Path::new(p).is_file())
+}
+
 /// `docker.exe` in Docker Desktop's install folder.
 fn docker_exe(roots: &Roots) -> Option<String> {
-    let pf = roots
-        .var("PROGRAMW6432")
-        .or_else(|| roots.var("PROGRAMFILES"))?;
-    let exe = ["Docker", "Docker", "resources", "bin", "docker.exe"]
-        .iter()
-        .fold(pf.to_string(), |p, part| join(&p, part));
-    std::path::Path::new(&exe).is_file().then_some(exe)
+    existing(
+        docker_roots(roots)
+            .iter()
+            .map(|r| path_of(r, &["resources", "bin", "docker.exe"]))
+            .collect(),
+    )
+}
+
+/// Opens an app from its fixed install folder, or Steam through its own link.
+pub fn open_app(app: App, roots: &Roots) -> Result<(), ToolError> {
+    let target = match app {
+        App::DockerDesktop => existing(
+            docker_roots(roots)
+                .iter()
+                .map(|r| join(r, "Docker Desktop.exe"))
+                .collect(),
+        ),
+        App::Ollama => existing(
+            roots
+                .var("LOCALAPPDATA")
+                .map(|l| path_of(l, &["Programs", "Ollama", "ollama app.exe"]))
+                .into_iter()
+                .collect(),
+        ),
+        App::Steam => Some("steam://open/games".to_string()),
+    }
+    .ok_or(ToolError::NotInstalled)?;
+    crate::win::elevate::shell_open(&target).map_err(|_| ToolError::Failed)
 }
 
 /// Runs `docker system df` as JSON lines and returns its output.

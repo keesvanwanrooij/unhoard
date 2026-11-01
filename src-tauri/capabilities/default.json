@@ -36,6 +36,7 @@
     "allow-admin-read",
     "allow-ollama-models",
     "allow-docker-usage",
-    "allow-app-uninstall"
+    "allow-app-uninstall",
+    "allow-open-app"
   ]
 }

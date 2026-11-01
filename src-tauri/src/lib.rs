@@ -99,6 +99,7 @@ pub fn run() -> anyhow::Result<()> {
             commands::ollama_models,
             commands::docker_usage,
             commands::app_uninstall,
+            commands::open_app,
         ])
         .run(tauri::generate_context!())?;
     Ok(())

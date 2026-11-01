@@ -8,7 +8,7 @@ use std::process::Command;
 use unhoard_core::roots::{QUARANTINE_DIR, Roots, join};
 use unhoard_core::rules::WindowsTool;
 
-use crate::win::{files, registry, security, shell};
+use crate::win::{elevate, files, registry, security, shell};
 
 /// Reads the environment, the Downloads Known Folder and the cloud sync roots.
 pub fn system_roots() -> Roots {
@@ -66,8 +66,13 @@ pub fn open_tool(tool: WindowsTool) -> std::io::Result<()> {
         WindowsTool::StorageSense => ("explorer.exe", "ms-settings:storagepolicies"),
         WindowsTool::Apps => ("explorer.exe", "ms-settings:appsfeatures"),
         WindowsTool::DiskCleanup => ("cleanmgr.exe", ""),
-        WindowsTool::SystemProtection => ("SystemPropertiesProtection.exe", ""),
         WindowsTool::RecycleBin => ("explorer.exe", "shell:RecycleBinFolder"),
+        WindowsTool::SystemProtection => {
+            // System Protection needs admin rights; only the shell can raise the UAC prompt.
+            let windows = std::env::var("SystemRoot").map_err(|_| std::io::ErrorKind::NotFound)?;
+            let exe = format!(r"{windows}\System32\SystemPropertiesProtection.exe");
+            return elevate::shell_open(&exe).map_err(|_| std::io::Error::other("shell open"));
+        }
     };
     let mut c = Command::new(program);
     if !arg.is_empty() {

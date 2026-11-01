@@ -31,6 +31,7 @@ const COMMANDS: &[&str] = &[
     "ollama_models",
     "docker_usage",
     "app_uninstall",
+    "open_app",
 ];
 
 fn main() {

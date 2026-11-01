@@ -14,7 +14,7 @@ use windows::Win32::System::Pipes::{
 };
 use windows::Win32::System::Threading::{GetProcessId, WaitForSingleObject};
 use windows::Win32::UI::Shell::{SEE_MASK_NOCLOSEPROCESS, SHELLEXECUTEINFOW, ShellExecuteExW};
-use windows::Win32::UI::WindowsAndMessaging::SW_HIDE;
+use windows::Win32::UI::WindowsAndMessaging::{SW_HIDE, SW_SHOWNORMAL};
 
 use super::{Handle, Wide, map_err};
 
@@ -114,6 +114,26 @@ pub(crate) fn run_elevated(exe: &str, args: &str) -> Result<Option<Process>, FsE
         Ok(()) if info.hProcess != HANDLE::default() => Ok(Some(Process(Handle(info.hProcess)))),
         Ok(()) => Err(FsError::Other { code: 0 }),
         Err(e) if e.code() == ERROR_CANCELLED.to_hresult() => Ok(None),
+        Err(e) => Err(map_err(&e)),
+    }
+}
+
+/// Opens `file` through the shell, as a double-click would. A program that needs admin
+/// rights gets the UAC prompt this way, where starting it directly fails. Declining the
+/// prompt is not an error.
+pub(crate) fn shell_open(file: &str) -> Result<(), FsError> {
+    let (verb, file) = (Wide::new("open"), Wide::new(file));
+    let mut info = SHELLEXECUTEINFOW {
+        cbSize: size_of::<SHELLEXECUTEINFOW>() as u32,
+        lpVerb: verb.pcwstr(),
+        lpFile: file.pcwstr(),
+        nShow: SW_SHOWNORMAL.0,
+        ..Default::default()
+    };
+    // SAFETY: `info` and the strings it points to live for the duration of the call.
+    match unsafe { ShellExecuteExW(&mut info) } {
+        Ok(()) => Ok(()),
+        Err(e) if e.code() == ERROR_CANCELLED.to_hresult() => Ok(()),
         Err(e) => Err(map_err(&e)),
     }
 }

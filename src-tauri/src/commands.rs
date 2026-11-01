@@ -603,6 +603,12 @@ pub async fn docker_usage(svc: Svc<'_>) -> Result<Result<Vec<DockerUsage>, ToolE
     .await
 }
 
+/// Opens Docker Desktop, Ollama or Steam (explicit click only).
+#[tauri::command]
+pub fn open_app(svc: Svc<'_>, app: tools::App) -> Result<Result<(), ToolError>, CmdError> {
+    Ok(tools::open_app(app, &svc.context().roots))
+}
+
 /// Opens the uninstall of the app that installed an item: Steam's own dialog for a game.
 #[tauri::command]
 pub fn app_uninstall(svc: Svc<'_>, generation: u64, id: u32) -> Result<(), CmdError> {
