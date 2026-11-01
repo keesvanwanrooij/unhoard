@@ -1200,3 +1200,51 @@ select {
 .group-toggle .chev.open {
   transform: rotate(90deg);
 }
+
+/* The scan's progress bar along the top of the stage. */
+.scanbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 4;
+  height: 3px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  pointer-events: none;
+}
+.scanbar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  transition: width 0.25s linear;
+}
+.scanbar.unknown i {
+  width: 30%;
+  animation: scanSweep 1.6s ease-in-out infinite;
+}
+.scanbar span {
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  transform: translateX(-50%);
+  font: 11px var(--mono);
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+@keyframes scanSweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scanbar.unknown i {
+    animation: none;
+    width: 100%;
+    opacity: 0.4;
+  }
+}

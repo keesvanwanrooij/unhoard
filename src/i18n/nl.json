@@ -56,6 +56,10 @@
       "files": "Bestanden",
       "scanned": "Gescand",
       "hidden": "Verborgen"
+    },
+    "progress": {
+      "drive": "Scannen · {{share}} van de gebruikte ruimte · {{size}}",
+      "folder": "Scannen · {{size}} tot nu toe"
     }
   },
   "list": {

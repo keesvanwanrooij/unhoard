@@ -221,9 +221,13 @@ export function installFakeCore(): void {
         case "app_info":
           return { drives: [{ drive: "C:", totalBytes: 931 * GB, freeBytes: 83 * GB, fileSystem: "NTFS", system: true }], syncRoots: [], build: "fake" };
         case "scan_start":
-          setTimeout(() => {
-            emit("scan-progress", status).catch(() => undefined);
-          }, 50);
+          // A scan that takes three seconds, so progress and the companion can be watched.
+          for (let k = 1; k <= 10; k++) {
+            setTimeout(() => {
+              const part: ScanStatus = { ...status, done: k === 10, files: Math.round((status.files * k) / 10), onDisk: Math.round((status.onDisk * k) / 10), elapsedMs: k * 300 };
+              emit("scan-progress", part).catch(() => undefined);
+            }, k * 300);
+          }
           return 1;
         case "scan_status":
           return status;

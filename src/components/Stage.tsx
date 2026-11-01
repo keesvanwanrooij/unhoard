@@ -14,6 +14,7 @@ import { mark } from "../perf/marks";
 import { useApp } from "../store";
 import { Companion } from "./Companion";
 import { Matrix } from "./Matrix";
+import { ScanBar } from "./ScanBar";
 
 declare global {
   interface Window {
@@ -29,9 +30,9 @@ const ARROWS: Partial<Record<string, Direction>> = { ArrowLeft: "left", ArrowRig
 /** Category order of the legend. */
 const LEGEND = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other"] as const;
 
-/** How often the map and the details reload while a scan runs. Every three seconds keeps the
- * map calm to watch while it still visibly grows. */
-export const SCAN_TICK_MS = 3000;
+/** How often the map and the details reload while a scan runs: often enough to watch the
+ * drive fill in, calm enough that the cells glide instead of jump. */
+export const SCAN_TICK_MS = 1500;
 
 /** Loads the view of the focused node, again every tick while the scan runs. */
 export function useView(): ViewResponse | null {
@@ -287,6 +288,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
   const files = scan?.files ?? 0;
   return (
     <div className="stage-wrap">
+      <ScanBar />
       <nav className="crumbs" aria-label={t("details.path")}>
         {crumbs.map((c, i) =>
           i < crumbs.length - 1 ? (

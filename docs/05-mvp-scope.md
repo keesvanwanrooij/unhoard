@@ -59,7 +59,8 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
 - AC1.2 The scan runs without admin. Folders that deny access are counted as "unscanned",
   listed with their path, and do not stop the scan.
 - AC1.3 The first results reach the UI within 1 second of starting. Updates arrive at most
-  every 250 ms. The UI never freezes during a scan.
+  every 250 ms. The UI never freezes during a scan. A progress bar on the overview shows
+  how far a drive scan is (scanned size against used space) and that a folder scan runs.
 - AC1.4 A file with several hard links is counted once (by file ID). Two hard links to one
   10 MB file add 10 MB, not 20 MB.
 - AC1.5 Junctions and symbolic links are recorded but not followed. A junction loop does

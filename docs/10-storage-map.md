@@ -203,8 +203,12 @@ admin rights" and never offer a move, because the app itself has no rights there
 ## Live build-up during a scan
 
 - The first results reach the map within 1 second. The scan reports progress at most
-  every 250 ms (AC1.3); the map, the list and the details reload every three seconds, so the
+  every 250 ms (AC1.3); the map, the list and the details reload every 1.5 seconds, so the
   cells grow calmly instead of jumping at every batch.
+- A progress bar runs along the top of the stage. For a drive scan it shows the scanned
+  size against the drive's used space, as a percentage; it stays below 100% until the scan
+  ends, because hidden space is never scanned. A folder scan has no known total, so its
+  bar moves without a percentage and shows the size found so far.
 - The UI never receives the whole tree. It asks the core for a view: the node ID, the
   depth and the top N children plus "others" ([Architecture](20-architecture.md#ipc)).
 - A partial scan is labelled "partial" in the breadcrumb and the drive bar.

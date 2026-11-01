@@ -56,6 +56,10 @@
       "files": "Files",
       "scanned": "Scanned",
       "hidden": "Hidden"
+    },
+    "progress": {
+      "drive": "Scanning · {{share}} of the used space · {{size}}",
+      "folder": "Scanning · {{size}} so far"
     }
   },
   "list": {
