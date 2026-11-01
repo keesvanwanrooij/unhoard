@@ -28,6 +28,7 @@ fn ctx(fs: &FakeFs) -> ScanContext {
         rules: Rules::empty(),
         roots: Roots::new(env, None, vec![r"C:\Users\u\OneDrive".into()]),
         now: fs.now(),
+        knowledge: Default::default(),
     }
 }
 

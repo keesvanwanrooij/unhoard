@@ -42,6 +42,7 @@ fn f10_report_matches_the_contract_and_never_shows_the_profile() {
         rules: Rules::empty(),
         roots: Roots::default(),
         now: 1_790_000_000,
+        knowledge: Default::default(),
     };
     let (t, outcome) = scan(&fs, r"C:\Users\Alice", &ctx, &ScanControl::default()).unwrap();
     let opts = ReportOptions {

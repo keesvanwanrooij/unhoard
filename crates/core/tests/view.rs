@@ -43,6 +43,7 @@ fn setup() -> (FakeFs, unhoard_core::tree::Tree, ScanContext) {
         rules: Rules::from_toml(&[RULES], &Roots::new(env.clone(), None, vec![])).unwrap(),
         roots: Roots::new(env, None, vec![]),
         now: fs.now(),
+        knowledge: Default::default(),
     };
     let (t, _) = scan(&fs, r"C:\code", &ctx, &ScanControl::default()).unwrap();
     (fs, t, ctx)
@@ -109,6 +110,7 @@ fn f4_s10_suggestions_leave_out_what_frees_no_real_space() {
         rules: Rules::from_toml(&[RULES], &Roots::new(env.clone(), None, vec![])).unwrap(),
         roots: Roots::new(env, None, vec![]),
         now: fs.now(),
+        knowledge: Default::default(),
     };
     let (t, _) = scan(&fs, r"C:\code", &ctx, &ScanControl::default()).unwrap();
     let paths: Vec<String> = suggestions(&t, &ctx, 100)

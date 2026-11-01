@@ -22,6 +22,7 @@ fn ctx() -> ScanContext {
         rules: Rules::empty(),
         roots: Roots::default(),
         now: 1_790_000_000,
+        knowledge: Default::default(),
     }
 }
 

@@ -281,6 +281,7 @@ fn f4_unmatched_large_item_gets_the_generic_explanation_and_tier_review() {
         rules: Rules::from_toml(&[], &roots()).unwrap(),
         roots: roots(),
         now: NOW,
+        knowledge: Default::default(),
     };
     let (t, _) = scan(&fs, r"C:\data", &ctx, &ScanControl::default()).unwrap();
     let d = describe(&t, t.find(r"C:\data\movie.mkv").unwrap(), &ctx);
@@ -336,6 +337,7 @@ fn f4_s4_protected_paths_never_get_a_move_action() {
         rules: Rules::from_toml(&[PRECEDENCE], &r).unwrap(),
         roots: r,
         now: NOW,
+        knowledge: Default::default(),
     };
     let (t, _) = scan(&fs, r"C:\Windows", &ctx, &ScanControl::default()).unwrap();
     let d = describe(&t, t.find(r"C:\Windows\leftovers").unwrap(), &ctx);
@@ -353,6 +355,7 @@ fn f6_s3_cloud_items_never_offer_the_local_quarantine() {
         rules: Rules::from_toml(&[], &roots()).unwrap(),
         roots: roots(),
         now: NOW,
+        knowledge: Default::default(),
     };
     let (t, _) = scan(&fs, r"C:\Users\u\OneDrive", &ctx, &ScanControl::default()).unwrap();
     let d = describe(

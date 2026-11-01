@@ -6,8 +6,11 @@
 
 use serde::{Deserialize, Serialize};
 
+use std::collections::HashSet;
+
 use crate::classify::{GENERIC_MIN_BYTES, describe};
 use crate::cloud::{PinState, pin_state};
+use crate::knowledge::{LastUse, SteamInfo};
 use crate::rules::Tier;
 use crate::scan::ScanContext;
 use crate::tree::{Category, FLAG_HARD_LINK_DUP, FLAG_UNSCANNED, NodeId, NodeKind, Others, Tree};
@@ -140,32 +143,94 @@ pub struct Suggestion {
 /// Suggestions smaller than this on disk free too little to be worth a click.
 pub const SUGGESTION_MIN_BYTES: u64 = 1 << 20;
 
+/// Program folders at least this large on disk are suggested (256 MiB).
+pub const PROGRAM_MIN_BYTES: u64 = 256 << 20;
+
 /// Every matched item plus large unmatched files, largest first, counted by size on disk.
-/// An item inside another suggested item is left out, so nothing is counted twice, and so
-/// is anything under [`SUGGESTION_MIN_BYTES`] on disk, such as online-only files. Nothing
-/// is pre-selected (S1).
+/// In a Steam library the games and leftovers stand in for the whole `common` folder, and
+/// a large program folder is suggested when nothing inside it is. An item inside another
+/// suggested item is left out, so nothing is counted twice, and so is anything under
+/// [`SUGGESTION_MIN_BYTES`] on disk, such as online-only files. Nothing is pre-selected
+/// (S1).
 pub fn suggestions(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<Suggestion> {
-    // Size on disk decides: an online-only file or an empty cache frees nothing here.
+    let big = |id: &NodeId| {
+        tree.get(*id).is_some_and(|n| {
+            n.flags & FLAG_HARD_LINK_DUP == 0
+                && n.kind != NodeKind::Link
+                && n.on_disk >= SUGGESTION_MIN_BYTES
+        })
+    };
+    // Steam libraries: their games and leftovers are the candidates, not the folder.
+    let steam_common: HashSet<NodeId> = ctx
+        .knowledge
+        .steam
+        .iter()
+        .filter_map(|l| tree.find(&l.common))
+        .collect();
     let mut picked: Vec<NodeId> = tree
         .iter()
-        .filter(|(_, n)| n.flags & FLAG_HARD_LINK_DUP == 0 && n.kind != NodeKind::Link)
-        .filter(|(_, n)| n.on_disk >= SUGGESTION_MIN_BYTES)
-        .filter(|(_, n)| {
-            n.rule.is_some() || (n.kind == NodeKind::File && n.on_disk >= GENERIC_MIN_BYTES)
+        .filter(|(id, n)| {
+            !steam_common.contains(id)
+                && (n.rule.is_some()
+                    || (n.kind == NodeKind::File && n.on_disk >= GENERIC_MIN_BYTES))
         })
         .map(|(id, _)| id)
+        .filter(big)
+        .chain(
+            steam_common
+                .iter()
+                .flat_map(|c| tree.children(*c))
+                .filter(|id| tree.get(*id).is_some_and(|n| n.kind == NodeKind::Folder))
+                .filter(big),
+        )
         .collect();
-    let all: std::collections::HashSet<NodeId> = picked.iter().copied().collect();
-    picked.retain(|&id| {
+    // Size on disk decides: an online-only file or an empty cache frees nothing here.
+    let primary: HashSet<NodeId> = picked.iter().copied().collect();
+    let inside = |id: NodeId, set: &HashSet<NodeId>| {
         let mut cur = tree.get(id).and_then(|n| n.parent);
         while let Some(c) = cur {
-            if all.contains(&c) {
-                return false;
+            if set.contains(&c) {
+                return true;
             }
             cur = tree.get(c).and_then(|n| n.parent);
         }
-        true
-    });
+        false
+    };
+    picked.retain(|&id| !inside(id, &primary));
+    // A program folder counts only when no other suggestion lies inside or around it.
+    let programs: Vec<NodeId> = ctx
+        .knowledge
+        .programs
+        .iter()
+        .filter_map(|p| tree.find(&p.install_location))
+        .filter(|id| !primary.contains(id) && !inside(*id, &primary))
+        .filter(|id| {
+            tree.get(*id)
+                .is_some_and(|n| n.kind == NodeKind::Folder && n.on_disk >= PROGRAM_MIN_BYTES)
+        })
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect();
+    let program_set: HashSet<NodeId> = programs.iter().copied().collect();
+    let has_primary_inside: HashSet<NodeId> = primary
+        .iter()
+        .flat_map(|&id| {
+            let mut out = vec![];
+            let mut cur = tree.get(id).and_then(|n| n.parent);
+            while let Some(c) = cur {
+                if program_set.contains(&c) {
+                    out.push(c);
+                }
+                cur = tree.get(c).and_then(|n| n.parent);
+            }
+            out
+        })
+        .collect();
+    picked.extend(
+        programs
+            .into_iter()
+            .filter(|id| !has_primary_inside.contains(id)),
+    );
     let mut out: Vec<Suggestion> = picked
         .into_iter()
         .filter_map(|id| {
@@ -183,4 +248,59 @@ pub fn suggestions(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<Suggesti
     out.sort_by_key(|s| std::cmp::Reverse(s.node.on_disk));
     out.truncate(limit);
     out
+}
+
+/// One bubble of the priority matrix (AC2.10).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MatrixPoint {
+    /// The scan node.
+    pub id: NodeId,
+    /// Its name.
+    pub name: String,
+    /// The name of the program or game it belongs to, when known.
+    pub label: Option<String>,
+    /// Its matching rule.
+    pub rule_id: Option<String>,
+    /// Size on disk: the x axis.
+    pub on_disk: u64,
+    /// Effort, 1 to 4: the y axis.
+    pub effort: u8,
+    /// Last use: the bubble size.
+    pub last_use: Option<LastUse>,
+    /// The kind of content: the colour.
+    pub category: Category,
+    /// The risk tier.
+    pub tier: Tier,
+}
+
+/// The priority matrix: every suggestion with an effort, largest first, at most `limit`.
+/// Items Unhoard only explains have no effort and are left out.
+pub fn matrix(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<MatrixPoint> {
+    suggestions(tree, ctx, usize::MAX)
+        .into_iter()
+        .filter_map(|s| {
+            let d = s.description;
+            let label = d
+                .program
+                .as_ref()
+                .map(|p| p.name.clone())
+                .or_else(|| match &d.steam {
+                    Some(SteamInfo::Game { name, .. }) => Some(name.clone()),
+                    _ => None,
+                });
+            Some(MatrixPoint {
+                id: s.node.id,
+                name: s.node.name,
+                label,
+                rule_id: d.rule_id,
+                on_disk: s.node.on_disk,
+                effort: d.effort?,
+                last_use: d.last_use,
+                category: s.node.category,
+                tier: s.tier,
+            })
+        })
+        .take(limit)
+        .collect()
 }

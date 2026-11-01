@@ -81,6 +81,7 @@ fn benches(c: &mut Criterion) {
         rules: Rules::empty(),
         roots: Roots::default(),
         now: 0,
+        knowledge: Default::default(),
     };
     let (mut tree, sample) = generated(1_000_000);
     c.bench_function("core.viewQuery", |b| {

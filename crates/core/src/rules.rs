@@ -76,6 +76,8 @@ pub enum Action {
     WindowsTool(WindowsTool),
     /// Remove through the app's own uninstaller or launcher.
     Uninstaller,
+    /// Uninstall through the app that installed it (a Steam game opens Steam's dialog).
+    AppUninstall,
     /// Open the folder in Explorer.
     ShowInExplorer,
     /// Explain only.
@@ -193,13 +195,14 @@ impl Default for Rules {
     }
 }
 
-const BUILTIN: [&str; 6] = [
+const BUILTIN: [&str; 7] = [
     include_str!("../../../data/known-locations/windows.toml"),
     include_str!("../../../data/known-locations/caches.toml"),
     include_str!("../../../data/known-locations/containers.toml"),
     include_str!("../../../data/known-locations/games.toml"),
     include_str!("../../../data/known-locations/developer.toml"),
     include_str!("../../../data/known-locations/user.toml"),
+    include_str!("../../../data/known-locations/apps.toml"),
 ];
 
 /// Replaces `%VAR%` with its value; `None` if a variable is not set.

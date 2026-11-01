@@ -25,6 +25,8 @@ pub struct ScanContext {
     pub roots: Roots,
     /// The current time (seconds since 1970), for age conditions.
     pub now: i64,
+    /// What is known about this PC besides the files: programs, last use, Steam.
+    pub knowledge: crate::knowledge::Knowledge,
 }
 
 /// Cancellation and live progress of a scan, shared with whoever started it.

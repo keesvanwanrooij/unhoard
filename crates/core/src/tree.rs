@@ -83,6 +83,8 @@ pub const FLAG_LOSSY_NAME: u8 = 4;
 pub const FLAG_DETACHED: u8 = 8;
 /// The folder's children are listed (it was scanned, completely or partly).
 pub const FLAG_LISTED: u8 = 16;
+/// The folder was measured by the elevated helper: the app itself has no rights there.
+pub const FLAG_ELEVATED: u8 = 32;
 
 /// One file, folder or link.
 #[derive(Clone, Debug)]
@@ -105,6 +107,8 @@ pub struct Node {
     pub file_id: FileId,
     /// Last write time.
     pub modified: FileTime,
+    /// The newest last write time of any file inside (for a file, its own).
+    pub newest: FileTime,
     /// The kind of content (for a folder: the kind its location gives it, if any).
     pub category: Category,
     /// Index of the known-location rule that matches this node, if any.
@@ -180,6 +184,7 @@ impl Tree {
             attributes: crate::fs::ATTR_DIRECTORY,
             file_id: FileId(0),
             modified: 0,
+            newest: 0,
             category: Category::Other,
             rule: None,
             flags: 0,
@@ -329,6 +334,11 @@ impl Tree {
             attributes: spec.attributes,
             file_id: spec.file_id,
             modified: spec.modified,
+            newest: if spec.kind == NodeKind::File {
+                spec.modified
+            } else {
+                0
+            },
             category: spec.category,
             rule: spec.rule,
             flags,
@@ -344,7 +354,44 @@ impl Tree {
             cats[spec.category.index()] = on_disk as i128;
             self.adjust_ancestors(parent, logical as i128, on_disk as i128, 1, &cats);
         }
+        if spec.kind == NodeKind::File {
+            let mut cur = Some(parent);
+            while let Some(c) = cur {
+                let Some(n) = self.nodes.get_mut(c.0 as usize) else {
+                    break;
+                };
+                if n.newest >= spec.modified {
+                    break;
+                }
+                n.newest = spec.modified;
+                cur = n.parent;
+            }
+        }
         Some(NodeId(id))
+    }
+
+    /// Gives an unscanned folder the totals the elevated helper measured, adds them to its
+    /// ancestors and marks it [`FLAG_ELEVATED`]. Returns false if the node is not an
+    /// unscanned folder, so an item is never counted twice.
+    pub fn set_measured(&mut self, id: NodeId, logical: u64, on_disk: u64, files: u64) -> bool {
+        let Some(n) = self.get_mut(id) else {
+            return false;
+        };
+        if n.flags & FLAG_UNSCANNED == 0 || n.flags & FLAG_ELEVATED != 0 {
+            return false;
+        }
+        n.flags = (n.flags & !FLAG_UNSCANNED) | FLAG_ELEVATED;
+        let mut cats = [0i128; 9];
+        cats[n.category.index()] = on_disk as i128;
+        self.unscanned.retain(|(u, _)| *u != id);
+        self.adjust_ancestors(
+            id,
+            logical as i128,
+            on_disk as i128,
+            files.min(i64::MAX as u64) as i64,
+            &cats,
+        );
+        true
     }
 
     fn adjust_ancestors(

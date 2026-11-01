@@ -6,12 +6,14 @@
 //! goes through the [`fs::FileSystem`] trait, which the platform layer implements.
 #![forbid(unsafe_code)]
 
+pub mod adapters;
 pub mod classify;
 pub mod cloud;
 #[cfg(feature = "fake")]
 pub mod fake;
 pub mod fs;
 pub mod hidden;
+pub mod knowledge;
 pub mod photos;
 pub mod protect;
 pub mod quarantine;

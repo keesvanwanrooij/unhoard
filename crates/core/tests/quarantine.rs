@@ -46,6 +46,7 @@ fn ctx(fs: &FakeFs) -> ScanContext {
         rules: Rules::empty(),
         roots: roots(),
         now: fs.now(),
+        knowledge: Default::default(),
     }
 }
 

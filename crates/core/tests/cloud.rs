@@ -26,6 +26,7 @@ fn ctx(fs: &FakeFs) -> ScanContext {
         rules: Rules::empty(),
         roots: Roots::new(env, None, vec![SR.into()]),
         now: fs.now(),
+        knowledge: Default::default(),
     }
 }
 
