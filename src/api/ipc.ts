@@ -6,6 +6,7 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type {
   AdminReadResult,
   AdminStartResult,
+  AppName,
   AppInfo,
   CloudRoot,
   CmdError,
@@ -18,6 +19,7 @@ import type {
   MovePlan,
   MoveReport,
   OllamaModel,
+  OpenAppResult,
   PhotoState,
   PurgeReport,
   QuarantineState,
@@ -73,6 +75,7 @@ export const api = {
   ollamaModels: (generation: number): Promise<OllamaModel[]> => invoke("ollama_models", { generation }),
   dockerUsage: (): Promise<DockerResult> => invoke("docker_usage"),
   appUninstall: (generation: number, id: number): Promise<void> => invoke("app_uninstall", { generation, id }),
+  openApp: (app: AppName): Promise<OpenAppResult> => invoke("open_app", { app }),
 };
 
 /** Live scan progress. */

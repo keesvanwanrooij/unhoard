@@ -18,7 +18,6 @@ function item(id: number, onDisk: number, d: Partial<Description>): Suggestion {
       cloud: false,
       quarantineRoot: null,
       requiresAdmin: false,
-      effort: 1,
       program: null,
       steam: null,
       elevated: false,

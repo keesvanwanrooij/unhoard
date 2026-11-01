@@ -38,10 +38,6 @@ pub struct Description {
     pub quarantine_root: Option<String>,
     /// The rule's action needs admin rights.
     pub requires_admin: bool,
-    /// How much work clearing the item takes: 1 = one click in Unhoard, 2 = review first,
-    /// 3 = through another app or tool, 4 = needs admin rights. `None` for items Unhoard
-    /// only explains.
-    pub effort: Option<u8>,
     /// The installed program whose install folder this is.
     pub program: Option<Program>,
     /// What Steam knows about this folder.
@@ -50,18 +46,6 @@ pub struct Description {
     pub elevated: bool,
     /// When the item was last used, and the source of that date.
     pub last_use: Option<LastUse>,
-}
-
-/// The effort of clearing an item with this tier and these actions.
-fn effort(tier: Option<Tier>, actions: &[Action], requires_admin: bool) -> Option<u8> {
-    match tier? {
-        Tier::Keep => None,
-        _ if requires_admin => Some(4),
-        t if actions.contains(&Action::Quarantine) || actions.contains(&Action::FreeUpSpace) => {
-            Some(if t == Tier::Review { 2 } else { 1 })
-        }
-        _ => Some(3),
-    }
 }
 
 /// The kind of content of a file, from its extension.
@@ -155,7 +139,6 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
     if actions.contains(&Action::Quarantine) {
         d.quarantine_root = ctx.roots.quarantine_root_for(&path);
     }
-    d.effort = effort(d.tier, &actions, d.requires_admin);
     d.actions = actions;
     d
 }

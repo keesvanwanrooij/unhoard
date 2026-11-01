@@ -168,6 +168,56 @@ fn f4_s4_project_rules_never_match_inside_installed_apps_or_dependencies() {
 }
 
 #[test]
+fn f4_temp_items_are_offered_one_by_one_once_a_day_old() {
+    let rules = Rules::builtin(&roots()).unwrap();
+    let temp = r"C:\Users\u\AppData\Local\Temp";
+    let fs = FakeFs::new();
+    fs.create_dir_all(&format!(r"{temp}\DiagOutputDir\RdClientAutoTrace"))
+        .unwrap();
+    let old = unix_to_filetime(NOW - 3 * 86_400);
+    fs.add_file_with(
+        &format!(r"{temp}\setup.log"),
+        FileOpts {
+            logical: Some(4096),
+            modified: old,
+            ..FileOpts::default()
+        },
+    );
+    fs.add_file_with(
+        &format!(r"{temp}\busy.tmp"),
+        FileOpts {
+            logical: Some(4096),
+            modified: unix_to_filetime(NOW - 600),
+            ..FileOpts::default()
+        },
+    );
+    assert_eq!(
+        best_rule_id(&rules, &fs, &format!(r"{temp}\setup.log")).as_deref(),
+        Some("user-temp")
+    );
+    assert_eq!(
+        best_rule_id(&rules, &fs, &format!(r"{temp}\busy.tmp")),
+        None,
+        "too fresh"
+    );
+    assert_eq!(
+        best_rule_id(&rules, &fs, temp),
+        None,
+        "not the Temp folder itself"
+    );
+    assert_eq!(
+        best_rule_id(
+            &rules,
+            &fs,
+            &format!(r"{temp}\DiagOutputDir\RdClientAutoTrace")
+        )
+        .as_deref(),
+        Some("wsl-rdclient-traces"),
+        "traces count whatever their age"
+    );
+}
+
+#[test]
 fn f4_every_rule_has_english_and_dutch_text() {
     let en: serde_json::Value =
         serde_json::from_str(include_str!("../../../src/i18n/en.json")).unwrap();

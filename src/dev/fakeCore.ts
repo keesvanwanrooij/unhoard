@@ -173,7 +173,6 @@ function buildSuggestions(): unknown[] {
           cloud: false,
           quarantineRoot: "C:\\Unhoard Quarantine",
           requiresAdmin: false,
-          effort: steamGame ? 3 : k.tier === "review" ? 2 : 1,
           program: null,
           steam: k.steam,
           elevated: false,
@@ -184,7 +183,7 @@ function buildSuggestions(): unknown[] {
   );
 }
 
-/** Priority-matrix points from the largest fake items, with varied effort and age. */
+/** Priority-matrix points from the largest fake items, with varied ages. */
 function matrixPoints(limit: number): unknown[] {
   const now = Date.now() / 1000;
   return someLargeItems(limit * 3)
@@ -196,7 +195,6 @@ function matrixPoints(limit: number): unknown[] {
       label: null,
       ruleId: null,
       onDisk: n.size,
-      effort: (i % 4) + 1,
       lastUse: i % 7 === 0 ? null : { at: now - ((i * 37) % 3000) * 86_400, source: i % 3 === 0 ? "played" : i % 3 === 1 ? "started" : "changed" },
       category: n.category,
       tier: "review",
@@ -250,7 +248,6 @@ export function installFakeCore(): void {
               cloud: false,
               quarantineRoot: null,
               requiresAdmin: false,
-              effort: ruleId ? 3 : null,
               program: null,
               steam: null,
               elevated: false,
@@ -274,6 +271,8 @@ export function installFakeCore(): void {
           return { Ok: { folders: 3, onDisk: 6 * GB } };
         case "app_uninstall":
           return null;
+        case "open_app":
+          return { Ok: null };
         case "docker_usage":
           return {
             Ok: [

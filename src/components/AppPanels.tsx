@@ -1,12 +1,12 @@
 // What the details panel adds from app knowledge: the program or game an item belongs to,
-// when it was last used, the effort to clear it, items read with admin rights, the button
+// when it was last used, items read with admin rights, the button
 // that reads an unreadable folder, and the Ollama and Docker panels (AC3.8, AC4.11, AC4.12).
 import { useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api } from "../api/ipc";
-import type { Details, DockerUsage, MovePlan, OllamaModel, ToolError } from "../api/types";
+import type { AppName, Details, DockerUsage, MovePlan, OllamaModel, ToolError } from "../api/types";
 import { fmtAgo, fmtBytes } from "../format";
 import { useApp } from "../store";
 import { MovePreview } from "./Preview";
@@ -17,7 +17,7 @@ function installDate(d: string, lang: string): string {
   return Number.isNaN(date.getTime()) ? d : date.toLocaleDateString(lang === "nl" ? "nl-NL" : "en-GB");
 }
 
-/** Program, game, last use, effort and admin facts about an item. `now` in seconds. */
+/** Program, game, last use and admin facts about an item. `now` in seconds. */
 export function ItemFacts({ d, now }: { d: Details; now: number }): JSX.Element {
   const { t } = useTranslation();
   const lang = useApp((s) => s.lang);
@@ -32,13 +32,19 @@ export function ItemFacts({ d, now }: { d: Details; now: number }): JSX.Element 
           {p.installDate ? ` ${t("facts.installed", { date: installDate(p.installDate, lang) })}` : ""}
         </p>
       ) : null}
-      {steam?.kind === "game" ? <p className="info">{t("facts.steamGame", { name: steam.name })}</p> : null}
+      {steam?.kind === "game" ? (
+        <>
+          <p className="info">{t("facts.steamGame", { name: steam.name })}</p>
+          <div className="btns">
+            <OpenAppButton app="steam" />
+          </div>
+        </>
+      ) : null}
       {steam?.kind === "leftover" ? <p className="info">{t("facts.steamLeftover")}</p> : null}
       <div className="facts">
         {desc.lastUse ? (
           <span>{t(`matrix.use.${desc.lastUse.source}`, { when: fmtAgo(desc.lastUse.at, now, lang) })}</span>
         ) : null}
-        {desc.effort ? <span>{t("facts.effort", { level: t(`matrix.effort.${String(desc.effort)}`) })}</span> : null}
       </div>
       {desc.elevated ? <p className="note">{t("facts.elevated")}</p> : null}
       {d.measured && d.measured.length > 0 ? (
@@ -92,6 +98,29 @@ export function AdminReadButton({ generation, id }: { generation: number; id: nu
   );
 }
 
+/** Opens Docker Desktop, Ollama or Steam; says so when the app is not installed. */
+export function OpenAppButton({ app }: { app: AppName }): JSX.Element {
+  const { t } = useTranslation();
+  const { say, sayError } = useApp(useShallow((s) => ({ say: s.say, sayError: s.sayError })));
+  return (
+    <button
+      className="btn small"
+      onClick={() => {
+        api
+          .openApp(app)
+          .then((r) => {
+            if ("Err" in r) say({ type: "warning", text: t(`adapters.open.errors.${r.Err.kind}`) });
+          })
+          .catch((e: unknown) => {
+            sayError(e, t);
+          });
+      }}
+    >
+      {t(`adapters.open.${app}`)}
+    </button>
+  );
+}
+
 /** A command the user can copy. */
 function CopyCommand({ command }: { command: string }): JSX.Element {
   const { t } = useTranslation();
@@ -128,6 +157,7 @@ export function OllamaPanel({ generation, now }: { generation: number; now: numb
   if (!models) {
     return (
       <div className="btns">
+        <OpenAppButton app="ollama" />
         <button
           className="btn"
           onClick={() => {
@@ -147,7 +177,10 @@ export function OllamaPanel({ generation, now }: { generation: number; now: numb
   if (models.length === 0) return <p className="note">{t("adapters.ollama.none")}</p>;
   return (
     <div className="adapter">
-      <b>{t("adapters.ollama.title")}</b>
+      <div className="row-head">
+        <b>{t("adapters.ollama.title")}</b>
+        <OpenAppButton app="ollama" />
+      </div>
       <p className="note">{t("adapters.ollama.explain")}</p>
       <ul className="models">
         {models.map((m) => (
@@ -224,7 +257,10 @@ export function DockerPanel(): JSX.Element {
   const [busy, setBusy] = useState(false);
   return (
     <div className="adapter">
-      <b>{t("adapters.docker.title")}</b>
+      <div className="row-head">
+        <b>{t("adapters.docker.title")}</b>
+        <OpenAppButton app="dockerDesktop" />
+      </div>
       <p className="note">{t("adapters.docker.explain")}</p>
       {usage ? (
         <table className="table">
@@ -270,14 +306,22 @@ export function DockerPanel(): JSX.Element {
       {error ? <p className="note">{t(`adapters.docker.errors.${error.kind}`)}</p> : null}
       <ol className="steps">
         <li>
-          {t("adapters.docker.step1")}
-          <CopyCommand command="docker system prune -a" />
+          {t("adapters.docker.buildCache")}
+          <CopyCommand command="docker builder prune -a" />
         </li>
         <li>
-          {t("adapters.docker.step2")}
+          {t("adapters.docker.containers")}
+          <CopyCommand command="docker container prune" />
+        </li>
+        <li>
+          {t("adapters.docker.images")}
+          <CopyCommand command="docker image prune -a" />
+        </li>
+        <li>
+          {t("adapters.docker.volumes")}
           <CopyCommand command="docker volume prune" />
         </li>
-        <li>{t("adapters.docker.step3")}</li>
+        <li>{t("adapters.docker.compact")}</li>
       </ol>
       <p className="note">{t("adapters.docker.never")}</p>
     </div>

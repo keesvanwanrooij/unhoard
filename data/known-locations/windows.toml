@@ -62,15 +62,30 @@ example = "%WINDIR%\\WinSxS"
 nearMiss = "%WINDIR%\\WinSxS2"
 
 [[rule]]
+# Each item in the user's Temp folder on its own, once it is a day old, so a large
+# leftover can be cleared without the rest; items still in use are skipped by the move.
 id = "user-temp"
-parent = "%LOCALAPPDATA%"
-name = "Temp"
+parent = "%LOCALAPPDATA%\\Temp"
+name = "*"
+kind = "any"
+minAgeDays = 1
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Temp\\setup.log"
+nearMiss = "%LOCALAPPDATA%\\Templates\\setup.log"
+
+[[rule]]
+# Diagnostic traces of the Remote Desktop client WSL uses to show Linux apps (WSLg).
+id = "wsl-rdclient-traces"
+parent = "%LOCALAPPDATA%\\Temp\\DiagOutputDir"
+name = "RdClientAutoTrace"
 kind = "dir"
 category = "other"
 tier = "safe"
-action = "windowsTool:storageSense"
-example = "%LOCALAPPDATA%\\Temp"
-nearMiss = "%LOCALAPPDATA%\\Temporary"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Temp\\DiagOutputDir\\RdClientAutoTrace"
+nearMiss = "%LOCALAPPDATA%\\Temp\\DiagOutputDir\\Other"
 
 [[rule]]
 id = "windows-temp"

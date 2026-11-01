@@ -86,15 +86,12 @@ export interface Description {
   cloud: boolean;
   quarantineRoot: string | null;
   requiresAdmin: boolean;
-  effort: Effort | null;
   program: Program | null;
   steam: SteamInfo | null;
   elevated: boolean;
   lastUse: LastUse | null;
 }
 
-/** 1 = one click, 2 = review first, 3 = through another app or tool, 4 = needs admin. */
-export type Effort = 1 | 2 | 3 | 4;
 export type UseSource = "played" | "started" | "changed";
 
 export interface LastUse {
@@ -120,7 +117,6 @@ export interface MatrixPoint {
   label: string | null;
   ruleId: string | null;
   onDisk: number;
-  effort: Effort;
   lastUse: LastUse | null;
   category: Category;
   tier: Tier;
@@ -148,6 +144,8 @@ export interface DockerUsage {
 }
 
 export type ToolError = { kind: "notInstalled" | "notRunning" | "timedOut" | "failed" };
+export type AppName = "dockerDesktop" | "ollama" | "steam";
+export type OpenAppResult = { Ok: null } | { Err: ToolError };
 export type DockerResult = { Ok: DockerUsage[] } | { Err: ToolError };
 
 export interface MeasuredSummary {

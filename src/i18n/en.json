@@ -705,8 +705,8 @@
     "user-temp": {
       "title": "Your temporary files",
       "explain": "Apps leave temporary files here and often forget to clean them up.",
-      "reason": "Apps recreate what they need. Files in use are skipped.",
-      "action": "Let Storage Sense clean it, or clean it with Disk Cleanup."
+      "reason": "It is at least a day old; apps recreate what they need, and items still in use are skipped.",
+      "action": "Move it to the quarantine."
     },
     "virtualbox-vms": {
       "title": "VirtualBox machine",
@@ -893,30 +893,42 @@
       "explain": "Rust compilers rustup installed, one folder per version.",
       "reason": "Only you know which versions your projects need.",
       "action": "List them with rustup toolchain list and remove old ones with rustup toolchain uninstall <name>."
+    },
+    "wsl-rdclient-traces": {
+      "title": "WSL Remote Desktop traces",
+      "explain": "Diagnostic traces of the Remote Desktop client WSL uses to show Linux apps in a window (WSLg). A known issue can make them grow by tens of gigabytes a day.",
+      "reason": "They are only logs; nothing needs them.",
+      "action": "Quit Docker Desktop and run wsl --shutdown, then move it to the quarantine. If you never use Linux apps with a window, add guiApplications=false under [wsl2] in .wslconfig in your profile folder."
     }
   },
   "matrix": {
     "title": "Priority matrix",
     "waiting": "The matrix appears when the scan is done.",
     "empty": "Nothing to suggest yet.",
-    "axisX": "Space it frees →",
-    "key": "Bubble size: how long unused · colour: kind of content",
-    "effort": {
-      "1": "One click",
-      "2": "Review first",
-      "3": "Via an app or tool",
-      "4": "Needs admin"
-    },
+    "axisX": "Not used for →",
     "quadrant": {
-      "quickWins": "Quick wins",
-      "bigJobs": "Big jobs"
+      "bigOld": "Big and unused for long",
+      "bigRecent": "Big but used recently"
     },
     "use": {
       "played": "Last played {{when}}",
       "started": "Last started {{when}}",
       "changed": "Last changed {{when}}",
       "unknown": "Last use unknown"
-    }
+    },
+    "axisY": "↑ Space it takes",
+    "ageUnknown": "unknown",
+    "ages": {
+      "1": "1 day",
+      "7": "1 week",
+      "30": "1 month",
+      "365": "1 year",
+      "3650": "10 years"
+    },
+    "zoom": "Zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomFit": "Fit"
   },
   "facts": {
     "program": "This is {{name}} by {{publisher}}.",
@@ -926,7 +938,6 @@
     "steamLeftover": "A leftover of an uninstalled Steam game: Steam no longer knows this folder.",
     "steamGameAction": "Uninstall it in Steam, so Steam stays consistent.",
     "programAction": "Uninstall it through Settings › Apps.",
-    "effort": "Effort: {{level}}",
     "elevated": "Read with admin rights. Unhoard cannot move it, because the app itself has no rights here."
   },
   "adapters": {
@@ -956,10 +967,23 @@
         "timedOut": "Docker did not answer in time.",
         "failed": "Docker could not be asked."
       },
-      "step1": "Remove unused images, stopped containers and the build cache:",
-      "step2": "Remove unused volumes too, only if you are sure their data can go:",
-      "step3": "The disk file does not shrink by itself. Docker Desktop › Troubleshoot can clean or purge data; or run wsl --shutdown and compact the disk with diskpart as administrator.",
-      "never": "Do you no longer use Docker? Uninstall Docker Desktop through Settings › Apps; the disk goes with it."
+      "never": "Do you no longer use Docker? Uninstall Docker Desktop through Settings › Apps; the disk goes with it.",
+      "buildCache": "The build cache is usually the biggest win and only makes the next build slower:",
+      "containers": "Remove stopped containers of projects you no longer run (their volumes stay):",
+      "images": "Then remove images no container uses, such as old versions:",
+      "volumes": "Volumes hold your databases. Remove unused ones only if their projects are gone for good:",
+      "compact": "The disk file does not shrink by itself. Quit Docker Desktop, run wsl --shutdown, and compact the disk with diskpart as administrator (select vdisk file=…docker_data.vhdx, attach vdisk readonly, compact vdisk, detach vdisk)."
+    },
+    "open": {
+      "dockerDesktop": "Open Docker Desktop",
+      "ollama": "Open Ollama",
+      "steam": "Open Steam",
+      "errors": {
+        "notInstalled": "That app is not in its usual install folder.",
+        "notRunning": "The app did not start.",
+        "timedOut": "The app did not start in time.",
+        "failed": "Windows could not open the app."
+      }
     }
   },
   "hidden": {

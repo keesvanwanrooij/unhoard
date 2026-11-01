@@ -1053,11 +1053,17 @@ select {
 .matrix svg {
   display: block;
 }
-.matrix .band {
+.matrix .plot {
   fill: color-mix(in srgb, var(--accent) 3%, transparent);
 }
-.matrix .band.alt {
-  fill: color-mix(in srgb, var(--accent) 6%, transparent);
+.matrix .plot.pannable {
+  cursor: grab;
+}
+.matrix .plot.pannable:active {
+  cursor: grabbing;
+}
+.matrix .unknown-strip {
+  fill: color-mix(in srgb, var(--accent) 7%, transparent);
 }
 .matrix .tick {
   stroke: var(--line);
@@ -1098,12 +1104,13 @@ select {
 .matrix .bubble.unknown {
   stroke-dasharray: 3 3;
 }
-.matrix-key {
+/* Above the plot, so the buttons never cover a bubble or the quadrant label. */
+.matrix-zoom {
   position: absolute;
-  left: 132px;
-  top: 2px;
-  font-size: 11px;
-  color: var(--muted);
+  right: 24px;
+  top: 4px;
+  display: flex;
+  gap: 4px;
 }
 
 /* Facts, commands and app panels in the details panel. */

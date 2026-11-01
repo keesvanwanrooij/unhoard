@@ -1,5 +1,5 @@
 //! F2 and F4 knowledge beyond the file tree: app adapters (Steam, Ollama, Docker), the
-//! Windows program history, installed programs, last use, effort and the priority matrix
+//! Windows program history, installed programs, last use and the priority matrix
 //! (AC2.10, AC4.11 to AC4.13), and items read with admin rights (AC3.7).
 #![allow(
     clippy::unwrap_used,
@@ -315,7 +315,6 @@ fn f4_installed_program_folder_names_the_program_and_its_uninstall() {
         d.last_use.map(|u| (u.at, u.source)),
         Some((NOW - 3 * DAY, UseSource::Started))
     );
-    assert_eq!(d.effort, Some(3));
 }
 
 #[test]
@@ -334,7 +333,7 @@ fn f2_last_use_falls_back_to_the_newest_change_inside() {
 }
 
 #[test]
-fn f2_matrix_plots_suggestions_with_effort_and_leaves_out_keep_items() {
+fn f2_matrix_plots_suggestions_and_leaves_out_keep_items() {
     let fs = FakeFs::new();
     fs.create_dir_all(r"C:\x\npm-cache").unwrap();
     file(&fs, r"C:\x\npm-cache\blob", 50 * MIB, 3);
@@ -344,15 +343,12 @@ fn f2_matrix_plots_suggestions_with_effort_and_leaves_out_keep_items() {
     let (t, _) = scan(&fs, r"C:\x", &ctx, &ScanControl::default()).unwrap();
     let points = matrix(&t, &ctx, 100);
     let by_name = |n: &str| points.iter().find(|p| p.name == n);
-    assert_eq!(
-        by_name("npm-cache").map(|p| p.effort),
-        Some(1),
-        "safe, one click"
-    );
-    assert_eq!(
-        by_name("movie.mkv").map(|p| p.effort),
-        Some(2),
-        "review first"
+    assert!(by_name("npm-cache").is_some(), "a safe cache");
+    let movie = by_name("movie.mkv").expect("a large file to review");
+    assert!(
+        movie
+            .last_use
+            .is_some_and(|u| u.source == UseSource::Changed)
     );
     assert!(
         by_name("pagefile.sys").is_none(),

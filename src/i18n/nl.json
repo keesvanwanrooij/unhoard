@@ -704,9 +704,9 @@
     },
     "user-temp": {
       "title": "Je tijdelijke bestanden",
-      "explain": "Apps laten hier tijdelijke bestanden achter en vergeten ze vaak op te ruimen.",
-      "reason": "Apps maken opnieuw aan wat ze nodig hebben. Bestanden die in gebruik zijn worden overgeslagen.",
-      "action": "Laat Opslaginzicht het opruimen, of gebruik Schijfopruiming."
+      "explain": "Apps laten hier tijdelijke bestanden achter en vergeten vaak ze op te ruimen.",
+      "reason": "Het is minstens een dag oud; apps maken opnieuw aan wat ze nodig hebben, en wat nog in gebruik is wordt overgeslagen.",
+      "action": "Verplaats het naar de quarantaine."
     },
     "virtualbox-vms": {
       "title": "VirtualBox-machine",
@@ -893,30 +893,42 @@
       "explain": "Rust-compilers die rustup installeerde, een map per versie.",
       "reason": "Alleen jij weet welke versies je projecten nodig hebben.",
       "action": "Bekijk ze met rustup toolchain list en verwijder oude met rustup toolchain uninstall <naam>."
+    },
+    "wsl-rdclient-traces": {
+      "title": "Remote Desktop-traces van WSL",
+      "explain": "Diagnostische traces van de Remote Desktop-client die WSL gebruikt om Linux-apps in een venster te tonen (WSLg). Door een bekend probleem kunnen ze tientallen gigabytes per dag groeien.",
+      "reason": "Het zijn alleen logbestanden; niets heeft ze nodig.",
+      "action": "Sluit Docker Desktop af en voer wsl --shutdown uit, en verplaats het daarna naar de quarantaine. Gebruik je nooit Linux-apps met een venster, zet dan guiApplications=false onder [wsl2] in .wslconfig in je profielmap."
     }
   },
   "matrix": {
     "title": "Prioriteitsmatrix",
     "waiting": "De matrix verschijnt als de scan klaar is.",
     "empty": "Nog niets om voor te stellen.",
-    "axisX": "Ruimte die het oplevert →",
-    "key": "Bolgrootte: hoe lang ongebruikt · kleur: soort inhoud",
-    "effort": {
-      "1": "Eén klik",
-      "2": "Eerst bekijken",
-      "3": "Via een app of tool",
-      "4": "Adminrechten nodig"
-    },
+    "axisX": "Niet gebruikt sinds →",
     "quadrant": {
-      "quickWins": "Snelle winst",
-      "bigJobs": "Grote klussen"
+      "bigOld": "Groot en lang niet gebruikt",
+      "bigRecent": "Groot maar recent gebruikt"
     },
     "use": {
       "played": "Laatst gespeeld {{when}}",
       "started": "Laatst gestart {{when}}",
       "changed": "Laatst gewijzigd {{when}}",
       "unknown": "Laatste gebruik onbekend"
-    }
+    },
+    "axisY": "↑ Ruimte die het inneemt",
+    "ageUnknown": "onbekend",
+    "ages": {
+      "1": "1 dag",
+      "7": "1 week",
+      "30": "1 maand",
+      "365": "1 jaar",
+      "3650": "10 jaar"
+    },
+    "zoom": "Zoomen",
+    "zoomIn": "Inzoomen",
+    "zoomOut": "Uitzoomen",
+    "zoomFit": "Passend"
   },
   "facts": {
     "program": "Dit is {{name}} van {{publisher}}.",
@@ -926,7 +938,6 @@
     "steamLeftover": "Een restant van een verwijderd Steam-spel: Steam kent deze map niet meer.",
     "steamGameAction": "Verwijder het via Steam, zodat Steam blijft kloppen.",
     "programAction": "Verwijder het via Instellingen › Apps.",
-    "effort": "Moeite: {{level}}",
     "elevated": "Gelezen met adminrechten. Unhoard kan het niet verplaatsen, want de app zelf heeft hier geen rechten."
   },
   "adapters": {
@@ -956,10 +967,23 @@
         "timedOut": "Docker antwoordde niet op tijd.",
         "failed": "Docker kon niet gevraagd worden."
       },
-      "step1": "Verwijder ongebruikte images, gestopte containers en de build-cache:",
-      "step2": "Verwijder ook ongebruikte volumes, alleen als je zeker weet dat die data weg mag:",
-      "step3": "Het schijfbestand krimpt niet vanzelf. Docker Desktop › Troubleshoot kan data opschonen; of voer wsl --shutdown uit en comprimeer de schijf met diskpart als administrator.",
-      "never": "Gebruik je Docker niet meer? Verwijder Docker Desktop via Instellingen › Apps; de schijf gaat mee."
+      "never": "Gebruik je Docker niet meer? Verwijder Docker Desktop via Instellingen › Apps; de schijf gaat mee.",
+      "buildCache": "De build-cache levert meestal het meeste op en maakt alleen de volgende build trager:",
+      "containers": "Verwijder gestopte containers van projecten die je niet meer draait (hun volumes blijven):",
+      "images": "Verwijder daarna images die geen container meer gebruikt, zoals oude versies:",
+      "volumes": "Volumes bevatten je databases. Verwijder ongebruikte alleen als die projecten echt weg mogen:",
+      "compact": "Het schijfbestand krimpt niet vanzelf. Sluit Docker Desktop af, voer wsl --shutdown uit en comprimeer de schijf met diskpart als administrator (select vdisk file=…docker_data.vhdx, attach vdisk readonly, compact vdisk, detach vdisk)."
+    },
+    "open": {
+      "dockerDesktop": "Open Docker Desktop",
+      "ollama": "Open Ollama",
+      "steam": "Open Steam",
+      "errors": {
+        "notInstalled": "Die app staat niet in de gebruikelijke installatiemap.",
+        "notRunning": "De app startte niet.",
+        "timedOut": "De app startte niet op tijd.",
+        "failed": "Windows kon de app niet openen."
+      }
     }
   },
   "hidden": {

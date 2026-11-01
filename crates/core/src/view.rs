@@ -262,11 +262,9 @@ pub struct MatrixPoint {
     pub label: Option<String>,
     /// Its matching rule.
     pub rule_id: Option<String>,
-    /// Size on disk: the x axis.
+    /// Size on disk: the x axis and the bubble size.
     pub on_disk: u64,
-    /// Effort, 1 to 4: the y axis.
-    pub effort: u8,
-    /// Last use: the bubble size.
+    /// Last use: the y axis.
     pub last_use: Option<LastUse>,
     /// The kind of content: the colour.
     pub category: Category,
@@ -274,12 +272,13 @@ pub struct MatrixPoint {
     pub tier: Tier,
 }
 
-/// The priority matrix: every suggestion with an effort, largest first, at most `limit`.
-/// Items Unhoard only explains have no effort and are left out.
+/// The priority matrix: every suggestion, largest first, at most `limit`. Items Unhoard
+/// only explains (tier Keep) are left out: there is nothing to clear.
 pub fn matrix(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<MatrixPoint> {
     suggestions(tree, ctx, usize::MAX)
         .into_iter()
-        .filter_map(|s| {
+        .filter(|s| s.tier != Tier::Keep)
+        .map(|s| {
             let d = s.description;
             let label = d
                 .program
@@ -289,17 +288,16 @@ pub fn matrix(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<MatrixPoint> 
                     Some(SteamInfo::Game { name, .. }) => Some(name.clone()),
                     _ => None,
                 });
-            Some(MatrixPoint {
+            MatrixPoint {
                 id: s.node.id,
                 name: s.node.name,
                 label,
                 rule_id: d.rule_id,
                 on_disk: s.node.on_disk,
-                effort: d.effort?,
                 last_use: d.last_use,
                 category: s.node.category,
                 tier: s.tier,
-            })
+            }
         })
         .take(limit)
         .collect()
