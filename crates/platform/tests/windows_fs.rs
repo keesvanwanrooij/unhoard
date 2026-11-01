@@ -26,6 +26,7 @@ fn ctx() -> ScanContext {
         rules: Rules::empty(),
         roots: Roots::default(),
         now: WindowsFs.now(),
+        knowledge: Default::default(),
     }
 }
 

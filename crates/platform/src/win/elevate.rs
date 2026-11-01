@@ -1,11 +1,13 @@
-//! Starting the elevated read-only helper and receiving its results over a named pipe.
+//! Starting the elevated read-only helper and talking to it over a named pipe: the app
+//! sends one request and reads one reply.
 
-use std::io::Read;
+use std::io::{Read, Write};
 use std::os::windows::io::{FromRawHandle, OwnedHandle};
+use std::sync::mpsc::Receiver;
 
 use unhoard_core::fs::FsError;
 use windows::Win32::Foundation::{ERROR_CANCELLED, ERROR_PIPE_CONNECTED, HANDLE, WAIT_OBJECT_0};
-use windows::Win32::Storage::FileSystem::{FILE_FLAG_FIRST_PIPE_INSTANCE, PIPE_ACCESS_INBOUND};
+use windows::Win32::Storage::FileSystem::{FILE_FLAG_FIRST_PIPE_INSTANCE, PIPE_ACCESS_DUPLEX};
 use windows::Win32::System::Pipes::{
     ConnectNamedPipe, CreateNamedPipeW, GetNamedPipeClientProcessId, PIPE_REJECT_REMOTE_CLIENTS,
     PIPE_TYPE_BYTE, PIPE_WAIT,
@@ -19,18 +21,18 @@ use super::{Handle, Wide, map_err};
 /// A pipe server waiting for one client.
 pub(crate) struct PipeServer(Handle);
 
-/// Creates a one-instance, inbound, local-only pipe. Its default security lets only
-/// SYSTEM, Administrators and this user write to it.
+/// Creates a one-instance, two-way, local-only pipe. Its default security lets only
+/// SYSTEM, Administrators and this user open it.
 pub(crate) fn create_pipe(name: &str) -> Result<PipeServer, FsError> {
     let w = Wide::new(&format!(r"\\.\pipe\{name}"));
     // SAFETY: `w` is NUL-terminated; default security attributes.
     let h = unsafe {
         CreateNamedPipeW(
             w.pcwstr(),
-            PIPE_ACCESS_INBOUND | FILE_FLAG_FIRST_PIPE_INSTANCE,
+            PIPE_ACCESS_DUPLEX | FILE_FLAG_FIRST_PIPE_INSTANCE,
             PIPE_TYPE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
             1,
-            0,
+            1 << 20,
             1 << 20,
             0,
             None,
@@ -43,9 +45,15 @@ pub(crate) fn create_pipe(name: &str) -> Result<PipeServer, FsError> {
 }
 
 impl PipeServer {
-    /// Waits for the client, checks its process ID and reads everything it sends, at most
-    /// `max` bytes.
-    pub(crate) fn receive_from(self, expected_pid: u32, max: usize) -> Result<Vec<u8>, FsError> {
+    /// Waits for the client and checks its process ID; then waits for the request, sends
+    /// it, and reads everything the client sends back, at most `max` bytes. The request is
+    /// never sent to any other process.
+    pub(crate) fn serve(
+        self,
+        expected_pid: u32,
+        request: &Receiver<Vec<u8>>,
+        max: usize,
+    ) -> Result<Vec<u8>, FsError> {
         // SAFETY: the pipe handle is valid; synchronous connect.
         if let Err(e) = unsafe { ConnectNamedPipe(self.0.0, None) }
             && e.code() != ERROR_PIPE_CONNECTED.to_hresult()
@@ -61,7 +69,9 @@ impl PipeServer {
         let raw = self.0.0;
         std::mem::forget(self);
         // SAFETY: ownership of the pipe handle moves into the File, which closes it.
-        let file = std::fs::File::from(unsafe { OwnedHandle::from_raw_handle(raw.0) });
+        let mut file = std::fs::File::from(unsafe { OwnedHandle::from_raw_handle(raw.0) });
+        let body = request.recv().map_err(|_| FsError::Other { code: 0 })?;
+        file.write_all(&body).map_err(|e| super::map_io(&e))?;
         let mut out = vec![];
         file.take(max as u64)
             .read_to_end(&mut out)
