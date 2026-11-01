@@ -23,7 +23,8 @@
     "partial": "partial",
     "ready": "Ready to scan",
     "drive": "{{drive}} · {{size}}",
-    "systemDrive": "system drive"
+    "systemDrive": "system drive",
+    "matrix": "Matrix"
   },
   "category": {
     "media": "Photos & videos",
@@ -95,7 +96,11 @@
       "apps": "Open Installed apps",
       "systemProtection": "Open System Protection",
       "recycleBin": "Open the Recycle Bin"
-    }
+    },
+    "appUninstall": "Uninstall in Steam",
+    "adminRead": "Read with admin rights",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "preview": {
     "title": "Preview: nothing has changed yet",
@@ -215,7 +220,11 @@
     "about": "About",
     "build": "Build {{build}}",
     "privacy": "Unhoard makes no network connections and sends nothing anywhere.",
-    "license": "Free software under the GNU GPL, version 3 or later."
+    "license": "Free software under the GNU GPL, version 3 or later.",
+    "adminRead": "Read protected folders",
+    "adminAsk": "Ask",
+    "adminAlways": "Always",
+    "adminNever": "Never"
   },
   "firstRun": {
     "title": "Where did your space go?",
@@ -335,8 +344,16 @@
       ],
       "error": [
         "That didn't work: {{message}}"
+      ],
+      "adminAsk": [
+        "Some folders cannot be read without admin rights, so their size stays unknown. May I read them? I only read, I change nothing."
+      ],
+      "adminReadDone": [
+        "I read {{count}} protected folders with admin rights: {{size}} is no longer hidden."
       ]
-    }
+    },
+    "adminYes": "Yes, with admin rights",
+    "adminNo": "Not now"
   },
   "knownLocations": {
     "adobe-media-cache": {
@@ -746,6 +763,247 @@
       "explain": "Packages Yarn downloaded once, kept to install them faster next time.",
       "reason": "Yarn downloads them again when needed.",
       "action": "Move it to the quarantine."
+    },
+    "conda-pkgs-miniconda": {
+      "title": "conda package cache",
+      "explain": "Packages conda downloaded and unpacked to build your environments.",
+      "reason": "Your environments keep working; conda downloads packages again when it needs them.",
+      "action": "Run conda clean --all in the Anaconda Prompt."
+    },
+    "conda-pkgs-anaconda": {
+      "title": "conda package cache",
+      "explain": "Packages conda downloaded and unpacked to build your environments.",
+      "reason": "Your environments keep working; conda downloads packages again when it needs them.",
+      "action": "Run conda clean --all in the Anaconda Prompt."
+    },
+    "go-mod-cache": {
+      "title": "Go module cache",
+      "explain": "Source code of Go modules, downloaded once for your projects.",
+      "reason": "Go downloads modules again when a build needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "bun-cache": {
+      "title": "Bun cache",
+      "explain": "Packages Bun downloaded once, kept to install them faster.",
+      "reason": "Bun downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "uv-cache": {
+      "title": "uv cache",
+      "explain": "Python packages uv downloaded and built, shared by your projects.",
+      "reason": "uv downloads or builds them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "poetry-cache": {
+      "title": "Poetry cache",
+      "explain": "Python packages Poetry downloaded once.",
+      "reason": "Poetry downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "whisper-models": {
+      "title": "Whisper speech models",
+      "explain": "Speech-recognition models that Whisper downloaded the first time you used them.",
+      "reason": "Whisper downloads a model again the next time you use it, which can take a while.",
+      "action": "Move it to the quarantine if you no longer transcribe audio."
+    },
+    "torch-hub": {
+      "title": "PyTorch Hub models",
+      "explain": "Models and code PyTorch Hub downloaded for scripts you ran.",
+      "reason": "PyTorch downloads them again when a script needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "ollama-updates": {
+      "title": "Ollama update downloads",
+      "explain": "Installers Ollama downloaded to update itself.",
+      "reason": "Ollama downloads a new one for its next update.",
+      "action": "Move it to the quarantine."
+    },
+    "vscode-caches": {
+      "title": "VS Code caches",
+      "explain": "Caches Visual Studio Code builds up: old versions, extension downloads and web content.",
+      "reason": "VS Code rebuilds them; close it first, or the files are in use.",
+      "action": "Close VS Code, then move it to the quarantine."
+    },
+    "cursor-caches": {
+      "title": "Cursor caches",
+      "explain": "Caches the Cursor editor builds up: old versions, extension downloads and web content.",
+      "reason": "Cursor rebuilds them; close it first, or the files are in use.",
+      "action": "Close Cursor, then move it to the quarantine."
+    },
+    "teams-cache": {
+      "title": "Microsoft Teams cache",
+      "explain": "Cached chats, images and web content of the new Microsoft Teams.",
+      "reason": "Microsoft documents clearing it; Teams downloads what it needs again. Quit Teams first.",
+      "action": "Quit Teams, then move it to the quarantine."
+    },
+    "slack-cache": {
+      "title": "Slack cache",
+      "explain": "Images, files and web content Slack keeps to load faster.",
+      "reason": "Slack rebuilds it; quit Slack first.",
+      "action": "Quit Slack, then move it to the quarantine."
+    },
+    "epic-webcache": {
+      "title": "Epic Games Launcher web cache",
+      "explain": "Web pages and images of the Epic Games Launcher.",
+      "reason": "The launcher rebuilds it; Epic's support suggests clearing it when the launcher misbehaves.",
+      "action": "Quit the launcher, then move it to the quarantine."
+    },
+    "steam-htmlcache": {
+      "title": "Steam web cache",
+      "explain": "Pages and images of Steam's built-in browser (the store and the community).",
+      "reason": "Steam rebuilds it; quit Steam first.",
+      "action": "Quit Steam, then move it to the quarantine."
+    },
+    "outlook-offline-mail": {
+      "title": "Outlook offline mailbox",
+      "explain": "A copy of your mailbox that Outlook keeps on this PC (an .ost file), so mail works offline.",
+      "reason": "The mail itself stays on the server, but Outlook downloads everything again if the file is gone.",
+      "action": "In Outlook, keep less mail offline: Account settings › your account › Change › Mail to keep offline."
+    },
+    "lmstudio-models": {
+      "title": "LM Studio models",
+      "explain": "Language models you downloaded in LM Studio.",
+      "reason": "Only you know which models you still use; downloading one again takes a while.",
+      "action": "Delete models you no longer use in LM Studio, under My Models."
+    },
+    "lmstudio-models-cache": {
+      "title": "LM Studio models",
+      "explain": "Language models you downloaded in LM Studio.",
+      "reason": "Only you know which models you still use; downloading one again takes a while.",
+      "action": "Delete models you no longer use in LM Studio, under My Models."
+    },
+    "jetbrains-caches": {
+      "title": "JetBrains IDE caches",
+      "explain": "Indexes and caches of a JetBrains IDE such as IntelliJ IDEA or PyCharm.",
+      "reason": "The IDE rebuilds them, which takes a while the first time; close the IDE first.",
+      "action": "Close the IDE, then move it to the quarantine."
+    },
+    "unity-cache": {
+      "title": "Unity cache",
+      "explain": "Downloaded packages and assets the Unity editor shares between projects.",
+      "reason": "Unity downloads them again when a project needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "rustup-toolchains": {
+      "title": "Rust toolchains",
+      "explain": "Rust compilers rustup installed, one folder per version.",
+      "reason": "Only you know which versions your projects need.",
+      "action": "List them with rustup toolchain list and remove old ones with rustup toolchain uninstall <name>."
     }
+  },
+  "matrix": {
+    "title": "Priority matrix",
+    "waiting": "The matrix appears when the scan is done.",
+    "empty": "Nothing to suggest yet.",
+    "axisX": "Space it frees →",
+    "key": "Bubble size: how long unused · colour: kind of content",
+    "effort": {
+      "1": "One click",
+      "2": "Review first",
+      "3": "Via an app or tool",
+      "4": "Needs admin"
+    },
+    "quadrant": {
+      "quickWins": "Quick wins",
+      "bigJobs": "Big jobs"
+    },
+    "use": {
+      "played": "Last played {{when}}",
+      "started": "Last started {{when}}",
+      "changed": "Last changed {{when}}",
+      "unknown": "Last use unknown"
+    }
+  },
+  "facts": {
+    "program": "This is {{name}} by {{publisher}}.",
+    "unknownPublisher": "an unknown publisher",
+    "installed": "Installed on {{date}}.",
+    "steamGame": "This is the Steam game {{name}}.",
+    "steamLeftover": "A leftover of an uninstalled Steam game: Steam no longer knows this folder.",
+    "steamGameAction": "Uninstall it in Steam, so Steam stays consistent.",
+    "programAction": "Uninstall it through Settings › Apps.",
+    "effort": "Effort: {{level}}",
+    "elevated": "Read with admin rights. Unhoard cannot move it, because the app itself has no rights here."
+  },
+  "adapters": {
+    "ollama": {
+      "show": "Show the models",
+      "none": "No Ollama models found.",
+      "title": "Ollama models",
+      "explain": "The size is what removing a model frees: data other models share stays.",
+      "pulled": "Downloaded {{when}}",
+      "shared": "{{size}} shared with other models",
+      "quarantine": "Move model to quarantine"
+    },
+    "docker": {
+      "title": "Docker Desktop",
+      "explain": "This virtual disk holds all of Docker's images, containers, volumes and build cache. Never delete the file by hand: that resets Docker and everything in it is gone.",
+      "show": "Show what Docker uses",
+      "reclaimable": "{{size}} can go",
+      "kinds": {
+        "Images": "Images",
+        "Containers": "Containers",
+        "LocalVolumes": "Volumes",
+        "BuildCache": "Build cache"
+      },
+      "errors": {
+        "notInstalled": "Docker Desktop is not installed in its usual folder.",
+        "notRunning": "Start Docker Desktop first, then try again.",
+        "timedOut": "Docker did not answer in time.",
+        "failed": "Docker could not be asked."
+      },
+      "step1": "Remove unused images, stopped containers and the build cache:",
+      "step2": "Remove unused volumes too, only if you are sure their data can go:",
+      "step3": "The disk file does not shrink by itself. Docker Desktop › Troubleshoot can clean or purge data; or run wsl --shutdown and compact the disk with diskpart as administrator.",
+      "never": "Do you no longer use Docker? Uninstall Docker Desktop through Settings › Apps; the disk goes with it."
+    }
+  },
+  "hidden": {
+    "kinds": {
+      "restorePoints": {
+        "title": "Restore points",
+        "explain": "Windows keeps restore points and shadow copies here, so you can roll back the system. Choose in System Protection how much space they may use, or delete old ones."
+      },
+      "storeApps": {
+        "title": "Microsoft Store apps",
+        "explain": "Apps installed from the Microsoft Store. Remove the ones you no longer use in Settings › Apps."
+      },
+      "recovery": {
+        "title": "Recovery environment",
+        "explain": "What Windows needs to repair or reset your PC. Leave it alone."
+      },
+      "defender": {
+        "title": "Windows Defender",
+        "explain": "Scan history, definition updates and quarantine of Windows' antivirus. Windows manages it; leave it alone."
+      },
+      "errorReports": {
+        "title": "Error reports",
+        "explain": "Reports Windows kept after crashes. Disk Cleanup removes them safely (Windows error reports)."
+      },
+      "otherAccounts": {
+        "title": "Other accounts",
+        "explain": "Folders of other accounts on this PC, or of Windows' own service accounts. Only that account, or an administrator, can tidy them."
+      },
+      "recycleBin": {
+        "title": "Other Recycle Bins",
+        "explain": "The Recycle Bin of other accounts or of the system. Each account empties its own."
+      },
+      "other": {
+        "title": "Other protected folders",
+        "explain": "Folders apps or Windows protect. Unhoard explains them but never moves them."
+      }
+    }
+  },
+  "suggestions": {
+    "groups": {
+      "steamGames": "Steam games",
+      "steamLeftovers": "Leftovers of uninstalled games",
+      "programs": "Installed programs",
+      "generic": "Large files without an explanation"
+    },
+    "count_one": "{{count}} item",
+    "count_other": "{{count}} items",
+    "moveAll_one": "Move {{count}} to quarantine",
+    "moveAll_other": "Move all {{count}} to quarantine"
   }
 }

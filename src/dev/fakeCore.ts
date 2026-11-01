@@ -126,17 +126,96 @@ function view(id: number, top: number): ViewResponse {
   };
 }
 
+/** The first fake items of at least 1 MiB, found without walking the whole tree. */
+function someLargeItems(count: number): FakeNode[] {
+  const out: FakeNode[] = [];
+  for (const n of nodes) {
+    if (n.parent !== null && n.size >= 2 ** 20) out.push(n);
+    if (out.length >= count) break;
+  }
+  return out;
+}
+
+let suggestionCache: unknown[] | null = null;
+
+/** Suggestions in a few groups (browser caches, build folders, Steam), to try the grouping.
+ * Built once: the mock runs on the UI thread, where the real work would run in Rust. */
+function fakeSuggestions(): unknown[] {
+  suggestionCache ??= buildSuggestions();
+  return suggestionCache;
+}
+
+function buildSuggestions(): unknown[] {
+  const kinds: { ruleId: string | null; tier: string; steam: unknown; count: number }[] = [
+    { ruleId: "chrome-cache", tier: "safe", steam: null, count: 9 },
+    { ruleId: "node-modules", tier: "likelySafe", steam: null, count: 4 },
+    { ruleId: null, tier: "review", steam: { kind: "game", appId: 1, name: "Card Game", lastPlayed: null }, count: 2 },
+    { ruleId: null, tier: "likelySafe", steam: { kind: "leftover" }, count: 1 },
+    { ruleId: null, tier: "review", steam: null, count: 3 },
+  ];
+  const pool = someLargeItems(40);
+  let i = 0;
+  return kinds.flatMap((k) =>
+    Array.from({ length: k.count }, () => {
+      const n = pool[i++ % pool.length] ?? nodes[0];
+      if (!n) return null;
+      const steamGame = (k.steam as { kind: string } | null)?.kind === "game";
+      return {
+        node: viewNode(n),
+        path: `C:\\fake\\${n.name}`,
+        tier: k.tier,
+        description: {
+          ruleId: k.ruleId,
+          tier: k.tier,
+          actions: steamGame ? [{ type: "appUninstall" }, { type: "showInExplorer" }] : [{ type: "quarantine" }, { type: "showInExplorer" }],
+          generic: k.ruleId === null && k.steam === null,
+          protected: null,
+          cloud: false,
+          quarantineRoot: "C:\\Unhoard Quarantine",
+          requiresAdmin: false,
+          effort: steamGame ? 3 : k.tier === "review" ? 2 : 1,
+          program: null,
+          steam: k.steam,
+          elevated: false,
+          lastUse: null,
+        },
+      };
+    }),
+  );
+}
+
+/** Priority-matrix points from the largest fake items, with varied effort and age. */
+function matrixPoints(limit: number): unknown[] {
+  const now = Date.now() / 1000;
+  return someLargeItems(limit * 3)
+    .sort((a, b) => b.size - a.size)
+    .slice(0, limit)
+    .map((n, i) => ({
+      id: n.id,
+      name: n.name,
+      label: null,
+      ruleId: null,
+      onDisk: n.size,
+      effort: (i % 4) + 1,
+      lastUse: i % 7 === 0 ? null : { at: now - ((i * 37) % 3000) * 86_400, source: i % 3 === 0 ? "played" : i % 3 === 1 ? "started" : "changed" },
+      category: n.category,
+      tier: "review",
+    }));
+}
+
 /** Installs the fake core. `?entries=N` sets the tree size (default 20 000). */
 export function installFakeCore(): void {
   const entries = Number(new URLSearchParams(location.search).get("entries") ?? "20000");
   build(entries);
+  // Answers the real core computes off the UI thread are prepared here, before any timing.
+  fakeSuggestions();
   const status: ScanStatus = { generation: 1, root: "C:\\", driveScan: true, files: nodes.length, onDisk: nodes[0]?.size ?? 0, done: true, partial: false, elapsedMs: 4100 };
   mockIPC(
     (cmd, args) => {
       const a = (args ?? {}) as Record<string, unknown>;
       switch (cmd) {
         case "settings_get":
-          return { language: null, mapStyle: "cells", motion: "living", measure: "onDisk", companion: "normal", firstRunDone: true };
+          return { language: null, mapStyle: "cells", motion: "living", measure: "onDisk", companion: "normal", adminRead: "never", firstRunDone: true };
         case "settings_set":
           return null;
         case "app_info":
@@ -153,23 +232,63 @@ export function installFakeCore(): void {
         case "details": {
           const n = nodes[Number(a["id"] ?? 0)] ?? nodes[0];
           if (!n) return null;
+          // Two folders stand in for app adapters, so their panels can be tried in a browser.
+          const ruleId = n.name === "App data" ? "ollama-models" : n.name === "Developer" ? "docker-disk" : null;
           return {
             node: viewNode(n),
             path: n.name,
-            description: { ruleId: null, tier: null, actions: [{ type: "showInExplorer" }], generic: false, protected: null, cloud: false, quarantineRoot: null, requiresAdmin: false },
+            description: {
+              ruleId,
+              tier: ruleId ? "review" : null,
+              actions: [{ type: "showInExplorer" }],
+              generic: false,
+              protected: null,
+              cloud: false,
+              quarantineRoot: null,
+              requiresAdmin: false,
+              effort: ruleId ? 3 : null,
+              program: null,
+              steam: null,
+              elevated: false,
+              lastUse: { at: Date.now() / 1000 - 90 * 86_400, source: "changed" },
+            },
             cloud: null,
+            measured: null,
           };
         }
         case "suggestions":
-          return [1, []];
+          return [1, fakeSuggestions()];
         case "quarantine_state":
           return { batches: [], warnings: [], space: [] };
         case "cloud_roots":
           return [];
+        case "matrix":
+          return [1, matrixPoints(Number(a["limit"] ?? 300))];
+        case "admin_start":
+          return { Ok: true };
+        case "admin_read":
+          return { Ok: { folders: 3, onDisk: 6 * GB } };
+        case "app_uninstall":
+          return null;
+        case "docker_usage":
+          return {
+            Ok: [
+              { kind: "Images", total: 14, active: 3, bytes: 31 * GB, reclaimable: 22 * GB },
+              { kind: "Containers", total: 9, active: 2, bytes: 2 * GB, reclaimable: 1.5 * GB },
+              { kind: "Local Volumes", total: 6, active: 2, bytes: 12 * GB, reclaimable: 4 * GB },
+              { kind: "Build Cache", total: 210, active: 0, bytes: 8 * GB, reclaimable: 8 * GB },
+            ],
+          };
+        case "ollama_models":
+          return [
+            { name: "llama3:70b", manifest: "m1", blobs: [], uniqueBlobs: [], bytes: 40 * GB, uniqueBytes: 39 * GB, modified: Date.now() / 1000 - 200 * 86_400, ids: [1, 2] },
+            { name: "coder:7b", manifest: "m2", blobs: [], uniqueBlobs: [], bytes: 4.5 * GB, uniqueBytes: 3 * GB, modified: Date.now() / 1000 - 12 * 86_400, ids: null },
+          ];
         case "reveal_hidden":
           return {
             Ok: Array.from({ length: 14 }, (_, i) => ({
               path: `C:\\Protected folder ${String(i + 1)}`,
+              kind: (["restorePoints", "storeApps", "defender", "other"] as const)[i % 4],
               logical: (14 - i) * GB,
               onDisk: (14 - i) * GB,
               files: 1000 * (i + 1),

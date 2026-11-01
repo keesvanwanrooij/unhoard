@@ -23,7 +23,8 @@
     "partial": "gedeeltelijk",
     "ready": "Klaar om te scannen",
     "drive": "{{drive}} · {{size}}",
-    "systemDrive": "systeemschijf"
+    "systemDrive": "systeemschijf",
+    "matrix": "Matrix"
   },
   "category": {
     "media": "Foto's & video's",
@@ -95,7 +96,11 @@
       "apps": "Open Geïnstalleerde apps",
       "systemProtection": "Open Systeembeveiliging",
       "recycleBin": "Open de Prullenbak"
-    }
+    },
+    "appUninstall": "Verwijderen via Steam",
+    "adminRead": "Lees met adminrechten",
+    "copy": "Kopieer",
+    "copied": "Gekopieerd"
   },
   "preview": {
     "title": "Voorbeeld: er is nog niets veranderd",
@@ -215,7 +220,11 @@
     "about": "Over",
     "build": "Build {{build}}",
     "privacy": "Unhoard maakt geen netwerkverbindingen en stuurt niets weg.",
-    "license": "Vrije software onder de GNU GPL, versie 3 of later."
+    "license": "Vrije software onder de GNU GPL, versie 3 of later.",
+    "adminRead": "Beschermde mappen lezen",
+    "adminAsk": "Vragen",
+    "adminAlways": "Altijd",
+    "adminNever": "Nooit"
   },
   "firstRun": {
     "title": "Waar is je ruimte gebleven?",
@@ -335,8 +344,16 @@
       ],
       "error": [
         "Dat lukte niet: {{message}}"
+      ],
+      "adminAsk": [
+        "Sommige mappen kan ik zonder adminrechten niet lezen, dus hun grootte blijft onbekend. Mag ik ze lezen? Ik lees alleen, ik verander niets."
+      ],
+      "adminReadDone": [
+        "Ik heb {{count}} beschermde mappen met adminrechten gelezen: {{size}} is niet langer verborgen."
       ]
-    }
+    },
+    "adminYes": "Ja, met adminrechten",
+    "adminNo": "Nu niet"
   },
   "knownLocations": {
     "adobe-media-cache": {
@@ -746,6 +763,247 @@
       "explain": "Pakketten die Yarn eerder heeft gedownload, bewaard om ze de volgende keer sneller te installeren.",
       "reason": "Yarn downloadt ze opnieuw als het nodig is.",
       "action": "Verplaats het naar de quarantaine."
+    },
+    "conda-pkgs-miniconda": {
+      "title": "conda-pakketcache",
+      "explain": "Pakketten die conda heeft gedownload en uitgepakt om je omgevingen te bouwen.",
+      "reason": "Je omgevingen blijven werken; conda downloadt pakketten opnieuw als het ze nodig heeft.",
+      "action": "Voer conda clean --all uit in de Anaconda Prompt."
+    },
+    "conda-pkgs-anaconda": {
+      "title": "conda-pakketcache",
+      "explain": "Pakketten die conda heeft gedownload en uitgepakt om je omgevingen te bouwen.",
+      "reason": "Je omgevingen blijven werken; conda downloadt pakketten opnieuw als het ze nodig heeft.",
+      "action": "Voer conda clean --all uit in de Anaconda Prompt."
+    },
+    "go-mod-cache": {
+      "title": "Go-modulecache",
+      "explain": "Broncode van Go-modules, eenmalig gedownload voor je projecten.",
+      "reason": "Go downloadt modules opnieuw als een build ze nodig heeft.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "bun-cache": {
+      "title": "Bun-cache",
+      "explain": "Pakketten die Bun eerder heeft gedownload, bewaard om sneller te installeren.",
+      "reason": "Bun downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "uv-cache": {
+      "title": "uv-cache",
+      "explain": "Python-pakketten die uv heeft gedownload en gebouwd, gedeeld door je projecten.",
+      "reason": "uv downloadt of bouwt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "poetry-cache": {
+      "title": "Poetry-cache",
+      "explain": "Python-pakketten die Poetry eerder heeft gedownload.",
+      "reason": "Poetry downloadt ze opnieuw als het nodig is.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "whisper-models": {
+      "title": "Whisper-spraakmodellen",
+      "explain": "Spraakherkenningsmodellen die Whisper downloadde toen je ze voor het eerst gebruikte.",
+      "reason": "Whisper downloadt een model opnieuw als je het weer gebruikt; dat kan even duren.",
+      "action": "Verplaats het naar de quarantaine als je geen audio meer omzet naar tekst."
+    },
+    "torch-hub": {
+      "title": "PyTorch Hub-modellen",
+      "explain": "Modellen en code die PyTorch Hub downloadde voor scripts die je draaide.",
+      "reason": "PyTorch downloadt ze opnieuw als een script ze nodig heeft.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "ollama-updates": {
+      "title": "Updates van Ollama",
+      "explain": "Installatiebestanden die Ollama downloadde om zichzelf bij te werken.",
+      "reason": "Ollama downloadt een nieuwe voor de volgende update.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "vscode-caches": {
+      "title": "Caches van VS Code",
+      "explain": "Caches die Visual Studio Code opbouwt: oude versies, extensiedownloads en webinhoud.",
+      "reason": "VS Code bouwt ze opnieuw op; sluit het eerst, anders zijn de bestanden in gebruik.",
+      "action": "Sluit VS Code en verplaats het daarna naar de quarantaine."
+    },
+    "cursor-caches": {
+      "title": "Caches van Cursor",
+      "explain": "Caches die de Cursor-editor opbouwt: oude versies, extensiedownloads en webinhoud.",
+      "reason": "Cursor bouwt ze opnieuw op; sluit het eerst, anders zijn de bestanden in gebruik.",
+      "action": "Sluit Cursor en verplaats het daarna naar de quarantaine."
+    },
+    "teams-cache": {
+      "title": "Cache van Microsoft Teams",
+      "explain": "Opgeslagen chats, afbeeldingen en webinhoud van de nieuwe Microsoft Teams.",
+      "reason": "Microsoft beschrijft hoe je hem leegmaakt; Teams downloadt opnieuw wat het nodig heeft. Sluit Teams eerst af.",
+      "action": "Sluit Teams af en verplaats het daarna naar de quarantaine."
+    },
+    "slack-cache": {
+      "title": "Slack-cache",
+      "explain": "Afbeeldingen, bestanden en webinhoud die Slack bewaart om sneller te laden.",
+      "reason": "Slack bouwt hem opnieuw op; sluit Slack eerst af.",
+      "action": "Sluit Slack af en verplaats het daarna naar de quarantaine."
+    },
+    "epic-webcache": {
+      "title": "Webcache van de Epic Games Launcher",
+      "explain": "Webpagina's en afbeeldingen van de Epic Games Launcher.",
+      "reason": "De launcher bouwt hem opnieuw op; Epic raadt aan hem leeg te maken als de launcher hapert.",
+      "action": "Sluit de launcher af en verplaats het daarna naar de quarantaine."
+    },
+    "steam-htmlcache": {
+      "title": "Webcache van Steam",
+      "explain": "Pagina's en afbeeldingen van de ingebouwde browser van Steam (winkel en community).",
+      "reason": "Steam bouwt hem opnieuw op; sluit Steam eerst af.",
+      "action": "Sluit Steam af en verplaats het daarna naar de quarantaine."
+    },
+    "outlook-offline-mail": {
+      "title": "Offline mailbox van Outlook",
+      "explain": "Een kopie van je mailbox die Outlook op deze pc bewaart (een .ost-bestand), zodat mail offline werkt.",
+      "reason": "De mail zelf blijft op de server, maar Outlook downloadt alles opnieuw als het bestand weg is.",
+      "action": "Bewaar in Outlook minder mail offline: Accountinstellingen › je account › Wijzigen › Offline te bewaren e-mail."
+    },
+    "lmstudio-models": {
+      "title": "LM Studio-modellen",
+      "explain": "Taalmodellen die je in LM Studio hebt gedownload.",
+      "reason": "Alleen jij weet welke modellen je nog gebruikt; opnieuw downloaden duurt even.",
+      "action": "Verwijder modellen die je niet meer gebruikt in LM Studio, onder My Models."
+    },
+    "lmstudio-models-cache": {
+      "title": "LM Studio-modellen",
+      "explain": "Taalmodellen die je in LM Studio hebt gedownload.",
+      "reason": "Alleen jij weet welke modellen je nog gebruikt; opnieuw downloaden duurt even.",
+      "action": "Verwijder modellen die je niet meer gebruikt in LM Studio, onder My Models."
+    },
+    "jetbrains-caches": {
+      "title": "Caches van een JetBrains-IDE",
+      "explain": "Indexen en caches van een JetBrains-IDE zoals IntelliJ IDEA of PyCharm.",
+      "reason": "De IDE bouwt ze opnieuw op, wat de eerste keer even duurt; sluit de IDE eerst.",
+      "action": "Sluit de IDE en verplaats het daarna naar de quarantaine."
+    },
+    "unity-cache": {
+      "title": "Unity-cache",
+      "explain": "Gedownloade pakketten en assets die de Unity-editor tussen projecten deelt.",
+      "reason": "Unity downloadt ze opnieuw als een project ze nodig heeft.",
+      "action": "Verplaats het naar de quarantaine."
+    },
+    "rustup-toolchains": {
+      "title": "Rust-toolchains",
+      "explain": "Rust-compilers die rustup installeerde, een map per versie.",
+      "reason": "Alleen jij weet welke versies je projecten nodig hebben.",
+      "action": "Bekijk ze met rustup toolchain list en verwijder oude met rustup toolchain uninstall <naam>."
     }
+  },
+  "matrix": {
+    "title": "Prioriteitsmatrix",
+    "waiting": "De matrix verschijnt als de scan klaar is.",
+    "empty": "Nog niets om voor te stellen.",
+    "axisX": "Ruimte die het oplevert →",
+    "key": "Bolgrootte: hoe lang ongebruikt · kleur: soort inhoud",
+    "effort": {
+      "1": "Eén klik",
+      "2": "Eerst bekijken",
+      "3": "Via een app of tool",
+      "4": "Adminrechten nodig"
+    },
+    "quadrant": {
+      "quickWins": "Snelle winst",
+      "bigJobs": "Grote klussen"
+    },
+    "use": {
+      "played": "Laatst gespeeld {{when}}",
+      "started": "Laatst gestart {{when}}",
+      "changed": "Laatst gewijzigd {{when}}",
+      "unknown": "Laatste gebruik onbekend"
+    }
+  },
+  "facts": {
+    "program": "Dit is {{name}} van {{publisher}}.",
+    "unknownPublisher": "een onbekende uitgever",
+    "installed": "Geïnstalleerd op {{date}}.",
+    "steamGame": "Dit is het Steam-spel {{name}}.",
+    "steamLeftover": "Een restant van een verwijderd Steam-spel: Steam kent deze map niet meer.",
+    "steamGameAction": "Verwijder het via Steam, zodat Steam blijft kloppen.",
+    "programAction": "Verwijder het via Instellingen › Apps.",
+    "effort": "Moeite: {{level}}",
+    "elevated": "Gelezen met adminrechten. Unhoard kan het niet verplaatsen, want de app zelf heeft hier geen rechten."
+  },
+  "adapters": {
+    "ollama": {
+      "show": "Toon de modellen",
+      "none": "Geen Ollama-modellen gevonden.",
+      "title": "Ollama-modellen",
+      "explain": "De grootte is wat verwijderen oplevert: data die andere modellen delen blijft staan.",
+      "pulled": "Gedownload {{when}}",
+      "shared": "{{size}} gedeeld met andere modellen",
+      "quarantine": "Model naar quarantaine"
+    },
+    "docker": {
+      "title": "Docker Desktop",
+      "explain": "Deze virtuele schijf bevat alle images, containers, volumes en build-cache van Docker. Verwijder het bestand nooit met de hand: dan wordt Docker gereset en is alles erin weg.",
+      "show": "Toon wat Docker gebruikt",
+      "reclaimable": "{{size}} kan weg",
+      "kinds": {
+        "Images": "Images",
+        "Containers": "Containers",
+        "LocalVolumes": "Volumes",
+        "BuildCache": "Build-cache"
+      },
+      "errors": {
+        "notInstalled": "Docker Desktop is niet in de gebruikelijke map geïnstalleerd.",
+        "notRunning": "Start eerst Docker Desktop en probeer het opnieuw.",
+        "timedOut": "Docker antwoordde niet op tijd.",
+        "failed": "Docker kon niet gevraagd worden."
+      },
+      "step1": "Verwijder ongebruikte images, gestopte containers en de build-cache:",
+      "step2": "Verwijder ook ongebruikte volumes, alleen als je zeker weet dat die data weg mag:",
+      "step3": "Het schijfbestand krimpt niet vanzelf. Docker Desktop › Troubleshoot kan data opschonen; of voer wsl --shutdown uit en comprimeer de schijf met diskpart als administrator.",
+      "never": "Gebruik je Docker niet meer? Verwijder Docker Desktop via Instellingen › Apps; de schijf gaat mee."
+    }
+  },
+  "hidden": {
+    "kinds": {
+      "restorePoints": {
+        "title": "Herstelpunten",
+        "explain": "Windows bewaart hier herstelpunten en schaduwkopieën, zodat je het systeem kunt terugzetten. Kies in Systeembeveiliging hoeveel ruimte ze mogen gebruiken, of verwijder oude."
+      },
+      "storeApps": {
+        "title": "Apps uit de Microsoft Store",
+        "explain": "Apps die je uit de Microsoft Store hebt geïnstalleerd. Verwijder de apps die je niet meer gebruikt via Instellingen › Apps."
+      },
+      "recovery": {
+        "title": "Herstelomgeving",
+        "explain": "Wat Windows nodig heeft om je pc te repareren of opnieuw in te stellen. Laat het staan."
+      },
+      "defender": {
+        "title": "Windows Defender",
+        "explain": "Scangeschiedenis, definitie-updates en quarantaine van de virusscanner van Windows. Windows beheert het; laat het staan."
+      },
+      "errorReports": {
+        "title": "Foutrapporten",
+        "explain": "Rapporten die Windows na crashes bewaarde. Schijfopruiming ruimt ze veilig op (Windows-foutrapportage)."
+      },
+      "otherAccounts": {
+        "title": "Andere accounts",
+        "explain": "Mappen van andere accounts op deze pc, of van serviceaccounts van Windows zelf. Alleen dat account of een beheerder kan ze opruimen."
+      },
+      "recycleBin": {
+        "title": "Andere prullenbakken",
+        "explain": "De prullenbak van andere accounts of van het systeem. Elk account leegt zijn eigen."
+      },
+      "other": {
+        "title": "Overige beschermde mappen",
+        "explain": "Mappen die apps of Windows afschermen. Unhoard legt ze uit, maar verplaatst ze nooit."
+      }
+    }
+  },
+  "suggestions": {
+    "groups": {
+      "steamGames": "Steam-spellen",
+      "steamLeftovers": "Restanten van verwijderde spellen",
+      "programs": "Geïnstalleerde programma's",
+      "generic": "Grote bestanden zonder uitleg"
+    },
+    "count_one": "{{count}} item",
+    "count_other": "{{count}} items",
+    "moveAll_one": "Zet {{count}} in quarantaine",
+    "moveAll_other": "Zet alle {{count}} in quarantaine"
   }
 }

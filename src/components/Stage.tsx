@@ -13,6 +13,7 @@ import { Renderer, type Cell } from "../map/renderer";
 import { mark } from "../perf/marks";
 import { useApp } from "../store";
 import { Companion } from "./Companion";
+import { Matrix } from "./Matrix";
 
 declare global {
   interface Window {
@@ -205,18 +206,20 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     r.setCells(key, cells);
   }, [cells, resp]);
 
+  const matrix = settings.mapStyle === "matrix";
   useEffect(() => {
     renderer.current?.setFlags({
       living: settings.motion === "living",
       scanning,
       selected: selected === null ? null : selected === -1 ? "hidden" : `n${selected}`,
       query,
-      active,
+      // The map draws nothing while the matrix shows; it keeps its layout for coming back.
+      active: active && !matrix,
     });
-  }, [settings.motion, scanning, selected, query, active]);
+  }, [settings.motion, scanning, selected, query, active, matrix]);
 
   useEffect(() => {
-    renderer.current?.setMode(settings.mapStyle);
+    if (settings.mapStyle !== "matrix") renderer.current?.setMode(settings.mapStyle);
   }, [settings.mapStyle]);
 
   useEffect(() => {
@@ -330,9 +333,10 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
           tabIndex={0}
           role="application"
           aria-label={t("map.keys")}
-          style={{ cursor: tip ? "pointer" : "default" }}
+          style={{ cursor: tip ? "pointer" : "default", visibility: matrix ? "hidden" : "visible" }}
         />
-        {tip ? (
+        {matrix ? <Matrix active={active} /> : null}
+        {tip && !matrix ? (
           <div className="tooltip" style={{ left: tip.x, top: tip.y }}>
             <b>{tip.cell.name}</b>
             <span>

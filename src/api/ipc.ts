@@ -4,15 +4,20 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
 import type {
+  AdminReadResult,
+  AdminStartResult,
   AppInfo,
   CloudRoot,
   CmdError,
   Details,
+  DockerResult,
   FreeUpPlan,
   FreeUpResult,
   ItemResult,
+  MatrixPoint,
   MovePlan,
   MoveReport,
+  OllamaModel,
   PhotoState,
   PurgeReport,
   QuarantineState,
@@ -62,6 +67,12 @@ export const api = {
   photoThumbnail: (generation: number, index: number, side: number): Promise<ThumbOut> =>
     invoke("photo_thumbnail", { generation, index, side }),
   cloudRoots: (generation: number): Promise<CloudRoot[]> => invoke("cloud_roots", { generation }),
+  matrix: (limit: number): Promise<[number, MatrixPoint[]]> => invoke("matrix", { limit }),
+  adminStart: (): Promise<AdminStartResult> => invoke("admin_start"),
+  adminRead: (generation: number, ids: number[] | null): Promise<AdminReadResult> => invoke("admin_read", { generation, ids }),
+  ollamaModels: (generation: number): Promise<OllamaModel[]> => invoke("ollama_models", { generation }),
+  dockerUsage: (): Promise<DockerResult> => invoke("docker_usage"),
+  appUninstall: (generation: number, id: number): Promise<void> => invoke("app_uninstall", { generation, id }),
 };
 
 /** Live scan progress. */

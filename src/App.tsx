@@ -60,9 +60,70 @@ const ICONS: Record<Screen, JSX.Element> = {
 const PROGRESS_BUBBLE_MS = 2000;
 const SCREENS: Screen[] = ["overview", "suggestions", "quarantine", "cloud", "photos", "settings"];
 
-function startScan(drive: string, t: (k: string, o?: Record<string, unknown>) => string): void {
+type T = (k: string, o?: Record<string, unknown>) => string;
+
+/** Reads every folder the scan could not read with the helper started for it (AC3.7). */
+function readProtected(generation: number, t: T): void {
+  const st = useApp.getState();
+  st.setAdminArmed(false);
+  api
+    .adminRead(generation, null)
+    .then((r) => {
+      if ("Ok" in r && r.Ok.folders > 0) {
+        st.say({ type: "explanation", text: t("companion.script.adminReadDone.0", { count: r.Ok.folders, size: fmtBytes(r.Ok.onDisk, st.lang) }) });
+        st.treeChanged();
+      } else if ("Err" in r && r.Err.kind !== "declined") {
+        st.say({ type: "warning", text: t("errors.invalidArgument") });
+      }
+    })
+    .catch((e: unknown) => {
+      st.sayError(e, t);
+    });
+}
+
+/** Starts the elevated helper now (one UAC prompt); it reads when the scan ends. */
+function armAdmin(t: T): void {
+  const st = useApp.getState();
+  api
+    .adminStart()
+    .then((r) => {
+      if ("Ok" in r && r.Ok) {
+        st.setAdminArmed(true);
+        // The scan may already have ended while the question waited.
+        const scan = useApp.getState().scan;
+        if (scan?.done) readProtected(scan.generation, t);
+      } else if ("Ok" in r) {
+        st.say({ type: "explanation", text: t("companion.script.revealDeclined.0") });
+      }
+    })
+    .catch((e: unknown) => {
+      st.sayError(e, t);
+    });
+}
+
+function startScan(drive: string, t: T): void {
   const st = useApp.getState();
   st.endTopic("scan");
+  st.endTopic("admin");
+  st.setAdminArmed(false);
+  // Protected folders: ask once per scan, read always, or never (AC3.6, AC3.7).
+  if (st.settings.adminRead === "always") armAdmin(t);
+  else if (st.settings.adminRead === "ask") {
+    st.say({
+      type: "explanation",
+      key: "admin",
+      text: t("companion.script.adminAsk.0"),
+      actions: [
+        {
+          label: t("companion.adminYes"),
+          run: () => {
+            armAdmin(t);
+          },
+        },
+        { label: t("companion.adminNo"), run: () => undefined },
+      ],
+    });
+  }
   st.say({ type: "progress", text: t("companion.script.scanStart.0", { drive }), key: "scan" });
   api
     .scanStart(drive)
@@ -189,6 +250,7 @@ export function App(): JSX.Element {
             const top = v.view.children.map((c) => `${c.name} (${fmtBytes(c.onDisk, app.lang)})`).join(", ");
             app.endTopic("scan");
             app.say({ type: "explanation", text: t("companion.script.scanDone.0", { top }) });
+            if (useApp.getState().adminArmed) readProtected(s.generation, t);
             if (v.hiddenBytes) app.say({ type: "tip", text: t("companion.script.hiddenSpace.0", { size: fmtBytes(v.hiddenBytes, app.lang) }) });
           })
           .catch(() => {
@@ -310,6 +372,14 @@ export function App(): JSX.Element {
                 }}
               >
                 {t("top.treemap")}
+              </button>
+              <button
+                aria-pressed={settings.mapStyle === "matrix"}
+                onClick={() => {
+                  updateSettings({ mapStyle: "matrix" });
+                }}
+              >
+                {t("top.matrix")}
               </button>
             </div>
           </>

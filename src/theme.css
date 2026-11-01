@@ -1044,3 +1044,159 @@ select {
   font: 700 30px var(--display);
   letter-spacing: 0.06em;
 }
+
+/* The priority matrix: bands per effort level, quiet axes, bubbles in the map colours. */
+.matrix {
+  position: absolute;
+  inset: 0;
+}
+.matrix svg {
+  display: block;
+}
+.matrix .band {
+  fill: color-mix(in srgb, var(--accent) 3%, transparent);
+}
+.matrix .band.alt {
+  fill: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.matrix .tick {
+  stroke: var(--line);
+  stroke-dasharray: 2 4;
+}
+.matrix .axis-label {
+  fill: var(--muted);
+  font: 11px var(--mono);
+}
+.matrix .axis-title {
+  fill: var(--muted);
+  font: 600 11px var(--display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.matrix .quadrant {
+  fill: var(--muted);
+  font: 700 13px var(--display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.matrix .quadrant.win {
+  fill: var(--accent);
+}
+.matrix .bubble {
+  fill-opacity: 0.45;
+  stroke-width: 1.2;
+  cursor: pointer;
+  transition: fill-opacity 0.15s;
+}
+.matrix .bubble:hover,
+.matrix .bubble.on {
+  fill-opacity: 0.75;
+  stroke: var(--map-select);
+  stroke-width: 2.5;
+}
+.matrix .bubble.unknown {
+  stroke-dasharray: 3 3;
+}
+.matrix-key {
+  position: absolute;
+  left: 132px;
+  top: 2px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Facts, commands and app panels in the details panel. */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.adapter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--inset);
+}
+.adapter .table td {
+  padding: 4px 6px;
+}
+.models {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+.row-head .sz {
+  font: 12px var(--mono);
+  color: var(--accent-2);
+}
+.command {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.command code {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  background: var(--panel);
+  font: 12px var(--mono);
+  overflow-wrap: anywhere;
+}
+.steps {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.hidden-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.hidden-group .btn {
+  align-self: flex-start;
+}
+
+/* Grouped suggestions. */
+.group-row td {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+.group-toggle {
+  font-weight: 600;
+  text-align: left;
+}
+.group-toggle:hover {
+  color: var(--accent);
+}
+.group-toggle .chev {
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  vertical-align: -1px;
+  transition: transform 0.15s;
+}
+.group-toggle .chev.open {
+  transform: rotate(90deg);
+}

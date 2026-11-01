@@ -28,6 +28,8 @@ export const TRIGGERS = [
   "windowsTool",
   "zoomTip",
   "cloudIntro",
+  "adminAsk",
+  "adminReadDone",
   "error",
 ] as const;
 

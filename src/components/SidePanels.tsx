@@ -5,9 +5,10 @@ import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api, errorKey } from "../api/ipc";
-import type { Action, Details, MovePlan, Outcome, RevealedFolder, ViewResponse } from "../api/types";
+import type { Action, Details, HiddenKind, MovePlan, Outcome, RevealedView, ViewResponse, WindowsTool } from "../api/types";
 import { fmtBytes, fmtInt, fmtShare } from "../format";
 import { useApp } from "../store";
+import { AdminReadButton, DockerPanel, ItemFacts, OllamaPanel } from "./AppPanels";
 import { MovePreview, actionLabel } from "./Preview";
 
 /** The sorted list of the focused folder's children. */
@@ -75,6 +76,16 @@ export function ItemList({ resp }: { resp: ViewResponse | null }): JSX.Element {
   );
 }
 
+/** The kinds of revealed folders, in the order they are explained. */
+const KINDS: HiddenKind[] = ["restorePoints", "storeApps", "recovery", "defender", "errorReports", "otherAccounts", "recycleBin", "other"];
+/** The Windows tool that manages a kind of hidden folder, if there is one. */
+const KIND_TOOL: Partial<Record<HiddenKind, WindowsTool>> = {
+  restorePoints: "systemProtection",
+  storeApps: "apps",
+  errorReports: "diskCleanup",
+  recycleBin: "recycleBin",
+};
+
 /** Revealed folders below this size are summed into one line. */
 const REVEAL_MIN_BYTES = 1 << 20;
 
@@ -86,9 +97,10 @@ function isMove(a: Action): boolean {
 export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Element {
   const { t } = useTranslation();
   const { lang, selected, scan, focus, setFocus, say, treeChanged, sayError } = useApp(useShallow((s) => ({ lang: s.lang, selected: s.selected, scan: s.scan, focus: s.focus, setFocus: s.setFocus, say: s.say, treeChanged: s.treeChanged, sayError: s.sayError })));
-  const [loaded, setLoaded] = useState<{ key: string; details: Details } | null>(null);
+  // `now` is taken when the details arrive, for "last used" texts that stay put.
+  const [loaded, setLoaded] = useState<{ key: string; details: Details; now: number } | null>(null);
   const [planFor, setPlanFor] = useState<{ key: string; plan: MovePlan } | null>(null);
-  const [revealed, setRevealed] = useState<RevealedFolder[] | null>(null);
+  const [revealed, setRevealed] = useState<RevealedView[] | null>(null);
   const [busy, setBusy] = useState(false);
   /** The selection the companion last explained, so a refresh does not repeat it. */
   const announced = useRef<string | null>(null);
@@ -98,6 +110,7 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
   const refresh = scan && !scan.done ? resp : null;
   const key = `${String(generation)}-${String(id)}`;
   const details = loaded?.key === key ? loaded.details : null;
+  const now = loaded?.key === key ? loaded.now : 0;
   const plan = planFor?.key === key ? planFor.plan : null;
   const setPlan = (p: MovePlan | null): void => {
     setPlanFor(p ? { key, plan: p } : null);
@@ -111,7 +124,7 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
       .details(generation, id)
       .then((d) => {
         if (!alive) return;
-        setLoaded({ key: k, details: d });
+        setLoaded({ key: k, details: d, now: Date.now() / 1000 });
         if (selected !== null && announced.current !== k) {
           announced.current = k;
           const tierKey = d.description.protected ? "protected" : d.description.tier;
@@ -128,9 +141,15 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
   }, [generation, id, selected, say, t, refresh]);
 
   if (id === -1 && resp?.hiddenBytes !== null && resp?.hiddenBytes !== undefined) {
-    // The largest revealed folders first; the many tiny ones are summed into one line.
-    const shown = (revealed ?? []).filter((r) => r.error !== null || r.onDisk >= REVEAL_MIN_BYTES).sort((a, b) => b.onDisk - a.onDisk);
-    const small = (revealed ?? []).filter((r) => r.error === null && r.onDisk < REVEAL_MIN_BYTES);
+    const groups = KINDS.map((kind) => {
+      const all = (revealed ?? []).filter((r) => r.kind === kind);
+      // The largest folders first; the many tiny ones are summed into one line.
+      const shown = all.filter((r) => r.error !== null || r.onDisk >= REVEAL_MIN_BYTES).sort((a, b) => b.onDisk - a.onDisk);
+      const small = all.filter((r) => r.error === null && r.onDisk < REVEAL_MIN_BYTES);
+      return { kind, total: all.reduce((n, r) => n + r.onDisk, 0), shown, small };
+    })
+      .filter((g) => g.shown.length + g.small.length > 0)
+      .sort((a, b) => b.total - a.total);
     return (
       <div className="panel details">
         <div className="d-head">
@@ -153,18 +172,45 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
           </div>
         </div>
         <p className="info">{t("companion.script.hiddenSpace.0", { size: fmtBytes(resp.hiddenBytes, lang) })}</p>
-        {revealed ? (
-          <ul className="note">
-            {shown.map((r) => (
-              <li key={r.path}>
-                {r.path} · {r.error ? t(errorKey({ code: "fs", error: r.error })) : fmtBytes(r.onDisk, lang)}
-              </li>
-            ))}
-            {small.length > 0 ? (
-              <li>{t("details.revealSmall", { count: small.length, size: fmtBytes(small.reduce((s, r) => s + r.onDisk, 0), lang) })}</li>
-            ) : null}
-          </ul>
-        ) : null}
+        {groups.map((g) => {
+          const tool = KIND_TOOL[g.kind];
+          return (
+            <div key={g.kind} className="hidden-group">
+              <div className="row-head">
+                <b>{t(`hidden.kinds.${g.kind}.title`)}</b>
+                <span className="sz">{fmtBytes(g.total, lang)}</span>
+              </div>
+              <p className="note">{t(`hidden.kinds.${g.kind}.explain`)}</p>
+              <ul className="note">
+                {g.shown.slice(0, 6).map((r) => (
+                  <li key={r.path}>
+                    {r.path} · {r.error ? t(errorKey({ code: "fs", error: r.error })) : fmtBytes(r.onDisk, lang)}
+                  </li>
+                ))}
+                {g.shown.length > 6 || g.small.length > 0 ? (
+                  <li>
+                    {t("details.revealSmall", {
+                      count: g.small.length + Math.max(0, g.shown.length - 6),
+                      size: fmtBytes(g.small.reduce((n, r) => n + r.onDisk, 0) + g.shown.slice(6).reduce((n, r) => n + r.onDisk, 0), lang),
+                    })}
+                  </li>
+                ) : null}
+              </ul>
+              {tool ? (
+                <button
+                  className="btn small"
+                  onClick={() => {
+                    api.openTool(tool).catch((e: unknown) => {
+                      sayError(e, t);
+                    });
+                  }}
+                >
+                  {t(`actions.windowsTool.${tool}`)}
+                </button>
+              ) : null}
+            </div>
+          );
+        })}
         <div className="btns">
           <button
             className="btn primary"
@@ -177,6 +223,8 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
                 .then((r) => {
                   if ("Ok" in r) {
                     setRevealed(r.Ok);
+                    // The folders it could read now count in the map, so hidden space shrinks.
+                    treeChanged();
                     const size = r.Ok.reduce((s, f) => s + f.onDisk, 0);
                     say({ type: "explanation", text: t("companion.script.revealDone.0", { size: fmtBytes(size, lang) }) });
                   } else if (r.Err.kind === "declined") {
@@ -234,6 +282,10 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
       api.openTool("apps").catch((e: unknown) => {
         sayError(e, t);
       });
+    } else if (a.type === "appUninstall") {
+      api.appUninstall(generation, d.node.id).catch((e: unknown) => {
+        sayError(e, t);
+      });
     } else if (a.type === "freeUpSpace") {
       useApp.getState().setScreen("cloud");
     }
@@ -271,9 +323,13 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
         <p className="note">{t("details.cloudState", { local: fmtBytes(d.cloud.localBytes, lang), cloud: fmtBytes(d.cloud.cloudBytes, lang) })}</p>
       ) : null}
       {d.node.unscanned ? <p className="info">{t("details.unreadable")}</p> : null}
+      {d.node.unscanned && d.node.kind === "folder" ? <AdminReadButton generation={generation} id={d.node.id} /> : null}
       {explain ? <p className="info">{explain}</p> : <p className="note">{t("details.folder", { count: d.node.files, files: fmtInt(d.node.files, lang) })}</p>}
       {reason ? <p className="note">{reason}</p> : null}
       {d.description.requiresAdmin ? <p className="note">{t("details.requiresAdmin")}</p> : null}
+      <ItemFacts d={d} now={now} />
+      {d.description.ruleId === "ollama-models" ? <OllamaPanel generation={generation} now={now} /> : null}
+      {d.description.ruleId === "docker-disk" ? <DockerPanel /> : null}
       {plan ? (
         <MovePreview
           plan={plan}
@@ -316,7 +372,9 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
               {t("actions.zoomIn")}
             </button>
           ) : null}
-          {d.description.actions.map((a, i) => (
+          {d.description.actions
+            .filter((a) => a.type !== "explainOnly")
+            .map((a, i) => (
             <button
               key={`${a.type}${String(i)}`}
               className={`btn${i === 0 && (isMove(a) || a.type !== "showInExplorer") ? " primary" : ""}`}

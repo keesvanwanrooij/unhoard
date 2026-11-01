@@ -10,6 +10,7 @@ export type Action =
   | { type: "freeUpSpace" }
   | { type: "windowsTool"; tool: WindowsTool }
   | { type: "uninstaller" }
+  | { type: "appUninstall" }
   | { type: "showInExplorer" }
   | { type: "explainOnly" };
 
@@ -85,7 +86,76 @@ export interface Description {
   cloud: boolean;
   quarantineRoot: string | null;
   requiresAdmin: boolean;
+  effort: Effort | null;
+  program: Program | null;
+  steam: SteamInfo | null;
+  elevated: boolean;
+  lastUse: LastUse | null;
 }
+
+/** 1 = one click, 2 = review first, 3 = through another app or tool, 4 = needs admin. */
+export type Effort = 1 | 2 | 3 | 4;
+export type UseSource = "played" | "started" | "changed";
+
+export interface LastUse {
+  /** Seconds since 1970. */
+  at: number;
+  source: UseSource;
+}
+
+export interface Program {
+  name: string;
+  publisher: string | null;
+  installLocation: string;
+  /** YYYYMMDD */
+  installDate: string | null;
+  estimatedBytes: number | null;
+}
+
+export type SteamInfo = { kind: "game"; appId: number; name: string; lastPlayed: number | null } | { kind: "leftover" };
+
+export interface MatrixPoint {
+  id: number;
+  name: string;
+  label: string | null;
+  ruleId: string | null;
+  onDisk: number;
+  effort: Effort;
+  lastUse: LastUse | null;
+  category: Category;
+  tier: Tier;
+}
+
+export interface OllamaModel {
+  name: string;
+  manifest: string;
+  blobs: string[];
+  uniqueBlobs: string[];
+  bytes: number;
+  uniqueBytes: number;
+  /** Seconds since 1970. */
+  modified: number;
+  /** Scan IDs of the manifest and the blobs only this model uses; null if one is missing. */
+  ids: number[] | null;
+}
+
+export interface DockerUsage {
+  kind: string;
+  total: number;
+  active: number;
+  bytes: number;
+  reclaimable: number;
+}
+
+export type ToolError = { kind: "notInstalled" | "notRunning" | "timedOut" | "failed" };
+export type DockerResult = { Ok: DockerUsage[] } | { Err: ToolError };
+
+export interface MeasuredSummary {
+  folders: number;
+  onDisk: number;
+}
+export type AdminReadResult = { Ok: MeasuredSummary } | { Err: RevealError };
+export type AdminStartResult = { Ok: boolean } | { Err: RevealError };
 
 export interface CloudSummary {
   cloudBytes: number;
@@ -100,6 +170,8 @@ export interface Details {
   path: string;
   description: Description;
   cloud: CloudSummary | null;
+  /** For a folder read with admin rights: its largest children. */
+  measured: [string, number][] | null;
 }
 
 export interface Suggestion {
@@ -206,7 +278,11 @@ export interface RevealedFolder {
 }
 
 export type RevealError = { kind: "declined" } | { kind: "invalidFolder"; detail: string } | { kind: "failed"; detail: FsError };
-export type RevealResult = { Ok: RevealedFolder[] } | { Err: RevealError };
+export type HiddenKind = "restorePoints" | "storeApps" | "recovery" | "defender" | "errorReports" | "otherAccounts" | "recycleBin" | "other";
+export interface RevealedView extends RevealedFolder {
+  kind: HiddenKind;
+}
+export type RevealResult = { Ok: RevealedView[] } | { Err: RevealError };
 
 export type Source = "whatsApp" | "samsung" | "pixel" | "iPhone" | "windowsPhone" | "screenshot" | "unknown";
 
@@ -263,10 +339,11 @@ export interface AppInfo {
 
 export interface Settings {
   language: "en" | "nl" | null;
-  mapStyle: "cells" | "treemap";
+  mapStyle: "cells" | "treemap" | "matrix";
   motion: "living" | "calm";
   measure: "onDisk" | "logical";
   companion: "normal" | "quiet";
+  adminRead: "ask" | "always" | "never";
   firstRunDone: boolean;
 }
 

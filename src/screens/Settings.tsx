@@ -75,6 +75,18 @@ export function Settings(): JSX.Element {
             options={[
               ["cells", "top.cells"],
               ["treemap", "top.treemap"],
+              ["matrix", "top.matrix"],
+            ]}
+          />
+        </div>
+        <div className="field">
+          <span>{t("settings.adminRead")}</span>
+          <Choice
+            field="adminRead"
+            options={[
+              ["ask", "settings.adminAsk"],
+              ["always", "settings.adminAlways"],
+              ["never", "settings.adminNever"],
             ]}
           />
         </div>

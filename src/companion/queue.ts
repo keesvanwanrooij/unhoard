@@ -13,6 +13,8 @@ export interface BubbleInput {
   text: string;
   /** The topic, such as "scan": bubbles with the same key replace each other. */
   key?: string;
+  /** Buttons that answer a question; a click runs one and closes the bubble. */
+  actions?: { label: string; run: () => void }[];
 }
 
 /** A bubble with its sequence number. */

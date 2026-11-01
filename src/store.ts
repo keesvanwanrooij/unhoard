@@ -18,6 +18,7 @@ export const DEFAULT_SETTINGS: Settings = {
   motion: "living",
   measure: "onDisk",
   companion: "normal",
+  adminRead: "ask",
   firstRunDone: false,
 };
 
@@ -32,6 +33,8 @@ interface State {
   selected: number | null;
   /** The item under the pointer in the list, highlighted on the map like a selection. */
   hovered: number | null;
+  /** The elevated helper was started for the running scan and waits for its folders. */
+  adminArmed: boolean;
   query: string;
   /** Bumped whenever the tree changed (a move), so views reload. */
   treeVersion: number;
@@ -42,6 +45,7 @@ interface State {
   setFocus: (id: number) => void;
   select: (id: number | null) => void;
   hover: (id: number | null) => void;
+  setAdminArmed: (armed: boolean) => void;
   setQuery: (q: string) => void;
   setDrive: (d: string) => void;
   setScan: (s: ScanStatus) => void;
@@ -69,6 +73,7 @@ export const useApp = create<State>((set, get) => ({
   focus: 0,
   selected: null,
   hovered: null,
+  adminArmed: false,
   query: "",
   treeVersion: 0,
   queue: new BubbleQueue(),
@@ -85,6 +90,9 @@ export const useApp = create<State>((set, get) => ({
   },
   hover: (hovered) => {
     set({ hovered });
+  },
+  setAdminArmed: (adminArmed) => {
+    set({ adminArmed });
   },
   setQuery: (query) => {
     set({ query });

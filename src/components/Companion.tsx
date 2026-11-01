@@ -155,6 +155,22 @@ export function Companion(): JSX.Element {
             <div className={`bubble ${current.type}`}>
               <div className="kind">{t(`companion.types.${current.type}`)}</div>
               <div>{current.text}</div>
+              {current.actions ? (
+                <div className="btns">
+                  {current.actions.map((a, i) => (
+                    <button
+                      key={a.label}
+                      className={`btn small${i === 0 ? " primary" : ""}`}
+                      onClick={() => {
+                        dismiss();
+                        a.run();
+                      }}
+                    >
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <button className="x" onClick={dismiss} aria-label={t("companion.close")}>
                 ×
               </button>
