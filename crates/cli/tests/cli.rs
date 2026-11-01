@@ -84,17 +84,19 @@ fn f10_cli_and_core_report_the_same_totals() {
 
 #[test]
 fn f10_s9_output_replaces_the_profile_path() {
-    let profile = std::env::var("USERPROFILE").unwrap();
+    // The CLI runs with the temp folder's parent as its profile, so the test works where
+    // the temp folder lies outside the real profile (as on CI) and never touches a profile.
     let dir = tree();
-    assert!(
-        dir.path().starts_with(&profile),
-        "the temp folder is expected under the profile"
-    );
+    let profile = dir.path().parent().unwrap().to_str().unwrap().to_string();
     for args in [
         vec!["scan", dir.path().to_str().unwrap(), "--json"],
         vec!["scan", dir.path().to_str().unwrap()],
     ] {
-        let out = unhoard(&args);
+        let out = Command::new(env!("CARGO_BIN_EXE_unhoard"))
+            .args(&args)
+            .env("USERPROFILE", &profile)
+            .output()
+            .unwrap();
         let text = String::from_utf8_lossy(&out.stdout).to_lowercase();
         assert!(
             !text.contains(&profile.to_lowercase()),
