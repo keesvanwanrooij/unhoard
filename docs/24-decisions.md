@@ -35,6 +35,9 @@ options and trade-offs, before they are built.
 | During a scan the map, list and details reload every three seconds, and cells move one layout step per frame | Faster updates made the cells jump; every three seconds still shows the drive filling in |
 | The companion shows one bubble and never a stack: newer messages replace older ones, progress updates in place, and closing a bubble silences its topic until the operation ends | Stacked, repeated progress bubbles buried the message the user wanted and came back right after being closed |
 | The companion can be dragged anywhere on the stage, and its spot is remembered on this PC | The best spot depends on what the user is looking at; a fixed corner can cover a cell |
+| A third view, the **priority matrix**: x = size on disk, y = effort in four levels, bubble size = days since last use, colour = kind | Answers "where do I start": quick wins sit bottom right, big jobs top right |
+| The matrix uses **log scales** for size and days, and four fixed effort levels | Sizes and ages span many orders of magnitude; a log scale keeps one huge item from squashing the rest and stays honest about ratios, where percentiles or z-scores would hide or distort them |
+| "Last use" comes from the best source per kind: Steam's last played, Windows' program history (UserAssist), else the newest change inside | Each is the most accurate date available without admin; the source is shown |
 | Colour by kind of content | A glance shows what fills the disk, not just how big things are |
 | A calm, readable shell around a show-piece centre stage | Balances a futuristic command-center look with ease of use |
 | The look is **Holo Command**: black-navy, cyan and ice hologram, HUD rings and a radar sweep on the stage ([Storage map](10-storage-map.md#look-and-feel)) | Chosen from four design explorations; it is the clearest command-center feel |
@@ -68,6 +71,8 @@ options and trade-offs, before they are built.
 | A local **activity log** of every move, restore and purge | The user can always see what Unhoard did and when |
 | Risk tiers Safe, Likely safe, Review, Keep (system), always with a reason | Simple enough for home users, honest enough for power users |
 | Quarantine on another drive is in Next | Same-drive renames are the safe base; cross-volume copy and verify needs its own tests |
+| Reading protected folders: a setting (Ask, Always, Never), one question when a scan starts, and a per-folder button | Complete numbers when the user wants them, without a UAC prompt they did not expect; the main app still never runs elevated |
+| Items read with admin rights never offer a move | The app itself has no rights there; a move would fail or need elevation, which only the read-only helper has |
 
 ## Known locations
 
@@ -77,6 +82,9 @@ options and trade-offs, before they are built.
 | `12-known-locations.md` is its own doc | It is a large, community-curated list |
 | The most specific rule wins; on a tie the strictest tier | A Keep item is never shown as safer than it is |
 | Unmatched large items get a generic explanation and tier Review | Every big item still gets context, without guessing it is safe |
+| App knowledge has three layers: Windows' list of installed programs (automatic), a large curated library of app data and cache folders, and adapters for apps with their own records (Steam, Ollama, Docker) | The automatic layer covers nearly every program without upkeep; the curated library adds what an app's data and caches are; adapters add what only the app knows |
+| Adapters may run an installed tool's read-only command after a click (`docker system df`), from the tool's install folder, with fixed arguments | Exact numbers about a container disk are only available from the tool; a fixed command from a known folder keeps it safe |
+| Suggestions with the same rule are grouped into one expandable row | Dozens of browser-profile caches or build folders hid the items that matter |
 | Project rules (`node_modules`, `.venv`, `target`, `bin`, `obj`) never match inside app folders (`%LOCALAPPDATA%`, `%APPDATA%`, Program Files, `%PROGRAMDATA%`), hidden folders in the profile or another `node_modules` | There they are what an installed app or extension runs from; moving them breaks the app |
 | Suggestions count size on disk and leave out items under 1 MiB | An online-only file or an empty cache frees nothing; hundreds of tiny entries hid the ones that matter |
 

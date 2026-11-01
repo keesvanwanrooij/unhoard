@@ -138,6 +138,27 @@ state:
 - **Morph:** switching views resamples each old and new polygon to the same number of
   points and tweens between them for about 600 ms, so the eye can follow each item.
 
+## Priority matrix
+
+The third view answers "where do I start?". Every suggestion is a bubble:
+
+| Channel | Meaning | Scale |
+|---|---|---|
+| x | Size on disk: the space it frees | Log, from 1 MiB to the largest item, so one huge item does not squash the rest |
+| y | Effort, in four levels | 1 = one click in Unhoard; 2 = review first; 3 = through another app or a Windows tool; 4 = needs admin rights |
+| Bubble size | Days since last use | Log, from a day to ten years |
+| Colour | Kind of content | The map colours |
+
+Bottom right holds the **quick wins** (big and easy); top right the **big jobs**. Items
+Unhoard only explains (Keep tier, protected) are left out.
+
+"Last use" comes from the best source for each kind, and the tooltip names it:
+
+- Steam games: "last played" from the game's Steam manifest.
+- Programs: the last start from Windows' program history (the UserAssist registry key,
+  readable without admin).
+- Everything else: the newest change of any file inside.
+
 ## Hidden space
 
 For a whole-drive scan, **hidden space = (total − free) − scanned size on disk**. It is
@@ -153,6 +174,24 @@ never negative (T-3.1). It shows as one hatched cell with its size.
   folders plus System Volume Information. Its results replace part of the hatched cell
   with named cells; what remains stays hatched.
 - If the user declines UAC, nothing changes and the companion explains what that means.
+- The revealed folders are grouped by kind (restore points, Microsoft Store apps,
+  recovery, Windows Defender, error reports, other accounts, other), each with what it is
+  and what to do; folders under 1 MiB are summed into one line.
+
+### Reading protected folders
+
+Some folders cannot be read without admin rights; their size is unknown. The setting
+**Read protected folders** decides what happens:
+
+| Setting | What happens |
+|---|---|
+| Ask (default) | When a scan starts, the companion asks once and says why. With Yes, the helper starts (one UAC prompt) and reads every unreadable folder when the scan ends |
+| Always | The helper starts with every scan, without the question (Windows still shows UAC) |
+| Never | No question |
+
+Whatever the setting, an unreadable folder's details offer **Read with admin rights**
+for that folder. What the helper reads fills the map; such items are marked "read with
+admin rights" and never offer a move, because the app itself has no rights there.
 
 ## Cloud content
 

@@ -122,9 +122,10 @@ All are **Review**: they hold your data in one big file.
 
 ### Game launchers
 
-Steam, Epic, Xbox (`C:\XboxGames`), EA, Ubisoft and Battle.net. **A game folder is never
-quarantined:** Unhoard sends you to the launcher's uninstall or to Settings › Apps, so
-the launcher stays consistent. Tier Review.
+Steam, Epic, Xbox (`C:\XboxGames`), EA, Ubisoft and Battle.net. **An installed game is
+never quarantined:** Unhoard sends you to the launcher's uninstall or to Settings › Apps,
+so the launcher stays consistent. Tier Review. A Steam game folder without a Steam
+manifest is a leftover of an uninstalled game ([App adapters](#app-adapters)).
 
 ### Developer clutter
 
@@ -150,6 +151,57 @@ the launcher stays consistent. Tier Review.
 | Downloads: ISO files | Review |
 | Downloads: ZIP files with an extracted sibling folder | Likely safe |
 | Phone backups in `Apple\MobileSync\Backup` | Review |
+
+### App data and caches
+
+Caches an app rebuilds are Safe; what the user downloaded on purpose is Review and points
+to the app's own way of removing it.
+
+| Entry | Tier |
+|---|---|
+| VS Code and Cursor caches (`Cache`, `CachedData`, `CachedExtensionVSIXs`, `Code Cache`, `GPUCache`) | Safe |
+| Slack caches; Steam's web cache (`htmlcache`); the Epic Games Launcher's `webcache` | Safe |
+| The new Microsoft Teams cache (`MSTeams_8wekyb3d8bbwe\LocalCache\Microsoft\MSTeams`) | Likely safe |
+| JetBrains IDE `caches`; the Unity cache | Safe |
+| Go module, Bun, uv and Poetry caches | Safe |
+| conda package caches (`miniconda3\pkgs`, `anaconda3\pkgs`) | Likely safe; points to `conda clean --all` |
+| Ollama's downloaded updates (`Ollama\updates*`) | Safe |
+| PyTorch Hub models | Likely safe |
+| Whisper speech models (`.cache\whisper`) | Review |
+| LM Studio models | Review; points to LM Studio |
+| Rust toolchains (`.rustup\toolchains`) | Review; points to `rustup toolchain uninstall` |
+| Outlook's offline mailbox (`*.ost`) | Review; points to Outlook's "mail to keep offline" |
+
+## Installed programs
+
+Rules explain folders that apps fill. The install folders of the apps themselves come
+from Windows' own list of installed programs, the same list Settings › Apps shows (the
+`Uninstall` registry keys, per machine and per user). For a folder that is a program's
+install location, Unhoard shows the program's name, publisher, install date and size, and
+offers its uninstall through Settings › Apps. This covers nearly every installed program
+without a rule.
+
+## App adapters
+
+Some apps keep their own records of what is installed. An adapter reads those records,
+so Unhoard can say more than a folder name. Adapters only read; actions stay reversible
+or go through the app itself.
+
+| App | What it reads | What Unhoard adds |
+|---|---|---|
+| Steam | `libraryfolders.vdf` and each library's `appmanifest_*.acf` | Per game: name, size and last played; "uninstall in Steam" opens Steam's own dialog. A folder in `steamapps\common` without a manifest is a **leftover** of an uninstalled game: Likely safe, with Show in Explorer |
+| Ollama | The model manifests in `.ollama\models\manifests` (or `OLLAMA_MODELS`) | Per model: name, size, download date and the data it shares with other models. A model moves to the quarantine as a whole (its manifest plus the data no other model uses), or you copy `ollama rm <model>` |
+| Docker Desktop | After a click, `docker system df` from Docker's install folder | What fills the virtual disk (images, containers, volumes, build cache) and how much can be reclaimed, the commands to clean it, and how to compact the disk afterwards. Show in Explorer for the disk file |
+
+Unhoard runs a tool like `docker` only after a click, from the app's own install folder,
+with fixed read-only arguments, no shell and a time limit
+([Architecture](20-architecture.md#local-tools)).
+
+## Grouped suggestions
+
+Suggestions with the same rule form one row with their count and total size, for example
+every browser profile's cache, or every `node_modules` folder. The row expands to the
+single items; one preview covers the whole group, and nothing is pre-selected (S1).
 
 ## Adding a rule
 

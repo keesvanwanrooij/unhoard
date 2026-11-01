@@ -126,16 +126,32 @@ can be read in Task Manager or with `Get-Process`.
 
 The "Reveal hidden space" rescan needs admin. The main app never runs elevated (S7).
 
-- The app starts the same executable with a helper argument through `ShellExecuteW` with
-  the `runas` verb, which shows the UAC prompt.
-- The helper enables `SeBackupPrivilege` and opens folders with
-  `FILE_FLAG_BACKUP_SEMANTICS`, which lets it read the listings of folders the user may
-  not.
-- It scans only the folders the app passes (the unscanned ones plus System Volume
-  Information), each validated as an absolute local path without `.` or `..` components.
-- It is **read-only**: it has no command that moves, changes or deletes anything.
-- It returns its results over a local-only named pipe with a random name, and exits when
-  done. The app accepts data only from the process ID of the helper it started.
+- The app starts the same executable with a helper argument and a random pipe name
+  through `ShellExecuteExW` with the `runas` verb, which shows the UAC prompt.
+- The helper connects to the local-only pipe. The app accepts the connection only from
+  the process ID of the helper it started, then sends the folders to read: the unscanned
+  ones, plus System Volume Information for "Reveal hidden space". Because the list goes
+  over the pipe, the helper can start when a scan starts and get its list when the scan
+  ends.
+- The helper validates every folder (an absolute local path without `.` or `..`
+  components, at most 4,096 folders), enables `SeBackupPrivilege`, and scans them with
+  `FILE_FLAG_BACKUP_SEMANTICS`, which lets it read listings the user may not.
+- It is **read-only**: it has no command that moves, changes or deletes anything. It
+  sends its results back over the same pipe and exits.
+- The app fills the scanned tree with the results. Those items are marked "read with
+  admin rights" and offer no move.
+
+## Local tools
+
+App adapters may run a tool the user has installed, such as `docker system df`:
+
+- only after a click, never during a scan
+- from the app's own install folder (for Docker, `%ProgramFiles%\Docker\Docker\resources\bin`),
+  never from a path found by the scan or from `PATH`
+- with fixed, read-only arguments and no shell, so nothing the user or a file name
+  supplies reaches the command line
+- with a 15-second time limit, a 64 KiB output limit and no console window; the output
+  is parsed as untrusted data
 
 ## Quarantine operations
 

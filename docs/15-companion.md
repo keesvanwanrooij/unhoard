@@ -63,6 +63,9 @@ a copy of any existing one:
   silence anything.
 - **Never modal.** A bubble never blocks a click, never covers the item it talks about,
   and Esc dismisses it.
+- **A question has buttons.** The one question the companion asks, whether it may read
+  protected folders when a scan starts, carries two buttons. It is still a bubble: the
+  scan runs on, and ignoring it means no.
 - **No sound** by default.
 - **Quiet mode** in Settings shows only warnings.
 - Bubbles are announced through an `aria-live="polite"` region. A click on the orb opens

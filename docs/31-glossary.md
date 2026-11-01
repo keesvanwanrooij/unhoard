@@ -67,6 +67,10 @@ Windows terms follow Windows NL ([Translations](23-translations.md)).
 | Power diagram | Machtsdiagram | The weighted Voronoi layout behind the cell map |
 | Treemap | Treemap | The simple map of nested rectangles |
 | Breadcrumb | Kruimelpad | The path above the map that shows where you are |
+| Priority matrix | Prioriteitsmatrix | The view that plots suggestions by size, effort and last use |
+| Quick win | Snelle winst | A big item that takes little effort to clear |
+| Effort | Moeite | How much work clearing an item takes, in four levels |
+| App adapter | App-koppeling | Code that reads an app's own records, such as Steam's game list |
 
 ## Photos
 

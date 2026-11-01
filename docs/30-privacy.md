@@ -53,9 +53,19 @@ growth over time is only visible if it is measured from the start.
 ## Elevation
 
 - The main app never runs as administrator (S7).
-- "Reveal hidden space" starts a separate helper after a UAC prompt. The helper only
-  reads folder listings, sends the results back to the app, and exits. It cannot move,
-  change or delete anything.
+- "Reveal hidden space" and "Read protected folders" start a separate helper after a
+  UAC prompt. The helper only reads folder listings, sends the results back to the app,
+  and exits. It cannot move, change or delete anything.
+
+## What Unhoard reads besides your files
+
+All of it stays on your PC:
+
+- Windows' list of installed programs, to name install folders.
+- Windows' program history (UserAssist), only the last start time of programs, to show
+  when you last used them.
+- Steam's and Ollama's own records of what is installed.
+- After you click, the output of `docker system df`, which Docker answers locally.
 
 ## AI, later
 

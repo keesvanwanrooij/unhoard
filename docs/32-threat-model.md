@@ -88,8 +88,10 @@ when it adds an asset, a boundary or a threat.
 
 | Threat | Mitigations |
 |---|---|
-| T23. The elevated helper is abused to change files or gain admin (B5, A7) | The helper is read-only and has no write command; it accepts only paths on an allowlist of volume roots; it exits when done; the main app never runs elevated (S7, rule 2.4) |
-| T24. Another process connects to the helper's pipe or impersonates it (B5) | The pipe is created for the calling user only, with a random name passed on the command line; the app checks that the server is its own child process |
+| T23. The elevated helper is abused to change files or gain admin (B5, A7) | The helper is read-only and has no write command; it accepts only validated absolute local paths, at most 4,096; it exits after one request; the main app never runs elevated (S7, rule 2.4) |
+| T24. Another process connects to the helper's pipe or impersonates it (B5) | The pipe is local-only, single-instance, with a random name; the app sends the folder list only after checking that the client is the helper process it started |
+| T26. A local tool that an adapter runs is replaced or fed hostile input (B4) | Tools run only after a click, from the app's own install folder, never from `PATH` or a scanned path; fixed read-only arguments and no shell; time and output limits; output parsed as untrusted data |
+| T27. Registry or app records (installed programs, UserAssist, Steam, Ollama) hold hostile values (B4) | Read-only; size limits on every value; parsed as data, never executed; paths only compared, never opened from these records |
 | T25. The webview is compromised and calls powerful APIs (B1) | Tauri capabilities allow only Unhoard's commands; strict CSP; no remote content; no broad `fs` or `shell` scope (rule 2.3) |
 
 ### Supply chain

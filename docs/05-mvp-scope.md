@@ -101,6 +101,11 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   Shift+F10 opens the actions for the selected item.
 - AC2.9 The map holds 60 frames per second at rest with up to 300 visible cells on
   integrated graphics. If frames drop, visual effects are reduced first.
+- AC2.10 A third view, the **priority matrix**, plots every suggestion as a bubble:
+  x = size on disk (log scale, right is more), y = effort in four levels (bottom is
+  least), bubble size = days since last use (log scale), colour = kind of content. Bottom
+  right holds the quick wins, top right the big jobs. Hover shows name, size, effort, last
+  use and where that date comes from; a click selects the item, as on the map.
 
 ## F3 Â· Hidden space
 
@@ -116,6 +121,17 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
 - AC3.4 If UAC is declined, nothing changes and the companion explains what that means.
 - AC3.5 The helper exits when done and offers no command that moves, changes or deletes
   files (S7).
+- AC3.6 A setting decides how Unhoard reads folders the user may not read: **Ask**
+  (default), **Always** or **Never**.
+- AC3.7 With Ask, the companion asks once when a scan starts, with the reason and two
+  buttons. With Yes, or with Always, the helper starts right away (one UAC prompt) and
+  reads every folder the scan could not read once the scan ends. Their sizes fill the
+  map; such items are marked "read with admin rights" and never offer a move.
+- AC3.8 The details of an unreadable folder offer "Read with admin rights" for that
+  folder, whatever the setting.
+- AC3.9 Revealed folders are grouped by kind (restore points, Microsoft Store apps,
+  recovery, Windows Defender, error reports, other accounts, other), each with an
+  explanation and its action. Folders under 1 MiB are summed into one line.
 
 ## F4 Â· Known locations
 
@@ -146,6 +162,17 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   category, extension, size and last-modified date (for example "Video file, 12 GB, not
   changed for 3 years"). Its tier is always Review and it has no suggested action beyond
   "Show in Explorer" and "Move to quarantine".
+- AC4.11 A folder that is an installed program's install location (from Windows' list of
+  installed programs) shows the program's name, publisher, install date and size, and
+  offers its uninstall through Settings â€º Apps.
+- AC4.12 App adapters add what only the app knows ([Known locations](12-known-locations.md#app-adapters)):
+  Steam games with name, size and last played, and game folders without a Steam manifest
+  as leftovers; Ollama models with size, download date and shared data, each movable to
+  the quarantine as a whole; Docker Desktop's disk with what uses it (`docker system df`,
+  after a click) and the steps to clean and compact it.
+- AC4.13 Suggestions with the same rule are grouped into one row with their count and
+  total, expandable to the single items. One preview covers the whole group; nothing is
+  pre-selected (S1).
 
 ## F5 Â· Quarantine
 
