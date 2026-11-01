@@ -87,7 +87,9 @@ build. An entry that cannot be confirmed is left out.
 | `hiberfil.sys` | Keep | The hibernation file. Explains `powercfg /h /type reduced` or `powercfg /h off`, which needs admin and also turns off Fast Startup. Explain only |
 | `pagefile.sys`, `swapfile.sys` | Keep | Virtual memory. Never disable it. Explain only |
 | `WinSxS` | Keep | The component store. Explorer overstates its size because of hard links. Points to Disk Cleanup or `DISM /Online /Cleanup-Image /StartComponentCleanup`. Explain only |
-| Temp (`%TEMP%`, `%WINDIR%\Temp`) | Safe | Skips files in use and files younger than 24 hours. Points to Storage Sense for the rest |
+| Temp (`%TEMP%`): each item at least a day old, on its own | Safe; items in use are skipped by the move |
+| `%WINDIR%\Temp` | Safe; points to Disk Cleanup |
+| WSL's Remote Desktop traces (`%TEMP%\DiagOutputDir\RdClientAutoTrace`) | Safe; explains `wsl --shutdown` first and `guiApplications=false` in `.wslconfig` |
 | `SoftwareDistribution\Download` | Likely safe | Windows Update downloads. Needs admin; points to Disk Cleanup |
 | Delivery Optimization cache | Likely safe | Update files shared with other PCs. Points to Disk Cleanup |
 | Crash dumps (`MEMORY.DMP`, `Minidump`, `%LOCALAPPDATA%\CrashDumps`) | Likely safe | Only useful for debugging a crash |
@@ -189,9 +191,9 @@ or go through the app itself.
 
 | App | What it reads | What Unhoard adds |
 |---|---|---|
-| Steam | `libraryfolders.vdf` and each library's `appmanifest_*.acf` | Per game: name, size and last played; "uninstall in Steam" opens Steam's own dialog. A folder in `steamapps\common` without a manifest is a **leftover** of an uninstalled game: Likely safe, with Show in Explorer |
-| Ollama | The model manifests in `.ollama\models\manifests` (or `OLLAMA_MODELS`) | Per model: name, size, download date and the data it shares with other models. A model moves to the quarantine as a whole (its manifest plus the data no other model uses), or you copy `ollama rm <model>` |
-| Docker Desktop | After a click, `docker system df` from Docker's install folder | What fills the virtual disk (images, containers, volumes, build cache) and how much can be reclaimed, the commands to clean it, and how to compact the disk afterwards. Show in Explorer for the disk file |
+| Steam | `libraryfolders.vdf` and each library's `appmanifest_*.acf` | Per game: name, size and last played; "uninstall in Steam" opens Steam's own dialog, "Open Steam" its library. A folder in `steamapps\common` without a manifest is a **leftover** of an uninstalled game: Likely safe, with Show in Explorer |
+| Ollama | The model manifests in `.ollama\models\manifests` (or `OLLAMA_MODELS`) | Per model: name, size, download date and the data it shares with other models. A model moves to the quarantine as a whole (its manifest plus the data no other model uses), or you copy `ollama rm <model>`. "Open Ollama" starts the app |
+| Docker Desktop | After a click, `docker system df` from Docker's install folder (per user or per machine) | What fills the virtual disk (images, containers, volumes, build cache) and how much can be reclaimed; the commands to clean it in the order that frees most (build cache, stopped containers, unused images, then volumes with care); how to compact the disk afterwards; "Open Docker Desktop"; Show in Explorer for the disk file |
 
 Unhoard runs a tool like `docker` only after a click, from the app's own install folder,
 with fixed read-only arguments, no shell and a time limit

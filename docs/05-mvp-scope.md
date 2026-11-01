@@ -103,10 +103,12 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
 - AC2.9 The map holds 60 frames per second at rest with up to 300 visible cells on
   integrated graphics. If frames drop, visual effects are reduced first.
 - AC2.10 A third view, the **priority matrix**, plots every suggestion as a bubble:
-  x = size on disk (log scale, right is more), y = effort in four levels (bottom is
-  least), bubble size = days since last use (log scale), colour = kind of content. Bottom
-  right holds the quick wins, top right the big jobs. Hover shows name, size, effort, last
-  use and where that date comes from; a click selects the item, as on the map.
+  x = days since last use and y = size on disk, both on log scales; the bubble size is
+  the size on disk on the same log scale; colour = kind of content. Top right holds big
+  items unused for long. Items of unknown age sit in a strip left of the plot. The wheel
+  or the buttons zoom (bubbles keep their size, so crowded ones come apart), dragging
+  pans, and "Fit" shows everything again. Hover shows name, size, last use and where that
+  date comes from; a click selects the item, as on the map.
 
 ## F3 Â· Hidden space
 

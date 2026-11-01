@@ -143,11 +143,13 @@ The "Reveal hidden space" rescan needs admin. The main app never runs elevated (
 
 ## Local tools
 
-App adapters may run a tool the user has installed, such as `docker system df`:
+App adapters may run a tool the user has installed, such as `docker system df`, or open
+the app itself (Docker Desktop, Ollama, or Steam through its `steam://` link):
 
 - only after a click, never during a scan
-- from the app's own install folder (for Docker, `%ProgramFiles%\Docker\Docker\resources\bin`),
-  never from a path found by the scan or from `PATH`
+- from the app's fixed install folder (for Docker, `%LOCALAPPDATA%\Programs\DockerDesktop`
+  or `%ProgramFiles%\Docker\Docker`), never from a path found by the scan, the registry
+  or `PATH`
 - with fixed, read-only arguments and no shell, so nothing the user or a file name
   supplies reaches the command line
 - with a 15-second time limit, a 64 KiB output limit and no console window; the output

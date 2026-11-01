@@ -144,13 +144,17 @@ The third view answers "where do I start?". Every suggestion is a bubble:
 
 | Channel | Meaning | Scale |
 |---|---|---|
-| x | Size on disk: the space it frees | Log, from 1 MiB to the largest item, so one huge item does not squash the rest |
-| y | Effort, in four levels | 1 = one click in Unhoard; 2 = review first; 3 = through another app or a Windows tool; 4 = needs admin rights |
-| Bubble size | Days since last use | Log, from a day to ten years |
+| x | Days since last use | Log, from a day to ten years; items of unknown age sit in a strip left of the plot |
+| y | Size on disk: the space it frees | Log, from 1 MiB to the largest item, so one huge item does not squash the rest |
+| Bubble size | Size on disk | The same log scale as y, so a big item is both high and big |
 | Colour | Kind of content | The map colours |
 
-Bottom right holds the **quick wins** (big and easy); top right the **big jobs**. Items
-Unhoard only explains (Keep tier, protected) are left out.
+Top right holds big items unused for long: the first to look at. Items Unhoard only
+explains (tier Keep) are left out.
+
+The mouse wheel zooms around the pointer, the + and − buttons around the middle, and
+dragging pans; "Fit" shows everything again. Bubbles keep their size when zooming in, so
+crowded bubbles come apart.
 
 "Last use" comes from the best source for each kind, and the tooltip names it:
 
