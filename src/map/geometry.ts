@@ -170,6 +170,24 @@ export function lerpPoly(a: Poly, b: Poly, t: number): Poly {
   });
 }
 
+/** Stretches `p` by `1 + s` along the direction (`dx`, `dy`) and squeezes it by the same
+ * factor across, around `c`, so the area stays the same: the squash of a moving blob. */
+export function stretch(p: Poly, c: Point, dx: number, dy: number, s: number): Poly {
+  const len = Math.hypot(dx, dy);
+  if (len === 0 || s === 0) return p;
+  const ux = dx / len;
+  const uy = dy / len;
+  const along = 1 + s;
+  const across = 1 / along;
+  return p.map(([x, y]): Point => {
+    const rx = x - c[0];
+    const ry = y - c[1];
+    const a = (rx * ux + ry * uy) * along;
+    const b = (-rx * uy + ry * ux) * across;
+    return [c[0] + a * ux - b * uy, c[1] + a * uy + b * ux];
+  });
+}
+
 /** Ease in and out (cubic). */
 export function ease(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;

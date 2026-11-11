@@ -3,7 +3,13 @@
 // Each cell is the parent polygon clipped by one half-plane per other cell. Every
 // relaxation step moves each site to its cell's centroid and adjusts its weight with a
 // damped Newton step towards the target area. Running one step per frame from the previous
-// state makes the map grow smoothly during a scan and breathe at rest.
+// state makes the map grow smoothly during a scan.
+//
+// The map is soft to the touch: a site can be pinned to the pointer while its cell is
+// dragged, and with `glide` every other site flows towards its centroid instead of jumping
+// to it, so the neighbours give way and ooze back like slime. Gliding has no momentum on
+// purpose: a layout whose sites overshoot never comes to rest. The wobble is drawn by the
+// renderer from the speeds kept here.
 import { area, centroid, clip, inside, perimeter, type Point, type Poly, bbox } from "./geometry";
 
 /** One item to lay out: a stable ID and its size. */
@@ -17,6 +23,9 @@ export interface Site {
   id: string;
   x: number;
   y: number;
+  /** Speed in pixels per step, kept while the map is soft. */
+  vx: number;
+  vy: number;
   w: number;
   cell: Poly | null;
   area: number;
@@ -78,7 +87,7 @@ function sync(level: Level, entries: Entry[]): void {
   for (const e of entries) {
     if (!level.sites.has(e.id)) {
       const [x, y] = randomIn(level.poly, rng(hash(level.key + e.id)));
-      level.sites.set(e.id, { id: e.id, x, y, w: w0, cell: null, area: 0 });
+      level.sites.set(e.id, { id: e.id, x, y, vx: 0, vy: 0, w: w0, cell: null, area: 0 });
     }
   }
 }
@@ -96,28 +105,60 @@ function cells(level: Level, list: Site[]): void {
   }
 }
 
-/** Runs `iters` relaxation steps towards the target areas of `entries`. */
-export function relax(level: Level, entries: Entry[], iters: number): void {
+/** How a soft step moves the sites. */
+export interface Soft {
+  /** The site held by the pointer, and where the pointer is. */
+  pin?: { id: string; x: number; y: number } | null;
+  /** Sites flow towards their centroid instead of jumping to it. */
+  glide: boolean;
+}
+
+/** The part of the way to its centroid a gliding site covers in one step. */
+const GLIDE = 0.3;
+
+/** Runs `iters` relaxation steps towards the target areas of `entries`, and returns the
+ * highest site speed of the last step in pixels (0 unless `soft` makes the sites glide). */
+export function relax(level: Level, entries: Entry[], iters: number, soft?: Soft): number {
   sync(level, entries);
   const list = entries.map((e) => level.sites.get(e.id)).filter((s): s is Site => s !== undefined);
-  if (list.length === 0) return;
+  if (list.length === 0) return 0;
   const A = Math.abs(area(level.poly));
   const total = entries.reduce((s, e) => s + e.value, 0) || 1;
   if (list.length === 1) {
     const only = list[0] as Site;
     only.cell = level.poly;
     only.area = A;
-    return;
+    return 0;
   }
+  const pin = soft?.pin ?? null;
+  let speed = 0;
   // Each step starts from the cells of the previous step, so one step costs one cell
   // computation; that is what runs every frame.
   if (list.some((s) => s.cell === null)) cells(level, list);
   for (let it = 0; it < iters; it++) {
+    speed = 0;
     for (const s of list) {
-      if (s.cell) {
+      if (pin && s.id === pin.id) {
+        // The held site goes where the pointer is and remembers how fast it got there,
+        // so it keeps moving for a moment when it is let go.
+        s.vx = pin.x - s.x;
+        s.vy = pin.y - s.y;
+        s.x = pin.x;
+        s.y = pin.y;
+      } else if (s.cell) {
         const c = centroid(s.cell);
-        s.x = c[0];
-        s.y = c[1];
+        if (soft?.glide) {
+          s.vx = (c[0] - s.x) * GLIDE;
+          s.vy = (c[1] - s.y) * GLIDE;
+          s.x += s.vx;
+          s.y += s.vy;
+          speed = Math.max(speed, Math.hypot(s.vx, s.vy));
+        } else {
+          s.x = c[0];
+          s.y = c[1];
+          s.vx = 0;
+          s.vy = 0;
+        }
       } else {
         const p = randomIn(level.poly, level.rnd);
         s.x = p[0];
@@ -144,6 +185,7 @@ export function relax(level: Level, entries: Entry[], iters: number): void {
   }
   // A bulk solve ends with cells that match the final weights.
   if (iters > 1) cells(level, list);
+  return speed;
 }
 
 /** Moves every site and weight along when the container is resized. */

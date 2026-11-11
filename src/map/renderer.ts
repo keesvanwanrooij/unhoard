@@ -2,12 +2,15 @@
 //
 // While a scan streams in, one relaxation step per frame lets the cells grow towards
 // their new sizes. Once the layout has settled the map stands still and the canvas only
-// redraws on interaction, so nothing moves while the user reads it. Transitions (zoom, map
+// redraws on interaction, so nothing moves while the user reads it. The cells are soft: a
+// cell can be dragged, also during a scan, its neighbours flow out of the way, and every
+// cell that moves stretches and wobbles back like slime before the map rests again.
+// Transitions (zoom, map
 // style) morph each cell from its previous outline; the "calm" setting and reduced motion
 // shorten them. Colours come from CSS variables, so the light and dark themes both work.
-import { bbox, centroid, ease, inset, inside, lerpPoly, perimeter, rectPoly, area, type Poly, type Point } from "./geometry";
+import { bbox, centroid, ease, inset, inside, lerpPoly, perimeter, rectPoly, area, stretch, type Poly, type Point } from "./geometry";
 import type { Spot } from "./navigate";
-import { makeLevel, relax, rescale, type Level } from "./powerLayout";
+import { makeLevel, relax, rescale, type Level, type Site } from "./powerLayout";
 import { squarify } from "./treemap";
 import { mark, measureSince } from "../perf/marks";
 
@@ -22,6 +25,8 @@ export interface Cell {
   sizeText: string;
   /** Share text shown on the label. */
   shareText: string;
+  /** One line that says what the item is, for the tooltip. */
+  hint?: string;
   category: string;
   hasChildren: boolean;
   /** A hint of the cell's own children (second level), if loaded. */
@@ -84,6 +89,25 @@ const GAP = 3.5;
 const WARM_STEPS = 30;
 /** Steps after which a calm map stops relaxing. */
 const SETTLE_STEPS = 60;
+/** Frames the map stays soft after a touch at most: time to flow back and stop wobbling. */
+const SOFT_FRAMES = 180;
+/** A moving cell stretches by this much per pixel of speed, up to the limit. */
+const STRETCH_PER_PX = 0.012;
+const STRETCH_MAX = 0.12;
+/** The spring that pulls a cell's stretch to where its speed wants it: the pull, and how
+ * much of the swing survives a frame. Together they overshoot, which is the wobble. */
+const WOBBLE_PULL = 0.3;
+const WOBBLE_KEEP = 0.75;
+/** A poke squashes a cell by giving its stretch this push. */
+const POKE = 0.07;
+
+/** How far a cell is stretched along the direction it last moved in, on a spring. */
+interface Jelly {
+  s: number;
+  v: number;
+  dx: number;
+  dy: number;
+}
 
 /** The canvas renderer of the stage. */
 export class Renderer {
@@ -114,6 +138,13 @@ export class Renderer {
   private active = true;
   private newSubs = 0;
   private expanding: { poly: Poly; cell: Cell; start: number } | null = null;
+  /** The cell the pointer holds, and where the pointer is. */
+  private held: { id: string; x: number; y: number } | null = null;
+  /** Frames the map stays soft after the last touch. */
+  private soft = 0;
+  /** True while this frame treats the map as soft. */
+  private softNow = false;
+  private jelly = new Map<string, Jelly>();
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -245,6 +276,68 @@ export class Renderer {
     return this.drawn.filter((d) => d.cell.nodeId !== null).map((d) => ({ id: d.cell.id, at: centroid(d.poly), cell: d.cell }));
   }
 
+  private jellyOf(id: string): Jelly {
+    let j = this.jelly.get(id);
+    if (!j) {
+      j = { s: 0, v: 0, dx: 0, dy: 1 };
+      this.jelly.set(id, j);
+    }
+    return j;
+  }
+
+  /** Pokes a cell: it squashes and wobbles back. Does nothing in the calm setting. */
+  poke(id: string): void {
+    if (!this.living || this.mode !== "cells" || this.trans) return;
+    this.jellyOf(id).v -= POKE;
+    this.soft = Math.max(this.soft, SOFT_FRAMES);
+    this.dirty = true;
+  }
+
+  /** Takes hold of a cell, which then follows the pointer; false when it cannot be held. */
+  grab(id: string, x: number, y: number): boolean {
+    if (this.mode !== "cells" || this.trans || !this.level().sites.has(id)) return false;
+    this.held = { id, x, y };
+    this.dragTo(x, y);
+    this.dirty = true;
+    return true;
+  }
+
+  /** Moves the held cell to the pointer, kept inside the stage. */
+  dragTo(x: number, y: number): void {
+    if (!this.held) return;
+    const b = bbox(this.stagePoly);
+    this.held.x = Math.min(b.x1 - 4, Math.max(b.x0 + 4, x));
+    this.held.y = Math.min(b.y1 - 4, Math.max(b.y0 + 4, y));
+    this.dirty = true;
+  }
+
+  /** Lets the held cell go; the map flows to its new shape and comes to rest. */
+  drop(): void {
+    if (!this.held) return;
+    this.held = null;
+    this.soft = SOFT_FRAMES;
+    this.dirty = true;
+  }
+
+  /** Moves every cell's stretch one frame along its spring; returns the largest swing. */
+  private wobble(sites: Iterable<Site>): number {
+    let swing = 0;
+    for (const site of sites) {
+      const speed = Math.hypot(site.vx, site.vy);
+      if (speed < 0.01 && !this.jelly.has(site.id)) continue;
+      const j = this.jellyOf(site.id);
+      if (speed > 0.3) {
+        j.dx = site.vx / speed;
+        j.dy = site.vy / speed;
+      }
+      const want = Math.min(STRETCH_MAX, speed * STRETCH_PER_PX);
+      j.v = (j.v + (want - j.s) * WOBBLE_PULL) * WOBBLE_KEEP;
+      j.s = Math.min(STRETCH_MAX, Math.max(-STRETCH_MAX, j.s + j.v));
+      swing = Math.max(swing, Math.abs(j.s), Math.abs(j.v));
+    }
+    return swing;
+  }
+
   /** Marks the cell of the item under the pointer in the list, drawn like a selection. */
   setHighlight(id: string | null): void {
     if (id !== this.highlighted) {
@@ -282,7 +375,7 @@ export class Renderer {
   private frame = (now: number): void => {
     this.raf = requestAnimationFrame(this.frame);
     if (!this.active) return;
-    const animating = this.scanning || this.trans !== null || this.expanding !== null;
+    const animating = this.scanning || this.trans !== null || this.expanding !== null || this.held !== null || this.soft > 0;
     if (!animating && !this.dirty) return;
     const started = performance.now();
     this.dirty = false;
@@ -302,7 +395,24 @@ export class Renderer {
     this.frameCount++;
     // Convergence is spread over frames (a few steps each) so no frame becomes a long task.
     const skip = entries.length > 150 && level.steps >= WARM_STEPS && this.frameCount % 2 === 1;
-    if (!level.settled && !skip) {
+    this.softNow = this.mode === "cells" && this.trans === null && (this.held !== null || this.soft > 0);
+    if (this.softNow) {
+      // A soft map takes one step a frame: the held cell goes to the pointer and the
+      // others flow, so a drag costs what a scan costs.
+      const speed = relax(level, entries, 1, { pin: this.held, glide: this.living });
+      const swing = this.living ? this.wobble(level.sites.values()) : 0;
+      level.settled = false;
+      if (!this.held) {
+        this.soft = speed < 0.05 && swing < 0.004 ? 0 : this.soft - 1;
+        if (this.soft <= 0) {
+          // Back to the usual relaxation, which restores exact areas and then rests.
+          this.soft = 0;
+          this.jelly.clear();
+          level.steps = Math.min(level.steps, WARM_STEPS);
+        }
+      }
+      this.dirty = true;
+    } else if (!level.settled && !skip) {
       // While a scan streams in, one step per frame lets cells glide to their new size
       // instead of jumping at every update.
       const n = this.scanning ? 1 : level.steps < WARM_STEPS ? 3 : 1;
@@ -333,8 +443,10 @@ export class Renderer {
     for (const e of order) {
       const cell = byId.get(e.id);
       if (!cell) continue;
-      const target = this.mode === "cells" ? (level.sites.get(e.id)?.cell ?? null) : (rects?.get(e.id) ?? null);
+      let target = this.mode === "cells" ? (level.sites.get(e.id)?.cell ?? null) : (rects?.get(e.id) ?? null);
       if (!target) continue;
+      const j = this.softNow ? this.jelly.get(e.id) : undefined;
+      if (j && Math.abs(j.s) > 0.004) target = stretch(target, centroid(target), j.dx, j.dy, j.s);
       if (tr !== null && this.trans) {
         const src = this.trans.from.get(e.id) ?? pointPoly(centroid(target));
         this.drawCell(lerpPoly(src, target, tr), cell, "morph", 0, this.trans.from.has(e.id) ? 1 : Math.min(1, tr * 1.6));
@@ -385,10 +497,11 @@ export class Renderer {
         relax(l, entries, 6);
       }
       l.poly = container;
-      if (!l.settled) {
+      // Inside a soft map the container changes every frame, so its cells follow.
+      if (!l.settled || this.softNow) {
         relax(l, entries, 1);
         l.steps++;
-        if (!this.scanning && l.steps >= SETTLE_STEPS) l.settled = true;
+        if (!this.scanning && !this.softNow && l.steps >= SETTLE_STEPS) l.settled = true;
         this.dirty = true;
       }
       for (const s of sub) {

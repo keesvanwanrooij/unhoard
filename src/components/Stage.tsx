@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { api } from "../api/ipc";
 import type { ViewNode, ViewResponse } from "../api/types";
+import { explainShort } from "../explain";
 import { fmtBytes, fmtInt, fmtShare } from "../format";
 import { groupSmall } from "../map/grouping";
 import { nearestInDirection, type Direction } from "../map/navigate";
@@ -68,6 +69,9 @@ function valueOf(n: ViewNode, logical: boolean): number {
   return logical ? n.logical : n.onDisk;
 }
 
+/** Pixels the pointer moves while pressed before a press becomes a drag. */
+const DRAG_START = 5;
+
 /** The stage. */
 export function Stage({ resp, active }: { resp: ViewResponse | null; active: boolean }): JSX.Element {
   const { t } = useTranslation();
@@ -77,6 +81,10 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
   const renderer = useRef<Renderer | null>(null);
   const prevFocus = useRef<{ id: number; cell: string } | null>(null);
   const [tip, setTip] = useState<{ cell: Cell; x: number; y: number } | null>(null);
+  const press = useRef<{ id: string; x: number; y: number; dragging: boolean } | null>(null);
+  // Set when a drag ends, so the click that follows it is ignored.
+  const dragged = useRef(false);
+  const [dragging, setDragging] = useState(false);
   const [subs, setSubs] = useState<Map<number, ViewNode[]>>(new Map());
   const logical = settings.measure === "logical";
   const scanning = scan ? !scan.done : false;
@@ -149,6 +157,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
           value: g.value,
           sizeText: fmtBytes(g.value, lang),
           shareText: fmtShare(g.value / total, lang),
+          hint: explainShort(n, t),
           category: n.category,
           hasChildren: n.hasChildren,
           sub: (subs.get(n.id) ?? []).map((s) => ({ id: `s${s.id}`, value: valueOf(s, logical), category: s.category })).filter((s) => s.value > 0),
@@ -229,7 +238,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
 
   const onMove = (e: React.MouseEvent<HTMLCanvasElement>): void => {
     const r = renderer.current;
-    if (!r) return;
+    if (!r || press.current?.dragging) return;
     const b = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - b.left;
     const y = e.clientY - b.top;
@@ -252,8 +261,49 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     return true;
   };
 
+  // A press pokes the cell; moving the pointer while pressed drags it. A drag is not a
+  // click, so letting go neither selects nor zooms.
+  const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>): void => {
+    const r = renderer.current;
+    if (!r || e.button !== 0) return;
+    const b = e.currentTarget.getBoundingClientRect();
+    const cell = r.hit(e.clientX - b.left, e.clientY - b.top);
+    if (!cell) return;
+    r.poke(cell.id);
+    press.current = { id: cell.id, x: e.clientX, y: e.clientY, dragging: false };
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>): void => {
+    const r = renderer.current;
+    const p = press.current;
+    if (!r || !p) return;
+    const b = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - b.left;
+    const y = e.clientY - b.top;
+    if (!p.dragging) {
+      if (Math.hypot(e.clientX - p.x, e.clientY - p.y) < DRAG_START || !r.grab(p.id, x, y)) return;
+      p.dragging = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      r.setHover(p.id);
+      setTip(null);
+      setDragging(true);
+    }
+    r.dragTo(x, y);
+  };
+  const onPointerUp = (): void => {
+    const p = press.current;
+    press.current = null;
+    if (!p?.dragging) return;
+    renderer.current?.drop();
+    dragged.current = true;
+    setDragging(false);
+  };
+
   const onClick = (e: React.MouseEvent<HTMLCanvasElement>): void => {
     const r = renderer.current;
+    if (dragged.current) {
+      dragged.current = false;
+      return;
+    }
     if (!r) return;
     const b = e.currentTarget.getBoundingClientRect();
     const cell = r.hit(e.clientX - b.left, e.clientY - b.top);
@@ -326,6 +376,10 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
         <canvas
           ref={canvasRef}
           onMouseMove={onMove}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
           onMouseLeave={() => {
             renderer.current?.setHover(null);
             setTip(null);
@@ -335,7 +389,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
           tabIndex={0}
           role="application"
           aria-label={t("map.keys")}
-          style={{ cursor: tip ? "pointer" : "default", visibility: matrix ? "hidden" : "visible" }}
+          style={{ cursor: dragging ? "grabbing" : tip ? "pointer" : "default", visibility: matrix ? "hidden" : "visible" }}
         />
         {matrix ? <Matrix active={active} /> : null}
         {tip && !matrix ? (
@@ -344,6 +398,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
             <span>
               {tip.cell.sizeText} · {tip.cell.shareText}
             </span>
+            {tip.cell.hint ? <span>{tip.cell.hint}</span> : null}
           </div>
         ) : null}
         {!scan ? <div className="empty-stage">{t("map.empty")}</div> : null}
