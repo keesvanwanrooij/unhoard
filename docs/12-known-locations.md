@@ -4,8 +4,10 @@
 
 The known-locations library turns "a 64 GB file called `ext4.vhdx`" into "this is your
 WSL Linux disk; it does not shrink by itself; here is how to compact it". Each entry gives
-an explanation, a risk tier with its reason, and one action. The library is
-community-curated: adding an entry needs no Rust. Acceptance criteria: F4 in
+an explanation, a risk tier with its reason, and one action. Next to those full rules,
+**definitions** say what a known folder is without an opinion about removing it, and
+every item that has neither still gets an explanation built from its facts. The library
+is community-curated: adding an entry needs no Rust. Acceptance criteria: F4 in
 [MVP scope](05-mvp-scope.md).
 
 ## How the library works
@@ -17,7 +19,9 @@ generated fixture test.
 ### Rule files
 
 Rules live in TOML files in `data/known-locations/`, one file per group (`windows.toml`,
-`caches.toml`, `containers.toml`, `games.toml`, `developer.toml`, `user.toml`).
+`caches.toml`, `containers.toml`, `games.toml`, `developer.toml`, `user.toml`,
+`apps.toml`), plus the definitions in `definitions-windows.toml`, `definitions-user.toml`
+and `definitions-apps.toml`.
 
 ```toml
 [[rule]]
@@ -42,17 +46,19 @@ nearMiss = "C:\\code\\lib\\node_modules"
 | `sibling` | Optional glob of a file or folder that must sit next to the match, so `target` is only a Rust build folder next to a `Cargo.toml` |
 | `stemSibling` | Optional: a folder named like the match without its extension must sit next to it (an extracted archive) |
 | `minAgeDays`, `minBytes` | Optional limits, for example installers older than 30 days |
-| `category` | The kind of content, which sets the map colour ([Storage map](10-storage-map.md)) |
-| `tier` | `safe`, `likelySafe`, `review` or `keep` ([Cleanup and safety](11-cleanup-safety.md#risk-tiers)) |
-| `action` | `quarantine`, `freeUpSpace`, `windowsTool:<name>`, `uninstaller`, `showInExplorer` or `explainOnly` |
+| `category` | The kind of content, which sets the map colour of the item and everything inside it ([Storage map](10-storage-map.md)). A definition may leave it out, so its contents keep the colour of their own type and place |
+| `tier` | `safe`, `likelySafe`, `review` or `keep` ([Cleanup and safety](11-cleanup-safety.md#risk-tiers)). A definition has none, or `keep` |
+| `action` | `quarantine`, `freeUpSpace`, `windowsTool:<name>`, `uninstaller`, `showInExplorer` or `explainOnly`. A definition has none |
+| `define` | `true` makes the rule a definition ([Definitions](#definitions)) |
 | `requiresAdmin` | The action needs admin, so Unhoard explains and points to the Windows tool |
 | `docs` | Official pages the explanation is based on |
 | `exclude` | Optional list of folders, with environment variables, where the rule never matches, in the folder itself or anywhere below it. The project rules use it to skip app folders, hidden folders in the profile and nested `node_modules` |
 | `example`, `nearMiss` | A path that must match and a similar path that must not; the tests generate both |
 
 The text is not in the rule. It lives in the locale files under
-`knownLocations.<id>.title`, `.explain`, `.reason` and `.action`, in English and Dutch. A
-rule without both languages fails CI (AC4.4).
+`knownLocations.<id>.title`, `.explain`, `.reason` and `.action`, in English and Dutch; a
+definition has only `.title` and `.explain`. A rule without both languages fails CI
+(AC4.4).
 
 ### Testing a rule
 
@@ -62,17 +68,71 @@ without it does not (T-4.1).
 
 ## Precedence and the default case
 
+- **A full rule wins over a definition** for the same item.
 - **Most specific wins.** When several rules match one item, the rule with the longest
   matched path wins.
 - **On a tie, the strictest tier wins:** Keep over Review over Likely safe over Safe. A
   Keep item is never shown as safer than it is (T-4.4).
 - **Protected paths** ([Cleanup and safety](11-cleanup-safety.md#protected-paths)) never
   offer a move, whatever the rule says (T-4.3).
-- **The default case:** a large item that matches no rule gets a generic explanation built
-  from its category, extension, size and last-modified date, for example "Video file,
-  12 GB, not changed for 3 years". Its text uses the `knownLocations.generic.*` keys. Its
-  tier is always **Review**, and its only actions are "Show in Explorer" and "Move to
-  quarantine" (T-4.5).
+- **The default case:** an item that matches no rule is explained from its facts
+  ([Explanations for everything else](#explanations-for-everything-else)). When it is
+  1 GiB or larger its tier is **Review**, and its only actions are "Show in Explorer" and
+  "Move to quarantine" (T-4.5).
+
+## Definitions
+
+A definition says what a known folder or file is: "the registry", "your Firefox profile",
+"the data folder of Discord". It is a rule with `define = true`:
+
+```toml
+[[rule]]
+id = "def-roaming-thunderbird"
+define = true
+parent = "%APPDATA%"
+name = "Thunderbird"
+kind = "dir"
+category = "apps"
+example = "C:\\Users\\u\\AppData\\Roaming\\Thunderbird"
+nearMiss = "C:\\Users\\u\\AppData\\Roaming\\x-Thunderbird"
+```
+
+- It has a title and an explanation, and no action.
+- It has no tier, so it gives no opinion about removing the item, or `tier = "keep"` for
+  what Windows or a program needs. An item with a Keep definition is never offered for a
+  move.
+- It is never listed in Suggestions or the priority matrix (T-4.7).
+- The item keeps the actions of an item without a rule: Show in Explorer and, where the
+  path is not protected, Move to quarantine.
+
+The definitions cover:
+
+| File | What it defines |
+|---|---|
+| `definitions-windows.toml` | The top of a drive (`Windows`, `Program Files`, `ProgramData`, `Users`, upgrade and recovery folders, unpacked driver installers) and the folders inside `Windows` and `System32` |
+| `definitions-user.toml` | The user's folders (Desktop, Documents, Pictures, …, also under their Dutch OneDrive names), what apps keep inside Documents, Pictures and Videos, developer folders in the profile (`.ssh`, `.cargo`, `.docker`, …), the three parts of `AppData`, and the shared folders in `Program Files` and `ProgramData` |
+| `definitions-apps.toml` | App folders in `AppData` (Local, Roaming, LocalLow) for common apps, the Microsoft folders there, well-known Microsoft Store apps in `Packages`, and the parts many apps share anywhere in `AppData`: cache, compiled-code cache, logs, crash reports, built-in browser data, updates, backups and extensions |
+
+A definition rests on what is commonly known about the folder; it is corrected when
+someone shows it wrong. A full rule, which carries a tier and an action, needs its path
+and behaviour confirmed in official documentation.
+
+## Explanations for everything else
+
+An item without a rule is explained from facts the scan already has; nothing extra is
+read (`crates/core/src/explain.rs`):
+
+| Fact | Where it comes from | Example in the text |
+|---|---|---|
+| Place | The path: Downloads, Desktop, Documents, Pictures, Videos, Music, a cloud folder, `AppData`, programs installed for the user only, Microsoft Store app data, Temp, Program Files, ProgramData, Windows, the profile, another user's profile, the Recycle Bin, the quarantine, or elsewhere on a drive | "It is in your Downloads folder" |
+| Owner | The folder name right below `AppData\Local`, `AppData\Roaming`, `AppData\LocalLow`, `Program Files`, `ProgramData` or `Users`; for a Store app the package name without its publisher ID | "It belongs to the data the app “Vendor” keeps for your account" |
+| File type | The extension, in 31 types: video, photo, raw photo, audio, archive, disk image, virtual disk, installer, program, library, document, spreadsheet, presentation, PDF, e-book, text, source code, data, database, log, backup, crash dump, AI model, game data, font, mail, design project, unfinished download, temporary file, shortcut and system file | "“linux.iso” is a disk image." plus one sentence about that type |
+| Contents of a folder | The file count, and the kind of content that fills at least half of its bytes on disk | "… a folder with 214 files. 98% of its space goes to photos and videos." |
+
+The UI builds the sentences (`src/explain.ts`), with the item's own name in them, so two
+items never share an explanation. An owner's own folder gets its own sentence ("the data
+folder of an app or maker with that name"). The details panel shows the full explanation;
+the map tooltip and the list show one line, such as "Video in Downloads" (T-4.8).
 
 ## MVP entries
 

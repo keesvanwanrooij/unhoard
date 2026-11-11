@@ -98,6 +98,12 @@ These hold for the whole app. Each has at least one automated test (marked T-S‚Ä
 - AC2.7 During a scan the cells grow smoothly as sizes arrive. Once the layout has
   settled after the scan, the map stands still until the user acts. With Windows
   animation effects off (`prefers-reduced-motion`), transitions last at most 200 ms.
+- AC2.11 The cells are soft. A press pokes a cell, which squashes and wobbles back. A cell
+  can be dragged, also during a scan: it follows the pointer, its neighbours flow out of
+  the way, and every moving cell stretches and wobbles back like slime. When it is let
+  go, the map flows to its new arrangement, the areas return to within 3% and the map
+  stands still again. A drag is not a click: it neither selects nor zooms. In the calm
+  setting cells move without the stretch and the wobble.
 - AC2.8 Keyboard: arrow keys move between cells, Enter zooms in, the Menu key or
   Shift+F10 opens the actions for the selected item.
 - AC2.9 The map holds 60 frames per second at rest with up to 300 visible cells on
@@ -143,28 +149,39 @@ These hold for the whole app. Each has at least one automated test (marked T-S‚Ä
 **Acceptance criteria**
 
 - AC4.1 The library is data (rule files) loaded at start. Each rule has an ID, a match,
-  a category, a risk tier, an action, and text keys in English and Dutch.
+  a category, a risk tier, an action, and text keys in English and Dutch. A **definition**
+  is a rule that only says what a known folder is: it has a title and an explanation, no
+  action, and no tier other than Keep.
 - AC4.2 An item that matches a rule shows the explanation, the tier badge with its
   reason, and the action.
 - AC4.3 Every rule has a generated fixture that proves it matches, plus a near miss that
   proves it does not over-match.
-- AC4.4 A rule without text in both languages fails CI.
+- AC4.4 A rule without text in both languages fails CI: title, explanation, reason and
+  action for a full rule; title and explanation for a definition.
 - AC4.5 Every entry marked MVP in [Known locations](12-known-locations.md) exists.
 - AC4.6 Supported actions: move to quarantine, free up space (cloud), open a Windows tool
   (Storage settings, Storage Sense, Disk Cleanup, Apps), open an app's uninstaller or
   launcher, show in Explorer, explain only. There is no "delete now" action: permanent
   deletion happens only in the purge (F5).
-- AC4.7 A "Suggestions" view lists all matched items by size on disk, grouped by tier.
+- AC4.7 A "Suggestions" view lists all items matched by a full rule by size on disk,
+  grouped by tier. An item that only has a definition is explained, never suggested.
   Items under 1 MiB on disk, such as online-only files, are left out because they free
   nothing worth a click. Nothing in it is pre-selected (S1).
 - AC4.8 Items under a protected path never offer a move (S4).
-- AC4.9 When several rules match one item, the most specific rule wins (the longest
-  matched path). On a tie, the strictest tier wins (Keep over Review over Likely safe
-  over Safe), so a "Keep" item is never shown as safer.
-- AC4.10 A large item that matches no rule still gets an explanation built from its
-  category, extension, size and last-modified date (for example "Video file, 12 GB, not
-  changed for 3 years"). Its tier is always Review and it has no suggested action beyond
-  "Show in Explorer" and "Move to quarantine".
+- AC4.9 When several rules match one item, a full rule wins over a definition; then the
+  most specific rule wins (the longest matched path). On a tie, the strictest tier wins
+  (Keep over Review over Likely safe over Safe), so a "Keep" item is never shown as
+  safer.
+- AC4.10 **Every item has an explanation of its own.** An item without a rule gets
+  sentences built from its facts: its name, the type of a file (from its extension) or
+  what a folder holds (file count, and the kind of content that fills at least half of
+  it), and the place it lies in with the app, program or user that place belongs to (for
+  example: "‚ÄúTrip 2019‚Äù is a folder with 214 files. 98% of its space goes to photos and
+  videos. It is in your Pictures folder."). The folder of an app in AppData, of a program
+  in Program Files or of another user is described as such. The details show the full
+  explanation; the map tooltip and the list show one line. A large item without a full
+  rule (1 GiB or more) has tier Review, and no suggested action beyond "Show in Explorer"
+  and "Move to quarantine".
 - AC4.11 A folder that is an installed program's install location (from Windows' list of
   installed programs) shows the program's name, publisher, install date and size, and
   offers its uninstall through Settings ‚Ä∫ Apps.
@@ -412,7 +429,11 @@ placeholders and errors without a real disk or cloud.
 | T-4.2 | every rule has English and Dutch text | core unit / CI |
 | T-4.3 | protected paths never get a move action | core unit |
 | T-4.4 | with overlapping rules the most specific one wins, and on a tie the strictest tier | core unit |
-| T-4.5 | an unmatched item gets the generic explanation and tier Review | core unit |
+| T-4.5 | a large unmatched item is explained by its type and place and gets tier Review | core unit |
+| T-4.6 | every path lies in a place and names the app it belongs to; every file type comes from the extension | core unit |
+| T-4.7 | a definition explains a folder without suggesting it, and a full rule wins over it | core unit |
+| T-4.8 | every place and file type has text in both languages; two items never share a generated explanation | UI unit |
+| T-2.5 | a dragged cell follows the pointer; the map flows back, comes to rest and has accurate areas again | UI unit (layout) |
 | T-5.1 | the manifest entry exists before the move starts | core unit (fake) |
 | T-5.2 | a move followed by a restore leaves names, timestamps and attributes unchanged | Windows integration (temp dir) |
 | T-5.3 | restore into a path that now exists creates `name (restored).ext` and overwrites nothing | core unit + Windows integration |

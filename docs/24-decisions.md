@@ -82,7 +82,13 @@ options and trade-offs, before they are built.
 | The library is data: TOML rules in `data/known-locations/`, text in the locale files | Contributors add entries without Rust; every rule gets a fixture test |
 | `12-known-locations.md` is its own doc | It is a large, community-curated list |
 | The most specific rule wins; on a tie the strictest tier | A Keep item is never shown as safer than it is |
-| Unmatched large items get a generic explanation and tier Review | Every big item still gets context, without guessing it is safe |
+| Every item gets an explanation of its own: a rule's text, or sentences built from its name, its file type or contents, and the place it lies in with the app that place belongs to | A user asks "what is this?" about any item, not only the known ones; facts from the path and the scan totals answer it without reading a file and without guessing it is safe |
+| A **definition** (`define = true`) explains a known folder with a title and a text, without an action and without a tier other than Keep; it is never a suggestion, and a full rule wins over it | Most folders deserve an explanation but not an opinion about removing them; keeping the two apart lets the library grow large without flooding Suggestions |
+| A definition rests on what is commonly known about a folder; a full rule needs its path and behaviour confirmed in official documentation | A wrong tier or action can cost data, a wrong description can be corrected; this lets every known folder have a definition |
+| A definition may leave out its category | A category colours everything inside the item; a container such as Documents should keep the colours of its contents |
+| Unmatched large items (1 GiB or more) get tier Review | They are worth a look for their size, without guessing they are safe |
+| Cells are soft: a cell can be dragged, also during a scan, neighbours flow out of the way, and moving cells stretch and wobble | The map should feel alive and fun to touch; after a touch it rests again, so nothing moves while the user reads |
+| Dragged layouts flow without momentum (each site covers 30% of the way to its centroid per frame); the wobble is drawn on top from each cell's speed | A power diagram whose sites overshoot never comes to rest; a spring on the drawn stretch gives the slime feel and always dies out |
 | App knowledge has three layers: Windows' list of installed programs (automatic), a large curated library of app data and cache folders, and adapters for apps with their own records (Steam, Ollama, Docker) | The automatic layer covers nearly every program without upkeep; the curated library adds what an app's data and caches are; adapters add what only the app knows |
 | Adapters may run an installed tool's read-only command after a click (`docker system df`), from the tool's fixed install folder, with fixed arguments | Exact numbers about a container disk are only available from the tool; a fixed command from a known folder keeps it safe |
 | The details of Docker, Ollama and Steam items open the app itself on a click, from its fixed install folder (per user or per machine) or through Steam's own link | Cleaning up often means working in the app; the registry is not used for the path, because any program of the user can change it |
@@ -146,8 +152,8 @@ options and trade-offs, before they are built.
 | Enumeration through `GetFileInformationByHandleEx` with `FileIdExtdDirectoryInfo`, falling back to `FileIdBothDirectoryInfo` on FAT and exFAT | Sizes, 128-bit file IDs and reparse tags in one batched call per folder, through a documented Win32 API |
 | The minimum Rust version is 1.97 | The patched releases of `quick-xml` and `time`, needed to clear RustSec advisories, require it |
 | Known-location rule IDs are kebab-case (`node-modules`) and match their text keys | One ID links the rule, its text, the manifest and the CLI output |
-| The generic Review case also covers unmatched files of 1 GiB or more | A large unknown file is exactly what the user asks about; it gets context without a guess that it is safe |
-| A known location is added only when its path and behaviour are confirmed in official documentation | A wrong explanation or tier would break trust; unconfirmed entries wait for a contributor who can verify them |
+| The Review case for large unmatched items also covers files of 1 GiB or more | A large unknown file is exactly what the user asks about; it gets context without a guess that it is safe |
+| A known location with a tier and an action is added only when its path and behaviour are confirmed in official documentation | A wrong explanation or tier would break trust; unconfirmed entries wait for a contributor who can verify them |
 | The overview screen stays mounted and is hidden when another screen shows | Switching back is instant and the cell map keeps its settled layout (P2) |
 | The performance runs use a production build with a fake core that generates a tree of a set size | The numbers measure the UI itself, repeatable on any PC and on CI, without a real disk |
 | The UI asks for views of the tree, never the whole tree | Memory and IPC stay bounded |
