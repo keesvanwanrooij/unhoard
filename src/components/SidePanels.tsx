@@ -1,12 +1,13 @@
 // The list next to the map (its accessible equivalent) and the details panel with the
 // explanation, the tier and the actions. Every move starts with a preview.
-import { useEffect, useRef, useState, type JSX } from "react";
+import { useEffect, useMemo, useRef, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api, errorKey } from "../api/ipc";
 import type { Action, Details, HiddenKind, MovePlan, Outcome, RevealedView, ViewResponse, WindowsTool } from "../api/types";
 import { fmtBytes, fmtInt, fmtShare } from "../format";
+import { explainShort, explainText } from "../explain";
 import { useApp } from "../store";
 import { AdminReadButton, DockerPanel, ItemFacts, OllamaPanel } from "./AppPanels";
 import { MovePreview, actionLabel } from "./Preview";
@@ -16,7 +17,10 @@ export function ItemList({ resp }: { resp: ViewResponse | null }): JSX.Element {
   const { t } = useTranslation();
   const { lang, selected, select, hover, setFocus, measure, scan } = useApp(useShallow((s) => ({ lang: s.lang, selected: s.selected, select: s.select, hover: s.hover, setFocus: s.setFocus, measure: s.settings.measure, scan: s.scan })));
   const logical = measure === "logical";
-  const children = resp?.view.children ?? [];
+  const view = resp?.view;
+  const children = view?.children ?? [];
+  // One line per row that says what the item is, built once per loaded level.
+  const hints = useMemo(() => new Map((view?.children ?? []).map((c) => [c.id, explainShort(c, t)])), [view, t]);
   const total = (logical ? resp?.view.node.logical : resp?.view.node.onDisk) ?? 1;
   const max = children[0] ? (logical ? children[0].logical : children[0].onDisk) || 1 : 1;
   const scanning = scan ? !scan.done : false;
@@ -47,6 +51,7 @@ export function ItemList({ resp }: { resp: ViewResponse | null }): JSX.Element {
               key={c.id}
               className="row"
               role="option"
+              title={hints.get(c.id)}
               aria-selected={selected === c.id}
               onClick={() => {
                 select(c.id);
@@ -253,9 +258,18 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
   }
   const d = details;
   const ruleId = d.description.ruleId;
-  const generic = d.description.generic;
-  const explain = ruleId ? t(`knownLocations.${ruleId}.explain`) : generic ? t("details.generic") : null;
-  const reason = ruleId ? t(`knownLocations.${ruleId}.reason`) : generic ? t("details.genericReason") : null;
+  const explain = explainText({ ...d.node, ruleId, explain: d.description.explain }, t, lang);
+  // The reason belongs to the tier: a full rule gives its own, a definition only says
+  // "keep", and a large item without a rule is worth a look for its size.
+  const reason = ruleId
+    ? d.description.definition
+      ? d.description.tier === "keep"
+        ? t("details.keepReason")
+        : null
+      : t(`knownLocations.${ruleId}.reason`)
+    : d.description.large
+      ? t("details.largeReason")
+      : null;
   const title = ruleId ? t(`knownLocations.${ruleId}.title`) : null;
 
   const run = (a: Action): void => {
@@ -324,7 +338,7 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
       ) : null}
       {d.node.unscanned ? <p className="info">{t("details.unreadable")}</p> : null}
       {d.node.unscanned && d.node.kind === "folder" ? <AdminReadButton generation={generation} id={d.node.id} /> : null}
-      {explain ? <p className="info">{explain}</p> : <p className="note">{t("details.folder", { count: d.node.files, files: fmtInt(d.node.files, lang) })}</p>}
+      <p className="info">{explain}</p>
       {reason ? <p className="note">{reason}</p> : null}
       {d.description.requiresAdmin ? <p className="note">{t("details.requiresAdmin")}</p> : null}
       <ItemFacts d={d} now={now} />

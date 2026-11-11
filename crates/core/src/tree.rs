@@ -68,7 +68,8 @@ impl Category {
         Category::Other,
     ];
 
-    fn index(self) -> usize {
+    /// The position of this category in [`Category::ALL`].
+    pub fn index(self) -> usize {
         self as usize
     }
 }
@@ -518,6 +519,11 @@ impl Tree {
                 &cats,
             );
         }
+    }
+
+    /// The bytes on disk of a folder per kind of content, indexed by [`Category::index`].
+    pub fn category_bytes(&self, id: NodeId) -> Option<&[u64; 9]> {
+        self.get(id)?.cat_bytes.as_deref()
     }
 
     /// The kind of content that holds most of a node's bytes on disk.

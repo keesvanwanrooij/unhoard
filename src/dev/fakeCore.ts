@@ -4,7 +4,7 @@
 import { emit } from "@tauri-apps/api/event";
 import { mockIPC } from "@tauri-apps/api/mocks";
 
-import type { Category, ScanStatus, ViewNode, ViewResponse } from "../api/types";
+import type { Category, Explain, FileType, Place, ScanStatus, ViewNode, ViewResponse } from "../api/types";
 
 interface FakeNode {
   id: number;
@@ -87,6 +87,22 @@ function build(target: number): void {
   }
 }
 
+/** Explanation facts for a fake item: a file type from its name, a place from its depth. */
+function fakeExplain(n: FakeNode): Explain {
+  const isFile = n.children.length === 0 && n.files > 0;
+  const types: FileType[] = ["video", "archive", "diskImage", "photo", "database", "installer"];
+  const places: Place[] = ["downloads", "documents", "appData", "programFiles", "profile", "drive"];
+  const place = places[n.id % places.length] ?? "drive";
+  const owned = place === "appData" || place === "programFiles";
+  return {
+    place,
+    owner: owned ? "Example App" : null,
+    ownerRoot: false,
+    fileType: isFile ? (types[n.id % types.length] ?? null) : null,
+    mix: !isFile && n.category !== "other" && n.category !== "hidden" ? { category: n.category, percent: 60 + (n.id % 40) } : null,
+  };
+}
+
 function viewNode(n: FakeNode): ViewNode {
   return {
     id: n.id,
@@ -98,6 +114,7 @@ function viewNode(n: FakeNode): ViewNode {
     category: n.category,
     tier: n.name === "Windows.old" ? "likelySafe" : null,
     ruleId: n.name === "Windows.old" ? "windows-old" : null,
+    explain: fakeExplain(n),
     hasChildren: n.children.length > 0,
     unscanned: false,
     cloud: null,
@@ -168,7 +185,9 @@ function buildSuggestions(): unknown[] {
           ruleId: k.ruleId,
           tier: k.tier,
           actions: steamGame ? [{ type: "appUninstall" }, { type: "showInExplorer" }] : [{ type: "quarantine" }, { type: "showInExplorer" }],
-          generic: k.ruleId === null && k.steam === null,
+          large: k.ruleId === null && k.steam === null,
+          definition: false,
+          explain: fakeExplain(n),
           protected: null,
           cloud: false,
           quarantineRoot: "C:\\Unhoard Quarantine",
@@ -243,7 +262,9 @@ export function installFakeCore(): void {
               ruleId,
               tier: ruleId ? "review" : null,
               actions: [{ type: "showInExplorer" }],
-              generic: false,
+              large: false,
+              definition: false,
+              explain: fakeExplain(n),
               protected: null,
               cloud: false,
               quarantineRoot: null,

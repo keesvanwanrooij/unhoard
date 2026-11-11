@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/ipc";
 import type { Action, MovePlan, Suggestion, Tier } from "../api/types";
 import { MovePreview, actionLabel } from "../components/Preview";
+import { explainShort } from "../explain";
 import { fmtBytes } from "../format";
 import { useApp } from "../store";
 
@@ -19,7 +20,7 @@ export function groupKey(s: Suggestion): string {
   if (d.steam) return d.steam.kind === "game" ? "steam:game" : "steam:leftover";
   if (d.ruleId) return `rule:${d.ruleId}`;
   if (d.program) return "program";
-  return "generic";
+  return "large";
 }
 
 /** Suggestions grouped by [`groupKey`], largest group first, items largest first. */
@@ -132,14 +133,14 @@ export function Suggestions(): JSX.Element {
     if (d.steam?.kind === "leftover") return t("facts.steamLeftover");
     if (d.ruleId) return t(`knownLocations.${d.ruleId}.action`);
     if (d.program) return t("facts.programAction");
-    return t("details.generic");
+    return explainShort({ ...s.node, ruleId: null, explain: d.explain }, t);
   };
   const groupTitle = (key: string, first: Suggestion): string => {
     if (key.startsWith("rule:")) return t(`knownLocations.${key.slice(5)}.title`);
     if (key === "steam:game") return t("suggestions.groups.steamGames");
     if (key === "steam:leftover") return t("suggestions.groups.steamLeftovers");
     if (key === "program") return t("suggestions.groups.programs");
-    if (key === "generic") return t("suggestions.groups.generic");
+    if (key === "large") return t("suggestions.groups.large");
     return title(first);
   };
 

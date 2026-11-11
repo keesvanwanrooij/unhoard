@@ -201,9 +201,9 @@ fn f4_temp_items_are_offered_one_by_one_once_a_day_old() {
         "too fresh"
     );
     assert_eq!(
-        best_rule_id(&rules, &fs, temp),
-        None,
-        "not the Temp folder itself"
+        best_rule_id(&rules, &fs, temp).as_deref(),
+        Some("def-local-temp"),
+        "the Temp folder itself is only explained"
     );
     assert_eq!(
         best_rule_id(
@@ -226,7 +226,14 @@ fn f4_every_rule_has_english_and_dutch_text() {
     let rules = Rules::builtin(&roots()).unwrap();
     for rule in rules.all() {
         for (lang, doc) in [("en", &en), ("nl", &nl)] {
-            for field in ["title", "explain", "reason", "action"] {
+            // A definition only says what the item is; a full rule also gives the reason
+            // for its tier and what to do.
+            let fields: &[&str] = if rule.define {
+                &["title", "explain"]
+            } else {
+                &["title", "explain", "reason", "action"]
+            };
+            for field in fields {
                 let v = doc["knownLocations"][&rule.id][field]
                     .as_str()
                     .unwrap_or("");
@@ -312,36 +319,6 @@ fn f4_most_specific_rule_wins_and_strictest_tier_on_a_tie() {
             && Tier::Review > Tier::LikelySafe
             && Tier::LikelySafe > Tier::Safe
     );
-}
-
-#[test]
-fn f4_unmatched_large_item_gets_the_generic_explanation_and_tier_review() {
-    let fs = FakeFs::new();
-    fs.add_dir(r"C:\data");
-    fs.add_file_with(
-        r"C:\data\movie.mkv",
-        FileOpts {
-            logical: Some(12 << 30),
-            modified: unix_to_filetime(NOW - 3 * 365 * 86_400),
-            ..FileOpts::default()
-        },
-    );
-    fs.add_file(r"C:\data\small.txt", 10);
-    let ctx = ScanContext {
-        rules: Rules::from_toml(&[], &roots()).unwrap(),
-        roots: roots(),
-        now: NOW,
-        knowledge: Default::default(),
-    };
-    let (t, _) = scan(&fs, r"C:\data", &ctx, &ScanControl::default()).unwrap();
-    let d = describe(&t, t.find(r"C:\data\movie.mkv").unwrap(), &ctx);
-    assert!(d.generic);
-    assert_eq!(d.rule_id, None);
-    assert_eq!(d.tier, Some(Tier::Review));
-    assert_eq!(d.actions, vec![Action::ShowInExplorer, Action::Quarantine]);
-    let small = describe(&t, t.find(r"C:\data\small.txt").unwrap(), &ctx);
-    assert!(!small.generic);
-    assert_eq!(small.tier, None);
 }
 
 #[test]

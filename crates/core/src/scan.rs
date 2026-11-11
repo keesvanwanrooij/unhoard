@@ -154,7 +154,7 @@ fn scan_dir<'s>(
             } else {
                 NodeKind::File
             };
-            let rule_cat = m.and_then(|r| ctx.rules.get(r)).map(|r| r.category);
+            let rule_cat = m.and_then(|r| ctx.rules.get(r)).and_then(|r| r.category);
             let child_path = join(&path, &e.name);
             let (category, pass_down) = match kind {
                 NodeKind::Folder => {

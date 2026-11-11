@@ -7,6 +7,10 @@
 //! match, the most specific pattern wins; on a tie the strictest tier wins, so an item is
 //! never shown as safer than it is. The explanations live in the locale files under
 //! `knownLocations.<id>`.
+//!
+//! A rule with `define = true` is a definition: it says what a known folder is, without
+//! an opinion about removing it. A definition is never listed as a suggestion, and a full
+//! rule for the same item always wins over it.
 
 use std::collections::HashSet;
 
@@ -100,10 +104,15 @@ pub struct Rule {
     pub min_age_days: Option<u32>,
     /// A file must be at least this large.
     pub min_bytes: Option<u64>,
-    /// The kind of content.
-    pub category: Category,
-    /// The risk tier.
+    /// The kind of content the item and everything inside it counts as. A definition may
+    /// leave it out, so the contents keep the kind their own type and place give them.
+    pub category: Option<Category>,
+    /// The risk tier; for a definition without one, `Review`, used only to break ties.
     pub tier: Tier,
+    /// True for a definition: it explains the item and is never listed as a suggestion.
+    pub define: bool,
+    /// The tier shown to the user: a definition has one only when it says "keep".
+    pub opinion: Option<Tier>,
     /// The primary action.
     pub action: Action,
     /// The action needs admin rights, so Unhoard explains and points to the Windows tool.
@@ -134,6 +143,15 @@ pub enum RuleError {
         id: String,
         /// What is wrong.
         message: String,
+    },
+    /// A full rule lacks its tier or action, or a definition carries an opinion other
+    /// than "keep".
+    #[error("rule {id}: {message}")]
+    Shape {
+        /// The rule ID.
+        id: String,
+        /// What is wrong.
+        message: &'static str,
     },
     /// An action is unknown.
     #[error("rule {id}: unknown action {action}")]
@@ -169,9 +187,11 @@ struct RawRule {
     stem_sibling: bool,
     min_age_days: Option<u32>,
     min_bytes: Option<u64>,
-    category: Category,
-    tier: Tier,
-    action: String,
+    category: Option<Category>,
+    #[serde(default)]
+    define: bool,
+    tier: Option<Tier>,
+    action: Option<String>,
     #[serde(default)]
     requires_admin: bool,
     #[serde(default)]
@@ -195,7 +215,7 @@ impl Default for Rules {
     }
 }
 
-const BUILTIN: [&str; 7] = [
+const BUILTIN: [&str; 10] = [
     include_str!("../../../data/known-locations/windows.toml"),
     include_str!("../../../data/known-locations/caches.toml"),
     include_str!("../../../data/known-locations/containers.toml"),
@@ -203,6 +223,9 @@ const BUILTIN: [&str; 7] = [
     include_str!("../../../data/known-locations/developer.toml"),
     include_str!("../../../data/known-locations/user.toml"),
     include_str!("../../../data/known-locations/apps.toml"),
+    include_str!("../../../data/known-locations/definitions-windows.toml"),
+    include_str!("../../../data/known-locations/definitions-user.toml"),
+    include_str!("../../../data/known-locations/definitions-apps.toml"),
 ];
 
 /// Replaces `%VAR%` with its value; `None` if a variable is not set.
@@ -289,10 +312,35 @@ impl Rules {
                 };
                 let parent_glob = glob(&parent).map_err(pattern_err)?;
                 let name_glob = glob(&name).map_err(pattern_err)?.compile_matcher();
-                let action = parse_action(&raw.action).ok_or_else(|| RuleError::Action {
+                let shape = |message| RuleError::Shape {
                     id: raw.id.clone(),
-                    action: raw.action.clone(),
-                })?;
+                    message,
+                };
+                let (tier, opinion, action) = if raw.define {
+                    // A definition may only add "keep"; any other opinion needs a full
+                    // rule with its own reason and action.
+                    match (raw.tier, &raw.action) {
+                        (None, None) => (Tier::Review, None, Action::ShowInExplorer),
+                        (Some(Tier::Keep), None) => {
+                            (Tier::Keep, Some(Tier::Keep), Action::ExplainOnly)
+                        }
+                        _ => return Err(shape("a definition takes no action and only tier keep")),
+                    }
+                } else {
+                    if raw.category.is_none() {
+                        return Err(shape("category is missing"));
+                    }
+                    let tier = raw.tier.ok_or_else(|| shape("tier is missing"))?;
+                    let text = raw
+                        .action
+                        .as_deref()
+                        .ok_or_else(|| shape("action is missing"))?;
+                    let action = parse_action(text).ok_or_else(|| RuleError::Action {
+                        id: raw.id.clone(),
+                        action: text.to_string(),
+                    })?;
+                    (tier, Some(tier), action)
+                };
                 let sibling_glob = match &raw.sibling {
                     Some(sib) => Some(
                         glob(&sib.to_lowercase())
@@ -323,7 +371,9 @@ impl Rules {
                     min_age_days: raw.min_age_days,
                     min_bytes: raw.min_bytes,
                     category: raw.category,
-                    tier: raw.tier,
+                    tier,
+                    define: raw.define,
+                    opinion,
                     action,
                     requires_admin: raw.requires_admin,
                     docs: raw.docs,
@@ -387,7 +437,7 @@ impl Rules {
                 continue;
             }
             let lower = e.name.to_lowercase();
-            let mut best: Option<(usize, Tier, u16)> = None;
+            let mut best: Option<((bool, usize, Tier), u16)> = None;
             for &ri in &candidates {
                 let r = &self.rules[ri];
                 let kind_ok = match r.kind {
@@ -416,12 +466,14 @@ impl Rules {
                     continue;
                 }
                 let Ok(idx) = u16::try_from(ri) else { continue };
-                let key = (r.specificity, r.tier);
-                if best.is_none_or(|(s, t, _)| key > (s, t)) {
-                    best = Some((r.specificity, r.tier, idx));
+                // A full rule beats a definition; then the most specific pattern, then the
+                // strictest tier.
+                let key = (!r.define, r.specificity, r.tier);
+                if best.is_none_or(|(k, _)| key > k) {
+                    best = Some((key, idx));
                 }
             }
-            *slot = best.map(|(_, _, i)| i);
+            *slot = best.map(|(_, i)| i);
         }
         out
     }

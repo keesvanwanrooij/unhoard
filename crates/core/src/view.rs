@@ -8,8 +8,9 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::HashSet;
 
-use crate::classify::{GENERIC_MIN_BYTES, describe};
+use crate::classify::{LARGE_MIN_BYTES, describe};
 use crate::cloud::{PinState, pin_state};
+use crate::explain::{Explain, explain};
 use crate::knowledge::{LastUse, SteamInfo};
 use crate::rules::Tier;
 use crate::scan::ScanContext;
@@ -37,6 +38,8 @@ pub struct ViewNode {
     pub tier: Option<Tier>,
     /// The matching rule.
     pub rule_id: Option<String>,
+    /// The facts a one-line description is built from.
+    pub explain: Explain,
     /// True when it has children to zoom into.
     pub has_children: bool,
     /// True when it could not be read; its size is unknown.
@@ -75,8 +78,8 @@ pub struct View {
 pub fn node_view(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Option<ViewNode> {
     let n = tree.get(id)?;
     let rule = n.rule.and_then(|r| ctx.rules.get(r));
-    let generic =
-        rule.is_none() && n.logical.max(n.on_disk) >= GENERIC_MIN_BYTES && n.kind != NodeKind::Link;
+    let large =
+        rule.is_none() && n.logical.max(n.on_disk) >= LARGE_MIN_BYTES && n.kind != NodeKind::Link;
     let in_cloud = ctx.roots.sync_root_of(&tree.path(id)).is_some();
     Some(ViewNode {
         id,
@@ -90,8 +93,11 @@ pub fn node_view(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Option<ViewNode>
         on_disk: n.on_disk,
         files: n.files,
         category: tree.dominant_category(id),
-        tier: rule.map(|r| r.tier).or(generic.then_some(Tier::Review)),
+        tier: rule
+            .and_then(|r| r.opinion)
+            .or(large.then_some(Tier::Review)),
         rule_id: rule.map(|r| r.id.clone()),
+        explain: explain(tree, id, &ctx.roots),
         has_children: n.kind == NodeKind::Folder && n.files > 0,
         unscanned: n.flags & FLAG_UNSCANNED != 0,
         cloud: (in_cloud && n.kind == NodeKind::File).then(|| pin_state(n.attributes)),
@@ -171,8 +177,11 @@ pub fn suggestions(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<Suggesti
         .iter()
         .filter(|(id, n)| {
             !steam_common.contains(id)
-                && (n.rule.is_some()
-                    || (n.kind == NodeKind::File && n.on_disk >= GENERIC_MIN_BYTES))
+                && (n
+                    .rule
+                    .and_then(|r| ctx.rules.get(r))
+                    .is_some_and(|r| !r.define)
+                    || (n.kind == NodeKind::File && n.on_disk >= LARGE_MIN_BYTES))
         })
         .map(|(id, _)| id)
         .filter(big)

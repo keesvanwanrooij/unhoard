@@ -25,6 +25,72 @@ export type CmdError =
   | { code: "invalidArgument"; what: string }
   | { code: "fs"; error: FsError };
 
+export type Place =
+  | "downloads"
+  | "desktop"
+  | "documents"
+  | "pictures"
+  | "videos"
+  | "music"
+  | "cloud"
+  | "appData"
+  | "userPrograms"
+  | "storeApp"
+  | "temp"
+  | "programFiles"
+  | "programData"
+  | "windows"
+  | "profile"
+  | "otherUser"
+  | "recycleBin"
+  | "quarantine"
+  | "drive";
+
+export type FileType =
+  | "video"
+  | "photo"
+  | "rawPhoto"
+  | "audio"
+  | "archive"
+  | "diskImage"
+  | "virtualDisk"
+  | "installer"
+  | "program"
+  | "library"
+  | "document"
+  | "spreadsheet"
+  | "presentation"
+  | "pdf"
+  | "ebook"
+  | "text"
+  | "code"
+  | "data"
+  | "database"
+  | "log"
+  | "backup"
+  | "dump"
+  | "aiModel"
+  | "gameData"
+  | "font"
+  | "mail"
+  | "design"
+  | "partial"
+  | "temporary"
+  | "shortcut"
+  | "system";
+
+/** The facts an explanation is built from. */
+export interface Explain {
+  place: Place;
+  /** The app, program or user the place belongs to. */
+  owner: string | null;
+  /** True when the item is the owner's own folder. */
+  ownerRoot: boolean;
+  fileType: FileType | null;
+  /** What a folder mostly holds, when one kind fills at least half of it. */
+  mix: { category: Category; percent: number } | null;
+}
+
 export interface ViewNode {
   id: number;
   name: string;
@@ -35,6 +101,7 @@ export interface ViewNode {
   category: Category;
   tier: Tier | null;
   ruleId: string | null;
+  explain: Explain;
   hasChildren: boolean;
   unscanned: boolean;
   cloud: PinState | null;
@@ -81,7 +148,11 @@ export interface Description {
   ruleId: string | null;
   tier: Tier | null;
   actions: Action[];
-  generic: boolean;
+  /** A large item no rule has an opinion about. */
+  large: boolean;
+  /** The rule is a definition: it explains the item, without an opinion. */
+  definition: boolean;
+  explain: Explain;
   protected: ProtectReason | null;
   cloud: boolean;
   quarantineRoot: string | null;

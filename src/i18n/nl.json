@@ -74,16 +74,14 @@
     "files": "Bestanden",
     "path": "Locatie",
     "protected": "Beschermd: Unhoard verplaatst dit nooit.",
-    "folder_one": "Een map met {{files}} bestand.",
-    "folder_other": "Een map met {{files}} bestanden.",
     "revealSmall_one": "en {{count}} kleinere map · {{size}}",
     "revealSmall_other": "en {{count}} kleinere mappen · {{size}}",
     "unreadable": "Deze map kon zonder adminrechten niet gelezen worden. De grootte is onbekend.",
-    "generic": "Een groot item waar Unhoard geen uitleg voor heeft. Alleen jij weet of je het nog nodig hebt.",
-    "genericReason": "Groot en niet herkend.",
     "cloudState": "{{local}} op deze pc · {{cloud}} in de cloud",
     "requiresAdmin": "Vraagt adminrechten, dus Unhoard wijst je naar de Windows-tool.",
-    "nothing": "Kies een item om te zien wat het is."
+    "nothing": "Kies een item om te zien wat het is.",
+    "largeReason": "Groot genoeg om even naar te kijken.",
+    "keepReason": "Windows of een programma heeft dit nodig om te werken."
   },
   "actions": {
     "quarantine": "Naar quarantaine",
@@ -899,6 +897,1506 @@
       "explain": "Diagnostische traces van de Remote Desktop-client die WSL gebruikt om Linux-apps in een venster te tonen (WSLg). Door een bekend probleem kunnen ze tientallen gigabytes per dag groeien.",
       "reason": "Het zijn alleen logbestanden; niets heeft ze nodig.",
       "action": "Sluit Docker Desktop af en voer wsl --shutdown uit, en verplaats het daarna naar de quarantaine. Gebruik je nooit Linux-apps met een venster, zet dan guiApplications=false onder [wsl2] in .wslconfig in je profielmap."
+    },
+    "def-windows": {
+      "title": "Windows zelf",
+      "explain": "Het besturingssysteem: de programma's, drivers en ingebouwde apps. Unhoard komt er nooit aan; met Schijfopruiming maak je het veilig kleiner."
+    },
+    "def-program-files": {
+      "title": "Geïnstalleerde programma's (64-bit)",
+      "explain": "Programma's die voor iedereen op deze pc zijn geïnstalleerd. Verwijder een programma via Instellingen › Apps, nooit door de map hier weg te gooien."
+    },
+    "def-program-files-x86": {
+      "title": "Geïnstalleerde programma's (32-bit)",
+      "explain": "Oudere 32-bit-programma's, geïnstalleerd voor iedereen op deze pc. Verwijder een programma via Instellingen › Apps."
+    },
+    "def-programdata": {
+      "title": "Gedeelde programmagegevens",
+      "explain": "Gegevens die programma's delen tussen alle gebruikers: licenties, databases, caches en gedownloade updates. Windows verbergt deze map standaard."
+    },
+    "def-users": {
+      "title": "De persoonlijke mappen van iedereen",
+      "explain": "Eén map per persoon die deze pc gebruikt, met documenten, bureaublad, downloads en app-instellingen."
+    },
+    "def-perflogs": {
+      "title": "Prestatielogboeken",
+      "explain": "Hier bewaart Windows prestatiemetingen als iemand daarom vraagt. Meestal is de map leeg."
+    },
+    "def-recovery": {
+      "title": "Herstelomgeving van Windows",
+      "explain": "De reparatiehulpmiddelen die Windows start als de pc niet meer opstart. Klein, en nodig in een noodgeval."
+    },
+    "def-winreagent": {
+      "title": "Updatebestanden voor de herstelomgeving",
+      "explain": "Werkbestanden waarmee Windows tijdens een update de herstelomgeving bijwerkt. Windows ruimt dit zelf op."
+    },
+    "def-windows-bt": {
+      "title": "Bestanden van een Windows-upgrade",
+      "explain": "Installatiebestanden van een Windows-upgrade. Schijfopruiming verwijdert ze onder “Tijdelijke Windows-installatiebestanden”."
+    },
+    "def-windows-ws": {
+      "title": "Download van Windows Setup",
+      "explain": "Bestanden die Windows Setup of het hulpprogramma voor mediacreatie heeft gedownload om Windows te installeren of bij te werken. Schijfopruiming verwijdert ze."
+    },
+    "def-getcurrent": {
+      "title": "Restanten van de Update-assistent",
+      "explain": "Logboeken en installatiebestanden die de Windows Update-assistent achterlaat na een onderdelenupdate."
+    },
+    "def-sysreset": {
+      "title": "Logboeken van een pc-reset",
+      "explain": "Logboeken van een poging om “Deze pc opnieuw instellen” uit te voeren. Alleen nuttig als een reset mislukte."
+    },
+    "def-msocache": {
+      "title": "Installatiecache van Office",
+      "explain": "Een lokale kopie van de installatiebestanden van Office, die oudere Office-versies bewaren voor reparaties."
+    },
+    "def-config-msi": {
+      "title": "Terugdraaibestanden van installaties",
+      "explain": "Bestanden waarmee Windows Installer een installatie kan terugdraaien die halverwege mislukt."
+    },
+    "def-root-intel": {
+      "title": "Uitgepakte Intel-drivers",
+      "explain": "Installatiebestanden van Intel-drivers, hier uitgepakt tijdens de installatie. De drivers zelf staan al ergens anders."
+    },
+    "def-root-amd": {
+      "title": "Uitgepakte AMD-drivers",
+      "explain": "Installatiebestanden van AMD-drivers, hier uitgepakt tijdens de installatie. De drivers zelf staan al ergens anders."
+    },
+    "def-root-nvidia": {
+      "title": "Uitgepakte NVIDIA-drivers",
+      "explain": "Installatiebestanden van NVIDIA-drivers, hier uitgepakt tijdens de installatie. De drivers zelf staan al ergens anders."
+    },
+    "def-swsetup": {
+      "title": "Installatiebestanden van HP",
+      "explain": "Kopieën van de installatieprogramma's voor de software en drivers die HP op deze pc zette."
+    },
+    "def-onedrivetemp": {
+      "title": "Werkbestanden van OneDrive",
+      "explain": "Tijdelijke bestanden die OneDrive gebruikt tijdens het synchroniseren. OneDrive ruimt ze zelf op."
+    },
+    "def-inetpub": {
+      "title": "Map van de webserver",
+      "explain": "De map van de ingebouwde webserver van Windows (IIS): websites die op deze pc draaien en hun logboeken."
+    },
+    "def-msys64": {
+      "title": "MSYS2",
+      "explain": "Een Unix-achtige gereedschapskist voor Windows-ontwikkelaars, met eigen geïnstalleerde pakketten."
+    },
+    "def-esd": {
+      "title": "Download van Windows-installatie",
+      "explain": "Installatiebestanden van Windows, gedownload door het hulpprogramma voor mediacreatie. Niet meer nodig zodra de upgrade of usb-stick klaar is."
+    },
+    "def-dumpstack": {
+      "title": "Crashlogboek",
+      "explain": "Een klein logboek dat Windows schrijft terwijl het een crash afhandelt."
+    },
+    "def-bootmgr": {
+      "title": "Opstartbeheer van Windows",
+      "explain": "Het programma dat Windows start als je de pc aanzet."
+    },
+    "def-system32": {
+      "title": "De kern van Windows",
+      "explain": "Systeemprogramma's, bibliotheken en drivers (64-bit). Bijna alles in Windows hangt ervan af."
+    },
+    "def-syswow64": {
+      "title": "32-bit-systeembestanden",
+      "explain": "De 32-bit-tegenhanger van System32, zodat oudere 32-bit-programma's blijven werken."
+    },
+    "def-softwaredistribution": {
+      "title": "Werkmap van Windows Update",
+      "explain": "Gedownloade updates en de updategeschiedenis. De downloads erin kun je opruimen; de map zelf blijft."
+    },
+    "def-fonts": {
+      "title": "Geïnstalleerde lettertypen",
+      "explain": "Alle lettertypen die voor alle gebruikers van deze pc zijn geïnstalleerd."
+    },
+    "def-win-logs": {
+      "title": "Logboeken van Windows-onderdelen",
+      "explain": "Logboeken van Windows-onderdelen zoals updates (CBS) en reparaties (DISM). Schijfopruiming kort ze in."
+    },
+    "def-prefetch": {
+      "title": "Opstarthints",
+      "explain": "Kleine bestanden die bijhouden hoe programma's starten, zodat Windows ze sneller opent. Windows beheert de grootte zelf."
+    },
+    "def-assembly": {
+      "title": "Gedeelde .NET-bibliotheken",
+      "explain": "Bibliotheken die .NET Framework-programma's delen (de global assembly cache), plus hun voorgecompileerde versies."
+    },
+    "def-microsoft-net": {
+      "title": ".NET Framework",
+      "explain": "Het .NET Framework zelf: de runtime die veel Windows-programma's nodig hebben."
+    },
+    "def-servicing": {
+      "title": "Onderhoud voor updates",
+      "explain": "De hulpmiddelen en pakketten waarmee Windows updates installeert en onderdelen aan- of uitzet."
+    },
+    "def-systemapps": {
+      "title": "Ingebouwde Windows-apps",
+      "explain": "Apps die bij Windows zelf horen, zoals Start, Zoeken en het vergrendelscherm."
+    },
+    "def-systemresources": {
+      "title": "Systeembronnen",
+      "explain": "Afbeeldingen, pictogrammen en teksten die de eigen programma's van Windows tonen."
+    },
+    "def-panther": {
+      "title": "Logboeken van Windows Setup",
+      "explain": "Logboeken van het installeren en upgraden van Windows. Alleen nuttig als een upgrade misging."
+    },
+    "def-livekernelreports": {
+      "title": "Dumps van driverproblemen",
+      "explain": "Geheugendumps van driver- of hardwareproblemen waarbij de pc niet crashte. Ze kunnen gigabytes groot worden; Schijfopruiming verwijdert ze onder “Geheugendumpbestanden met systeemfouten”."
+    },
+    "def-inf": {
+      "title": "Installatie-informatie van drivers",
+      "explain": "De installatie-informatie van geïnstalleerde drivers en Windows-onderdelen."
+    },
+    "def-globalization": {
+      "title": "Taal- en regiogegevens",
+      "explain": "Sorteerregels, tijdzones en andere gegevens die Windows nodig heeft voor talen en regio's."
+    },
+    "def-ime": {
+      "title": "Invoermethoden",
+      "explain": "De hulpmiddelen om talen als Chinees, Japans en Koreaans te typen."
+    },
+    "def-win-boot": {
+      "title": "Opstartbestanden",
+      "explain": "De bestanden die Windows naar de opstartpartitie kopieert zodat de pc kan starten."
+    },
+    "def-win-media": {
+      "title": "Windows-geluiden",
+      "explain": "De geluiden die Windows afspeelt bij meldingen, fouten en het opstarten."
+    },
+    "def-win-web": {
+      "title": "Achtergronden",
+      "explain": "De bureaubladachtergronden en vergrendelschermfoto's die bij Windows horen."
+    },
+    "def-cursors": {
+      "title": "Muisaanwijzers",
+      "explain": "De vormen van de muisaanwijzer die bij Windows horen."
+    },
+    "def-speech": {
+      "title": "Spraakherkenning",
+      "explain": "De spraakherkenning en stemmen van het klassieke Windows."
+    },
+    "def-speech-onecore": {
+      "title": "Stemmen en dicteren",
+      "explain": "De stemmen en dicteermodellen die Windows gebruikt voor Verteller en typen met je stem."
+    },
+    "def-immersivecontrolpanel": {
+      "title": "De app Instellingen",
+      "explain": "Het programma achter Windows Instellingen."
+    },
+    "def-shellexperiences": {
+      "title": "Onderdelen van de Windows-shell",
+      "explain": "Onderdelen van de Windows-interface, zoals het meldingencentrum en de snelle instellingen."
+    },
+    "def-appcompat": {
+      "title": "Compatibiliteitsgegevens",
+      "explain": "Wat Windows weet over het laten werken van oudere programma's, plus zijn overzicht van geïnstalleerde programma's."
+    },
+    "def-apppatch": {
+      "title": "Compatibiliteitsfixes",
+      "explain": "Aanpassingen die Windows toepast op bepaalde oudere programma's zodat ze goed draaien."
+    },
+    "def-diagnostics": {
+      "title": "Probleemoplossers",
+      "explain": "De ingebouwde probleemoplossers van Windows."
+    },
+    "def-win-debug": {
+      "title": "Debuglogboeken",
+      "explain": "Logboeken die enkele Windows-services schrijven voor probleemoplossing."
+    },
+    "def-serviceprofiles": {
+      "title": "Profielen van systeemservices",
+      "explain": "De persoonlijke mappen van de ingebouwde serviceaccounts (Local Service en Network Service), met hun caches."
+    },
+    "def-systemtemp": {
+      "title": "Tijdelijke bestanden van systeemservices",
+      "explain": "Tijdelijke bestanden van services die als het systeem draaien, zoals updaters van browsers."
+    },
+    "def-win-security": {
+      "title": "Gegevens van het beveiligingsbeleid",
+      "explain": "De databases en logboeken van het lokale beveiligingsbeleid van Windows."
+    },
+    "def-policydefinitions": {
+      "title": "Sjablonen voor groepsbeleid",
+      "explain": "De sjablonen die elke groepsbeleidsinstelling beschrijven."
+    },
+    "def-rescache": {
+      "title": "Bronnencache",
+      "explain": "Een cache van teksten en afbeeldingen die de eigen apps van Windows versnelt."
+    },
+    "def-csc": {
+      "title": "Cache van offlinebestanden",
+      "explain": "Lokale kopieën van netwerkbestanden die als “altijd offline beschikbaar” zijn gemarkeerd."
+    },
+    "def-downloaded-program-files": {
+      "title": "Oude browser-invoegtoepassingen",
+      "explain": "ActiveX-besturingselementen die Internet Explorer heeft gedownload. Schijfopruiming kan de map legen."
+    },
+    "def-win-resources": {
+      "title": "Thema's",
+      "explain": "De thema's en visuele stijlen van Windows."
+    },
+    "def-win-tasks": {
+      "title": "Geplande taken (oud formaat)",
+      "explain": "Geplande taken in het formaat van oudere Windows-versies."
+    },
+    "def-containers": {
+      "title": "Containerbestanden van Windows",
+      "explain": "Basisbestanden voor Windows Sandbox en Windows-containers."
+    },
+    "def-uus": {
+      "title": "Update-stack",
+      "explain": "Het deel van Windows Update dat de updates installeert, apart bewaard zodat het zichzelf kan bijwerken."
+    },
+    "def-win-help": {
+      "title": "Helpbestanden",
+      "explain": "Helpbestanden van Windows en enkele oudere programma's."
+    },
+    "def-win-provisioning": {
+      "title": "Inrichtingspakketten",
+      "explain": "Instellingenpakketten waarmee een pc wordt ingericht voor een school of bedrijf."
+    },
+    "def-win-migration": {
+      "title": "Migratieregels voor upgrades",
+      "explain": "De regels waarmee Windows instellingen meeneemt bij een upgrade."
+    },
+    "def-win-system": {
+      "title": "16-bit-overblijfselen",
+      "explain": "Enkele bestanden die blijven staan zodat heel oude 16-bit-programma's vinden wat ze verwachten."
+    },
+    "def-s32-drivers": {
+      "title": "Apparaatdrivers",
+      "explain": "De drivers die Windows laadt voor je hardware."
+    },
+    "def-s32-config": {
+      "title": "Het register",
+      "explain": "Het Windows-register: de instellingen van Windows, hardware, programma's en gebruikersaccounts."
+    },
+    "def-s32-winevt": {
+      "title": "Gebeurtenislogboeken",
+      "explain": "De logboeken die je in Logboeken ziet. Windows begrenst de grootte."
+    },
+    "def-s32-spool": {
+      "title": "Afdrukwachtrij",
+      "explain": "Afdruktaken die op de printer wachten, plus printerdrivers."
+    },
+    "def-s32-catroot2": {
+      "title": "Database met handtekeningen van updates",
+      "explain": "De handtekeningen waarmee Windows controleert of updates en drivers echt zijn."
+    },
+    "def-s32-logfiles": {
+      "title": "Systeemlogboeken",
+      "explain": "Logboeken van Windows-services zoals de firewall, wifi en setup. Windows vervangt de meeste vanzelf."
+    },
+    "def-s32-tasks": {
+      "title": "Geplande taken",
+      "explain": "Elke taak in Taakplanner, van Windows en van je programma's."
+    },
+    "def-s32-sru": {
+      "title": "Geschiedenis van resourcegebruik",
+      "explain": "De database achter de app-geschiedenis in Taakbeheer en het overzicht van dataverbruik."
+    },
+    "def-s32-wdi": {
+      "title": "Diagnostische traces",
+      "explain": "Traces die Windows vastlegt om traag opstarten en afsluiten te onderzoeken."
+    },
+    "def-s32-wbem": {
+      "title": "Beheerdatabase (WMI)",
+      "explain": "De database en hulpmiddelen waarmee programma's Windows naar hardware en instellingen vragen."
+    },
+    "def-sd-datastore": {
+      "title": "Database met updategeschiedenis",
+      "explain": "De database waarin Windows Update bijhoudt welke updates zijn geïnstalleerd."
+    },
+    "def-desktop": {
+      "title": "Je bureaublad",
+      "explain": "Alles wat je op je bureaublad ziet: bestanden, mappen en snelkoppelingen."
+    },
+    "def-documents": {
+      "title": "Je documenten",
+      "explain": "De standaardplek voor je eigen documenten. Veel programma's en spellen bewaren hier ook hun opgeslagen spellen en instellingen."
+    },
+    "def-pictures": {
+      "title": "Je afbeeldingen",
+      "explain": "De standaardplek voor je foto's, schermafbeeldingen en andere afbeeldingen."
+    },
+    "def-videos": {
+      "title": "Je video's",
+      "explain": "De standaardplek voor je video's, ook scherm- en spelopnamen."
+    },
+    "def-music": {
+      "title": "Je muziek",
+      "explain": "De standaardplek voor je muziek en andere geluidsbestanden."
+    },
+    "def-downloads": {
+      "title": "Je downloads",
+      "explain": "Alles wat je browsers en apps hebben gedownload. De map loopt ongemerkt vol: installatieprogramma's, archieven en bestanden die je één keer opende."
+    },
+    "def-favorites": {
+      "title": "Favorieten",
+      "explain": "De favorieten van Internet Explorer en enkele oudere programma's."
+    },
+    "def-links": {
+      "title": "Koppelingen voor snelle toegang",
+      "explain": "Snelkoppelingen die oudere Windows-versies in de zijbalk van Verkenner toonden."
+    },
+    "def-contacts": {
+      "title": "Contactpersonen",
+      "explain": "Adreskaartjes van de oude functie Windows Contactpersonen. Meestal leeg."
+    },
+    "def-saved-games": {
+      "title": "Opgeslagen spellen",
+      "explain": "Hier bewaren sommige spellen je voortgang en instellingen."
+    },
+    "def-searches": {
+      "title": "Opgeslagen zoekopdrachten",
+      "explain": "Zoekopdrachten die je in Verkenner hebt opgeslagen."
+    },
+    "def-3d-objects": {
+      "title": "3D-objecten",
+      "explain": "De standaardplek voor 3D-modellen, bedoeld voor de app Paint 3D. Meestal leeg."
+    },
+    "def-onedrive": {
+      "title": "Je OneDrive-map",
+      "explain": "De bestanden die OneDrive synchroon houdt met de cloud. Een bestand dat alleen online staat, neemt hier geen ruimte in; met “Ruimte vrijmaken” worden lokale kopieën weer alleen-online."
+    },
+    "def-appdata": {
+      "title": "App-gegevens",
+      "explain": "Hier bewaren je programma's hun eigen gegevens voor jouw account: instellingen, caches, logboeken en soms downloads. Windows verbergt deze map standaard."
+    },
+    "def-ntuser-dat": {
+      "title": "Jouw deel van het register",
+      "explain": "Je persoonlijke Windows-instellingen: het deel van het register dat bij jouw account hoort."
+    },
+    "def-dropbox": {
+      "title": "Je Dropbox-map",
+      "explain": "De bestanden die Dropbox synchroon houdt met de cloud."
+    },
+    "def-icloud-drive": {
+      "title": "Je iCloud Drive-map",
+      "explain": "De bestanden die iCloud synchroon houdt met de cloud van Apple."
+    },
+    "def-creative-cloud-files": {
+      "title": "Creative Cloud-bestanden",
+      "explain": "De bestanden die Adobe Creative Cloud synchroon houdt met je Adobe-account."
+    },
+    "def-source": {
+      "title": "Je codeprojecten",
+      "explain": "Hier maakt Visual Studio nieuwe projecten aan (in “repos”). Je eigen broncode en bouwresultaten staan erin."
+    },
+    "def-scoop": {
+      "title": "Scoop",
+      "explain": "Programma's die met de pakketbeheerder Scoop zijn geïnstalleerd, met elke geïnstalleerde versie en de downloadcache."
+    },
+    "def-go-workspace": {
+      "title": "Go-werkruimte",
+      "explain": "De werkruimte van de taal Go: gedownloade modules en hulpprogramma's die je hebt gebouwd."
+    },
+    "def-miniconda": {
+      "title": "Miniconda",
+      "explain": "Een Python-distributie met haar omgevingen en gedownloade pakketten."
+    },
+    "def-anaconda": {
+      "title": "Anaconda",
+      "explain": "Een grote Python-distributie voor datawetenschap, met haar omgevingen en gedownloade pakketten."
+    },
+    "def-intel-graphics-profiles": {
+      "title": "Intel-grafische profielen",
+      "explain": "Beeldschermprofielen die de grafische software van Intel opslaat. Heel klein."
+    },
+    "def-dot-ssh": {
+      "title": "SSH-sleutels",
+      "explain": "Je SSH-sleutels en de lijst met servers die je vertrouwt. Raak je ze kwijt, dan kun je niet meer bij servers en Git-hosts."
+    },
+    "def-dot-gitconfig": {
+      "title": "Git-instellingen",
+      "explain": "Je naam, e-mailadres en voorkeuren voor Git."
+    },
+    "def-dot-docker": {
+      "title": "Docker-instellingen",
+      "explain": "De instellingen en aanmelding van Docker voor jouw account. De images en containers staan in de virtuele schijf van Docker, niet hier."
+    },
+    "def-dot-vscode": {
+      "title": "VS Code-extensies",
+      "explain": "De extensies die je in Visual Studio Code hebt geïnstalleerd. Verwijder een extensie vanuit VS Code zelf."
+    },
+    "def-dot-cursor": {
+      "title": "Cursor-extensies",
+      "explain": "De extensies en instellingen van de code-editor Cursor."
+    },
+    "def-dot-claude": {
+      "title": "Gegevens van Claude Code",
+      "explain": "Instellingen, geheugen en gespreksgeschiedenis van Claude Code."
+    },
+    "def-dot-cache": {
+      "title": "Caches van tools",
+      "explain": "Een gedeelde cachemap voor ontwikkel- en AI-tools: gedownloade modellen, pakketten en bouwresultaten. Elke tool haalt opnieuw op wat hij nodig heeft."
+    },
+    "def-dot-config": {
+      "title": "Instellingen van tools",
+      "explain": "Instellingen van opdrachtregeltools die de Linux-gewoonte volgen."
+    },
+    "def-dot-nuget": {
+      "title": "NuGet",
+      "explain": "De map van de pakketbeheerder van .NET; de gedownloade pakketten erin kun je opruimen en komen bij de volgende build terug."
+    },
+    "def-dot-cargo": {
+      "title": "Cargo (Rust)",
+      "explain": "De pakketbeheerder van Rust: de hulpprogramma's die je ermee installeerde en de pakketten die hij downloadde."
+    },
+    "def-dot-rustup": {
+      "title": "Rust-toolchains",
+      "explain": "De Rust-compilers die rustup heeft geïnstalleerd, één map per versie."
+    },
+    "def-dot-gradle": {
+      "title": "Gradle",
+      "explain": "De bouwtool Gradle: gedownloade Gradle-versies en de bibliotheken die je Java- en Android-projecten gebruiken."
+    },
+    "def-dot-m2": {
+      "title": "Maven",
+      "explain": "De map van de bouwtool Maven met gedownloade Java-bibliotheken."
+    },
+    "def-dot-android": {
+      "title": "Gegevens van Android-tools",
+      "explain": "Instellingen van de Android-ontwikkeltools en de virtuele telefoons van de emulator."
+    },
+    "def-dot-conda": {
+      "title": "Conda-omgevingen",
+      "explain": "Python-omgevingen en pakketcaches die conda in je profiel heeft aangemaakt."
+    },
+    "def-dot-ollama": {
+      "title": "Ollama",
+      "explain": "De map van Ollama: de AI-modellen die je hebt gedownload en de sleutels. Verwijder een model via Ollama, zodat de lijst blijft kloppen."
+    },
+    "def-dot-lmstudio": {
+      "title": "LM Studio",
+      "explain": "De map van LM Studio: gedownloade AI-modellen, chats en instellingen."
+    },
+    "def-dot-aws": {
+      "title": "AWS-toegangsgegevens",
+      "explain": "Je toegangssleutels en instellingen voor Amazon Web Services."
+    },
+    "def-dot-azure": {
+      "title": "Gegevens van Azure CLI",
+      "explain": "Aanmeldtokens, instellingen en logboeken van de opdrachtregeltool van Azure."
+    },
+    "def-dot-kube": {
+      "title": "Kubernetes-instellingen",
+      "explain": "De clusters die kubectl kan bereiken, plus de cache."
+    },
+    "def-dot-dotnet": {
+      "title": ".NET-tools",
+      "explain": "Hulpprogramma's die je met “dotnet tool” installeerde en gegevens van de .NET-opdrachtregel."
+    },
+    "def-dot-templateengine": {
+      "title": ".NET-projectsjablonen",
+      "explain": "De cache met projectsjablonen voor “dotnet new”."
+    },
+    "def-dot-jupyter": {
+      "title": "Jupyter-instellingen",
+      "explain": "Instellingen van Jupyter-notebooks."
+    },
+    "def-dot-ipython": {
+      "title": "IPython-instellingen",
+      "explain": "Instellingen en opdrachtgeschiedenis van de interactieve Python-shell."
+    },
+    "def-dot-keras": {
+      "title": "Keras-gegevens",
+      "explain": "Datasets en voorgetrainde modellen die Keras heeft gedownload."
+    },
+    "def-dot-bun": {
+      "title": "Bun",
+      "explain": "De JavaScript-runtime Bun en de bijbehorende pakketcache."
+    },
+    "def-dot-deno": {
+      "title": "Deno",
+      "explain": "De JavaScript-runtime Deno en de hulpprogramma's die ermee zijn geïnstalleerd."
+    },
+    "def-dot-pyenv": {
+      "title": "Python-versies van pyenv",
+      "explain": "De Python-versies die pyenv heeft geïnstalleerd, één map per versie."
+    },
+    "def-dot-vs": {
+      "title": "Werkruimtecache van Visual Studio",
+      "explain": "De cache van Visual Studio voor mappen die je zonder project hebt geopend."
+    },
+    "def-dot-wslconfig": {
+      "title": "WSL-instellingen",
+      "explain": "Je instellingen voor het Windows-subsysteem voor Linux, zoals de geheugenlimiet."
+    },
+    "def-docs-my-games": {
+      "title": "Opgeslagen spellen en instellingen",
+      "explain": "Hier bewaren veel spellen je opgeslagen spellen, instellingen en schermafbeeldingen. Gooi je de map van een spel weg, dan ben je de voortgang kwijt, tenzij het spel met de cloud synchroniseert."
+    },
+    "def-docs-office-templates": {
+      "title": "Je Office-sjablonen",
+      "explain": "Sjablonen die je zelf hebt opgeslagen in Word, Excel of PowerPoint."
+    },
+    "def-docs-outlook-files": {
+      "title": "Outlook-gegevensbestanden",
+      "explain": "Postvakken en archieven van het klassieke Outlook (.pst). Een archief hier kan de enige kopie van oude mail zijn."
+    },
+    "def-docs-powershell": {
+      "title": "PowerShell-profiel en -modules",
+      "explain": "Je opstartscript voor PowerShell en de modules die je voor je account hebt geïnstalleerd."
+    },
+    "def-docs-visual-studio": {
+      "title": "Gebruikersbestanden van Visual Studio",
+      "explain": "Je sjablonen, codefragmenten en instellingen van Visual Studio."
+    },
+    "def-docs-zoom": {
+      "title": "Zoom-opnamen",
+      "explain": "Vergaderingen die je met Zoom op deze pc hebt opgenomen, één map per vergadering."
+    },
+    "def-docs-onenote": {
+      "title": "OneNote-notitieblokken",
+      "explain": "Notitieblokken van de desktopversie van OneNote die op deze pc zijn opgeslagen."
+    },
+    "def-docs-sound-recordings": {
+      "title": "Geluidsopnamen",
+      "explain": "Opnamen die je met de Geluidsrecorder van Windows hebt gemaakt."
+    },
+    "def-docs-scanned": {
+      "title": "Gescande documenten",
+      "explain": "Pagina's die je met Windows Faxen en scannen hebt gescand."
+    },
+    "def-docs-adobe": {
+      "title": "Adobe-projectbestanden",
+      "explain": "Automatische opslagen, voorinstellingen en projectbestanden van Adobe-apps zoals Premiere Pro en After Effects."
+    },
+    "def-docs-rockstar": {
+      "title": "Opgeslagen spellen van Rockstar Games",
+      "explain": "Opgeslagen spellen en instellingen van Rockstar-titels zoals GTA en Red Dead Redemption."
+    },
+    "def-docs-ea": {
+      "title": "Opgeslagen spellen van Electronic Arts",
+      "explain": "Opgeslagen spellen, instellingen en mods van EA-titels zoals De Sims."
+    },
+    "def-docs-paradox": {
+      "title": "Opgeslagen spellen en mods van Paradox",
+      "explain": "Opgeslagen spellen, instellingen en gedownloade mods van Paradox-spellen."
+    },
+    "def-docs-blackmagic": {
+      "title": "Bestanden van DaVinci Resolve",
+      "explain": "Projectback-ups, rendercaches en galerijbeelden van DaVinci Resolve."
+    },
+    "def-pics-screenshots": {
+      "title": "Je schermafbeeldingen",
+      "explain": "Schermafbeeldingen die Windows opsloeg toen je Win + PrtScn indrukte of het Knipprogramma gebruikte."
+    },
+    "def-pics-camera-roll": {
+      "title": "Filmrol",
+      "explain": "Foto's en video's die met de camera van deze pc zijn gemaakt, of die OneDrive vanaf je telefoon heeft geüpload."
+    },
+    "def-pics-saved-pictures": {
+      "title": "Opgeslagen afbeeldingen",
+      "explain": "Afbeeldingen die je hebt opgeslagen vanuit apps zoals Foto's."
+    },
+    "def-vids-captures": {
+      "title": "Spel- en schermopnamen",
+      "explain": "Clips en schermafbeeldingen die met de Xbox Game Bar (Win + G) zijn opgenomen. Opnamen zijn groot en snel vergeten."
+    },
+    "def-vids-screen-recordings": {
+      "title": "Schermopnamen",
+      "explain": "Video's van je scherm die met het Knipprogramma zijn opgenomen."
+    },
+    "def-appdata-local": {
+      "title": "App-gegevens voor deze pc",
+      "explain": "Gegevens die je programma's alleen voor deze pc bewaren: caches, logboeken, gedownloade updates en hele programma's die alleen voor jou zijn geïnstalleerd. Meestal het grootste deel van AppData."
+    },
+    "def-appdata-roaming": {
+      "title": "App-instellingen",
+      "explain": "Instellingen en profielen die je programma's voor jouw account bewaren, zoals browserprofielen, editorinstellingen en chatgeschiedenis."
+    },
+    "def-appdata-locallow": {
+      "title": "Gegevens van afgeschermde apps",
+      "explain": "Gegevens van programma's die met minder rechten draaien, zoals browserplug-ins. Veel spellen die met Unity zijn gemaakt, bewaren hier hun opgeslagen spellen."
+    },
+    "def-pf-common-files": {
+      "title": "Gedeelde programmaonderdelen",
+      "explain": "Bibliotheken en services die meerdere programma's delen, zoals die van Microsoft Office en Adobe."
+    },
+    "def-pf-windowsapps": {
+      "title": "Microsoft Store-apps",
+      "explain": "De programma's die via de Microsoft Store zijn geïnstalleerd, ook Xbox-spellen. Windows vergrendelt deze map; verwijder een app via Instellingen › Apps."
+    },
+    "def-pf-modifiablewindowsapps": {
+      "title": "Store-spellen die mods toelaten",
+      "explain": "Microsoft Store-spellen die zo zijn geïnstalleerd dat mods hun bestanden kunnen aanpassen."
+    },
+    "def-pf-windows-defender": {
+      "title": "Microsoft Defender Antivirus",
+      "explain": "De antivirus die in Windows is ingebouwd."
+    },
+    "def-pf-windows-nt": {
+      "title": "Windows-accessoires",
+      "explain": "Kleine programma's die bij Windows horen, zoals WordPad."
+    },
+    "def-pf-windows-mail": {
+      "title": "Restanten van Windows Mail",
+      "explain": "Onderdelen van het oude programma Windows Mail die Windows nog meelevert."
+    },
+    "def-pf-windows-media-player": {
+      "title": "Windows Media Player",
+      "explain": "De klassieke mediaspeler die bij Windows hoort."
+    },
+    "def-pf-windows-photo-viewer": {
+      "title": "Windows Photo Viewer",
+      "explain": "De klassieke fotoweergave die bij Windows hoort."
+    },
+    "def-pf-internet-explorer": {
+      "title": "Internet Explorer",
+      "explain": "Wat er over is van Internet Explorer; Edge gebruikt onderdelen ervan voor de IE-modus."
+    },
+    "def-pf-reference-assemblies": {
+      "title": ".NET-referentiebibliotheken",
+      "explain": "Bibliotheekbeschrijvingen die ontwikkeltools gebruiken om .NET-programma's te bouwen."
+    },
+    "def-pf-msbuild": {
+      "title": "MSBuild",
+      "explain": "De bouwtool van Microsoft, geïnstalleerd met Visual Studio of de .NET SDK."
+    },
+    "def-pf-uninstall-information": {
+      "title": "Verwijderinformatie",
+      "explain": "Wat sommige programma's nodig hebben om zichzelf netjes te verwijderen."
+    },
+    "def-pf-windowspowershell": {
+      "title": "PowerShell-modules",
+      "explain": "PowerShell-modules die voor elke gebruiker zijn geïnstalleerd."
+    },
+    "def-pf-dotnet": {
+      "title": ".NET",
+      "explain": "De moderne .NET-runtimes en -SDK's. Elke geïnstalleerde versie heeft een eigen map; verwijder oude versies via Instellingen › Apps."
+    },
+    "def-pf-windows-kits": {
+      "title": "Windows SDK",
+      "explain": "Hulpmiddelen en bibliotheken om Windows-programma's te bouwen, geïnstalleerd met Visual Studio."
+    },
+    "def-pf-wsl": {
+      "title": "Windows-subsysteem voor Linux",
+      "explain": "Het programma dat Linux binnen Windows draait. Je Linux-bestanden staan in een virtuele schijf op een andere plek."
+    },
+    "def-pd-microsoft": {
+      "title": "Gegevens van Windows en Microsoft",
+      "explain": "Gedeelde gegevens van Windows en Microsoft-programma's: de zoekindex, de definities van Defender, het menu Start en het installatieprogramma van Office."
+    },
+    "def-pd-packages": {
+      "title": "Gedeelde gegevens van Store-apps",
+      "explain": "Gegevens die Microsoft Store-apps delen tussen alle gebruikers."
+    },
+    "def-pd-usoshared": {
+      "title": "Logboeken van de update-planner",
+      "explain": "Logboeken van de service die Windows-updates plant."
+    },
+    "def-pd-usoprivate": {
+      "title": "Gegevens van de update-planner",
+      "explain": "Werkgegevens van de service die Windows-updates plant."
+    },
+    "def-pd-regid": {
+      "title": "Software-identificatielabels",
+      "explain": "Kleine labels die inventarisatietools vertellen welke software is geïnstalleerd."
+    },
+    "def-pd-ssh": {
+      "title": "Instellingen van de SSH-server",
+      "explain": "Instellingen en hostsleutels van de OpenSSH-server die bij Windows hoort."
+    },
+    "def-pd-chocolatey": {
+      "title": "Chocolatey",
+      "explain": "Programma's die met de pakketbeheerder Chocolatey zijn geïnstalleerd, plus de gedownloade pakketten."
+    },
+    "def-pd-docker": {
+      "title": "Gedeelde gegevens van Docker Desktop",
+      "explain": "Instellingen en gegevens die Docker Desktop voor alle gebruikers bewaart. De images en containers staan in de virtuele schijf van Docker in je eigen AppData."
+    },
+    "def-pd-nvidia": {
+      "title": "Gedeelde gegevens van NVIDIA",
+      "explain": "Logboeken, gedownloade driverinstallaties en shadercaches van de NVIDIA-software."
+    },
+    "def-pd-intel": {
+      "title": "Gedeelde gegevens van Intel",
+      "explain": "Logboeken en gedownloade installaties van de driver- en ondersteuningssoftware van Intel."
+    },
+    "def-pd-adobe": {
+      "title": "Gedeelde gegevens van Adobe",
+      "explain": "Licenties, installatiebestanden en gedeelde bronnen van de Adobe-apps op deze pc."
+    },
+    "def-pd-epic": {
+      "title": "Gegevens van Epic Games Launcher",
+      "explain": "De lijst met geïnstalleerde Epic-spellen en de gedeelde gegevens van de launcher."
+    },
+    "def-pd-battlenet": {
+      "title": "Gedeelde gegevens van Battle.net",
+      "explain": "De updater van Battle.net en de gedeelde gegevens van Blizzard-spellen."
+    },
+    "def-pd-ea": {
+      "title": "Gedeelde gegevens van de EA-app",
+      "explain": "Licenties, installatiegegevens en logboeken van de EA-app en de bijbehorende spellen."
+    },
+    "def-pd-riot": {
+      "title": "Gedeelde gegevens van Riot Games",
+      "explain": "Installatiegegevens van de spellen van Riot, zoals League of Legends en Valorant."
+    },
+    "def-pd-apple": {
+      "title": "Gedeelde gegevens van Apple",
+      "explain": "Installatiebestanden en gedeelde gegevens van Apple-software zoals iTunes en iCloud."
+    },
+    "def-pd-lenovo": {
+      "title": "Gedeelde gegevens van Lenovo",
+      "explain": "Logboeken, gedownloade updates en instellingen van de eigen software van Lenovo, zoals Vantage."
+    },
+    "def-pd-dell": {
+      "title": "Gedeelde gegevens van Dell",
+      "explain": "Logboeken, gedownloade updates en instellingen van de eigen software van Dell."
+    },
+    "def-pd-hp": {
+      "title": "Gedeelde gegevens van HP",
+      "explain": "Logboeken, gedownloade updates en instellingen van de eigen software van HP."
+    },
+    "def-pd-mozilla": {
+      "title": "Gedeelde gegevens van Firefox",
+      "explain": "Updatebestanden en gedeelde instellingen van Firefox."
+    },
+    "def-pd-vmware": {
+      "title": "Gedeelde gegevens van VMware",
+      "explain": "Instellingen, logboeken en netwerkconfiguratie van de software voor virtuele machines van VMware."
+    },
+    "def-pd-onedrive": {
+      "title": "Installatiegegevens van OneDrive",
+      "explain": "Installatie- en updatebestanden van OneDrive voor alle gebruikers."
+    },
+    "def-pd-ms-search": {
+      "title": "Zoekindex van Windows",
+      "explain": "De index die zoeken vanuit Start en Verkenner snel maakt. Hij groeit mee met het aantal bestanden en mails; Windows kan hem opnieuw opbouwen via Indexeringsopties."
+    },
+    "def-pd-ms-defender": {
+      "title": "Gegevens van Defender",
+      "explain": "Virusdefinities, scangeschiedenis en in quarantaine geplaatste bestanden van Microsoft Defender."
+    },
+    "def-pd-ms-diagnosis": {
+      "title": "Diagnostische gegevens",
+      "explain": "Diagnostische gegevens die Windows verzamelt voordat het ze naar Microsoft stuurt. Via Instellingen › Privacy › Diagnostische gegevens kun je ze verwijderen."
+    },
+    "def-pd-ms-clicktorun": {
+      "title": "Gegevens van het Office-installatieprogramma",
+      "explain": "Werkbestanden van het installatieprogramma dat Microsoft Office up-to-date houdt."
+    },
+    "def-pd-ms-visualstudio": {
+      "title": "Installatiecache van Visual Studio",
+      "explain": "Pakketten die het installatieprogramma van Visual Studio bewaart voor reparaties en updates. Verklein dit via het installatieprogramma, niet met de hand."
+    },
+    "def-local-microsoft": {
+      "title": "Gegevens van Windows en Microsoft-apps",
+      "explain": "De gegevens voor jouw account van Windows zelf en van Microsoft-programma's: Edge, OneDrive, Office, Teams en de caches van Windows."
+    },
+    "def-local-packages": {
+      "title": "Gegevens van Microsoft Store-apps",
+      "explain": "Eén map per app uit de Microsoft Store, met de instellingen, cache en bestanden. Bij het verwijderen van een app verdwijnt de map."
+    },
+    "def-local-programs": {
+      "title": "Programma's die alleen voor jou zijn geïnstalleerd",
+      "explain": "Programma's die alleen voor jouw account zijn geïnstalleerd, zonder adminrechten, zoals VS Code, Python en Docker Desktop. Verwijder ze via Instellingen › Apps."
+    },
+    "def-local-temp": {
+      "title": "Je tijdelijke bestanden",
+      "explain": "Hier zetten programma's bestanden neer die ze kort nodig hebben en vaak vergeten op te ruimen. Unhoard biedt elk item erin aan zodra het een dag oud is."
+    },
+    "def-local-google": {
+      "title": "Google-apps",
+      "explain": "Gegevens van Google-programma's. Het hele profiel van Chrome staat hier (bladwijzers, geschiedenis, extensies, opgeslagen wachtwoorden, cache), en Google Drive bewaart zijn cache van gestreamde bestanden in DriveFS."
+    },
+    "def-local-google-drivefs": {
+      "title": "Cache van Google Drive",
+      "explain": "Lokale kopieën van bestanden die Google Drive heeft gestreamd of offline beschikbaar houdt. Wis dit via de instellingen van Google Drive, zodat er niets verloren gaat dat nog niet gesynchroniseerd is."
+    },
+    "def-local-mozilla": {
+      "title": "Cache van Firefox",
+      "explain": "De cache en gedownloade updates van Firefox. Je bladwijzers en wachtwoorden staan in het Roaming-deel van AppData."
+    },
+    "def-local-brave": {
+      "title": "Brave-browser",
+      "explain": "Het hele profiel van Brave: bladwijzers, geschiedenis, extensies, opgeslagen wachtwoorden en cache."
+    },
+    "def-local-connecteddevices": {
+      "title": "Synchronisatie van activiteiten en apparaten",
+      "explain": "Wat Windows tussen je apparaten synchroniseert, zoals de klembordgeschiedenis en tijdlijn."
+    },
+    "def-local-comms": {
+      "title": "Opslag van mail en agenda",
+      "explain": "De lokale database van de Windows-apps Mail, Agenda en Personen."
+    },
+    "def-local-virtualstore": {
+      "title": "Omgeleide programmabestanden",
+      "explain": "Bestanden die oudere programma's in Program Files of Windows wilden schrijven; Windows leidde ze hierheen om voor jouw account."
+    },
+    "def-local-publishers": {
+      "title": "Gedeelde gegevens per Store-uitgever",
+      "explain": "Gegevens die apps van dezelfde Microsoft Store-uitgever delen."
+    },
+    "def-local-placeholder-tiles": {
+      "title": "Tijdelijke Start-tegels",
+      "explain": "Pictogrammen die Windows toont voor apps die nog worden geïnstalleerd."
+    },
+    "def-local-squirreltemp": {
+      "title": "Restanten van app-updaters",
+      "explain": "Werkbestanden van de updater die apps zoals Discord, Slack en Teams gebruiken."
+    },
+    "def-local-package-cache": {
+      "title": "Installatiecache (jouw account)",
+      "explain": "Installatiebestanden die setup-programma's bewaren om later te kunnen repareren of verwijderen. Weghalen kan het verwijderen van programma's breken."
+    },
+    "def-local-downloaded-installations": {
+      "title": "Gedownloade installaties",
+      "explain": "Kopieën van installatiebestanden die sommige setup-programma's bewaren voor reparaties."
+    },
+    "def-local-iconcache": {
+      "title": "Pictogramcache",
+      "explain": "De cache van de pictogrammen die Verkenner toont. Windows bouwt hem zelf opnieuw op."
+    },
+    "def-local-node-gyp": {
+      "title": "Cache van node-gyp",
+      "explain": "Headerbestanden van Node.js die zijn gedownload om native add-ons te bouwen."
+    },
+    "def-local-pnpm": {
+      "title": "pnpm",
+      "explain": "De pakketbeheerder pnpm: de gedeelde opslag van gedownloade pakketten en de tools die ermee zijn geïnstalleerd."
+    },
+    "def-local-yarn": {
+      "title": "Yarn",
+      "explain": "De cache en globale pakketten van de pakketbeheerder Yarn."
+    },
+    "def-local-pip": {
+      "title": "pip",
+      "explain": "De cache met gedownloade pakketten van de Python-pakketinstallatie."
+    },
+    "def-local-nuget": {
+      "title": "Caches van NuGet",
+      "explain": "Caches van de pakketbeheerder van .NET; met “dotnet nuget locals all --clear” leeg je ze."
+    },
+    "def-local-uv": {
+      "title": "uv",
+      "explain": "De Python-tool uv: de pakketcache en de Python-versies die hij installeerde."
+    },
+    "def-local-pypoetry": {
+      "title": "Poetry",
+      "explain": "De Python-tool Poetry: de cache en de virtuele omgevingen van je projecten."
+    },
+    "def-local-android": {
+      "title": "Android SDK",
+      "explain": "De ontwikkelkit van Android: platforms, bouwtools en emulatorimages."
+    },
+    "def-local-ms-playwright": {
+      "title": "Browsers van Playwright",
+      "explain": "Browsers die de testtool Playwright heeft gedownload, één map per versie. Oude versies blijven achter na upgrades."
+    },
+    "def-local-elevated-diagnostics": {
+      "title": "Rapporten van probleemoplossers",
+      "explain": "Rapporten van Windows-probleemoplossers die met adminrechten draaiden."
+    },
+    "def-lm-edge": {
+      "title": "Profiel van Microsoft Edge",
+      "explain": "Het hele profiel van Edge: favorieten, geschiedenis, extensies, opgeslagen wachtwoorden en cache."
+    },
+    "def-lm-windows": {
+      "title": "Windows-caches voor jouw account",
+      "explain": "Caches en geschiedenissen die Windows voor jouw account bijhoudt: miniaturen, meldingen, de webcache en foutrapporten."
+    },
+    "def-lm-windowsapps": {
+      "title": "App-snelkoppelingen voor de opdrachtregel",
+      "explain": "Piepkleine tijdelijke aanduidingen waarmee je Store-apps op naam start vanuit een terminal."
+    },
+    "def-lm-onedrive": {
+      "title": "Het programma OneDrive",
+      "explain": "Het programma OneDrive zelf met logboeken en instellingen. Je gesynchroniseerde bestanden staan in je OneDrive-map, niet hier."
+    },
+    "def-lm-teams": {
+      "title": "Klassiek Microsoft Teams",
+      "explain": "Het klassieke Teams-programma met zijn cache. Het nieuwe Teams is een Store-app en bewaart zijn gegevens in Packages."
+    },
+    "def-lm-office": {
+      "title": "Documentcache van Office",
+      "explain": "Kopieën van documenten die Office vanuit OneDrive of SharePoint opende, bewaard terwijl wijzigingen uploaden."
+    },
+    "def-lm-outlook": {
+      "title": "Offline mail van Outlook",
+      "explain": "Offline kopieën van je postvakken (.ost). Outlook downloadt ze opnieuw; een korter synchronisatievenster in de accountinstellingen maakt ze kleiner."
+    },
+    "def-lm-visualstudio": {
+      "title": "Gebruikersgegevens van Visual Studio",
+      "explain": "Caches, extensies en instellingen van Visual Studio voor jouw account, één map per geïnstalleerde versie."
+    },
+    "def-lm-typescript": {
+      "title": "Typecache van TypeScript",
+      "explain": "Typedefinities die editors hebben gedownload om suggesties voor JavaScript te geven."
+    },
+    "def-lm-terminal-server-client": {
+      "title": "Cache van Extern bureaublad",
+      "explain": "Beeldcaches van sessies met Extern bureaublad, die opnieuw verbinden sneller maken."
+    },
+    "def-lm-winget": {
+      "title": "winget-pakketten",
+      "explain": "Programma's en snelkoppelingen die met de pakketbeheerder van Windows (winget) zijn geïnstalleerd."
+    },
+    "def-lm-win-inetcache": {
+      "title": "Tijdelijke internetbestanden",
+      "explain": "De webcache van Windows en van programma's die de ingebouwde browseronderdelen gebruiken."
+    },
+    "def-lm-win-explorer": {
+      "title": "Caches van miniaturen en pictogrammen",
+      "explain": "De caches van de miniaturen en pictogrammen die Verkenner toont. Schijfopruiming wist de miniaturen."
+    },
+    "def-lm-win-wer": {
+      "title": "Foutrapporten",
+      "explain": "Rapporten van programma's die onder jouw account crashten, die nog naar Microsoft moeten of al verstuurd zijn."
+    },
+    "def-lm-win-webcache": {
+      "title": "Database met webgeschiedenis",
+      "explain": "De database met geschiedenis en cookies van de ingebouwde browseronderdelen van Windows."
+    },
+    "def-lm-win-fonts": {
+      "title": "Je eigen lettertypen",
+      "explain": "Lettertypen die je alleen voor je eigen account hebt geïnstalleerd."
+    },
+    "def-lm-win-notifications": {
+      "title": "Meldingengeschiedenis",
+      "explain": "De database achter het meldingencentrum."
+    },
+    "def-roaming-microsoft": {
+      "title": "Instellingen van Windows en Microsoft-apps",
+      "explain": "Je persoonlijke instellingen van Windows en Microsoft-programma's: het menu Start, recente bestanden, Office-sjablonen, handtekeningen en de sleutels die je opgeslagen wachtwoorden beschermen."
+    },
+    "def-roaming-mozilla": {
+      "title": "Firefox-profiel",
+      "explain": "Je Firefox-profiel: bladwijzers, geschiedenis, extensies en opgeslagen wachtwoorden."
+    },
+    "def-roaming-thunderbird": {
+      "title": "Mail van Thunderbird",
+      "explain": "Je Thunderbird-profiel met alle gedownloade mail. Bij POP-accounts is dit de enige kopie van je mail."
+    },
+    "def-roaming-minecraft": {
+      "title": "Minecraft (Java Edition)",
+      "explain": "Het spel met je werelden, resourcepacks, mods en schermafbeeldingen. Je werelden staan in “saves” en bestaan alleen hier, tenzij je er een back-up van maakt."
+    },
+    "def-rm-windows": {
+      "title": "Je instellingen van de Windows-shell",
+      "explain": "Je snelkoppelingen in het menu Start, recente bestanden, “Kopiëren naar”-items en thema's."
+    },
+    "def-rm-teams": {
+      "title": "Cache van klassiek Teams",
+      "explain": "De cache en instellingen van het klassieke Microsoft Teams. Je chats staan in de cloud."
+    },
+    "def-rm-templates": {
+      "title": "Office-sjablonen",
+      "explain": "De standaardsjablonen van Word en andere Office-apps, waaronder Normal.dotm met je standaardstijlen."
+    },
+    "def-rm-signatures": {
+      "title": "Outlook-handtekeningen",
+      "explain": "De e-mailhandtekeningen die je in het klassieke Outlook hebt gemaakt."
+    },
+    "def-rm-protect": {
+      "title": "Je versleutelingssleutels",
+      "explain": "De sleutels waarmee Windows je opgeslagen wachtwoorden en certificaten beschermt. Zonder deze sleutels zijn die gegevens onleesbaar."
+    },
+    "def-rm-crypto": {
+      "title": "Je privésleutels",
+      "explain": "De privésleutels van je certificaten."
+    },
+    "def-rm-credentials": {
+      "title": "Opgeslagen aanmeldingen",
+      "explain": "Aanmeldingen die Windows voor je heeft opgeslagen, versleuteld."
+    },
+    "def-rm-uproof": {
+      "title": "Je spellingwoordenboeken",
+      "explain": "De woorden die je aan het spellingwoordenboek van Office hebt toegevoegd."
+    },
+    "def-locallow-microsoft": {
+      "title": "Gegevens van afgeschermde Microsoft-onderdelen",
+      "explain": "Gegevens van Microsoft-onderdelen die met minder rechten draaien, zoals certificaatcaches."
+    },
+    "def-pk-photos": {
+      "title": "Gegevens van de app Foto's",
+      "explain": "De database van de app Foto's en miniaturen van je afbeeldingen."
+    },
+    "def-pk-whatsapp": {
+      "title": "Gegevens van WhatsApp",
+      "explain": "De lokale kopie van WhatsApp van je chats, foto's en video's. Verwijder je media van een chat in WhatsApp, dan komt hier ruimte vrij."
+    },
+    "def-pk-spotify": {
+      "title": "Gegevens van Spotify (Store-versie)",
+      "explain": "Nummers voor offline luisteren en de streamingcache van Spotify. In de instellingen van Spotify wis je ze onder Opslag."
+    },
+    "def-pk-teams": {
+      "title": "Gegevens van Microsoft Teams",
+      "explain": "De cache en instellingen van het nieuwe Microsoft Teams. Je chats staan in de cloud."
+    },
+    "def-pk-outlook": {
+      "title": "Gegevens van het nieuwe Outlook",
+      "explain": "De cache van de nieuwe Outlook-app. Je mail staat op de mailserver."
+    },
+    "def-pk-xbox": {
+      "title": "Gegevens van de Xbox-app",
+      "explain": "Instellingen en cache van de Xbox-app. De spellen staan in de map XboxGames."
+    },
+    "def-pk-minecraft": {
+      "title": "Gegevens van Minecraft (Bedrock)",
+      "explain": "Je Minecraft-werelden, pakketten en instellingen. De werelden bestaan alleen hier, tenzij ze met je account synchroniseren."
+    },
+    "def-pk-phone-link": {
+      "title": "Gegevens van Koppeling met telefoon",
+      "explain": "Kopieën van recente foto's en berichten van je telefoon, getoond door Koppeling met telefoon."
+    },
+    "def-pk-terminal": {
+      "title": "Instellingen van Windows Terminal",
+      "explain": "Je profielen en instellingen van Windows Terminal."
+    },
+    "def-pk-winget": {
+      "title": "Gegevens van winget",
+      "explain": "De pakketlijst, logboeken en gedownloade installaties van de pakketbeheerder van Windows."
+    },
+    "def-pk-spotlight": {
+      "title": "Spotlight-foto's en suggesties",
+      "explain": "De vergrendelschermfoto's van Windows Spotlight en de app-suggesties die Windows downloadt."
+    },
+    "def-pk-store": {
+      "title": "Cache van de Microsoft Store",
+      "explain": "De cache van de Store; met “wsreset” leeg je hem."
+    },
+    "def-pk-ubuntu": {
+      "title": "Ubuntu op WSL",
+      "explain": "Een Ubuntu-installatie voor het Windows-subsysteem voor Linux. Alles binnen die Linux staat in de virtuele schijf hier; verwijder hem met “wsl --unregister”, niet met de hand."
+    },
+    "def-pk-clipchamp": {
+      "title": "Gegevens van Clipchamp",
+      "explain": "De cache van de video-editor en de lokale kopieën van je projectmedia."
+    },
+    "def-pk-copilot": {
+      "title": "Gegevens van Copilot",
+      "explain": "De cache en instellingen van de Copilot-app."
+    },
+    "def-pk-icloud": {
+      "title": "Gegevens van iCloud",
+      "explain": "De cache van iCloud voor Windows, waaronder gedownloade iCloud-foto's."
+    },
+    "def-pk-cbs": {
+      "title": "Gegevens van de Windows-shell",
+      "explain": "Gegevens van de Windows-interface zelf: Start, Zoeken en de taakbalk."
+    },
+    "def-any-ebwebview": {
+      "title": "Gegevens van de ingebouwde browser",
+      "explain": "De gegevens van de ingebouwde browser (WebView2) waarmee deze app zijn pagina's toont: cache, cookies en aanmelding."
+    },
+    "def-any-user-data": {
+      "title": "Profiel in browserstijl",
+      "explain": "Het profiel van een browser of van een app die zo is opgebouwd: instellingen, geschiedenis, extensies, aanmeldingen en cache, één map per profiel."
+    },
+    "def-any-cache": {
+      "title": "Cache van de app",
+      "explain": "Bestanden die deze app bewaarde om de volgende keer sneller te laden. De app haalt opnieuw op wat hij nodig heeft."
+    },
+    "def-any-code-cache": {
+      "title": "Cache van gecompileerde code en graphics",
+      "explain": "Scripts en grafische code die deze app één keer compileerde om sneller te starten. De app bouwt dit zelf opnieuw op."
+    },
+    "def-any-logs": {
+      "title": "Logboeken van de app",
+      "explain": "Logbestanden waarin deze app bijhoudt wat hij deed. Alleen nuttig als je een probleem met de app oplost."
+    },
+    "def-any-crashpad": {
+      "title": "Crashrapporten van de app",
+      "explain": "Rapporten en geheugendumps van de keren dat deze app crashte."
+    },
+    "def-any-service-worker": {
+      "title": "Offline webgegevens",
+      "explain": "Gegevens die webpagina's binnen deze app opsloegen om sneller of offline te werken."
+    },
+    "def-any-web-storage": {
+      "title": "Gegevens die de pagina's van de app opsloegen",
+      "explain": "Wat de pagina's binnen deze app op deze pc opsloegen: instellingen, concepten en aanmeldingen. Weghalen kan je afmelden of niet-gesynchroniseerd werk kwijtmaken."
+    },
+    "def-any-updates": {
+      "title": "Updates van de app",
+      "explain": "Gedownloade updates van deze app, die wachten op installatie of daarna zijn achtergebleven."
+    },
+    "def-any-backups": {
+      "title": "Back-ups van de app",
+      "explain": "Reservekopieën die deze app van je werk of instellingen maakte."
+    },
+    "def-any-extensions": {
+      "title": "Extensies en plug-ins",
+      "explain": "Extensies of plug-ins die in deze app zijn geïnstalleerd. Verwijder er een vanuit de app zelf."
+    },
+    "def-local-discord": {
+      "title": "Discord: lokale gegevens",
+      "explain": "Lokale gegevens van Discord, de chat-app: cache, logboeken en bestanden die bij deze pc horen. Elke update laat de vorige versie achter in een eigen map."
+    },
+    "def-roaming-discord": {
+      "title": "Discord: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Discord, de chat-app: je profiel, voorkeuren en geschiedenis. Je berichten staan op de servers van Discord, niet hier."
+    },
+    "def-local-spotify": {
+      "title": "Spotify: lokale gegevens",
+      "explain": "Lokale gegevens van Spotify, de muziek-app: cache, logboeken en bestanden die bij deze pc horen. Nummers voor offline luisteren en de streamingcache staan hier; in de instellingen van Spotify wis je ze onder Opslag."
+    },
+    "def-roaming-spotify": {
+      "title": "Spotify: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Spotify, de muziek-app: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-steam": {
+      "title": "Steam: lokale gegevens",
+      "explain": "Lokale gegevens van Steam, de spellenwinkel: cache, logboeken en bestanden die bij deze pc horen. De spellen zelf staan in de bibliotheekmappen van Steam, niet hier."
+    },
+    "def-local-epic-launcher": {
+      "title": "Epic Games Launcher: lokale gegevens",
+      "explain": "Lokale gegevens van Epic Games Launcher, de spellenwinkel van Epic: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-unreal-engine": {
+      "title": "Unreal Engine: lokale gegevens",
+      "explain": "Lokale gegevens van Unreal Engine, de game-engine: cache, logboeken en bestanden die bij deze pc horen. De cache met afgeleide gegevens kan vele gigabytes groot worden en wordt opnieuw opgebouwd als een project hem nodig heeft."
+    },
+    "def-local-unity": {
+      "title": "Unity: lokale gegevens",
+      "explain": "Lokale gegevens van Unity, de game-engine: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-unity": {
+      "title": "Unity: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Unity, de game-engine: je profiel, voorkeuren en geschiedenis. Gedownloade pakketten uit de Asset Store staan hier."
+    },
+    "def-local-docker": {
+      "title": "Docker Desktop: lokale gegevens",
+      "explain": "Lokale gegevens van Docker Desktop, de containertool: cache, logboeken en bestanden die bij deze pc horen. De virtuele schijf met elke image, container en volume staat hier. Ruim op binnen Docker en comprimeer daarna de schijf; gooi het schijfbestand nooit met de hand weg."
+    },
+    "def-roaming-docker": {
+      "title": "Docker Desktop: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Docker Desktop, de containertool: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-wsl": {
+      "title": "WSL: lokale gegevens",
+      "explain": "Lokale gegevens van WSL, Linux binnen Windows: cache, logboeken en bestanden die bij deze pc horen. De virtuele schijven van je Linux-distributies staan hier: alles binnen Linux staat daarin."
+    },
+    "def-local-ollama": {
+      "title": "Ollama: lokale gegevens",
+      "explain": "Lokale gegevens van Ollama, de tool die AI-modellen op je eigen pc draait: cache, logboeken en bestanden die bij deze pc horen. De modellen zelf staan in de map .ollama van je profiel."
+    },
+    "def-local-github-desktop": {
+      "title": "GitHub Desktop: lokale gegevens",
+      "explain": "Lokale gegevens van GitHub Desktop, de Git-app: cache, logboeken en bestanden die bij deze pc horen. Elke update laat de vorige versie achter in een eigen map."
+    },
+    "def-roaming-github-desktop": {
+      "title": "GitHub Desktop: instellingen en profiel",
+      "explain": "Instellingen en gegevens van GitHub Desktop, de Git-app: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-jetbrains": {
+      "title": "JetBrains: lokale gegevens",
+      "explain": "Lokale gegevens van JetBrains, de maker van IDE's zoals IntelliJ, PyCharm en Rider: cache, logboeken en bestanden die bij deze pc horen. Elke IDE-versie houdt eigen caches en indexen bij; mappen van versies die je niet meer gebruikt, kunnen weg."
+    },
+    "def-roaming-jetbrains": {
+      "title": "JetBrains: instellingen en profiel",
+      "explain": "Instellingen en gegevens van JetBrains, de maker van IDE's zoals IntelliJ, PyCharm en Rider: je profiel, voorkeuren en geschiedenis. Je instellingen en plug-ins per IDE-versie."
+    },
+    "def-local-postman": {
+      "title": "Postman: lokale gegevens",
+      "explain": "Lokale gegevens van Postman, de tool om API's te testen: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-postman": {
+      "title": "Postman: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Postman, de tool om API's te testen: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-slack": {
+      "title": "Slack: lokale gegevens",
+      "explain": "Lokale gegevens van Slack, de chat-app voor teams: cache, logboeken en bestanden die bij deze pc horen. Elke update laat de vorige versie achter in een eigen map."
+    },
+    "def-roaming-slack": {
+      "title": "Slack: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Slack, de chat-app voor teams: je profiel, voorkeuren en geschiedenis. Je berichten staan op de servers van Slack, niet hier."
+    },
+    "def-local-battlenet": {
+      "title": "Battle.net: lokale gegevens",
+      "explain": "Lokale gegevens van Battle.net, de game-launcher van Blizzard: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-battlenet": {
+      "title": "Battle.net: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Battle.net, de game-launcher van Blizzard: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-blizzard": {
+      "title": "Blizzard: lokale gegevens",
+      "explain": "Lokale gegevens van Blizzard, de maker van World of Warcraft en Diablo: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-riot": {
+      "title": "Riot Games: lokale gegevens",
+      "explain": "Lokale gegevens van Riot Games, de maker van League of Legends en Valorant: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-ubisoft": {
+      "title": "Ubisoft Connect: lokale gegevens",
+      "explain": "Lokale gegevens van Ubisoft Connect, de game-launcher van Ubisoft: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-rockstar": {
+      "title": "Rockstar Games Launcher: lokale gegevens",
+      "explain": "Lokale gegevens van Rockstar Games Launcher, de launcher van GTA en Red Dead Redemption: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-ea-desktop": {
+      "title": "EA Desktop: lokale gegevens",
+      "explain": "Lokale gegevens van EA Desktop, de game-launcher van EA: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-gog": {
+      "title": "GOG Galaxy: lokale gegevens",
+      "explain": "Lokale gegevens van GOG Galaxy, de game-launcher van GOG: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-larian": {
+      "title": "Larian Studios: lokale gegevens",
+      "explain": "Lokale gegevens van Larian Studios, de maker van Baldur's Gate 3: cache, logboeken en bestanden die bij deze pc horen. Je opgeslagen spellen en mods staan hier."
+    },
+    "def-local-figma": {
+      "title": "Figma: lokale gegevens",
+      "explain": "Lokale gegevens van Figma, de ontwerp-app: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-figma": {
+      "title": "Figma: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Figma, de ontwerp-app: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-notion": {
+      "title": "Notion: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Notion, de notitie-app: je profiel, voorkeuren en geschiedenis. Je pagina's staan in de cloud van Notion; dit is een lokale kopie die de app snel maakt."
+    },
+    "def-roaming-obsidian": {
+      "title": "Obsidian: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Obsidian, de notitie-app: je profiel, voorkeuren en geschiedenis. Je notities staan in de kluismappen die je zelf koos, niet hier."
+    },
+    "def-local-1password": {
+      "title": "1Password: lokale gegevens",
+      "explain": "Lokale gegevens van 1Password, de wachtwoordmanager: cache, logboeken en bestanden die bij deze pc horen. De versleutelde kopie van je kluis staat hier."
+    },
+    "def-roaming-bitwarden": {
+      "title": "Bitwarden: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Bitwarden, de wachtwoordmanager: je profiel, voorkeuren en geschiedenis. De versleutelde kopie van je kluis staat hier."
+    },
+    "def-local-dropbox": {
+      "title": "Dropbox: lokale gegevens",
+      "explain": "Lokale gegevens van Dropbox, de app voor cloudopslag: cache, logboeken en bestanden die bij deze pc horen. Dit zijn de eigen gegevens van het programma, niet je gesynchroniseerde bestanden."
+    },
+    "def-roaming-dropbox": {
+      "title": "Dropbox: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Dropbox, de app voor cloudopslag: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-claude": {
+      "title": "Claude: lokale gegevens",
+      "explain": "Lokale gegevens van Claude, de desktop-app van de AI-assistent: cache, logboeken en bestanden die bij deze pc horen. Elke update laat de vorige versie achter in een eigen map."
+    },
+    "def-roaming-claude": {
+      "title": "Claude: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Claude, de desktop-app van de AI-assistent: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-vscode": {
+      "title": "Visual Studio Code: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Visual Studio Code, de code-editor: je profiel, voorkeuren en geschiedenis. Naast instellingen staan hier werkruimtegeschiedenis en extensiegegevens, die met het gebruik groeien."
+    },
+    "def-roaming-cursor": {
+      "title": "Cursor: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Cursor, de AI-code-editor: je profiel, voorkeuren en geschiedenis. Naast instellingen staan hier werkruimtegeschiedenis en extensiegegevens, die met het gebruik groeien."
+    },
+    "def-local-cursor-updater": {
+      "title": "Cursor: lokale gegevens",
+      "explain": "Lokale gegevens van Cursor, de AI-code-editor: cache, logboeken en bestanden die bij deze pc horen. Hier staat het gedownloade installatieprogramma van de volgende update."
+    },
+    "def-local-arduino": {
+      "title": "Arduino: lokale gegevens",
+      "explain": "Lokale gegevens van Arduino, de elektronica-toolkit: cache, logboeken en bestanden die bij deze pc horen. Gedownloade bordpakketten en compilers nemen de meeste ruimte in."
+    },
+    "def-local-autodesk": {
+      "title": "Autodesk: lokale gegevens",
+      "explain": "Lokale gegevens van Autodesk, de maker van AutoCAD en Fusion: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-autodesk": {
+      "title": "Autodesk: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Autodesk, de maker van AutoCAD en Fusion: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-vivaldi": {
+      "title": "Vivaldi: lokale gegevens",
+      "explain": "Lokale gegevens van Vivaldi, de webbrowser: cache, logboeken en bestanden die bij deze pc horen. Je hele browserprofiel staat hier: bladwijzers, geschiedenis, extensies en opgeslagen wachtwoorden."
+    },
+    "def-local-opera": {
+      "title": "Opera: lokale gegevens",
+      "explain": "Lokale gegevens van Opera, de webbrowser: cache, logboeken en bestanden die bij deze pc horen. Vooral de cache van de browser."
+    },
+    "def-roaming-opera": {
+      "title": "Opera: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Opera, de webbrowser: je profiel, voorkeuren en geschiedenis. Je browserprofiel staat hier: bladwijzers, geschiedenis, extensies en opgeslagen wachtwoorden."
+    },
+    "def-local-techsmith": {
+      "title": "TechSmith: lokale gegevens",
+      "explain": "Lokale gegevens van TechSmith, de maker van Snagit en Camtasia: cache, logboeken en bestanden die bij deze pc horen. Snagit bewaart hier in zijn bibliotheek elke opname die je ooit maakte."
+    },
+    "def-local-apple": {
+      "title": "Apple: lokale gegevens",
+      "explain": "Lokale gegevens van Apple, de maker van iTunes en iCloud: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-apple": {
+      "title": "Apple: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Apple, de maker van iTunes en iCloud: je profiel, voorkeuren en geschiedenis. Back-ups van iPhones en iPads die met iTunes zijn gemaakt, staan in MobileSync en kunnen heel groot zijn."
+    },
+    "def-local-adobe": {
+      "title": "Adobe: lokale gegevens",
+      "explain": "Lokale gegevens van Adobe, de maker van Photoshop, Lightroom en Premiere Pro: cache, logboeken en bestanden die bij deze pc horen. Caches en logboeken nemen de meeste ruimte in."
+    },
+    "def-roaming-adobe": {
+      "title": "Adobe: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Adobe, de maker van Photoshop, Lightroom en Premiere Pro: je profiel, voorkeuren en geschiedenis. De mediacache van de video-apps staat in “Common” en mag je vanuit die apps wissen."
+    },
+    "def-locallow-adobe": {
+      "title": "Adobe: lokale gegevens",
+      "explain": "Lokale gegevens van Adobe, de maker van Acrobat Reader: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-amd": {
+      "title": "AMD Software: lokale gegevens",
+      "explain": "Lokale gegevens van AMD Software, de grafische driver van AMD en het configuratiescherm: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-intel": {
+      "title": "Intel Graphics: lokale gegevens",
+      "explain": "Lokale gegevens van Intel Graphics, de grafische driver van Intel en het configuratiescherm: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-local-nvidia-corp": {
+      "title": "NVIDIA app: lokale gegevens",
+      "explain": "Lokale gegevens van NVIDIA app, de begeleidende app van de grafische driver van NVIDIA: cache, logboeken en bestanden die bij deze pc horen. Gedownloade driverinstallaties en opgenomen hoogtepunten kunnen gigabytes innemen."
+    },
+    "def-local-nvidia": {
+      "title": "NVIDIA: lokale gegevens",
+      "explain": "Lokale gegevens van NVIDIA, de grafische driver: cache, logboeken en bestanden die bij deze pc horen. Vooral shadercaches die spellen opnieuw opbouwen als dat nodig is."
+    },
+    "def-local-plex": {
+      "title": "Plex Media Server: lokale gegevens",
+      "explain": "Lokale gegevens van Plex Media Server, de mediaserver: cache, logboeken en bestanden die bij deze pc horen. De bibliotheekdatabase, hoezen en videominiaturen staan hier en groeien mee met je collectie."
+    },
+    "def-local-qbittorrent": {
+      "title": "qBittorrent: lokale gegevens",
+      "explain": "Lokale gegevens van qBittorrent, de torrent-app: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-qbittorrent": {
+      "title": "qBittorrent: instellingen en profiel",
+      "explain": "Instellingen en gegevens van qBittorrent, de torrent-app: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-teamviewer": {
+      "title": "TeamViewer: lokale gegevens",
+      "explain": "Lokale gegevens van TeamViewer, de app voor bediening op afstand: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-roaming-teamviewer": {
+      "title": "TeamViewer: instellingen en profiel",
+      "explain": "Instellingen en gegevens van TeamViewer, de app voor bediening op afstand: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-anydesk": {
+      "title": "AnyDesk: instellingen en profiel",
+      "explain": "Instellingen en gegevens van AnyDesk, de app voor bediening op afstand: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-local-calibre": {
+      "title": "calibre: lokale gegevens",
+      "explain": "Lokale gegevens van calibre, de e-bookbeheerder: cache, logboeken en bestanden die bij deze pc horen. Je boeken staan in de bibliotheekmap die je zelf koos, niet hier."
+    },
+    "def-roaming-calibre": {
+      "title": "calibre: instellingen en profiel",
+      "explain": "Instellingen en gegevens van calibre, de e-bookbeheerder: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-vlc": {
+      "title": "VLC: instellingen en profiel",
+      "explain": "Instellingen en gegevens van VLC, de mediaspeler: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-obs": {
+      "title": "OBS Studio: instellingen en profiel",
+      "explain": "Instellingen en gegevens van OBS Studio, de app voor opnemen en streamen: je profiel, voorkeuren en geschiedenis. Je opnamen staan in je map Video's, tenzij je een andere plek koos."
+    },
+    "def-roaming-handbrake": {
+      "title": "HandBrake: instellingen en profiel",
+      "explain": "Instellingen en gegevens van HandBrake, de video-omzetter: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-gimp": {
+      "title": "GIMP: instellingen en profiel",
+      "explain": "Instellingen en gegevens van GIMP, de afbeeldingseditor: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-inkscape": {
+      "title": "Inkscape: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Inkscape, de app voor vectortekeningen: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-libreoffice": {
+      "title": "LibreOffice: instellingen en profiel",
+      "explain": "Instellingen en gegevens van LibreOffice, het kantoorpakket: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-notepadpp": {
+      "title": "Notepad++: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Notepad++, de teksteditor: je profiel, voorkeuren en geschiedenis. Niet-opgeslagen tabbladen staan in de back-upmap."
+    },
+    "def-roaming-sublime": {
+      "title": "Sublime Text: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Sublime Text, de teksteditor: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-npm-global": {
+      "title": "npm: instellingen en profiel",
+      "explain": "Instellingen en gegevens van npm, de pakketbeheerder van Node.js: je profiel, voorkeuren en geschiedenis. Hier staan de opdrachtregeltools die je met “npm install -g” installeerde."
+    },
+    "def-roaming-nvm": {
+      "title": "nvm: instellingen en profiel",
+      "explain": "Instellingen en gegevens van nvm, de versiebeheerder van Node.js: je profiel, voorkeuren en geschiedenis. Elke Node.js-versie die je installeerde, heeft hier een eigen map."
+    },
+    "def-roaming-python-user": {
+      "title": "Python: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Python, de programmeertaal: je profiel, voorkeuren en geschiedenis. Hier staan de pakketten die je met “pip install --user” installeerde."
+    },
+    "def-roaming-blender": {
+      "title": "Blender: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Blender, de 3D-app: je profiel, voorkeuren en geschiedenis. Add-ons en instellingen staan er per Blender-versie."
+    },
+    "def-roaming-telegram": {
+      "title": "Telegram: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Telegram, de chat-app: je profiel, voorkeuren en geschiedenis. De lokale cache van foto's en video's wis je in de instellingen van Telegram onder Gegevens en opslag."
+    },
+    "def-roaming-signal": {
+      "title": "Signal: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Signal, de chat-app: je profiel, voorkeuren en geschiedenis. Je berichten en bijlagen staan alleen hier en op je telefoon; er is geen kopie in de cloud."
+    },
+    "def-roaming-whatsapp-old": {
+      "title": "WhatsApp: instellingen en profiel",
+      "explain": "Instellingen en gegevens van WhatsApp, de chat-app (oudere desktopversie): je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-skype": {
+      "title": "Skype: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Skype, de bel-app: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-zoom": {
+      "title": "Zoom: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Zoom, de app voor videovergaderingen: je profiel, voorkeuren en geschiedenis. Het programma zelf is hier ook geïnstalleerd, in “bin”."
+    },
+    "def-roaming-filezilla": {
+      "title": "FileZilla: instellingen en profiel",
+      "explain": "Instellingen en gegevens van FileZilla, de FTP-app: je profiel, voorkeuren en geschiedenis. Je opgeslagen serveraanmeldingen staan hier."
+    },
+    "def-roaming-winrar": {
+      "title": "WinRAR: instellingen en profiel",
+      "explain": "Instellingen en gegevens van WinRAR, de archieftool: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-audacity": {
+      "title": "Audacity: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Audacity, de audio-editor: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-anki": {
+      "title": "Anki: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Anki, de flashcard-app: je profiel, voorkeuren en geschiedenis. Je kaartensets en de bijbehorende media staan hier."
+    },
+    "def-roaming-godot": {
+      "title": "Godot: instellingen en profiel",
+      "explain": "Instellingen en gegevens van Godot, de game-engine: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-roaming-utorrent": {
+      "title": "µTorrent: instellingen en profiel",
+      "explain": "Instellingen en gegevens van µTorrent, de torrent-app: je profiel, voorkeuren en geschiedenis."
+    },
+    "def-locallow-unity": {
+      "title": "Unity: lokale gegevens",
+      "explain": "Lokale gegevens van Unity, de game-engine: cache, logboeken en bestanden die bij deze pc horen."
+    },
+    "def-locallow-java": {
+      "title": "Java: lokale gegevens",
+      "explain": "Lokale gegevens van Java, de runtime voor Java-programma's: cache, logboeken en bestanden die bij deze pc horen. Vooral de cache van gedownloade Java-toepassingen."
+    },
+    "def-locallow-intel": {
+      "title": "Intel Graphics: lokale gegevens",
+      "explain": "Lokale gegevens van Intel Graphics, de grafische driver van Intel en het configuratiescherm: cache, logboeken en bestanden die bij deze pc horen. Vooral shadercaches."
     }
   },
   "matrix": {
@@ -1027,11 +2525,266 @@
       "steamGames": "Steam-spellen",
       "steamLeftovers": "Restanten van verwijderde spellen",
       "programs": "Geïnstalleerde programma's",
-      "generic": "Grote bestanden zonder uitleg"
+      "large": "Grote bestanden"
     },
     "count_one": "{{count}} item",
     "count_other": "{{count}} items",
     "moveAll_one": "Zet {{count}} in quarantaine",
     "moveAll_other": "Zet alle {{count}} in quarantaine"
+  },
+  "explain": {
+    "file": "“{{name}}” is {{type}}.",
+    "fileOther": "“{{name}}” is een bestand van het type {{ext}}, waar Unhoard geen naam voor heeft; het programma dat het maakte, weet hoe het opent.",
+    "fileBare": "“{{name}}” is een bestand zonder extensie, dus alleen het programma dat het maakte, weet wat erin zit.",
+    "folder_one": "“{{name}}” is een map met {{files}} bestand.",
+    "folder_other": "“{{name}}” is een map met {{files}} bestanden.",
+    "folderEmpty": "“{{name}}” is een lege map.",
+    "link": "“{{name}}” is een koppeling naar een andere map. Hij neemt zelf geen ruimte in, en Unhoard volgt of verplaatst hem nooit.",
+    "mix": "{{percent}} van de ruimte gaat naar {{kind}}.",
+    "mixKind": {
+      "media": "foto's en video's",
+      "apps": "programma's en spellen",
+      "downloads": "downloads",
+      "system": "Windows-bestanden",
+      "documents": "documenten",
+      "developer": "ontwikkelbestanden",
+      "cloud": "cloudbestanden",
+      "hidden": "verborgen ruimte",
+      "other": "overige bestanden"
+    },
+    "place": {
+      "downloads": "Het staat in je map Downloads, tussen de dingen die je zelf hebt binnengehaald.",
+      "desktop": "Het staat op je bureaublad.",
+      "documents": "Het staat in je map Documenten.",
+      "pictures": "Het staat in je map Afbeeldingen.",
+      "videos": "Het staat in je map Video's.",
+      "music": "Het staat in je map Muziek.",
+      "cloud": "Het staat in een map die met de cloud synchroniseert.",
+      "appData": "Het hoort bij de gegevens die programma's voor jouw account bewaren (AppData).",
+      "appDataOf": "Het hoort bij de gegevens die de app “{{owner}}” voor jouw account bewaart (AppData).",
+      "userPrograms": "Het staat tussen de programma's die alleen voor jouw account zijn geïnstalleerd.",
+      "userProgramsOf": "Het hoort bij het programma “{{owner}}”, dat alleen voor jouw account is geïnstalleerd.",
+      "storeApp": "Het hoort bij de gegevens van Microsoft Store-apps.",
+      "storeAppOf": "Het hoort bij de gegevens van de Microsoft Store-app “{{owner}}”.",
+      "temp": "Het staat tussen je tijdelijke bestanden.",
+      "programFiles": "Het staat in Program Files, waar programma's zijn geïnstalleerd.",
+      "programFilesOf": "Het hoort bij het programma “{{owner}}” in Program Files.",
+      "programData": "Het staat in ProgramData, waar programma's gegevens voor alle gebruikers bewaren.",
+      "programDataOf": "Het hoort bij de gegevens die “{{owner}}” deelt tussen alle gebruikers van deze pc (ProgramData).",
+      "windows": "Het is een onderdeel van Windows zelf.",
+      "profile": "Het staat in je persoonlijke map, buiten de standaardmappen.",
+      "otherUser": "Het staat in de persoonlijke mappen van de gebruikers van deze pc.",
+      "otherUserOf": "Het staat in de persoonlijke map van de gebruiker “{{owner}}”.",
+      "recycleBin": "Het ligt in de Prullenbak.",
+      "quarantine": "Het staat in de quarantaine van Unhoard.",
+      "drive": "Het staat niet in een van de standaardmappen van Windows of van je account."
+    },
+    "root": {
+      "appData": "“{{name}}” is de gegevensmap van een app of maker met die naam: instellingen, cache en andere bestanden die voor jouw account worden bewaard.",
+      "userPrograms": "“{{name}}” is een programma dat alleen voor jouw account is geïnstalleerd. Verwijder het via Instellingen › Apps, niet door deze map weg te gooien.",
+      "storeApp": "“{{name}}” is de gegevensmap van een Microsoft Store-app: de instellingen, cache en bestanden. Verwijder je de app, dan verdwijnt de map.",
+      "programFiles": "“{{name}}” is de installatiemap van een programma of maker met die naam. Verwijder via Instellingen › Apps, niet door deze map weg te gooien.",
+      "programData": "“{{name}}” bevat gegevens die een programma of maker met die naam deelt tussen alle gebruikers van deze pc.",
+      "otherUser": "“{{name}}” is de persoonlijke map van een andere gebruiker van deze pc, of van een account dat Windows zelf aanmaakte."
+    },
+    "rootShort": {
+      "appData": "Gegevensmap van een app",
+      "userPrograms": "Programma alleen voor jou geïnstalleerd",
+      "storeApp": "Gegevens van een Store-app",
+      "programFiles": "Geïnstalleerd programma",
+      "programData": "Gedeelde gegevens van een programma",
+      "otherUser": "Map van een andere gebruiker"
+    },
+    "where": {
+      "downloads": "in Downloads",
+      "desktop": "op je bureaublad",
+      "documents": "in Documenten",
+      "pictures": "in Afbeeldingen",
+      "videos": "in Video's",
+      "music": "in Muziek",
+      "cloud": "in je cloudmap",
+      "appData": "in AppData",
+      "appDataOf": "van de app {{owner}}",
+      "userPrograms": "tussen je eigen programma's",
+      "userProgramsOf": "van het programma {{owner}}",
+      "storeApp": "van een Store-app",
+      "storeAppOf": "van de Store-app {{owner}}",
+      "temp": "tussen je tijdelijke bestanden",
+      "programFiles": "in Program Files",
+      "programFilesOf": "van het programma {{owner}}",
+      "programData": "in ProgramData",
+      "programDataOf": "van {{owner}} (gedeelde gegevens)",
+      "windows": "van Windows",
+      "profile": "in je persoonlijke map",
+      "otherUser": "van een andere gebruiker",
+      "otherUserOf": "van de gebruiker {{owner}}",
+      "recycleBin": "in de Prullenbak",
+      "quarantine": "in de quarantaine",
+      "drive": "op deze schijf"
+    },
+    "short": {
+      "file": "Bestand ({{ext}})",
+      "fileBare": "Bestand",
+      "folder": "Map",
+      "folderMix": "Map met vooral {{kind}}",
+      "link": "Koppeling"
+    },
+    "fileType": {
+      "video": {
+        "name": "Video",
+        "a": "een video",
+        "about": "Video's horen bij de grootste bestanden op een schijf."
+      },
+      "photo": {
+        "name": "Afbeelding",
+        "a": "een foto of andere afbeelding",
+        "about": "Eén afbeelding is klein; duizenden bij elkaar tellen op."
+      },
+      "rawPhoto": {
+        "name": "Raw-foto",
+        "a": "een raw-foto rechtstreeks uit een camera",
+        "about": "Een raw-foto bevat alles wat de sensor zag en is vele malen groter dan een JPEG van dezelfde opname."
+      },
+      "audio": {
+        "name": "Audio",
+        "a": "een geluidsbestand",
+        "about": "Muziek, een opname of een geluidseffect."
+      },
+      "archive": {
+        "name": "Archief",
+        "a": "een gecomprimeerd archief",
+        "about": "Het bundelt andere bestanden. Heb je het al uitgepakt, dan staat dezelfde inhoud twee keer op de schijf."
+      },
+      "diskImage": {
+        "name": "Schijfkopie",
+        "a": "een schijfkopie",
+        "about": "Een schijfkopie is een complete kopie van een schijf, vaak de installatie van Windows, Linux of een spel."
+      },
+      "virtualDisk": {
+        "name": "Virtuele schijf",
+        "a": "een virtuele schijf",
+        "about": "Het is de hele schijf van een virtuele machine, WSL of Docker in één bestand. Het groeit mee met het gebruik en krimpt niet vanzelf."
+      },
+      "installer": {
+        "name": "Installatiepakket",
+        "a": "een installatiepakket",
+        "about": "Zodra het programma is geïnstalleerd, heb je het installatiepakket zelden nog nodig."
+      },
+      "program": {
+        "name": "Programma",
+        "a": "een programma of script",
+        "about": "Het wordt uitgevoerd als je het opent."
+      },
+      "library": {
+        "name": "Bibliotheek",
+        "a": "een codebibliotheek",
+        "about": "Programma's laden het terwijl ze draaien; het hoort bij het programma in wiens map het staat."
+      },
+      "document": {
+        "name": "Document",
+        "a": "een tekstdocument",
+        "about": "Geschreven in een tekstverwerker zoals Word."
+      },
+      "spreadsheet": {
+        "name": "Rekenblad",
+        "a": "een rekenblad",
+        "about": "Gemaakt in een programma zoals Excel."
+      },
+      "presentation": {
+        "name": "Presentatie",
+        "a": "een presentatie",
+        "about": "Gemaakt in een programma zoals PowerPoint; afbeeldingen en video erin maken het groot."
+      },
+      "pdf": {
+        "name": "Pdf",
+        "a": "een pdf-document",
+        "about": "Een document dat er op elk apparaat hetzelfde uitziet."
+      },
+      "ebook": {
+        "name": "E-book",
+        "a": "een e-book",
+        "about": "Een boek voor een e-reader of lees-app."
+      },
+      "text": {
+        "name": "Tekstbestand",
+        "a": "een bestand met platte tekst",
+        "about": "Notities of een leesmij zonder opmaak."
+      },
+      "code": {
+        "name": "Broncode",
+        "a": "een bestand met broncode",
+        "about": "Onderdeel van een softwareproject."
+      },
+      "data": {
+        "name": "Gegevensbestand",
+        "a": "een gegevensbestand",
+        "about": "Gestructureerde gegevens die een programma of script inleest."
+      },
+      "database": {
+        "name": "Database",
+        "a": "een database",
+        "about": "Een programma bewaart er zijn gegevens in; het programma van wie het is, heeft het nodig om te werken."
+      },
+      "log": {
+        "name": "Logboek",
+        "a": "een logbestand",
+        "about": "Een programma schreef op wat het deed. Logboeken zijn alleen van belang terwijl je een probleem oplost."
+      },
+      "backup": {
+        "name": "Reservekopie",
+        "a": "een reservekopie",
+        "about": "Een programma of een mens bewaarde hier een oudere versie. Kijk of het origineel nog bestaat voordat je op een van beide vertrouwt."
+      },
+      "dump": {
+        "name": "Crashdump",
+        "a": "een geheugendump van een crash",
+        "about": "Het bevat wat er in het geheugen stond toen een programma of Windows crashte. Alleen een ontwikkelaar die die crash onderzoekt, heeft het nodig."
+      },
+      "aiModel": {
+        "name": "AI-model",
+        "a": "de gewichten van een AI-model",
+        "about": "Modelbestanden zijn gigabytes groot. De tool die het downloadde, kan het opnieuw downloaden."
+      },
+      "gameData": {
+        "name": "Speldata",
+        "a": "een pakket met speldata",
+        "about": "Het bevat de texturen, het geluid en de levels van een spel en hoort bij de installatie van dat spel."
+      },
+      "font": {
+        "name": "Lettertype",
+        "a": "een lettertype",
+        "about": "Een lettertype voor documenten en ontwerpen."
+      },
+      "mail": {
+        "name": "Mail",
+        "a": "een mailbestand",
+        "about": "Het bevat één bericht of een heel postvak. Een postvakbestand kan de enige kopie van oude mail zijn."
+      },
+      "design": {
+        "name": "Ontwerpproject",
+        "a": "een ontwerp- of montageproject",
+        "about": "Het werkbestand van een creatieve app, met alle lagen of bewerkingen."
+      },
+      "partial": {
+        "name": "Onvoltooide download",
+        "a": "een download die niet is afgemaakt",
+        "about": "De browser of app liet het achter toen de download stopte. Je hebt er niets aan, tenzij die download nog kan worden hervat."
+      },
+      "temporary": {
+        "name": "Tijdelijk bestand",
+        "a": "een tijdelijk bestand",
+        "about": "Een programma maakte het voor kort gebruik en had het moeten opruimen."
+      },
+      "shortcut": {
+        "name": "Snelkoppeling",
+        "a": "een snelkoppeling",
+        "about": "Het verwijst alleen naar een bestand, map of website en neemt bijna geen ruimte in."
+      },
+      "system": {
+        "name": "Systeembestand",
+        "a": "een systeem- of driverbestand",
+        "about": "Windows of een apparaatdriver gebruikt het."
+      }
+    }
   }
 }

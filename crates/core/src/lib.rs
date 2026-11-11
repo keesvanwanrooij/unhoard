@@ -9,6 +9,7 @@
 pub mod adapters;
 pub mod classify;
 pub mod cloud;
+pub mod explain;
 #[cfg(feature = "fake")]
 pub mod fake;
 pub mod fs;

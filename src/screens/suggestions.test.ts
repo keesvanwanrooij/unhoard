@@ -6,14 +6,16 @@ import { groupKey, groupSuggestions } from "./Suggestions";
 
 function item(id: number, onDisk: number, d: Partial<Description>): Suggestion {
   return {
-    node: { id, name: `n${String(id)}`, kind: "folder", logical: onDisk, onDisk, files: 1, category: "other", tier: "safe", ruleId: d.ruleId ?? null, hasChildren: false, unscanned: false, cloud: null },
+    node: { id, name: `n${String(id)}`, kind: "folder", logical: onDisk, onDisk, files: 1, category: "other", tier: "safe", ruleId: d.ruleId ?? null, explain: { place: "drive", owner: null, ownerRoot: false, fileType: null, mix: null }, hasChildren: false, unscanned: false, cloud: null },
     path: `C:\\x\\n${String(id)}`,
     tier: "safe",
     description: {
       ruleId: null,
       tier: "safe",
       actions: [],
-      generic: false,
+      large: false,
+      definition: false,
+      explain: { place: "drive", owner: null, ownerRoot: false, fileType: null, mix: null },
       protected: null,
       cloud: false,
       quarantineRoot: null,
@@ -33,7 +35,7 @@ describe("grouped suggestions", () => {
     expect(groupKey(item(2, 1, { steam: { kind: "leftover" } }))).toBe("steam:leftover");
     expect(groupKey(item(3, 1, { steam: { kind: "game", appId: 1, name: "G", lastPlayed: null } }))).toBe("steam:game");
     expect(groupKey(item(4, 1, { program: { name: "P", publisher: null, installLocation: "C:\\P", installDate: null, estimatedBytes: null } }))).toBe("program");
-    expect(groupKey(item(5, 1, {}))).toBe("generic");
+    expect(groupKey(item(5, 1, {}))).toBe("large");
   });
 
   it("f4_groups_sort_by_total_and_items_by_size", () => {

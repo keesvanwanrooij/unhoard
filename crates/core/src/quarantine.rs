@@ -410,7 +410,7 @@ pub fn plan_move(fs: &dyn FileSystem, tree: &Tree, ids: &[NodeId], ctx: &ScanCon
             on_disk: node.on_disk,
             files: node.files,
             rule_id: rule.map(|r| r.id.clone()),
-            tier: rule.map(|r| r.tier),
+            tier: rule.and_then(|r| r.opinion),
         });
     }
     plan

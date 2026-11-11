@@ -3,20 +3,23 @@
 //! This is where the safety decisions about what may be offered live, so the UI only
 //! renders them: protected paths never get a move action (S4), cloud items only get the
 //! cloud quarantine inside their sync root (S3), links take no space and are never moved,
-//! items read with admin rights are never moved, and large items without a rule get a
-//! generic explanation with tier Review. What Steam and Windows' list of installed programs
-//! know adds a name, a last-use date and the right uninstall action.
+//! items read with admin rights are never moved, and large items without a rule get tier
+//! Review. Every item also carries the facts its explanation is built from
+//! ([`crate::explain`]); a definition adds a written explanation without an opinion. What
+//! Steam and Windows' list of installed programs know adds a name, a last-use date and the
+//! right uninstall action.
 
 use serde::{Deserialize, Serialize};
 
+use crate::explain::{Explain, explain};
 use crate::knowledge::{LastUse, Program, SteamInfo};
 use crate::protect::{ProtectReason, protection};
 pub use crate::rules::{Action, Tier, WindowsTool};
 use crate::scan::ScanContext;
 use crate::tree::{Category, FLAG_ELEVATED, FLAG_LOSSY_NAME, NodeId, NodeKind, Tree};
 
-/// Items at least this large get the generic explanation when no rule matches (1 GiB).
-pub const GENERIC_MIN_BYTES: u64 = 1 << 30;
+/// Items at least this large get tier Review when no rule has an opinion (1 GiB).
+pub const LARGE_MIN_BYTES: u64 = 1 << 30;
 
 /// What Unhoard tells the user about one item.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -28,8 +31,12 @@ pub struct Description {
     pub tier: Option<Tier>,
     /// The actions on offer, the primary one first.
     pub actions: Vec<Action>,
-    /// True when the explanation is the generic one for a large unmatched item.
-    pub generic: bool,
+    /// True for a large item no rule has an opinion about: worth a look for its size.
+    pub large: bool,
+    /// True when the rule is a definition: it explains the item, without an opinion.
+    pub definition: bool,
+    /// The facts the explanation is built from: place, owner, file type, contents.
+    pub explain: Explain,
     /// Why the item may not be moved, if it is protected.
     pub protected: Option<ProtectReason>,
     /// True for an item inside a cloud sync root.
@@ -89,8 +96,18 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
         cloud,
         elevated: node.flags & FLAG_ELEVATED != 0,
         last_use: ctx.knowledge.last_use(&path, node.newest),
+        explain: explain(tree, id, &ctx.roots),
         ..Description::default()
     };
+    let large = node.logical.max(node.on_disk) >= LARGE_MIN_BYTES && node.kind != NodeKind::Link;
+    // A definition only explains; the cases below decide as if no rule matched, unless it
+    // says "keep".
+    let definition = rule.filter(|r| r.define);
+    if let Some(r) = definition {
+        d.rule_id = Some(r.id.clone());
+        d.definition = true;
+    }
+    let rule = rule.filter(|r| !r.define);
     let mut actions = match (&steam, rule, &program) {
         (Some(SteamInfo::Game { .. }), ..) => {
             // An installed game goes through Steam, so Steam stays consistent.
@@ -114,11 +131,12 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
             d.tier = Some(Tier::Review);
             vec![Action::Uninstaller, Action::ShowInExplorer]
         }
-        (None, None, None)
-            if node.logical.max(node.on_disk) >= GENERIC_MIN_BYTES
-                && node.kind != NodeKind::Link =>
-        {
-            d.generic = true;
+        (None, None, None) if definition.is_some_and(|r| r.opinion == Some(Tier::Keep)) => {
+            d.tier = Some(Tier::Keep);
+            vec![Action::ExplainOnly, Action::ShowInExplorer]
+        }
+        (None, None, None) if large && definition.is_none() => {
+            d.large = true;
             d.tier = Some(Tier::Review);
             vec![Action::ShowInExplorer, Action::Quarantine]
         }
