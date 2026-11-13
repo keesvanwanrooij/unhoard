@@ -75,8 +75,8 @@ export class MapView {
         this.frames.push(ms);
         if (this.frames.length > 240) this.frames.shift();
       },
-      measure: (name, start) => {
-        measureSince(name, start);
+      measure: (name, start, at) => {
+        measureSince(name, start, at - performance.timeOrigin);
       },
     };
     const theme = readTheme();
@@ -87,7 +87,7 @@ export class MapView {
         const m = e.data;
         if (m.type === "drawn") events.drawn(m.state);
         else if (m.type === "frame") events.frame(m.ms);
-        else events.measure(m.name, m.start);
+        else events.measure(m.name, m.start, m.at);
       };
       this.post({ type: "init", canvas: offscreen, theme }, [offscreen]);
     } else {

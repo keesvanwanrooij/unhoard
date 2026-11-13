@@ -14,7 +14,7 @@ declare const self: DedicatedWorkerGlobalScope;
 export type FromRenderer =
   | { type: "drawn"; state: DrawnState }
   | { type: "frame"; ms: number }
-  | { type: "measure"; name: string; start: string };
+  | { type: "measure"; name: string; start: string; at: number };
 
 let renderer: Renderer | null = null;
 
@@ -49,8 +49,8 @@ self.onmessage = (e: MessageEvent<ToRenderer>) => {
         frame: (ms) => {
           self.postMessage({ type: "frame", ms } satisfies FromRenderer);
         },
-        measure: (name, start) => {
-          self.postMessage({ type: "measure", name, start } satisfies FromRenderer);
+        measure: (name, start, at) => {
+          self.postMessage({ type: "measure", name, start, at } satisfies FromRenderer);
         },
       },
       m.theme,

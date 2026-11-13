@@ -204,7 +204,30 @@ const Overview = memo(function Overview({ active }: { active: boolean }): JSX.El
   );
 });
 
-function DriveBar(): JSX.Element {
+/** The screen in the main area. Memoised and fed a deferred screen, so a click on the
+ * navigation paints its pressed state first (P1) and the new screen follows as an
+ * interruptible update (P2). */
+const Screens = memo(function Screens({ screen }: { screen: Screen }): JSX.Element {
+  useEffect(() => {
+    measureSince("unhoard:screen-paint", "unhoard:screen-switch");
+  }, [screen]);
+  return (
+    <>
+      {/* The overview stays mounted, so switching back never rebuilds the map. */}
+      <Overview active={screen === "overview"} />
+      {screen === "suggestions" ? <Suggestions /> : null}
+      {screen === "history" ? <History /> : null}
+      {screen === "optimise" ? <Optimise /> : null}
+      {screen === "quarantine" ? <Quarantine /> : null}
+      {screen === "cloud" ? <Cloud /> : null}
+      {screen === "photos" ? <Photos /> : null}
+      {screen === "settings" ? <Settings /> : null}
+    </>
+  );
+});
+
+/** The drive bar: used, free and not-yet-freed space of the drive. */
+const DriveBar = memo(function DriveBar(): JSX.Element {
   const { t } = useTranslation();
   const { info, drive, lang, scan } = useApp(useShallow((s) => ({ info: s.info, drive: s.drive, lang: s.lang, scan: s.scan })));
   const [q] = useQuarantine();
@@ -237,7 +260,7 @@ function DriveBar(): JSX.Element {
       </div>
     </footer>
   );
-}
+});
 
 function FirstRun(): JSX.Element {
   const { t } = useTranslation();
@@ -342,9 +365,7 @@ export function App(): JSX.Element {
     };
   }, []);
 
-  useEffect(() => {
-    measureSince("unhoard:screen-paint", "unhoard:screen-switch");
-  }, [screen]);
+  const shown = useDeferredValue(screen);
 
   return (
     <div className={`app${settings.motion === "calm" ? " calm" : ""}`}>
@@ -402,7 +423,7 @@ export function App(): JSX.Element {
           </button>
         )}
         {/* Search and the map style act on the map, so they show only with the overview. */}
-        {screen === "overview" ? (
+        {shown === "overview" ? (
           <>
             <input
               value={query}
@@ -459,15 +480,7 @@ export function App(): JSX.Element {
         </span>
       </header>
       <main className="main">
-        {/* The overview stays mounted, so switching back never rebuilds the map. */}
-        <Overview active={screen === "overview"} />
-        {screen === "suggestions" ? <Suggestions /> : null}
-        {screen === "history" ? <History /> : null}
-        {screen === "optimise" ? <Optimise /> : null}
-        {screen === "quarantine" ? <Quarantine /> : null}
-        {screen === "cloud" ? <Cloud /> : null}
-        {screen === "photos" ? <Photos /> : null}
-        {screen === "settings" ? <Settings /> : null}
+        <Screens screen={shown} />
       </main>
       <ChatPanel />
       <DriveBar />

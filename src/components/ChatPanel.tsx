@@ -1,7 +1,7 @@
 // The AI chat with Lumen (F8): a panel next to the companion. Answers stream in from a local
 // model through Ollama; links in an answer select items or open suggestion groups, never
 // more. When the chat is off, the panel says how to switch it on.
-import { useEffect, useRef, useState, type JSX } from "react";
+import { memo, useEffect, useRef, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
@@ -31,7 +31,8 @@ export function parseAnswer(answer: string): Part[] {
 }
 
 /** The chat panel. */
-export function ChatPanel(): JSX.Element | null {
+// Memoised: it reads its state from the store, so a re-render of the app passes it by.
+export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
   const { t } = useTranslation();
   const { open, setOpen, lang, settings, setScreen, select, setFocus } = useApp(
     useShallow((s) => ({ open: s.chatOpen, setOpen: s.setChatOpen, lang: s.lang, settings: s.settings, setScreen: s.setScreen, select: s.select, setFocus: s.setFocus })),
@@ -218,4 +219,4 @@ export function ChatPanel(): JSX.Element | null {
       )}
     </aside>
   );
-}
+});

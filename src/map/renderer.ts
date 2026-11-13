@@ -55,8 +55,10 @@ export interface RendererEvents {
   drawn: (state: DrawnState) => void;
   /** How long a frame took to draw, in milliseconds. */
   frame: (ms: number) => void;
-  /** A performance measure from the mark `start` to now (docs/25-performance.md). */
-  measure: (name: string, start: string) => void;
+  /** A performance measure from the mark `start` to `at`, the moment it happened as
+   * milliseconds since the epoch, so the page can place it on its own clock even when the
+   * renderer runs in a worker (docs/25-performance.md). */
+  measure: (name: string, start: string, at: number) => void;
 }
 
 /** The colours the renderer draws with, read from the page's CSS variables. */
@@ -72,6 +74,9 @@ export interface Theme {
   select: string;
   overlay: string;
 }
+
+/** Now, in milliseconds since the epoch: the same moment on the page's clock and a worker's. */
+const epochNow = (): number => performance.timeOrigin + performance.now();
 
 /** A 2D context on a canvas or an OffscreenCanvas. */
 type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
@@ -480,11 +485,11 @@ export class Renderer {
         this.trans = null;
         // One more frame draws the map at rest, with its glow.
         this.dirty = true;
-        this.events.measure("unhoard:zoom-settle", "unhoard:zoom-start");
+        this.events.measure("unhoard:zoom-settle", "unhoard:zoom-start", epochNow());
       } else {
         tr = ease(Math.max(0, k));
-        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click");
-        this.events.measure("unhoard:morph-response", "unhoard:morph-start");
+        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click", epochNow());
+        this.events.measure("unhoard:morph-response", "unhoard:morph-start", epochNow());
       }
     }
     const byId = new Map(this.cells.map((c) => [c.id, c]));
@@ -518,7 +523,7 @@ export class Renderer {
       if (this.expanding) {
         const k = Math.min(1, (now - this.expanding.start) / 300);
         this.drawCell(lerpPoly(this.expanding.poly, this.stagePoly, ease(k) * 0.35), this.expanding.cell, "morph", 0, 0.9);
-        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click");
+        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click", epochNow());
         if (k >= 1) {
           this.expanding = null;
           this.dirty = true;

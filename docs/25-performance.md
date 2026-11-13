@@ -87,6 +87,8 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
 - The map relaxes and draws in a Web Worker on an OffscreenCanvas (`src/map/mapWorker.ts`).
   The page keeps the outlines of the last frame, so hover, clicks, the keyboard and zoom
   starts are answered without waiting for the worker.
+- A navigation click paints the pressed tab first and renders the new screen as a deferred
+  update; the parts of the shell that do not depend on the screen are memoised.
 - The UI font's weights are laid out once at idle after start (`src/warmFonts.ts`), so the
   first screen that uses a new weight does not pay for it.
 

@@ -316,17 +316,24 @@ select {
 
 .main {
   grid-area: main;
+  position: relative;
   min-height: 0;
   padding: 14px;
 }
-.overview[hidden] {
-  display: none;
-}
+/* The overview sits on its own layer of the main area and is hidden by skipping its
+ * content rather than removing its box: its layout is kept, so switching back to it
+ * repaints without laying out the list and details again (P1). */
 .overview {
-  height: 100%;
+  position: absolute;
+  inset: 14px;
   display: grid;
   grid-template-columns: 1fr 380px;
   gap: 14px;
+}
+.overview[hidden] {
+  visibility: hidden;
+  content-visibility: hidden;
+  pointer-events: none;
 }
 .stage-wrap {
   position: relative;
