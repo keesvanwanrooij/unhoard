@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-optimise-check"
+description = "Enables the optimise_check command without any pre-configured scope."
+commands.allow = ["optimise_check"]
+
+[[permission]]
+identifier = "deny-optimise-check"
+description = "Denies the optimise_check command without any pre-configured scope."
+commands.deny = ["optimise_check"]

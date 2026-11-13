@@ -3832,6 +3832,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tempfile",
  "unhoard-core",
  "unhoard-platform",
 ]

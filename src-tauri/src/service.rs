@@ -11,13 +11,18 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Instant;
 
+use crate::history::HistoryStore;
 use serde::{Deserialize, Serialize};
 use unhoard_core::classify::{Description, describe};
 use unhoard_core::cloud::{
     CloudSummary, FreeUpPlan, apply_free_up, plan_free_up, remeasure, summary,
 };
+use unhoard_core::explain::{Explain, explain, place_of};
 use unhoard_core::fs::{FileSystem, FsError, VolumeInfo};
 use unhoard_core::hidden::hidden_bytes;
+use unhoard_core::history::{
+    DAY, Snapshot, SnapshotKind, Totals, baseline, deltas, growth, snapshot,
+};
 use unhoard_core::knowledge::{Knowledge, SteamInfo};
 use unhoard_core::photos::{
     Features, Group, MediaItem, bursts, by_month, cloud_duplicates, exact_duplicates_local,
@@ -229,7 +234,61 @@ pub struct Service {
     generation: AtomicU64,
     readme: fn(&Manifest) -> String,
     photos: Mutex<Option<PhotoState>>,
+    history: Option<Arc<HistoryStore>>,
 }
+
+/// One point of the storage-history timeline.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TimelinePoint {
+    /// When, in seconds since 1970.
+    pub at: i64,
+    /// A scan or the daily measurement.
+    pub kind: SnapshotKind,
+    /// The drive's totals.
+    pub totals: Totals,
+}
+
+/// A folder that grew or shrank, with what is known about it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GrowthItem {
+    /// Its full path.
+    pub path: String,
+    /// Its name.
+    pub name: String,
+    /// Size on disk at the baseline.
+    pub before: u64,
+    /// Size on disk now.
+    pub after: u64,
+    /// `after - before`.
+    pub delta: i64,
+    /// Its scan-index ID in the current scan, when the scan has it.
+    pub id: Option<u32>,
+    /// Its known-location rule or definition.
+    pub rule_id: Option<String>,
+    /// The facts its explanation is built from.
+    pub explain: Explain,
+    /// Its size in every snapshot of the period, oldest first, for a sparkline.
+    pub trend: Vec<(i64, u64)>,
+}
+
+/// What changed in a period.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GrowthView {
+    /// The baseline's time, if there is one.
+    pub from: Option<i64>,
+    /// The newest snapshot's time.
+    pub to: Option<i64>,
+    /// The largest changes, largest first.
+    pub items: Vec<GrowthItem>,
+    /// Every folder's change, for colouring the map.
+    pub deltas: Vec<(String, i64)>,
+}
+
+/// The largest growers a view returns.
+const GROWTH_ITEMS: usize = 40;
 
 impl Service {
     /// Creates the service.
@@ -253,7 +312,199 @@ impl Service {
             generation: AtomicU64::new(0),
             readme,
             photos: Mutex::new(None),
+            history: None,
         }
+    }
+
+    /// Keeps a storage-history snapshot of every finished drive scan in `store`.
+    pub fn with_history(mut self, store: Arc<HistoryStore>) -> Self {
+        self.history = Some(store);
+        self
+    }
+
+    /// The timeline of the drive `root` (`C:\`), oldest first.
+    pub fn history_timeline(&self, root: &str) -> Vec<TimelinePoint> {
+        let Some(store) = &self.history else {
+            return vec![];
+        };
+        store
+            .load()
+            .0
+            .into_iter()
+            .filter(|s| s.root.eq_ignore_ascii_case(root))
+            .map(|s| TimelinePoint {
+                at: s.at,
+                kind: s.kind,
+                totals: s.totals,
+            })
+            .collect()
+    }
+
+    /// What changed on the drive `root` over the last `days` days.
+    pub fn history_growth(&self, root: &str, days: u32) -> GrowthView {
+        let empty = GrowthView {
+            from: None,
+            to: None,
+            items: vec![],
+            deltas: vec![],
+        };
+        let Some(store) = &self.history else {
+            return empty;
+        };
+        let list: Vec<Snapshot> = store
+            .load()
+            .0
+            .into_iter()
+            .filter(|s| s.root.eq_ignore_ascii_case(root))
+            .collect();
+        let Some(newest) = list.last() else {
+            return empty;
+        };
+        let moment = newest.at - i64::from(days) * DAY;
+        let Some(base) = baseline(&list, moment).or_else(|| list.first()) else {
+            return empty;
+        };
+        if std::ptr::eq(base, newest) {
+            return GrowthView {
+                to: Some(newest.at),
+                ..empty
+            };
+        }
+        let ctx = self.context();
+        let session = self.current().ok();
+        let tree = session.as_ref().map(|s| lock(&s.tree));
+        let items = growth(base, newest)
+            .into_iter()
+            .take(GROWTH_ITEMS)
+            .map(|g| {
+                let id = tree.as_ref().and_then(|t| t.find(&g.path));
+                let rule_id = id
+                    .and_then(|i| tree.as_ref().and_then(|t| t.get(i)))
+                    .and_then(|n| n.rule)
+                    .and_then(|r| ctx.rules.get(r))
+                    .map(|r| r.id.clone());
+                let facts = match (id, tree.as_ref()) {
+                    (Some(i), Some(t)) => explain(t, i, &ctx.roots),
+                    _ => {
+                        let (place, owner) = place_of(&g.path, &ctx.roots);
+                        Explain {
+                            place,
+                            owner,
+                            ..Explain::default()
+                        }
+                    }
+                };
+                let trend = list
+                    .iter()
+                    .filter(|s| s.at >= base.at)
+                    .map(|s| {
+                        let size = s
+                            .folders
+                            .iter()
+                            .find(|f| f.path == g.path)
+                            .map(|f| f.on_disk)
+                            .unwrap_or(0);
+                        (s.at, size)
+                    })
+                    .collect();
+                GrowthItem {
+                    name: unhoard_core::roots::file_name(&g.path).to_string(),
+                    path: g.path,
+                    before: g.before,
+                    after: g.after,
+                    delta: g.delta,
+                    id: id.map(|i| i.0),
+                    rule_id,
+                    explain: facts,
+                    trend,
+                }
+            })
+            .collect();
+        GrowthView {
+            from: Some(base.at),
+            to: Some(newest.at),
+            items,
+            deltas: deltas(base, newest),
+        }
+    }
+
+    /// Appends a startup-toggle entry to the activity log: the operation, the entry's name
+    /// (never a path) and the result.
+    pub fn audit_startup(&self, op: &str, name: &str, ok: bool) {
+        let now = self.fs.now();
+        let line = serde_json::json!({
+            "time": unhoard_core::time::fmt_iso(now),
+            "op": op,
+            "itemId": name,
+            "result": if ok { "ok" } else { "failed" },
+        });
+        // A record, not a gate: a failed append never undoes the switch.
+        let _ignored_on_purpose = self.fs.append_line(&self.audit_log, &line.to_string());
+    }
+
+    /// Free and total space of the system drive, for the check-up.
+    pub fn system_space(&self) -> (Option<u64>, Option<u64>) {
+        let drive = self
+            .context()
+            .roots
+            .var("SYSTEMDRIVE")
+            .unwrap_or("C:")
+            .to_string();
+        match self.fs.volume(&format!("{drive}\\")) {
+            Ok(v) => (Some(v.free_bytes), Some(v.total_bytes)),
+            Err(_) => (None, None),
+        }
+    }
+
+    /// Deletes the storage history.
+    pub fn history_clear(&self) -> std::io::Result<()> {
+        match &self.history {
+            Some(store) => store.clear(),
+            None => Ok(()),
+        }
+    }
+
+    /// Writes a snapshot of the finished session `s`, when it is a whole drive that was not
+    /// cancelled. Failures are counted in nothing and lose nothing: the next scan tries
+    /// again.
+    fn record_snapshot(&self, s: &Session, kind: SnapshotKind) {
+        let Some(store) = &self.history else {
+            return;
+        };
+        if !s.drive_scan || s.control.cancel.load(Ordering::SeqCst) {
+            return;
+        }
+        let ctx = self.context();
+        let tree = lock(&s.tree);
+        let scanned = tree.get(tree.root()).map(|r| r.on_disk);
+        let totals = match (&s.volume, scanned) {
+            (Some(v), Some(on_disk)) => Totals {
+                used: Some(v.total_bytes.saturating_sub(v.free_bytes)),
+                free: Some(v.free_bytes),
+                hidden: Some(hidden_bytes(v, on_disk, 0)),
+            },
+            _ => Totals::default(),
+        };
+        let snap = snapshot(&tree, &ctx, ctx.now, kind, totals);
+        drop(tree);
+        let _kept_for_next_time = store.add(snap, ctx.now);
+    }
+
+    /// Scans the drive `root` and writes a daily snapshot; blocks until done. `stop` is
+    /// checked once a second and cancels the scan when it returns true (the CPU budget).
+    pub fn measure(
+        self: &Arc<Self>,
+        root: &str,
+        stop: &dyn Fn() -> bool,
+    ) -> Result<bool, CmdError> {
+        let s = self.start_scan_as(root, true, Some(SnapshotKind::Daily))?;
+        while !s.done.load(Ordering::SeqCst) {
+            if stop() {
+                s.control.cancel.store(true, Ordering::SeqCst);
+            }
+            std::thread::sleep(std::time::Duration::from_millis(1000));
+        }
+        Ok(!s.control.cancel.load(Ordering::SeqCst))
     }
 
     /// Gathers knowledge with `gather` at the start of every scan (installed programs,
@@ -268,8 +519,23 @@ impl Service {
         lock(&self.ctx).clone()
     }
 
-    /// Starts a scan of `root` on a background thread and returns its session.
-    pub fn start_scan(&self, root: &str, drive_scan: bool) -> Result<Arc<Session>, CmdError> {
+    /// Starts a scan of `root` on a background thread and returns its session. A finished
+    /// drive scan leaves a storage-history snapshot.
+    pub fn start_scan(
+        self: &Arc<Self>,
+        root: &str,
+        drive_scan: bool,
+    ) -> Result<Arc<Session>, CmdError> {
+        self.start_scan_as(root, drive_scan, Some(SnapshotKind::Scan))
+    }
+
+    /// Starts a scan that records a snapshot of `kind` when it ends, or none.
+    fn start_scan_as(
+        self: &Arc<Self>,
+        root: &str,
+        drive_scan: bool,
+        kind: Option<SnapshotKind>,
+    ) -> Result<Arc<Session>, CmdError> {
         if let Some(s) = lock(&self.session).as_ref()
             && !s.done.load(Ordering::SeqCst)
         {
@@ -292,11 +558,12 @@ impl Service {
             duration_ms: Arc::new(AtomicU64::new(0)),
         });
         *lock(&self.session) = Some(session.clone());
-        let (fs, shared, gather, s) = (
+        let (fs, shared, gather, s, me) = (
             self.fs.clone(),
             self.ctx.clone(),
             self.gather.clone(),
             session.clone(),
+            self.clone(),
         );
         std::thread::spawn(move || {
             // Knowledge is gathered here, off the UI thread, fresh for every scan.
@@ -312,6 +579,9 @@ impl Service {
             scan_into(&*fs, &s.tree, start, &ctx, &s.control);
             s.duration_ms
                 .store(s.started.elapsed().as_millis() as u64, Ordering::SeqCst);
+            if let Some(kind) = kind {
+                me.record_snapshot(&s, kind);
+            }
             s.done.store(true, Ordering::SeqCst);
         });
         Ok(session)
@@ -761,7 +1031,7 @@ mod tests {
         }
     }
 
-    fn service() -> (Arc<FakeFs>, Service) {
+    fn service() -> (Arc<FakeFs>, Arc<Service>) {
         let fs = Arc::new(FakeFs::new());
         fs.create_dir_all(r"C:\Users\u\Downloads").unwrap();
         fs.create_dir_all(r"C:\Users\u\AppData\Local\Unhoard")
@@ -784,10 +1054,10 @@ mod tests {
             vec![r"C:\Unhoard Quarantine".into()],
             |_| "readme".into(),
         );
-        (fs, svc)
+        (fs, Arc::new(svc))
     }
 
-    fn scanned(svc: &Service) -> Arc<Session> {
+    fn scanned(svc: &Arc<Service>) -> Arc<Session> {
         let s = svc.start_scan(r"C:\Users\u", false).unwrap();
         for _ in 0..500 {
             if s.done.load(Ordering::SeqCst) {
@@ -926,5 +1196,71 @@ mod tests {
             svc.apply_measured(g + 1, &[m]),
             Err(CmdError::StaleScan)
         ));
+    }
+
+    fn wait(s: &Session) {
+        for _ in 0..500 {
+            if s.done.load(Ordering::SeqCst) {
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+        panic!("scan did not finish");
+    }
+
+    #[test]
+    fn f17_a_finished_drive_scan_writes_a_snapshot_and_growth_compares_two() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Arc::new(HistoryStore::new(dir.path().join("history.jsonl")));
+        let (fs, plain) = service();
+        let svc = Arc::new(
+            Arc::try_unwrap(plain)
+                .ok()
+                .unwrap()
+                .with_history(store.clone()),
+        );
+        // A folder scan writes nothing.
+        wait(&svc.start_scan(r"C:\Users\u", false).unwrap());
+        assert!(store.load().0.is_empty());
+        wait(&svc.start_scan(r"C:\", true).unwrap());
+        let (list, _) = store.load();
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].kind, SnapshotKind::Scan);
+        assert!(
+            list[0]
+                .folders
+                .iter()
+                .any(|f| f.path == r"C:\Users\u\Downloads")
+        );
+        // A second snapshot an hour later sees the new big file.
+        fs.add_file(r"C:\Users\u\Downloads\big.iso", 300 << 20);
+        let mut later = list[0].clone();
+        later.at += 3600;
+        for f in &mut later.folders {
+            if [r"C:\Users", r"C:\Users\u", r"C:\Users\u\Downloads"].contains(&f.path.as_str()) {
+                f.on_disk += 300 << 20;
+            }
+        }
+        store.add(later, list[0].at + 3600).unwrap();
+        let g = svc.history_growth(r"C:\", 1);
+        assert_eq!(g.items[0].path, r"C:\Users\u\Downloads");
+        assert_eq!(g.items[0].delta, 300 << 20);
+        assert_eq!(svc.history_timeline(r"C:\").len(), 2);
+    }
+
+    #[test]
+    fn f17_a_cancelled_scan_writes_no_snapshot() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Arc::new(HistoryStore::new(dir.path().join("history.jsonl")));
+        let (_fs, plain) = service();
+        let svc = Arc::new(
+            Arc::try_unwrap(plain)
+                .ok()
+                .unwrap()
+                .with_history(store.clone()),
+        );
+        let done = svc.measure(r"C:\", &|| true).unwrap();
+        assert!(!done);
+        assert!(store.load().0.is_empty());
     }
 }

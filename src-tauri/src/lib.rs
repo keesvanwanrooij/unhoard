@@ -2,7 +2,9 @@
 //! the webview through a small, validated command surface.
 #![forbid(unsafe_code)]
 
+pub mod chat;
 pub mod commands;
+pub mod history;
 pub mod service;
 
 use std::sync::Arc;
@@ -14,6 +16,7 @@ use unhoard_core::scan::ScanContext;
 use unhoard_platform::WindowsFs;
 use unhoard_platform::system::{quarantine_roots, system_roots};
 
+use history::HistoryStore;
 use service::{MediaSource, Service};
 
 /// Photo features from the Windows thumbnail API and property system.
@@ -25,16 +28,30 @@ impl MediaSource for WindowsMedia {
     }
 }
 
+/// The storage-history file in Unhoard's data folder.
+fn history_store(data: &str) -> Arc<HistoryStore> {
+    Arc::new(HistoryStore::new(
+        std::path::Path::new(data)
+            .join("insights")
+            .join("history.jsonl"),
+    ))
+}
+
+/// Unhoard's data folder, `%LOCALAPPDATA%\Unhoard`.
+fn data_dir(roots: &unhoard_core::roots::Roots) -> anyhow::Result<String> {
+    let local = roots
+        .var("LOCALAPPDATA")
+        .ok_or_else(|| anyhow::anyhow!("LOCALAPPDATA is not set"))?;
+    let data = format!(r"{local}\Unhoard");
+    std::fs::create_dir_all(&data)?;
+    Ok(data)
+}
+
 /// Builds the service for this PC.
 fn build_service() -> anyhow::Result<Service> {
     let roots = system_roots();
     let rules = Rules::builtin(&roots)?;
-    let local = roots
-        .var("LOCALAPPDATA")
-        .map(str::to_string)
-        .ok_or_else(|| anyhow::anyhow!("LOCALAPPDATA is not set"))?;
-    let data = format!(r"{local}\Unhoard");
-    std::fs::create_dir_all(&data)?;
+    let data = data_dir(&roots)?;
     let qroots = quarantine_roots(&roots);
     let now = unhoard_core::fs::FileSystem::now(&WindowsFs);
     Ok(Service::new(
@@ -50,7 +67,52 @@ fn build_service() -> anyhow::Result<Service> {
         qroots,
         commands::readme,
     )
-    .with_knowledge(Arc::new(unhoard_platform::knowledge::gather)))
+    .with_knowledge(Arc::new(unhoard_platform::knowledge::gather))
+    .with_history(history_store(&data)))
+}
+
+/// The daily measurement (`--measure`): waits for a better moment on battery saver or
+/// while a full-screen app runs, lowers its own priority, scans the system drive with two
+/// threads and writes a snapshot, unless the CPU budget runs out first.
+pub fn measure() -> anyhow::Result<()> {
+    use unhoard_platform::schedule;
+    if !commands::settings_get().insights || schedule::should_wait() {
+        return Ok(());
+    }
+    schedule::enter_background();
+    // Two threads keep the measurement light; the pool is built on first use, after this.
+    let _pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(2)
+        .build_global();
+    let service = Arc::new(build_service()?);
+    let drive = std::env::var("SystemDrive").unwrap_or_else(|_| "C:".into());
+    let start = schedule::cpu_seconds();
+    service
+        .measure(&format!(r"{drive}\"), &|| {
+            schedule::cpu_seconds() - start > schedule::CPU_BUDGET_SECONDS
+        })
+        .map_err(|e| anyhow::anyhow!("{e:?}"))?;
+    Ok(())
+}
+
+/// Brings the scheduled task in line with the setting, and measures now when the newest
+/// snapshot is more than a day old. Runs off the UI thread.
+fn sync_insights(service: &Service) {
+    use unhoard_platform::schedule;
+    if !commands::settings_get().insights {
+        schedule::remove();
+        return;
+    }
+    schedule::install();
+    let drive = std::env::var("SystemDrive").unwrap_or_else(|_| "C:".into());
+    let newest = service
+        .history_timeline(&format!(r"{drive}\"))
+        .last()
+        .map(|p| p.at);
+    let now = unhoard_core::fs::FileSystem::now(&WindowsFs);
+    if newest.is_none_or(|at| now - at > unhoard_core::history::DAY) {
+        schedule::run_now();
+    }
 }
 
 /// Runs the app.
@@ -60,12 +122,16 @@ pub fn run() -> anyhow::Result<()> {
     tauri::Builder::default()
         .manage(service)
         .manage(Arc::new(commands::AdminState::default()))
+        .manage(Arc::new(commands::OptimiseState::default()))
+        .manage(Arc::new(commands::ChatState::default()))
         .setup(move |app| {
             let handle = app.handle().clone();
-            // Settle interrupted moves and run the 30-day purge, off the UI thread.
+            // Settle interrupted moves, run the 30-day purge and set up the daily
+            // measurement, off the UI thread.
             std::thread::spawn(move || {
                 let report = maintenance.startup_maintenance();
                 let _ui_may_not_listen_yet = handle.emit("maintenance-done", report);
+                sync_insights(&maintenance);
             });
             Ok(())
         })
@@ -100,6 +166,17 @@ pub fn run() -> anyhow::Result<()> {
             commands::docker_usage,
             commands::app_uninstall,
             commands::open_app,
+            commands::history_timeline,
+            commands::history_growth,
+            commands::history_clear,
+            commands::optimise_check,
+            commands::optimise_updates,
+            commands::startup_preview,
+            commands::startup_set,
+            commands::startup_undo,
+            commands::chat_models,
+            commands::chat_send,
+            commands::chat_stop,
         ])
         .run(tauri::generate_context!())?;
     Ok(())
