@@ -196,6 +196,7 @@ function buildSuggestions(): unknown[] {
           steam: k.steam,
           elevated: false,
           lastUse: null,
+          leftover: null,
         },
       };
     }),
@@ -220,6 +221,61 @@ function matrixPoints(limit: number): unknown[] {
     }));
 }
 
+/** A month of daily measurements plus a few scans, with the drive filling up. */
+function fakeTimeline(): unknown[] {
+  const now = Math.floor(Date.now() / 1000);
+  return Array.from({ length: 30 }, (_, i) => {
+    const at = now - (29 - i) * 86_400;
+    const used = (780 + i * 2.6 + (i > 24 ? 40 : 0)) * GB;
+    return { at, kind: i % 7 === 3 ? "scan" : "daily", totals: { used, free: 951 * GB - used, hidden: 58 * GB } };
+  });
+}
+
+/** Growers for the History screen and the growth colours. */
+function fakeGrowth(days: number): unknown {
+  const now = Math.floor(Date.now() / 1000);
+  const top = nodes[0];
+  const kids = (top?.children ?? []).map((c) => nodes[c]).filter((n): n is FakeNode => n !== undefined);
+  const items = kids.slice(0, 6).map((n, i) => {
+    const delta = Math.round((i === 0 ? 54 : i === 3 ? -31 : 8 / (i + 1)) * GB);
+    return {
+      path: `C:\\${n.name}`,
+      name: n.name,
+      before: Math.max(0, n.size - delta),
+      after: n.size,
+      delta,
+      id: n.id,
+      ruleId: null,
+      explain: fakeExplain(n),
+      trend: Array.from({ length: 8 }, (_, k) => [now - (7 - k) * 86_400, Math.max(0, n.size - delta + (delta * k) / 7)]),
+    };
+  });
+  return {
+    from: now - days * 86_400,
+    to: now,
+    items,
+    deltas: kids.map((n, i) => [`C:\\${n.name}`, i === 0 ? 54 * GB : i === 3 ? -31 * GB : i % 2 === 0 ? 200 * 1024 ** 2 : 0]),
+  };
+}
+
+/** A check-up with each kind of finding. */
+function fakeFindings(): unknown[] {
+  const f = (id: string, group: string, state: string, values: [string, string][], source: string): unknown => ({ id, group, state, values, source });
+  return [
+    f("memory", "performance", "ok", [["load", "48"], ["total", String(32 * GB)], ["available", String(16 * GB)], ["commit", String(20 * GB)], ["commitLimit", String(40 * GB)]], "memoryStatus"),
+    f("process:0", "performance", "ok", [["name", "chrome.exe"], ["cpu", "6"], ["memory", String(2.1 * GB)]], "processList"),
+    f("process:1", "performance", "ok", [["name", "Docker Desktop.exe"], ["cpu", "3"], ["memory", String(1.4 * GB)]], "processList"),
+    f("disk:NVMe SSD", "storage", "ok", [["name", "NVMe SSD"], ["media", "SSD"], ["health", "Healthy"]], "storageManagement"),
+    f("startup:UserRun:Chat", "startup", "action", [["name", "Chat"], ["command", "\"C:\\Apps\\chat.exe\" --tray"], ["enabled", "true"], ["missing", "false"], ["publisher", ""]], "startupApproved"),
+    f("startup:UserRun:Old Tool", "startup", "look", [["name", "Old Tool"], ["command", "C:\\Old\\tool.exe"], ["enabled", "true"], ["missing", "true"], ["publisher", ""]], "startupApproved"),
+    f("startup:MachineRun:Audio", "startup", "ok", [["name", "Audio"], ["command", "C:\\Windows\\audio.exe"], ["enabled", "true"], ["missing", "false"], ["publisher", ""]], "startupApproved"),
+    f("freeSpace", "space", "ok", [["free", String(83 * GB)], ["total", String(951 * GB)]], "volume"),
+    f("systemFiles", "health", "ok", [], "explainOnly"),
+    f("pageFile", "config", "ok", [["on", "true"]], "memoryManagement"),
+    f("power", "config", "ok", [["mode", "balanced"]], "powerMode"),
+  ];
+}
+
 /** Installs the fake core. `?entries=N` sets the tree size (default 20 000). */
 export function installFakeCore(): void {
   const entries = Number(new URLSearchParams(location.search).get("entries") ?? "20000");
@@ -232,7 +288,7 @@ export function installFakeCore(): void {
       const a = (args ?? {}) as Record<string, unknown>;
       switch (cmd) {
         case "settings_get":
-          return { language: null, mapStyle: "cells", motion: "living", measure: "onDisk", companion: "normal", adminRead: "never", firstRunDone: true };
+          return { language: null, mapStyle: "cells", motion: "living", measure: "onDisk", companion: "normal", adminRead: "never", firstRunDone: true, insights: true, chat: true, chatModel: null };
         case "settings_set":
           return null;
         case "app_info":
@@ -273,6 +329,7 @@ export function installFakeCore(): void {
               steam: null,
               elevated: false,
               lastUse: { at: Date.now() / 1000 - 90 * 86_400, source: "changed" },
+              leftover: null,
             },
             cloud: null,
             measured: null,
@@ -294,6 +351,46 @@ export function installFakeCore(): void {
           return null;
         case "open_app":
           return { Ok: null };
+        case "history_timeline":
+          return fakeTimeline();
+        case "history_growth":
+          return fakeGrowth(Number(a["days"] ?? 7));
+        case "history_clear":
+          return null;
+        case "optimise_check":
+          return fakeFindings();
+        case "optimise_updates":
+          return new Promise((resolve) =>
+            setTimeout(() => {
+              resolve([{ id: "updates", group: "health", state: "look", values: [["pending", "3"], ["failed", "0"]], source: "windowsUpdate" }]);
+            }, 1500),
+          );
+        case "startup_preview":
+          return { Ok: { name: a["name"], scope: a["scope"], old: null, enabled: a["enabled"] } };
+        case "startup_set":
+          return { Ok: 0 };
+        case "startup_undo":
+          return { Ok: null };
+        case "chat_models":
+          return { Ok: [{ name: "qwen3:8b", size: 5.2 * GB, recommended: true }, { name: "llama3.1:8b", size: 4.9 * GB, recommended: false }] };
+        case "chat_send": {
+          // A canned answer that streams in, with a link to the largest item.
+          const words = ["Je ", "schijf ", "is ", "vooral ", "vol ", "door ", "[Steam library](unhoard:item/1)", ". ", "Kijk ", "ook ", "bij ", "[de suggesties](unhoard:group/large)", "."];
+          emit("chat-event", { kind: "tool", name: "overview" }).catch(() => undefined);
+          words.forEach((w, i) => {
+            setTimeout(() => {
+              emit("chat-event", { kind: "delta", text: w }).catch(() => undefined);
+            }, 400 + i * 80);
+          });
+          return new Promise((resolve) =>
+            setTimeout(() => {
+              emit("chat-event", { kind: "done" }).catch(() => undefined);
+              resolve({ Ok: null });
+            }, 500 + words.length * 80),
+          );
+        }
+        case "chat_stop":
+          return null;
         case "docker_usage":
           return {
             Ok: [

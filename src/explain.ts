@@ -3,7 +3,7 @@
 // what it holds, and the place it lies in. So each item has a description of its own.
 import type { TFunction } from "i18next";
 
-import type { Explain, FileType, NodeKind, Place } from "./api/types";
+import type { Explain, FileType, Leftover, NodeKind, Place } from "./api/types";
 import { fmtInt } from "./format";
 import type { Lang } from "./i18n/detect";
 
@@ -133,4 +133,11 @@ export function explainShort(item: Explained, t: TFunction): string {
     what = e.fileType ? t(`explain.fileType.${e.fileType}.name`) : ext ? t("explain.short.file", { ext }) : t("explain.short.fileBare");
   } else what = e.mix ? t("explain.short.folderMix", { kind: t(`explain.mixKind.${e.mix.category}`) }) : t("explain.short.folder");
   return `${what} ${where}`;
+}
+
+/** Why a folder is a leftover of an uninstalled app, as one sentence. */
+export function leftoverText(l: Leftover, t: TFunction, lang: Lang): string {
+  return l.kind === "goneApp"
+    ? t("explain.leftover.goneApp", { name: l.name, date: new Date(l.lastRun * 1000).toLocaleDateString(lang) })
+    : t("explain.leftover.unclaimed", { days: fmtInt(l.unchangedDays, lang) });
 }

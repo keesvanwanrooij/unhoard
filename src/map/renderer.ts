@@ -54,7 +54,7 @@ interface Theme {
 function readTheme(): Theme {
   const s = getComputedStyle(document.documentElement);
   const v = (n: string, d: string): string => s.getPropertyValue(n).trim() || d;
-  const cats = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other"];
+  const cats = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other", "growHigh", "grow", "same", "shrink", "nodata"];
   return {
     colors: Object.fromEntries(cats.map((c) => [c, v(`--c-${c}`, "#4f8fa8")])),
     label: v("--map-label", "#fff"),

@@ -15,6 +15,9 @@ import { Quarantine, useQuarantine } from "./screens/Quarantine";
 import { Settings } from "./screens/Settings";
 import { Suggestions } from "./screens/Suggestions";
 import { measureSince } from "./perf/marks";
+import { ChatPanel } from "./components/ChatPanel";
+import { History } from "./screens/History";
+import { Optimise } from "./screens/Optimise";
 import { useApp, type Screen } from "./store";
 
 const ICONS: Record<Screen, JSX.Element> = {
@@ -29,6 +32,19 @@ const ICONS: Record<Screen, JSX.Element> = {
     <svg viewBox="0 0 24 24">
       <path d="M12 3a6 6 0 0 0-3.5 10.9V17h7v-3.1A6 6 0 0 0 12 3Z" />
       <path d="M9.5 21h5" />
+    </svg>
+  ),
+  history: (
+    <svg viewBox="0 0 24 24">
+      <path d="M3 17l5-6 4 3 6-8 3 3" />
+      <path d="M3 21h18" />
+    </svg>
+  ),
+  optimise: (
+    <svg viewBox="0 0 24 24">
+      <path d="M4 14a8 8 0 0 1 16 0" />
+      <path d="M12 14l4-5" />
+      <circle cx="12" cy="14" r="1.5" />
     </svg>
   ),
   quarantine: (
@@ -58,7 +74,7 @@ const ICONS: Record<Screen, JSX.Element> = {
 };
 /** How often the scan's progress bubble updates its count, in place. */
 const PROGRESS_BUBBLE_MS = 2000;
-const SCREENS: Screen[] = ["overview", "suggestions", "quarantine", "cloud", "photos", "settings"];
+const SCREENS: Screen[] = ["overview", "suggestions", "history", "optimise", "quarantine", "cloud", "photos", "settings"];
 
 type T = (k: string, o?: Record<string, unknown>) => string;
 
@@ -102,6 +118,33 @@ function armAdmin(t: T): void {
     .catch((e: unknown) => {
       st.sayError(e, t);
     });
+}
+
+/** After a scan, names the largest grower of the last week when it grew by 5 GB or more. */
+function tellGrowth(drive: string, t: T): void {
+  api
+    .historyGrowth(drive, 7)
+    .then((g) => {
+      const top = g.items[0];
+      const st = useApp.getState();
+      if (!top || top.delta < 5 * 1024 ** 3) return;
+      st.say({
+        type: "tip",
+        text: t("companion.script.growthFound.0", {
+          name: top.ruleId ? t(`knownLocations.${top.ruleId}.title`) : top.name,
+          size: fmtBytes(top.delta, st.lang),
+        }),
+        actions: [
+          {
+            label: t("companion.openHistory"),
+            run: () => {
+              useApp.getState().setScreen("history");
+            },
+          },
+        ],
+      });
+    })
+    .catch(() => undefined);
 }
 
 function startScan(drive: string, t: T): void {
@@ -227,7 +270,7 @@ function FirstRun(): JSX.Element {
 /** The app. */
 export function App(): JSX.Element {
   const { t } = useTranslation();
-  const { screen, setScreen, settings, info, drive, setDrive, scan, lang, query, setQuery, updateSettings } = useApp(
+  const { screen, setScreen, settings, info, drive, setDrive, scan, lang, query, setQuery, updateSettings, growthMap, setGrowthMap } = useApp(
     useShallow((s) => ({
       screen: s.screen,
       setScreen: s.setScreen,
@@ -239,7 +282,7 @@ export function App(): JSX.Element {
       lang: s.lang,
       query: s.query,
       setQuery: s.setQuery,
-      updateSettings: s.updateSettings,
+      updateSettings: s.updateSettings, growthMap: s.growthMap, setGrowthMap: s.setGrowthMap,
     })),
   );
   const scanning = scan ? !scan.done : false;
@@ -260,6 +303,7 @@ export function App(): JSX.Element {
             app.endTopic("scan");
             app.say({ type: "explanation", text: t("companion.script.scanDone.0", { top }) });
             if (useApp.getState().adminArmed) readProtected(s.generation, t);
+            tellGrowth(app.drive, t);
             if (v.hiddenBytes) app.say({ type: "tip", text: t("companion.script.hiddenSpace.0", { size: fmtBytes(v.hiddenBytes, app.lang) }) });
           })
           .catch(() => {
@@ -391,6 +435,18 @@ export function App(): JSX.Element {
                 {t("top.matrix")}
               </button>
             </div>
+            {settings.mapStyle !== "matrix" ? (
+              <button
+                className="btn small"
+                aria-pressed={growthMap}
+                title={t("top.growthHint")}
+                onClick={() => {
+                  setGrowthMap(!growthMap);
+                }}
+              >
+                {t("top.growth")}
+              </button>
+            ) : null}
           </>
         ) : null}
         <span className="status">
@@ -403,11 +459,14 @@ export function App(): JSX.Element {
         {/* The overview stays mounted, so switching back never rebuilds the map. */}
         <Overview active={screen === "overview"} />
         {screen === "suggestions" ? <Suggestions /> : null}
+        {screen === "history" ? <History /> : null}
+        {screen === "optimise" ? <Optimise /> : null}
         {screen === "quarantine" ? <Quarantine /> : null}
         {screen === "cloud" ? <Cloud /> : null}
         {screen === "photos" ? <Photos /> : null}
         {screen === "settings" ? <Settings /> : null}
       </main>
+      <ChatPanel />
       <DriveBar />
       {!settings.firstRunDone && info ? <FirstRun /> : null}
     </div>

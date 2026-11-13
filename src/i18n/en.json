@@ -9,7 +9,9 @@
     "quarantine": "Quarantine",
     "cloud": "Cloud",
     "photos": "Photos",
-    "settings": "Settings"
+    "settings": "Settings",
+    "history": "History",
+    "optimise": "Optimise"
   },
   "top": {
     "scan": "Scan",
@@ -24,7 +26,9 @@
     "ready": "Ready to scan",
     "drive": "{{drive}} · {{size}}",
     "systemDrive": "system drive",
-    "matrix": "Matrix"
+    "matrix": "Matrix",
+    "growth": "Growth",
+    "growthHint": "Colour the map by growth over the last week instead of by kind"
   },
   "category": {
     "media": "Photos & videos",
@@ -97,7 +101,10 @@
       "diskCleanup": "Open Disk Cleanup",
       "apps": "Open Installed apps",
       "systemProtection": "Open System Protection",
-      "recycleBin": "Open the Recycle Bin"
+      "recycleBin": "Open the Recycle Bin",
+      "taskManager": "Open Task Manager",
+      "windowsUpdate": "Open Windows Update",
+      "disks": "Open Settings › Disks"
     },
     "appUninstall": "Uninstall in Steam",
     "adminRead": "Read with admin rights",
@@ -226,7 +233,21 @@
     "adminRead": "Read protected folders",
     "adminAsk": "Ask",
     "adminAlways": "Always",
-    "adminNever": "Never"
+    "adminNever": "Never",
+    "insightsTitle": "Background insights",
+    "insightsText": "Once a day, when the PC is idle, Unhoard measures the size of your largest folders, so History can show what grew. It stays on this PC, never reads file contents and uses at most 20 MB.",
+    "insights": "Daily measurement",
+    "on": "On",
+    "off": "Off",
+    "clearHistory": "Clear the history",
+    "historyCleared": "The history is cleared.",
+    "chatTitle": "Chat with Lumen",
+    "chatText": "Ask questions about your storage. A local AI model answers through Ollama on this PC; nothing goes to the internet. Lumen sees names and sizes from the scan, never file contents.",
+    "chat": "Chat with a local model",
+    "chatModel": "Model",
+    "recommendedModel": "Recommended (qwen3:8b)",
+    "recommended": "recommended",
+    "loadingModels": "Asking Ollama for its models…"
   },
   "firstRun": {
     "title": "Where did your space go?",
@@ -352,10 +373,14 @@
       ],
       "adminReadDone": [
         "I read {{count}} protected folders with admin rights: {{size}} is no longer hidden."
+      ],
+      "growthFound": [
+        "{{name}} grew by {{size}} recently. History shows what grew and when."
       ]
     },
     "adminYes": "Yes, with admin rights",
-    "adminNo": "Not now"
+    "adminNo": "Not now",
+    "openHistory": "Open History"
   },
   "knownLocations": {
     "adobe-media-cache": {
@@ -2525,7 +2550,8 @@
       "steamGames": "Steam games",
       "steamLeftovers": "Leftovers of uninstalled games",
       "programs": "Installed programs",
-      "large": "Large files"
+      "large": "Large files",
+      "leftover": "Leftovers of removed apps"
     },
     "count_one": "{{count}} item",
     "count_other": "{{count}} items",
@@ -2785,6 +2811,188 @@
         "a": "a system or driver file",
         "about": "Windows or a device driver uses it."
       }
+    },
+    "leftover": {
+      "goneApp": "Probably left behind by “{{name}}”, a program that is no longer on this PC; it last ran on {{date}}.",
+      "unclaimed": "No installed program claims this folder, and nothing in it changed for {{days}} days."
     }
+  },
+  "growth": {
+    "growHigh": "Grew 1 GB or more",
+    "grow": "Grew",
+    "same": "About the same",
+    "shrink": "Shrank",
+    "nodata": "No history"
+  },
+  "history": {
+    "title": "History",
+    "lead": "How full your drive was over time, and what grew. Every scan and the daily measurement add a point.",
+    "loading": "Reading the history…",
+    "timeline": "Used space over time",
+    "fewPoints": "There is not enough history yet. Every scan adds a point, and so does the daily measurement once a day.",
+    "point": "{{date}} · {{kind}} · {{used}} used · {{free}} free · {{hidden}} hidden",
+    "legend": "Point at a dot for its date and numbers. Filled dots are your own scans; open ones are daily measurements.",
+    "kind": {
+      "scan": "your scan",
+      "daily": "daily measurement"
+    },
+    "grew": "What grew or shrank",
+    "period": "Period",
+    "periods": {
+      "1": "Day",
+      "7": "Week",
+      "30": "Month",
+      "90": "3 months"
+    },
+    "range": "From {{from}} to {{to}}",
+    "nothingGrew": "Nothing grew or shrank by more than 100 MB in this period."
+  },
+  "optimise": {
+    "title": "Optimise",
+    "lead": "An honest check-up: what Windows measures, where the number comes from and what you can do. No score, and no promises of speed.",
+    "again": "Measure again",
+    "measuring": "Measuring…",
+    "updatesLoading": "Asking Windows Update; this can take half a minute…",
+    "groups": {
+      "performance": "System performance",
+      "storage": "Disk health",
+      "startup": "Startup apps",
+      "space": "Free space",
+      "health": "Windows health",
+      "config": "System configuration"
+    },
+    "state": {
+      "ok": "In order",
+      "look": "Worth a look",
+      "action": "Action possible"
+    },
+    "source": {
+      "memoryStatus": "As measured by Windows (memory status).",
+      "processList": "Measured over one second from Windows' process list.",
+      "storageManagement": "As Windows reports it in Settings › Disks.",
+      "startupApproved": "From Windows' startup list, as Task Manager shows it.",
+      "volume": "As Windows reports the drive.",
+      "windowsUpdate": "As Windows Update reports it.",
+      "explainOnly": "Unhoard explains this; Windows runs the check.",
+      "memoryManagement": "From Windows' memory settings.",
+      "powerMode": "From Windows' power settings."
+    },
+    "findings": {
+      "memory": {
+        "title": "Memory: {{load}}% in use",
+        "text": "{{available}} of {{total}} is free. Programs have reserved {{commit}} of the {{commitLimit}} Windows can hand out (memory plus page file).",
+        "next": "Close programs you are not using, or see in Task Manager which ones use the most. Freeing memory with a tool does not help: Windows uses free memory as a cache."
+      },
+      "process": {
+        "title": "{{name}}",
+        "text": "Uses {{cpu}}% of the processor and {{memory}} of memory right now.",
+        "next": ""
+      },
+      "disk": {
+        "title": "{{name}} ({{media}})",
+        "text": "Windows reports its health as: {{health}}.",
+        "next": "Open Settings › Disks for its wear, temperature and warnings, and back up your files if Windows reports a problem."
+      },
+      "startup": {
+        "title": "{{name}}",
+        "text": "Starts when you sign in: {{command}}",
+        "next": "Switch it off if you do not need it right away; you can switch it back on at any time.",
+        "missing": "Its program file no longer exists, so this entry does nothing. Unhoard never deletes it; Task Manager shows it too."
+      },
+      "freeSpace": {
+        "title": "{{free}} free of {{total}}",
+        "text": "Windows needs room for updates, temporary files and its memory cache.",
+        "next": "Below 20 GB, big Windows updates can fail. Suggestions shows what you can clean up safely."
+      },
+      "updates": {
+        "title": "Windows Update: {{pending}} waiting",
+        "text": "{{pending}} updates are waiting to install; {{failed}} failed in the last 30 days.",
+        "next": "Open Windows Update to install them. If an update keeps failing, its error code there tells you why."
+      },
+      "systemFiles": {
+        "title": "System files",
+        "text": "If Windows behaves oddly, it can check and repair its own files. Run these in Terminal (Admin), one after the other: DISM /Online /Cleanup-Image /RestoreHealth and then sfc /scannow.",
+        "next": ""
+      },
+      "pageFile": {
+        "title": "Page file: {{on}}",
+        "text": "The page file lets Windows move memory it rarely uses to the disk.",
+        "next": "The page file is off. Turn it back on (System › About › Advanced system settings › Performance › Virtual memory): without it, programs can crash when memory runs out."
+      },
+      "power": {
+        "title": "Power mode: {{mode}}",
+        "text": "Best performance uses more energy, best efficiency is slower. Balanced suits most people.",
+        "next": ""
+      }
+    },
+    "turnOff": "Switch off",
+    "turnOn": "Switch on",
+    "undo": "Undo",
+    "openSuggestions": "Open Suggestions",
+    "openTaskManager": "Open Task Manager",
+    "openWindowsUpdate": "Open Windows Update",
+    "openDisks": "Open Settings › Disks",
+    "startupOn": "{{name}} starts again when you sign in.",
+    "startupOff": "{{name}} no longer starts when you sign in. Undo puts it back exactly as it was.",
+    "startupErrors": {
+      "needsAdmin": "This entry is set for everyone on this PC; switching it needs admin rights. Task Manager › Startup apps can do it.",
+      "notFound": "This entry is gone; measure again.",
+      "failed": "Windows did not accept the change."
+    },
+    "previewTitle": "Switch a startup app",
+    "previewOn": "{{name}} will start again when you sign in.",
+    "previewOff": "{{name}} will no longer start when you sign in. The program stays installed and you can still open it yourself.",
+    "previewHow": "Unhoard changes only the switch Task Manager uses, writes it in the activity log, and can undo it.",
+    "cancel": "Cancel",
+    "mythsTitle": "What Optimise never does",
+    "myths": "No registry cleaning, no “freeing” of memory, no switching off services or the page file, no speed promises. Those tricks do not make a PC faster and can break things.",
+    "words": {
+      "health": {
+        "Healthy": "healthy",
+        "Warning": "a warning",
+        "Unhealthy": "unhealthy",
+        "Unknown": "unknown"
+      },
+      "mode": {
+        "bestEfficiency": "best power efficiency",
+        "balanced": "balanced",
+        "bestPerformance": "best performance"
+      },
+      "on": {
+        "true": "on",
+        "false": "off"
+      }
+    }
+  },
+  "chat": {
+    "ask": "Ask Lumen",
+    "title": "Ask Lumen",
+    "close": "Close the chat",
+    "off": "The chat is off. It runs on a local AI model through Ollama, on this PC; nothing goes to the internet. Switch it on in Settings.",
+    "toSettings": "Open Settings",
+    "errors": {
+      "notRunning": "Ollama is not running. Start Ollama, or install it from ollama.com, and try again.",
+      "refused": "Ollama did not accept the question. Is the model {{model}} installed?",
+      "badReply": "Ollama's answer could not be read. Try again.",
+      "notAllowed": "That address is not allowed.",
+      "off": "The chat is off; switch it on in Settings."
+    },
+    "missingModel": "The model {{model}} is not installed yet. Install it in a terminal with:",
+    "hello": "Ask me about your storage, for example: “Why is my disk full?”, “What grew this week?” or “Which games have I not played in a year?”",
+    "looking": "Looking at {{tool}}…",
+    "tools": {
+      "overview": "the overview",
+      "children": "a folder",
+      "explain": "an item",
+      "suggestions": "the suggestions",
+      "growth": "the history",
+      "search": "the scan",
+      "apps": "your programs"
+    },
+    "placeholder": "Ask a question…",
+    "stop": "Stop",
+    "send": "Send",
+    "privacy": "Runs on {{model}} through Ollama on this PC. Lumen sees names and sizes, never file contents.",
+    "pullCommand": "ollama pull {{model}}"
   }
 }

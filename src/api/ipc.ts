@@ -6,6 +6,17 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type {
   AdminReadResult,
   AdminStartResult,
+  ChatError,
+  ChatEvent,
+  ChatMessage,
+  Finding,
+  GrowthView,
+  ModelInfo,
+  Result,
+  StartupChange,
+  StartupError,
+  StartupScope,
+  TimelinePoint,
   AppName,
   AppInfo,
   CloudRoot,
@@ -76,7 +87,27 @@ export const api = {
   dockerUsage: (): Promise<DockerResult> => invoke("docker_usage"),
   appUninstall: (generation: number, id: number): Promise<void> => invoke("app_uninstall", { generation, id }),
   openApp: (app: AppName): Promise<OpenAppResult> => invoke("open_app", { app }),
+  historyTimeline: (drive: string): Promise<TimelinePoint[]> => invoke("history_timeline", { drive }),
+  historyGrowth: (drive: string, days: number): Promise<GrowthView> => invoke("history_growth", { drive, days }),
+  historyClear: (): Promise<void> => invoke("history_clear"),
+  optimiseCheck: (): Promise<Finding[]> => invoke("optimise_check"),
+  optimiseUpdates: (): Promise<Finding[]> => invoke("optimise_updates"),
+  startupPreview: (scope: StartupScope, name: string, enabled: boolean): Promise<Result<StartupChange, StartupError>> =>
+    invoke("startup_preview", { scope, name, enabled }),
+  startupSet: (scope: StartupScope, name: string, enabled: boolean): Promise<Result<number, StartupError>> =>
+    invoke("startup_set", { scope, name, enabled }),
+  startupUndo: (index: number): Promise<Result<null, StartupError>> => invoke("startup_undo", { index }),
+  chatModels: (): Promise<Result<ModelInfo[], ChatError>> => invoke("chat_models"),
+  chatSend: (messages: ChatMessage[], lang: string): Promise<Result<null, ChatError>> => invoke("chat_send", { messages, lang }),
+  chatStop: (): Promise<void> => invoke("chat_stop"),
 };
+
+/** The AI chat's answer as it forms. */
+export function onChatEvent(f: (e: ChatEvent) => void): Promise<UnlistenFn> {
+  return listen<ChatEvent>("chat-event", (e) => {
+    f(e.payload);
+  });
+}
 
 /** Live scan progress. */
 export function onScanProgress(f: (s: ScanStatus) => void): Promise<UnlistenFn> {

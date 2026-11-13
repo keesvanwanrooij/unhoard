@@ -9,7 +9,9 @@
     "quarantine": "Quarantaine",
     "cloud": "Cloud",
     "photos": "Foto's",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "history": "Geschiedenis",
+    "optimise": "Optimaliseren"
   },
   "top": {
     "scan": "Scannen",
@@ -24,7 +26,9 @@
     "ready": "Klaar om te scannen",
     "drive": "{{drive}} · {{size}}",
     "systemDrive": "systeemschijf",
-    "matrix": "Matrix"
+    "matrix": "Matrix",
+    "growth": "Groei",
+    "growthHint": "Kleur de kaart naar groei in de afgelopen week in plaats van naar soort"
   },
   "category": {
     "media": "Foto's & video's",
@@ -97,7 +101,10 @@
       "diskCleanup": "Open Schijfopruiming",
       "apps": "Open Geïnstalleerde apps",
       "systemProtection": "Open Systeembeveiliging",
-      "recycleBin": "Open de Prullenbak"
+      "recycleBin": "Open de Prullenbak",
+      "taskManager": "Open Taakbeheer",
+      "windowsUpdate": "Open Windows Update",
+      "disks": "Open Instellingen › Schijven"
     },
     "appUninstall": "Verwijderen via Steam",
     "adminRead": "Lees met adminrechten",
@@ -226,7 +233,21 @@
     "adminRead": "Beschermde mappen lezen",
     "adminAsk": "Vragen",
     "adminAlways": "Altijd",
-    "adminNever": "Nooit"
+    "adminNever": "Nooit",
+    "insightsTitle": "Achtergrondinzichten",
+    "insightsText": "Eén keer per dag, als de pc niets doet, meet Unhoard hoe groot je grootste mappen zijn, zodat Geschiedenis kan laten zien wat er groeide. Het blijft op deze pc, leest nooit de inhoud van bestanden en gebruikt hooguit 20 MB.",
+    "insights": "Dagelijkse meting",
+    "on": "Aan",
+    "off": "Uit",
+    "clearHistory": "Wis de geschiedenis",
+    "historyCleared": "De geschiedenis is gewist.",
+    "chatTitle": "Chatten met Lumen",
+    "chatText": "Stel vragen over je opslag. Een lokaal AI-model antwoordt via Ollama op deze pc; er gaat niets naar internet. Lumen ziet namen en groottes uit de scan, nooit de inhoud van bestanden.",
+    "chat": "Chat met een lokaal model",
+    "chatModel": "Model",
+    "recommendedModel": "Aanbevolen (qwen3:8b)",
+    "recommended": "aanbevolen",
+    "loadingModels": "Ollama wordt naar zijn modellen gevraagd…"
   },
   "firstRun": {
     "title": "Waar is je ruimte gebleven?",
@@ -352,10 +373,14 @@
       ],
       "adminReadDone": [
         "Ik heb {{count}} beschermde mappen met adminrechten gelezen: {{size}} is niet langer verborgen."
+      ],
+      "growthFound": [
+        "{{name}} is kortgeleden {{size}} gegroeid. Geschiedenis laat zien wat er groeide en wanneer."
       ]
     },
     "adminYes": "Ja, met adminrechten",
-    "adminNo": "Nu niet"
+    "adminNo": "Nu niet",
+    "openHistory": "Open Geschiedenis"
   },
   "knownLocations": {
     "adobe-media-cache": {
@@ -2525,7 +2550,8 @@
       "steamGames": "Steam-spellen",
       "steamLeftovers": "Restanten van verwijderde spellen",
       "programs": "Geïnstalleerde programma's",
-      "large": "Grote bestanden"
+      "large": "Grote bestanden",
+      "leftover": "Restanten van verwijderde apps"
     },
     "count_one": "{{count}} item",
     "count_other": "{{count}} items",
@@ -2785,6 +2811,188 @@
         "a": "een systeem- of driverbestand",
         "about": "Windows of een apparaatdriver gebruikt het."
       }
+    },
+    "leftover": {
+      "goneApp": "Waarschijnlijk achtergelaten door “{{name}}”, een programma dat niet meer op deze pc staat; het draaide voor het laatst op {{date}}.",
+      "unclaimed": "Geen geïnstalleerd programma hoort bij deze map, en er veranderde {{days}} dagen niets in."
     }
+  },
+  "growth": {
+    "growHigh": "1 GB of meer gegroeid",
+    "grow": "Gegroeid",
+    "same": "Ongeveer gelijk",
+    "shrink": "Gekrompen",
+    "nodata": "Geen geschiedenis"
+  },
+  "history": {
+    "title": "Geschiedenis",
+    "lead": "Hoe vol je schijf was door de tijd, en wat er groeide. Elke scan en de dagelijkse meting voegen een punt toe.",
+    "loading": "De geschiedenis wordt gelezen…",
+    "timeline": "Gebruikte ruimte door de tijd",
+    "fewPoints": "Er is nog niet genoeg geschiedenis. Elke scan voegt een punt toe, en de dagelijkse meting doet dat één keer per dag.",
+    "point": "{{date}} · {{kind}} · {{used}} gebruikt · {{free}} vrij · {{hidden}} verborgen",
+    "legend": "Wijs een punt aan voor de datum en de cijfers. Gevulde punten zijn je eigen scans, open punten dagelijkse metingen.",
+    "kind": {
+      "scan": "je scan",
+      "daily": "dagelijkse meting"
+    },
+    "grew": "Wat groeide of kromp",
+    "period": "Periode",
+    "periods": {
+      "1": "Dag",
+      "7": "Week",
+      "30": "Maand",
+      "90": "3 maanden"
+    },
+    "range": "Van {{from}} tot {{to}}",
+    "nothingGrew": "Niets groeide of kromp meer dan 100 MB in deze periode."
+  },
+  "optimise": {
+    "title": "Optimaliseren",
+    "lead": "Een eerlijke check-up: wat Windows meet, waar het getal vandaan komt en wat je kunt doen. Geen score, en geen snelheidsbeloftes.",
+    "again": "Opnieuw meten",
+    "measuring": "Bezig met meten…",
+    "updatesLoading": "Windows Update wordt gevraagd; dat kan een halve minuut duren…",
+    "groups": {
+      "performance": "Systeemprestaties",
+      "storage": "Schijfgezondheid",
+      "startup": "Opstart-apps",
+      "space": "Vrije ruimte",
+      "health": "Gezondheid van Windows",
+      "config": "Systeemconfiguratie"
+    },
+    "state": {
+      "ok": "In orde",
+      "look": "Even bekijken",
+      "action": "Actie mogelijk"
+    },
+    "source": {
+      "memoryStatus": "Zoals Windows het meet (geheugenstatus).",
+      "processList": "Eén seconde gemeten uit de proceslijst van Windows.",
+      "storageManagement": "Zoals Windows het toont in Instellingen › Schijven.",
+      "startupApproved": "Uit de opstartlijst van Windows, zoals Taakbeheer hem toont.",
+      "volume": "Zoals Windows de schijf meldt.",
+      "windowsUpdate": "Zoals Windows Update het meldt.",
+      "explainOnly": "Unhoard legt dit uit; Windows voert de controle uit.",
+      "memoryManagement": "Uit de geheugeninstellingen van Windows.",
+      "powerMode": "Uit de energie-instellingen van Windows."
+    },
+    "findings": {
+      "memory": {
+        "title": "Geheugen: {{load}}% in gebruik",
+        "text": "{{available}} van {{total}} is vrij. Programma's hebben {{commit}} gereserveerd van de {{commitLimit}} die Windows kan uitdelen (geheugen plus wisselbestand).",
+        "next": "Sluit programma's die je niet gebruikt, of kijk in Taakbeheer welke het meest gebruiken. Geheugen “vrijmaken” met een tool helpt niet: Windows gebruikt vrij geheugen als cache."
+      },
+      "process": {
+        "title": "{{name}}",
+        "text": "Gebruikt nu {{cpu}}% van de processor en {{memory}} geheugen.",
+        "next": ""
+      },
+      "disk": {
+        "title": "{{name}} ({{media}})",
+        "text": "Windows meldt als gezondheid: {{health}}.",
+        "next": "Open Instellingen › Schijven voor slijtage, temperatuur en waarschuwingen, en maak een back-up als Windows een probleem meldt."
+      },
+      "startup": {
+        "title": "{{name}}",
+        "text": "Start als je je aanmeldt: {{command}}",
+        "next": "Zet hem uit als je hem niet meteen nodig hebt; je kunt hem altijd weer aanzetten.",
+        "missing": "Het programmabestand bestaat niet meer, dus deze vermelding doet niets. Unhoard verwijdert hem nooit; Taakbeheer toont hem ook."
+      },
+      "freeSpace": {
+        "title": "{{free}} vrij van {{total}}",
+        "text": "Windows heeft ruimte nodig voor updates, tijdelijke bestanden en zijn geheugencache.",
+        "next": "Onder 20 GB kunnen grote Windows-updates mislukken. Suggesties laat zien wat je veilig kunt opruimen."
+      },
+      "updates": {
+        "title": "Windows Update: {{pending}} wachten",
+        "text": "{{pending}} updates wachten op installatie; {{failed}} mislukten in de afgelopen 30 dagen.",
+        "next": "Open Windows Update om ze te installeren. Blijft een update mislukken, dan zegt de foutcode daar waarom."
+      },
+      "systemFiles": {
+        "title": "Systeembestanden",
+        "text": "Doet Windows vreemd, dan kan het zijn eigen bestanden controleren en herstellen. Voer deze na elkaar uit in Terminal (Admin): DISM /Online /Cleanup-Image /RestoreHealth en daarna sfc /scannow.",
+        "next": ""
+      },
+      "pageFile": {
+        "title": "Wisselbestand: {{on}}",
+        "text": "Met het wisselbestand zet Windows geheugen dat het weinig gebruikt op de schijf.",
+        "next": "Het wisselbestand staat uit. Zet het weer aan (Systeem › Info › Geavanceerde systeeminstellingen › Prestaties › Virtueel geheugen): zonder kunnen programma's crashen als het geheugen opraakt."
+      },
+      "power": {
+        "title": "Energiestand: {{mode}}",
+        "text": "Beste prestaties gebruikt meer energie, beste energie-efficiëntie is trager. Gebalanceerd past bij de meeste mensen.",
+        "next": ""
+      }
+    },
+    "turnOff": "Uitzetten",
+    "turnOn": "Aanzetten",
+    "undo": "Ongedaan maken",
+    "openSuggestions": "Open Suggesties",
+    "openTaskManager": "Open Taakbeheer",
+    "openWindowsUpdate": "Open Windows Update",
+    "openDisks": "Open Instellingen › Schijven",
+    "startupOn": "{{name}} start weer als je je aanmeldt.",
+    "startupOff": "{{name}} start niet meer als je je aanmeldt. Ongedaan maken zet hem precies terug zoals hij was.",
+    "startupErrors": {
+      "needsAdmin": "Deze vermelding geldt voor iedereen op deze pc; omzetten vraagt adminrechten. Dat kan in Taakbeheer › Opstart-apps.",
+      "notFound": "Deze vermelding is verdwenen; meet opnieuw.",
+      "failed": "Windows accepteerde de wijziging niet."
+    },
+    "previewTitle": "Een opstart-app omzetten",
+    "previewOn": "{{name}} start weer als je je aanmeldt.",
+    "previewOff": "{{name}} start niet meer als je je aanmeldt. Het programma blijft geïnstalleerd en je kunt het zelf nog openen.",
+    "previewHow": "Unhoard verandert alleen de schakelaar die Taakbeheer gebruikt, schrijft het in het activiteitenlogboek en kan het terugdraaien.",
+    "cancel": "Annuleren",
+    "mythsTitle": "Wat Optimaliseren nooit doet",
+    "myths": "Geen register opschonen, geen geheugen “vrijmaken”, geen services of wisselbestand uitzetten, geen snelheidsbeloftes. Die trucs maken een pc niet sneller en kunnen dingen kapotmaken.",
+    "words": {
+      "health": {
+        "Healthy": "gezond",
+        "Warning": "een waarschuwing",
+        "Unhealthy": "ongezond",
+        "Unknown": "onbekend"
+      },
+      "mode": {
+        "bestEfficiency": "beste energie-efficiëntie",
+        "balanced": "gebalanceerd",
+        "bestPerformance": "beste prestaties"
+      },
+      "on": {
+        "true": "aan",
+        "false": "uit"
+      }
+    }
+  },
+  "chat": {
+    "ask": "Vraag Lumen",
+    "title": "Vraag Lumen",
+    "close": "Sluit de chat",
+    "off": "De chat staat uit. Hij draait op een lokaal AI-model via Ollama, op deze pc; er gaat niets naar internet. Zet hem aan in Instellingen.",
+    "toSettings": "Open Instellingen",
+    "errors": {
+      "notRunning": "Ollama draait niet. Start Ollama, of installeer het via ollama.com, en probeer het opnieuw.",
+      "refused": "Ollama nam de vraag niet aan. Is het model {{model}} geïnstalleerd?",
+      "badReply": "Het antwoord van Ollama was niet te lezen. Probeer het opnieuw.",
+      "notAllowed": "Dat adres is niet toegestaan.",
+      "off": "De chat staat uit; zet hem aan in Instellingen."
+    },
+    "missingModel": "Het model {{model}} is nog niet geïnstalleerd. Installeer het in een terminal met:",
+    "hello": "Vraag me iets over je opslag, bijvoorbeeld: “Waarom is mijn schijf vol?”, “Wat is er deze week gegroeid?” of “Welke spellen heb ik een jaar niet gespeeld?”",
+    "looking": "Ik kijk naar {{tool}}…",
+    "tools": {
+      "overview": "het overzicht",
+      "children": "een map",
+      "explain": "een item",
+      "suggestions": "de suggesties",
+      "growth": "de geschiedenis",
+      "search": "de scan",
+      "apps": "je programma's"
+    },
+    "placeholder": "Stel een vraag…",
+    "stop": "Stop",
+    "send": "Verstuur",
+    "privacy": "Draait op {{model}} via Ollama op deze pc. Lumen ziet namen en groottes, nooit de inhoud van bestanden.",
+    "pullCommand": "ollama pull {{model}}"
   }
 }

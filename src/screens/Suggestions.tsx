@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/ipc";
 import type { Action, MovePlan, Suggestion, Tier } from "../api/types";
 import { MovePreview, actionLabel } from "../components/Preview";
-import { explainShort } from "../explain";
+import { explainShort, leftoverText } from "../explain";
 import { fmtBytes } from "../format";
 import { useApp } from "../store";
 
@@ -20,6 +20,7 @@ export function groupKey(s: Suggestion): string {
   if (d.steam) return d.steam.kind === "game" ? "steam:game" : "steam:leftover";
   if (d.ruleId) return `rule:${d.ruleId}`;
   if (d.program) return "program";
+  if (d.leftover) return "leftover";
   return "large";
 }
 
@@ -133,6 +134,7 @@ export function Suggestions(): JSX.Element {
     if (d.steam?.kind === "leftover") return t("facts.steamLeftover");
     if (d.ruleId) return t(`knownLocations.${d.ruleId}.action`);
     if (d.program) return t("facts.programAction");
+    if (d.leftover) return leftoverText(d.leftover, t, lang);
     return explainShort({ ...s.node, ruleId: null, explain: d.explain }, t);
   };
   const groupTitle = (key: string, first: Suggestion): string => {
@@ -141,6 +143,7 @@ export function Suggestions(): JSX.Element {
     if (key === "steam:leftover") return t("suggestions.groups.steamLeftovers");
     if (key === "program") return t("suggestions.groups.programs");
     if (key === "large") return t("suggestions.groups.large");
+    if (key === "leftover") return t("suggestions.groups.leftover");
     return title(first);
   };
 

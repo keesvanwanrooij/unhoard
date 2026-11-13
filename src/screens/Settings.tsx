@@ -1,9 +1,12 @@
-// Settings: language, map style, motion, size measure, companion mode, and About.
-import type { JSX } from "react";
+// Settings: language, map style, motion, size measure, companion mode, background
+// insights, the AI chat, and About.
+import { useEffect, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
-import type { Settings as S } from "../api/types";
+import { api } from "../api/ipc";
+import type { ChatError, ModelInfo, Settings as S } from "../api/types";
+import { fmtBytes } from "../format";
 import { setLanguage } from "../i18n";
 import { useApp } from "../store";
 
@@ -29,10 +32,52 @@ function Choice<K extends keyof S>({ field, options }: { field: K; options: [S[K
   );
 }
 
+/** Picks the chat model from what Ollama has installed; the recommended one is marked. */
+function ModelPicker(): JSX.Element {
+  const { t } = useTranslation();
+  const { settings, updateSettings, lang } = useApp(useShallow((s) => ({ settings: s.settings, updateSettings: s.updateSettings, lang: s.lang })));
+  const [models, setModels] = useState<ModelInfo[] | null>(null);
+  const [problem, setProblem] = useState<ChatError | null>(null);
+  useEffect(() => {
+    api
+      .chatModels()
+      .then((r) => {
+        if ("Ok" in r) setModels(r.Ok);
+        else setProblem(r.Err);
+      })
+      .catch(() => {
+        setProblem("badReply");
+      });
+  }, []);
+  if (problem) return <p className="note warn">{t(`chat.errors.${problem}`, { model: settings.chatModel ?? "qwen3:8b" })}</p>;
+  if (!models) return <p className="note">{t("settings.loadingModels")}</p>;
+  return (
+    <div className="field">
+      <span>{t("settings.chatModel")}</span>
+      <select
+        value={settings.chatModel ?? ""}
+        onChange={(e) => {
+          updateSettings({ chatModel: e.target.value === "" ? null : e.target.value });
+        }}
+      >
+        <option value="">{t("settings.recommendedModel")}</option>
+        {models.map((m) => (
+          <option key={m.name} value={m.name}>
+            {m.name} · {fmtBytes(m.size, lang)}
+            {m.recommended ? ` · ${t("settings.recommended")}` : ""}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 /** The Settings screen. */
 export function Settings(): JSX.Element {
   const { t } = useTranslation();
-  const { settings, updateSettings, setLang, info } = useApp(useShallow((s) => ({ settings: s.settings, updateSettings: s.updateSettings, setLang: s.setLang, info: s.info })));
+  const { settings, updateSettings, setLang, info, say, sayError } = useApp(
+    useShallow((s) => ({ settings: s.settings, updateSettings: s.updateSettings, setLang: s.setLang, info: s.info, say: s.say, sayError: s.sayError })),
+  );
   return (
     <div className="page">
       <header>
@@ -120,6 +165,51 @@ export function Settings(): JSX.Element {
             ]}
           />
         </div>
+      </section>
+      <section className="panel">
+        <h2>{t("settings.insightsTitle")}</h2>
+        <p className="note">{t("settings.insightsText")}</p>
+        <div className="field">
+          <span>{t("settings.insights")}</span>
+          <Choice
+            field="insights"
+            options={[
+              [true, "settings.on"],
+              [false, "settings.off"],
+            ]}
+          />
+        </div>
+        <button
+          className="btn small"
+          style={{ alignSelf: "flex-start" }}
+          onClick={() => {
+            api
+              .historyClear()
+              .then(() => {
+                say({ type: "explanation", text: t("settings.historyCleared") });
+              })
+              .catch((e: unknown) => {
+                sayError(e, t);
+              });
+          }}
+        >
+          {t("settings.clearHistory")}
+        </button>
+      </section>
+      <section className="panel">
+        <h2>{t("settings.chatTitle")}</h2>
+        <p className="note">{t("settings.chatText")}</p>
+        <div className="field">
+          <span>{t("settings.chat")}</span>
+          <Choice
+            field="chat"
+            options={[
+              [true, "settings.on"],
+              [false, "settings.off"],
+            ]}
+          />
+        </div>
+        {settings.chat ? <ModelPicker /> : null}
       </section>
       <section className="panel">
         <h2>{t("settings.about")}</h2>
