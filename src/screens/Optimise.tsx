@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/ipc";
 import type { Finding, FindingGroup, StartupChange, StartupScope } from "../api/types";
 import { fmtBytes } from "../format";
+import { useProgressive } from "../progressive";
 import { useApp } from "../store";
 
 const GROUPS: FindingGroup[] = ["performance", "storage", "startup", "space", "health", "config"];
@@ -41,6 +42,8 @@ export function Optimise(): JSX.Element {
   const { t } = useTranslation();
   const { lang, say, sayError, setScreen } = useApp(useShallow((s) => ({ lang: s.lang, say: s.say, sayError: s.sayError, setScreen: s.setScreen })));
   const [findings, setFindings] = useState<Finding[] | null>(null);
+  // One group more per frame, so opening the screen never lays out every finding at once (P11).
+  const groupsShown = useProgressive(GROUPS.length, findings);
   const [updates, setUpdates] = useState<Finding[] | "loading">("loading");
   const [preview, setPreview] = useState<{ finding: Finding; change: StartupChange } | null>(null);
   const [undo, setUndo] = useState<Map<string, number>>(new Map());
@@ -225,7 +228,7 @@ export function Optimise(): JSX.Element {
         </button>
       </header>
       {findings === null ? <p className="note">{t("optimise.measuring")}</p> : null}
-      {GROUPS.map((g) => {
+      {GROUPS.slice(0, groupsShown).map((g) => {
         const list = all.filter((f) => f.group === g);
         const waiting = g === "health" && updates === "loading";
         if (list.length === 0 && !waiting) return null;

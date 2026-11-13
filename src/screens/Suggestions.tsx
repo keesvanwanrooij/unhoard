@@ -10,6 +10,7 @@ import type { Action, MovePlan, Suggestion, Tier } from "../api/types";
 import { MovePreview, actionLabel } from "../components/Preview";
 import { explainShort, leftoverText } from "../explain";
 import { fmtBytes } from "../format";
+import { useProgressive } from "../progressive";
 import { useApp } from "../store";
 
 const TIERS: Tier[] = ["safe", "likelySafe", "review", "keep"];
@@ -47,6 +48,8 @@ export function Suggestions(): JSX.Element {
   const { t } = useTranslation();
   const { lang, scan, treeVersion, say, sayError, treeChanged } = useApp(useShallow((s) => ({ lang: s.lang, scan: s.scan, treeVersion: s.treeVersion, say: s.say, sayError: s.sayError, treeChanged: s.treeChanged })));
   const [items, setItems] = useState<Suggestion[] | null>(null);
+  // One tier more per frame, so opening the screen never lays out every row at once (P11).
+  const tiersShown = useProgressive(TIERS.length, items);
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<{ key: string; ids: number[]; plan: MovePlan } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -185,7 +188,7 @@ export function Suggestions(): JSX.Element {
       <header>
         <h1>{t("nav.suggestions")}</h1>
       </header>
-      {TIERS.map((tier) => {
+      {TIERS.slice(0, tiersShown).map((tier) => {
         const list = items.filter((s) => s.tier === tier);
         if (list.length === 0) return null;
         const total = list.reduce((s, x) => s + x.node.onDisk, 0);
