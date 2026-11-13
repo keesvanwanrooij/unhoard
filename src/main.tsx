@@ -12,6 +12,7 @@ import { api, onMaintenanceDone } from "./api/ipc";
 import { App } from "./App";
 import { initI18n } from "./i18n";
 import { DEFAULT_SETTINGS, useApp } from "./store";
+import { warmFonts } from "./warmFonts";
 
 async function boot(): Promise<void> {
   if (import.meta.env.MODE === "fake") {
@@ -41,6 +42,7 @@ async function boot(): Promise<void> {
         <App />
       </StrictMode>,
     );
+    warmFonts();
   }
 }
 

@@ -10,7 +10,8 @@ import { explainShort } from "../explain";
 import { fmtBytes, fmtInt, fmtShare } from "../format";
 import { groupSmall } from "../map/grouping";
 import { nearestInDirection, type Direction } from "../map/navigate";
-import { Renderer, type Cell } from "../map/renderer";
+import { mapViewFor, releaseMapView, type MapView } from "../map/mapView";
+import type { Cell } from "../map/renderer";
 import { mark } from "../perf/marks";
 import { useApp } from "../store";
 import { Companion } from "./Companion";
@@ -111,7 +112,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
   }, [growthMap, drive, scan?.generation]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
-  const renderer = useRef<Renderer | null>(null);
+  const renderer = useRef<MapView | null>(null);
   const prevFocus = useRef<{ id: number; cell: string } | null>(null);
   const [tip, setTip] = useState<{ cell: Cell; x: number; y: number } | null>(null);
   const press = useRef<{ id: string; x: number; y: number; dragging: boolean } | null>(null);
@@ -126,9 +127,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     const canvas = canvasRef.current;
     const box = boxRef.current;
     if (!canvas || !box) return;
-    const r = new Renderer(canvas, {
-      hover: () => undefined,
-    });
+    const r = mapViewFor(canvas);
     renderer.current = r;
     // The performance scenarios read frame times in the fake-core build only.
     if (import.meta.env.MODE === "fake") window.__unhoardFrames = () => r.frameDurations();
@@ -147,7 +146,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     return () => {
       ro.disconnect();
       mq.removeEventListener("change", onTheme);
-      r.destroy();
+      releaseMapView(canvas);
       renderer.current = null;
     };
   }, []);
@@ -260,6 +259,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
       query,
       // The map draws nothing while the matrix shows; it keeps its layout for coming back.
       active: active && !matrix,
+      reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     });
   }, [settings.motion, scanning, selected, query, active, matrix]);
 

@@ -84,6 +84,11 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
   thread.
 - Transitions are interruptible and never block input.
 - Heavy work (scanning, hashing, aggregation) runs in Rust worker threads.
+- The map relaxes and draws in a Web Worker on an OffscreenCanvas (`src/map/mapWorker.ts`).
+  The page keeps the outlines of the last frame, so hover, clicks, the keyboard and zoom
+  starts are answered without waiting for the worker.
+- The UI font's weights are laid out once at idle after start (`src/warmFonts.ts`), so the
+  first screen that uses a new weight does not pay for it.
 
 ## How the budgets are tested
 

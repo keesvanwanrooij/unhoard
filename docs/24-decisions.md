@@ -149,6 +149,8 @@ options and trade-offs, before they are built.
 | The chat recommends `qwen3:8b` | In a test on a PC with Ollama (2026-11-13), it called the overview tool and answered in good Dutch; llama3.1 8B also did but slower; qwen2.5-coder 7B and aya-expanse 8B wrote the tool call as text instead of calling it |
 | The Windows Update search runs as its own command | It can take half a minute; the other findings must not wait for it |
 | The map draws its glow and soft label shadows only at rest; while it moves, cells are flat and labels get a thin outline | A blur is the most expensive canvas operation; at rest it gives the premium look, during a zoom or morph it made frames of 50 to 140 ms on the reference PC (P10, P11) |
+| The map renderer runs in a Web Worker with an OffscreenCanvas; the page mirrors the drawn outlines for hit tests | Relaxing and drawing were the last long tasks on the input thread (P11); in a worker they cannot delay a click, and hit tests stay instant from the mirrored outlines |
+| The UI font's weights are warmed at idle after start | The first layout in a new weight of the system font cost 60 to 90 ms on the first visit to Suggestions and Optimise (P1, P11) |
 | A hidden overview keeps the map's last size, and the list and details follow a zoom as a deferred update | Re-laying out the map after every screen switch made ten long frames; the map answers the click first and the side panels never hold it up (P11) |
 | The opt-in update check is in Next | Keeps the MVP fully offline |
 | **No telemetry, ever** | Trust; a disk tool sees the whole PC |

@@ -5,14 +5,16 @@
 // redraws on interaction, so nothing moves while the user reads it. The cells are soft: a
 // cell can be dragged, also during a scan, its neighbours flow out of the way, and every
 // cell that moves stretches and wobbles back like slime before the map rests again.
-// Transitions (zoom, map
-// style) morph each cell from its previous outline; the "calm" setting and reduced motion
-// shorten them. Colours come from CSS variables, so the light and dark themes both work.
+// Transitions (zoom, map style) morph each cell from its previous outline; the "calm"
+// setting and reduced motion shorten them.
+//
+// The renderer needs no page: it draws on a canvas or an OffscreenCanvas, gets its colours
+// as a theme and reports what it drew through events. So it runs in a Web Worker
+// (mapWorker.ts), off the thread that handles input (P11); MapView is its face on the page.
 import { bbox, centroid, ease, inset, inside, lerpPoly, perimeter, rectPoly, area, stretch, type Poly, type Point } from "./geometry";
 import type { Spot } from "./navigate";
 import { makeLevel, relax, rescale, type Level, type Site } from "./powerLayout";
 import { squarify } from "./treemap";
-import { mark, measureSince } from "../perf/marks";
 
 /** One cell to draw. */
 export interface Cell {
@@ -33,12 +35,32 @@ export interface Cell {
   sub?: { id: string; value: number; category: string }[];
 }
 
-/** What the renderer reports back. */
-export interface RendererEvents {
-  hover: (cell: Cell | null, x: number, y: number) => void;
+/** A drawn cell's outline, by cell ID. */
+export interface DrawnCell {
+  id: string;
+  poly: Poly;
 }
 
-interface Theme {
+/** What the page needs to answer the pointer and start zooms without asking the renderer:
+ * the outlines drawn in the last frame, the second-level outlines and the stage outline. */
+export interface DrawnState {
+  drawn: DrawnCell[];
+  subs: [string, [string, Poly][]][];
+  stage: Poly;
+}
+
+/** What the renderer reports back. */
+export interface RendererEvents {
+  /** After a frame that changed what is drawn. */
+  drawn: (state: DrawnState) => void;
+  /** How long a frame took to draw, in milliseconds. */
+  frame: (ms: number) => void;
+  /** A performance measure from the mark `start` to now (docs/25-performance.md). */
+  measure: (name: string, start: string) => void;
+}
+
+/** The colours the renderer draws with, read from the page's CSS variables. */
+export interface Theme {
   colors: Record<string, string>;
   label: string;
   sub: string;
@@ -51,23 +73,21 @@ interface Theme {
   overlay: string;
 }
 
-function readTheme(): Theme {
-  const s = getComputedStyle(document.documentElement);
-  const v = (n: string, d: string): string => s.getPropertyValue(n).trim() || d;
-  const cats = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other", "growHigh", "grow", "same", "shrink", "nodata"];
-  return {
-    colors: Object.fromEntries(cats.map((c) => [c, v(`--c-${c}`, "#4f8fa8")])),
-    label: v("--map-label", "#fff"),
-    sub: v("--map-sub", "rgba(255,255,255,.7)"),
-    glow: Number(v("--map-glow", "12")),
-    fillInner: Number(v("--map-fill-inner", "0.6")),
-    fillOuter: Number(v("--map-fill-outer", "0.2")),
-    hatch: v("--map-hatch", "rgba(255,255,255,.2)"),
-    hidden: v("--map-hidden", "#0b1a26"),
-    select: v("--map-select", "#fff"),
-    overlay: v("--map-overlay", "#5fe7ff"),
-  };
-}
+/** A 2D context on a canvas or an OffscreenCanvas. */
+type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+
+/** The next animation frame; in a worker without `requestAnimationFrame`, about 60 a second. */
+const nextFrame: (cb: (t: number) => void) => number =
+  typeof requestAnimationFrame === "function"
+    ? (cb) => requestAnimationFrame(cb)
+    : (cb) =>
+        setTimeout(() => {
+          cb(performance.now());
+        }, 16) as unknown as number;
+const cancelFrame = (id: number): void => {
+  if (typeof cancelAnimationFrame === "function") cancelAnimationFrame(id);
+  else clearTimeout(id);
+};
 
 function hexRgb(h: string): [number, number, number] {
   const m = /^#([0-9a-f]{6})$/i.exec(h);
@@ -122,7 +142,7 @@ interface Jelly {
 
 /** The canvas renderer of the stage. */
 export class Renderer {
-  private ctx: CanvasRenderingContext2D;
+  private ctx: Ctx;
   private W = 0;
   private H = 0;
   private stagePoly: Poly = rectPoly(0, 0, 1, 1);
@@ -140,7 +160,6 @@ export class Renderer {
   private selected: string | null = null;
   private highlighted: string | null = null;
   private query = "";
-  private theme: Theme;
   private hatch: CanvasPattern | null = null;
   private trans: { from: Map<string, Poly>; start: number; dur: number; last: string | null } | null = null;
   private raf = 0;
@@ -163,32 +182,31 @@ export class Renderer {
   private still = true;
 
   constructor(
-    private canvas: HTMLCanvasElement,
+    private canvas: HTMLCanvasElement | OffscreenCanvas,
     private events: RendererEvents,
+    private theme: Theme,
   ) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("canvas 2d unavailable");
     this.ctx = ctx;
-    this.theme = readTheme();
     this.makeHatch();
-    this.raf = requestAnimationFrame(this.frame);
+    this.raf = nextFrame(this.frame);
   }
 
   /** Stops the animation loop. */
   destroy(): void {
-    cancelAnimationFrame(this.raf);
+    cancelFrame(this.raf);
   }
 
-  /** Re-reads the theme colours (after a light or dark switch). */
-  refreshTheme(): void {
-    this.theme = readTheme();
+  /** New theme colours (after a light or dark switch). */
+  setTheme(theme: Theme): void {
+    this.theme = theme;
     this.makeHatch();
     this.dirty = true;
   }
 
   private makeHatch(): void {
-    const c = document.createElement("canvas");
-    c.width = c.height = 10;
+    const c = new OffscreenCanvas(10, 10);
     const g = c.getContext("2d");
     if (!g) return;
     g.strokeStyle = this.theme.hatch;
@@ -204,9 +222,8 @@ export class Renderer {
     this.hatch = this.ctx.createPattern(c, "repeat");
   }
 
-  /** Sets the canvas size in CSS pixels. */
-  resize(w: number, h: number): void {
-    const dpr = window.devicePixelRatio || 1;
+  /** Sets the canvas size in CSS pixels, at `dpr` device pixels per CSS pixel. */
+  resize(w: number, h: number, dpr: number): void {
     const W = Math.max(100, w);
     const H = Math.max(100, h);
     // The same size again changes nothing, so the settled layout stays settled.
@@ -215,8 +232,6 @@ export class Renderer {
     this.H = H;
     this.canvas.width = Math.round(this.W * dpr);
     this.canvas.height = Math.round(this.H * dpr);
-    this.canvas.style.width = `${this.W}px`;
-    this.canvas.style.height = `${this.H}px`;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const poly = rectPoly(12, 8, this.W - 24, this.H - 16);
     this.levels.forEach((l) => {
@@ -243,9 +258,9 @@ export class Renderer {
   }
 
   /** Animation and state flags. */
-  setFlags(f: { living: boolean; scanning: boolean; selected: string | null; query: string; active: boolean }): void {
+  setFlags(f: { living: boolean; scanning: boolean; selected: string | null; query: string; active: boolean; reduced: boolean }): void {
     this.active = f.active;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = f.reduced;
     const query = f.query.toLowerCase();
     const living = f.living && !reduced;
     // Showing the map again needs no redraw: the canvas keeps its picture while hidden, and
@@ -265,7 +280,6 @@ export class Renderer {
     const from = new Map(this.drawn.map((d) => [d.cell.id, d.poly]));
     this.mode = mode;
     this.trans = { from, start: performance.now(), dur: this.living ? 520 : 180, last: null };
-    mark("unhoard:morph-start");
   }
 
   /** The second-level outlines of a cell, used as the start of a zoom-in. */
@@ -283,7 +297,6 @@ export class Renderer {
   /** Starts a zoom: cells morph from `from` (cells not in it grow from their centre). */
   zoom(from: Map<string, Poly>, last: string | null): void {
     this.expanding = null;
-    mark("unhoard:zoom-start");
     this.trans = { from, start: performance.now(), dur: this.living ? 520 : 180, last };
   }
 
@@ -401,15 +414,22 @@ export class Renderer {
   }
 
   private frame = (now: number): void => {
-    this.raf = requestAnimationFrame(this.frame);
+    this.raf = nextFrame(this.frame);
     if (!this.active) return;
     const animating = this.scanning || this.trans !== null || this.expanding !== null || this.held !== null || this.soft > 0;
     if (!animating && !this.dirty) return;
     const started = performance.now();
     this.dirty = false;
     this.draw(now);
-    this.frameTimes.push(performance.now() - started);
+    const ms = performance.now() - started;
+    this.frameTimes.push(ms);
     if (this.frameTimes.length > 240) this.frameTimes.shift();
+    this.events.frame(ms);
+    this.events.drawn({
+      drawn: this.drawn.map((d) => ({ id: d.cell.id, poly: d.poly })),
+      subs: [...this.subPolys].map(([id, m]) => [id, [...m]]),
+      stage: this.stagePoly,
+    });
   };
 
   private draw(now: number): void {
@@ -460,11 +480,11 @@ export class Renderer {
         this.trans = null;
         // One more frame draws the map at rest, with its glow.
         this.dirty = true;
-        measureSince("unhoard:zoom-settle", "unhoard:zoom-start");
+        this.events.measure("unhoard:zoom-settle", "unhoard:zoom-start");
       } else {
         tr = ease(Math.max(0, k));
-        measureSince("unhoard:zoom-response", "unhoard:zoom-click");
-        measureSince("unhoard:morph-response", "unhoard:morph-start");
+        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click");
+        this.events.measure("unhoard:morph-response", "unhoard:morph-start");
       }
     }
     const byId = new Map(this.cells.map((c) => [c.id, c]));
@@ -498,7 +518,7 @@ export class Renderer {
       if (this.expanding) {
         const k = Math.min(1, (now - this.expanding.start) / 300);
         this.drawCell(lerpPoly(this.expanding.poly, this.stagePoly, ease(k) * 0.35), this.expanding.cell, "morph", 0, 0.9);
-        measureSince("unhoard:zoom-response", "unhoard:zoom-click");
+        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click");
         if (k >= 1) {
           this.expanding = null;
           this.dirty = true;

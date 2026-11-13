@@ -46,7 +46,7 @@ crates/
 src-tauri/       Tauri app, capabilities/, helper entry
 src/
   api/           typed command calls and types
-  map/           power-diagram layout, treemap, morph, canvas renderer
+  map/           power-diagram layout, treemap, morph, canvas renderer (in a Web Worker)
   components/    stage, side panels, preview, photo grid, companion
   screens/       suggestions, quarantine, cloud, photos, settings
   companion/     bubble queue and triggers
