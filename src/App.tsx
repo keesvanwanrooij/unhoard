@@ -1,6 +1,6 @@
 // The app shell: navigation, top bar, the screens, the drive bar and the first-run
 // welcome. The shell stays calm; the stage carries the motion.
-import { memo, useEffect, type JSX } from "react";
+import { memo, useDeferredValue, useEffect, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
@@ -190,12 +190,15 @@ function startScan(drive: string, t: T): void {
 /** The overview; memoised so app-level changes (settings, search) do not re-render it. */
 const Overview = memo(function Overview({ active }: { active: boolean }): JSX.Element {
   const resp = useView();
+  // The map answers first; the list and details follow as an interruptible update, so a
+  // zoom never waits for a hundred list rows (P11).
+  const side = useDeferredValue(resp);
   return (
     <div className="overview" hidden={!active}>
       <Stage resp={resp} active={active} />
       <div className="side">
-        <ItemList resp={resp} />
-        <DetailsPanel resp={resp} />
+        <ItemList resp={side} />
+        <DetailsPanel resp={side} />
       </div>
     </div>
   );

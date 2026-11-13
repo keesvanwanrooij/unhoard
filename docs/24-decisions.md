@@ -148,6 +148,8 @@ options and trade-offs, before they are built.
 | Wear and temperature of disks are not read; the disk finding opens Settings › Disks | They need admin rights; Windows shows them there, and the read-only helper stays a folder reader only |
 | The chat recommends `qwen3:8b` | In a test on a PC with Ollama (2026-11-13), it called the overview tool and answered in good Dutch; llama3.1 8B also did but slower; qwen2.5-coder 7B and aya-expanse 8B wrote the tool call as text instead of calling it |
 | The Windows Update search runs as its own command | It can take half a minute; the other findings must not wait for it |
+| The map draws its glow and soft label shadows only at rest; while it moves, cells are flat and labels get a thin outline | A blur is the most expensive canvas operation; at rest it gives the premium look, during a zoom or morph it made frames of 50 to 140 ms on the reference PC (P10, P11) |
+| A hidden overview keeps the map's last size, and the list and details follow a zoom as a deferred update | Re-laying out the map after every screen switch made ten long frames; the map answers the click first and the side panels never hold it up (P11) |
 | The opt-in update check is in Next | Keeps the MVP fully offline |
 | **No telemetry, ever** | Trust; a disk tool sees the whole PC |
 | Exports and CLI output replace the profile path with `%USERPROFILE%` (S9) | Shared output does not leak the user name |

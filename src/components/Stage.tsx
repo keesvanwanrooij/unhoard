@@ -134,7 +134,9 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     if (import.meta.env.MODE === "fake") window.__unhoardFrames = () => r.frameDurations();
     const ro = new ResizeObserver(() => {
       const b = box.getBoundingClientRect();
-      r.resize(b.width, b.height);
+      // A hidden overview measures 0 × 0; keeping the last size means the map does not
+      // lay itself out again when the overview shows again (P11).
+      if (b.width > 0 && b.height > 0) r.resize(b.width, b.height);
     });
     ro.observe(box);
     const mq = window.matchMedia("(prefers-color-scheme: dark)");

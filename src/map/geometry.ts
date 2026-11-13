@@ -160,10 +160,23 @@ export function resample(p: Poly, n: number): Poly {
 /** Points per polygon during a morph. */
 export const MORPH_POINTS = 56;
 
+/** Resampled outlines by polygon: a morph draws the same start and end shapes every frame,
+ * so each is resampled once (P10, P11). */
+const resampled = new WeakMap<Poly, Poly>();
+
+function morphPoints(p: Poly): Poly {
+  let r = resampled.get(p);
+  if (!r) {
+    r = resample(p, MORPH_POINTS);
+    resampled.set(p, r);
+  }
+  return r;
+}
+
 /** Interpolates between two polygons (resampled to the same point count). */
 export function lerpPoly(a: Poly, b: Poly, t: number): Poly {
-  const ra = resample(a, MORPH_POINTS);
-  const rb = resample(b, MORPH_POINTS);
+  const ra = morphPoints(a);
+  const rb = morphPoints(b);
   return ra.map((v, i) => {
     const w = rb[i] ?? v;
     return [v[0] + (w[0] - v[0]) * t, v[1] + (w[1] - v[1]) * t];

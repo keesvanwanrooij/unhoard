@@ -75,13 +75,23 @@ function hexRgb(h: string): [number, number, number] {
   const n = parseInt(m[1], 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
+/** Colour strings by colour, lightening and alpha: every cell asks for the same few each
+ * frame, so each string is built once (P10, P11). */
+const colours = new Map<string, string>();
+
 function rgba(h: string, a: number): string {
-  const [r, g, b] = hexRgb(h);
-  return `rgba(${r},${g},${b},${a})`;
+  return lighten(h, 0, a);
 }
 function lighten(h: string, f: number, a: number): string {
-  const [r, g, b] = hexRgb(h);
-  return `rgba(${Math.round(r + (255 - r) * f)},${Math.round(g + (255 - g) * f)},${Math.round(b + (255 - b) * f)},${a})`;
+  const key = `${h}|${String(f)}|${String(a)}`;
+  let c = colours.get(key);
+  if (c === undefined) {
+    const [r, g, b] = hexRgb(h);
+    c = `rgba(${Math.round(r + (255 - r) * f)},${Math.round(g + (255 - g) * f)},${Math.round(b + (255 - b) * f)},${a})`;
+    if (colours.size > 4096) colours.clear();
+    colours.set(key, c);
+  }
+  return c;
 }
 
 const GAP = 3.5;
@@ -149,6 +159,8 @@ export class Renderer {
   /** True while this frame treats the map as soft. */
   private softNow = false;
   private jelly = new Map<string, Jelly>();
+  /** True while this frame draws a map at rest: no relaxation, morph, drag or scan. */
+  private still = true;
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -195,8 +207,12 @@ export class Renderer {
   /** Sets the canvas size in CSS pixels. */
   resize(w: number, h: number): void {
     const dpr = window.devicePixelRatio || 1;
-    this.W = Math.max(100, w);
-    this.H = Math.max(100, h);
+    const W = Math.max(100, w);
+    const H = Math.max(100, h);
+    // The same size again changes nothing, so the settled layout stays settled.
+    if (W === this.W && H === this.H && this.canvas.width === Math.round(W * dpr)) return;
+    this.W = W;
+    this.H = H;
     this.canvas.width = Math.round(this.W * dpr);
     this.canvas.height = Math.round(this.H * dpr);
     this.canvas.style.width = `${this.W}px`;
@@ -422,19 +438,23 @@ export class Renderer {
     } else if (!level.settled && !skip) {
       // While a scan streams in, one step per frame lets cells glide to their new size
       // instead of jumping at every update.
-      const n = this.scanning ? 1 : level.steps < WARM_STEPS ? 3 : 1;
+      // During a morph the frame already redraws every cell, so the warm-up waits for it.
+      const n = this.scanning || this.trans !== null ? 1 : level.steps < WARM_STEPS ? 3 : 1;
       relax(level, entries, n);
       level.steps += n;
       if (!this.scanning && level.steps >= SETTLE_STEPS) level.settled = true;
     }
     if (this.scanning) level.settled = false;
     this.dirty = this.dirty || !level.settled;
+    this.still = level.settled && !this.scanning && this.trans === null && !this.softNow && this.expanding === null;
     const rects = this.mode === "treemap" ? this.treemapRects(entries) : null;
     let tr: number | null = null;
     if (this.trans) {
       const k = (now - this.trans.start) / this.trans.dur;
       if (k >= 1) {
         this.trans = null;
+        // One more frame draws the map at rest, with its glow.
+        this.dirty = true;
         measureSince("unhoard:zoom-settle", "unhoard:zoom-start");
       } else {
         tr = ease(Math.max(0, k));
@@ -474,7 +494,10 @@ export class Renderer {
         const k = Math.min(1, (now - this.expanding.start) / 300);
         this.drawCell(lerpPoly(this.expanding.poly, this.stagePoly, ease(k) * 0.35), this.expanding.cell, "morph", 0, 0.9);
         measureSince("unhoard:zoom-response", "unhoard:zoom-click");
-        if (k >= 1) this.expanding = null;
+        if (k >= 1) {
+          this.expanding = null;
+          this.dirty = true;
+        }
       }
     } else {
       this.drawn = [];
@@ -501,7 +524,8 @@ export class Renderer {
         this.newSubs++;
         l = makeLevel(container, `sub${d.cell.id}`);
         this.subLevels.set(d.cell.id, l);
-        relax(l, entries, 6);
+        // A short start; the per-frame steps below finish the layout.
+        relax(l, entries, 2);
       }
       l.poly = container;
       // Inside a soft map the container changes every frame, so its cells follow.
@@ -587,8 +611,9 @@ export class Renderer {
         ctx.fillStyle = this.hatch;
         ctx.fill();
       }
-    } else if (depth > 0) {
-      // Second-level cells are many and small: a flat fill keeps frames cheap.
+    } else if (depth > 0 || kind === "morph") {
+      // Second-level cells are many and small, and a morph redraws every cell each frame:
+      // a flat fill keeps those frames cheap (P10, P11).
       ctx.fillStyle = rgba(col, (th.fillInner + th.fillOuter) / 2);
       ctx.fill();
     } else {
@@ -601,7 +626,9 @@ export class Renderer {
     }
     ctx.lineWidth = sel ? 2.4 : hov ? 2 : depth ? 0.9 : 1.3;
     ctx.strokeStyle = sel ? th.select : hov ? lighten(col, 0.6, 1) : rgba(col, 0.95);
-    if (depth === 0 && th.glow > 0 && (hov || sel || this.cells.length <= 60)) {
+    // A glow is a blur, the most expensive thing on a canvas: only a map at rest gets it,
+    // never a frame that moves (P10, P11).
+    if (depth === 0 && th.glow > 0 && this.still && (hov || sel || this.cells.length <= 60)) {
       ctx.shadowColor = rgba(col, hov || sel ? 0.95 : 0.6);
       ctx.shadowBlur = hov || sel ? th.glow * 1.8 : th.glow * 0.6;
     }
@@ -621,8 +648,12 @@ export class Renderer {
     ctx.globalAlpha = this.query !== "" && !cell.name.toLowerCase().includes(this.query) ? 0.3 : 1;
     ctx.fillStyle = this.theme.label;
     ctx.font = "700 14px Rajdhani, 'Segoe UI', sans-serif";
-    ctx.shadowColor = "rgba(0,0,0,.45)";
-    ctx.shadowBlur = 6;
+    // A blurred text shadow is slow; at rest it gives the soft look, while moving a thin dark
+    // outline keeps the label readable for a fraction of the cost.
+    if (this.still) {
+      ctx.shadowColor = "rgba(0,0,0,.45)";
+      ctx.shadowBlur = 6;
+    }
     let x: number;
     let y: number;
     let maxW: number;
@@ -639,7 +670,16 @@ export class Renderer {
     }
     let name = cell.name;
     while (name.length > 3 && ctx.measureText(name).width > maxW) name = `${name.slice(0, -2)}…`;
-    if (ctx.measureText(name).width <= maxW) ctx.fillText(name, x, this.mode === "treemap" ? y : y - 2);
+    if (ctx.measureText(name).width <= maxW) {
+      const ty = this.mode === "treemap" ? y : y - 2;
+      if (!this.still) {
+        ctx.strokeStyle = "rgba(0,0,0,.45)";
+        ctx.lineWidth = 3;
+        ctx.lineJoin = "round";
+        ctx.strokeText(name, x, ty);
+      }
+      ctx.fillText(name, x, ty);
+    }
     if (rIn > 30) {
       ctx.font = "400 11px 'JetBrains Mono', Consolas, monospace";
       ctx.fillStyle = this.theme.sub;
