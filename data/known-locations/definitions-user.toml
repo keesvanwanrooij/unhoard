@@ -1,0 +1,1158 @@
+# Definitions: the user's own folders, developer folders in the profile, Program Files and
+# ProgramData. See definitions-windows.toml for what a definition is.
+
+[[rule]]
+id = "def-desktop"
+define = true
+parent = "%USERPROFILE%"
+name = "Desktop"
+kind = "dir"
+example = "%USERPROFILE%\\Desktop"
+nearMiss = "%USERPROFILE%\\x-Desktop"
+
+[[rule]]
+id = "def-documents"
+define = true
+parent = "%USERPROFILE%"
+name = "Documents"
+kind = "dir"
+example = "%USERPROFILE%\\Documents"
+nearMiss = "%USERPROFILE%\\x-Documents"
+
+[[rule]]
+id = "def-pictures"
+define = true
+parent = "%USERPROFILE%"
+name = "Pictures"
+kind = "dir"
+example = "%USERPROFILE%\\Pictures"
+nearMiss = "%USERPROFILE%\\x-Pictures"
+
+[[rule]]
+id = "def-videos"
+define = true
+parent = "%USERPROFILE%"
+name = "Videos"
+kind = "dir"
+example = "%USERPROFILE%\\Videos"
+nearMiss = "%USERPROFILE%\\x-Videos"
+
+[[rule]]
+id = "def-music"
+define = true
+parent = "%USERPROFILE%"
+name = "Music"
+kind = "dir"
+example = "%USERPROFILE%\\Music"
+nearMiss = "%USERPROFILE%\\x-Music"
+
+[[rule]]
+id = "def-downloads"
+define = true
+parent = "%USERPROFILE%"
+name = "Downloads"
+kind = "dir"
+example = "%USERPROFILE%\\Downloads"
+nearMiss = "%USERPROFILE%\\x-Downloads"
+
+[[rule]]
+id = "def-favorites"
+define = true
+parent = "%USERPROFILE%"
+name = "Favorites"
+kind = "dir"
+example = "%USERPROFILE%\\Favorites"
+nearMiss = "%USERPROFILE%\\x-Favorites"
+
+[[rule]]
+id = "def-links"
+define = true
+parent = "%USERPROFILE%"
+name = "Links"
+kind = "dir"
+example = "%USERPROFILE%\\Links"
+nearMiss = "%USERPROFILE%\\x-Links"
+
+[[rule]]
+id = "def-contacts"
+define = true
+parent = "%USERPROFILE%"
+name = "Contacts"
+kind = "dir"
+example = "%USERPROFILE%\\Contacts"
+nearMiss = "%USERPROFILE%\\x-Contacts"
+
+[[rule]]
+id = "def-saved-games"
+define = true
+parent = "%USERPROFILE%"
+name = "Saved Games"
+kind = "dir"
+example = "%USERPROFILE%\\Saved Games"
+nearMiss = "%USERPROFILE%\\x-Saved Games"
+
+[[rule]]
+id = "def-searches"
+define = true
+parent = "%USERPROFILE%"
+name = "Searches"
+kind = "dir"
+example = "%USERPROFILE%\\Searches"
+nearMiss = "%USERPROFILE%\\x-Searches"
+
+[[rule]]
+id = "def-3d-objects"
+define = true
+parent = "%USERPROFILE%"
+name = "3D Objects"
+kind = "dir"
+example = "%USERPROFILE%\\3D Objects"
+nearMiss = "%USERPROFILE%\\x-3D Objects"
+
+[[rule]]
+id = "def-onedrive"
+define = true
+parent = "%USERPROFILE%"
+name = "OneDrive*"
+kind = "dir"
+example = "%USERPROFILE%\\OneDrive"
+nearMiss = "%USERPROFILE%\\x-OneDrive"
+
+[[rule]]
+id = "def-appdata"
+define = true
+parent = "%USERPROFILE%"
+name = "AppData"
+kind = "dir"
+example = "%USERPROFILE%\\AppData"
+nearMiss = "%USERPROFILE%\\x-AppData"
+
+[[rule]]
+id = "def-ntuser-dat"
+define = true
+parent = "%USERPROFILE%"
+name = "NTUSER.DAT"
+kind = "file"
+tier = "keep"
+example = "%USERPROFILE%\\NTUSER.DAT"
+nearMiss = "%USERPROFILE%\\x-NTUSER.DAT"
+
+[[rule]]
+id = "def-dropbox"
+define = true
+parent = "%USERPROFILE%"
+name = "Dropbox"
+kind = "dir"
+example = "%USERPROFILE%\\Dropbox"
+nearMiss = "%USERPROFILE%\\x-Dropbox"
+
+[[rule]]
+id = "def-icloud-drive"
+define = true
+parent = "%USERPROFILE%"
+name = "iCloudDrive"
+kind = "dir"
+example = "%USERPROFILE%\\iCloudDrive"
+nearMiss = "%USERPROFILE%\\x-iCloudDrive"
+
+[[rule]]
+id = "def-creative-cloud-files"
+define = true
+parent = "%USERPROFILE%"
+name = "Creative Cloud Files*"
+kind = "dir"
+example = "%USERPROFILE%\\Creative Cloud Files"
+nearMiss = "%USERPROFILE%\\x-Creative Cloud Files"
+
+[[rule]]
+id = "def-source"
+define = true
+parent = "%USERPROFILE%"
+name = "source"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\source"
+nearMiss = "%USERPROFILE%\\x-source"
+
+[[rule]]
+id = "def-scoop"
+define = true
+parent = "%USERPROFILE%"
+name = "scoop"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\scoop"
+nearMiss = "%USERPROFILE%\\x-scoop"
+
+[[rule]]
+id = "def-go-workspace"
+define = true
+parent = "%USERPROFILE%"
+name = "go"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\go"
+nearMiss = "%USERPROFILE%\\x-go"
+
+[[rule]]
+id = "def-miniconda"
+define = true
+parent = "%USERPROFILE%"
+name = "miniconda3"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\miniconda3"
+nearMiss = "%USERPROFILE%\\x-miniconda3"
+
+[[rule]]
+id = "def-anaconda"
+define = true
+parent = "%USERPROFILE%"
+name = "anaconda3"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\anaconda3"
+nearMiss = "%USERPROFILE%\\x-anaconda3"
+
+[[rule]]
+id = "def-intel-graphics-profiles"
+define = true
+parent = "%USERPROFILE%"
+name = "IntelGraphicsProfiles"
+kind = "dir"
+example = "%USERPROFILE%\\IntelGraphicsProfiles"
+nearMiss = "%USERPROFILE%\\x-IntelGraphicsProfiles"
+
+[[rule]]
+id = "def-dot-ssh"
+define = true
+parent = "%USERPROFILE%"
+name = ".ssh"
+kind = "dir"
+category = "developer"
+tier = "keep"
+example = "%USERPROFILE%\\.ssh"
+nearMiss = "%USERPROFILE%\\x-.ssh"
+
+[[rule]]
+id = "def-dot-gitconfig"
+define = true
+parent = "%USERPROFILE%"
+name = ".gitconfig"
+kind = "file"
+category = "developer"
+tier = "keep"
+example = "%USERPROFILE%\\.gitconfig"
+nearMiss = "%USERPROFILE%\\x-.gitconfig"
+
+[[rule]]
+id = "def-dot-docker"
+define = true
+parent = "%USERPROFILE%"
+name = ".docker"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.docker"
+nearMiss = "%USERPROFILE%\\x-.docker"
+
+[[rule]]
+id = "def-dot-vscode"
+define = true
+parent = "%USERPROFILE%"
+name = ".vscode"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.vscode"
+nearMiss = "%USERPROFILE%\\x-.vscode"
+
+[[rule]]
+id = "def-dot-cursor"
+define = true
+parent = "%USERPROFILE%"
+name = ".cursor"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.cursor"
+nearMiss = "%USERPROFILE%\\x-.cursor"
+
+[[rule]]
+id = "def-dot-claude"
+define = true
+parent = "%USERPROFILE%"
+name = ".claude"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.claude"
+nearMiss = "%USERPROFILE%\\x-.claude"
+
+[[rule]]
+id = "def-dot-cache"
+define = true
+parent = "%USERPROFILE%"
+name = ".cache"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.cache"
+nearMiss = "%USERPROFILE%\\x-.cache"
+
+[[rule]]
+id = "def-dot-config"
+define = true
+parent = "%USERPROFILE%"
+name = ".config"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.config"
+nearMiss = "%USERPROFILE%\\x-.config"
+
+[[rule]]
+id = "def-dot-nuget"
+define = true
+parent = "%USERPROFILE%"
+name = ".nuget"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.nuget"
+nearMiss = "%USERPROFILE%\\x-.nuget"
+
+[[rule]]
+id = "def-dot-cargo"
+define = true
+parent = "%USERPROFILE%"
+name = ".cargo"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.cargo"
+nearMiss = "%USERPROFILE%\\x-.cargo"
+
+[[rule]]
+id = "def-dot-rustup"
+define = true
+parent = "%USERPROFILE%"
+name = ".rustup"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.rustup"
+nearMiss = "%USERPROFILE%\\x-.rustup"
+
+[[rule]]
+id = "def-dot-gradle"
+define = true
+parent = "%USERPROFILE%"
+name = ".gradle"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.gradle"
+nearMiss = "%USERPROFILE%\\x-.gradle"
+
+[[rule]]
+id = "def-dot-m2"
+define = true
+parent = "%USERPROFILE%"
+name = ".m2"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.m2"
+nearMiss = "%USERPROFILE%\\x-.m2"
+
+[[rule]]
+id = "def-dot-android"
+define = true
+parent = "%USERPROFILE%"
+name = ".android"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.android"
+nearMiss = "%USERPROFILE%\\x-.android"
+
+[[rule]]
+id = "def-dot-conda"
+define = true
+parent = "%USERPROFILE%"
+name = ".conda"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.conda"
+nearMiss = "%USERPROFILE%\\x-.conda"
+
+[[rule]]
+id = "def-dot-ollama"
+define = true
+parent = "%USERPROFILE%"
+name = ".ollama"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.ollama"
+nearMiss = "%USERPROFILE%\\x-.ollama"
+
+[[rule]]
+id = "def-dot-lmstudio"
+define = true
+parent = "%USERPROFILE%"
+name = ".lmstudio"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.lmstudio"
+nearMiss = "%USERPROFILE%\\x-.lmstudio"
+
+[[rule]]
+id = "def-dot-aws"
+define = true
+parent = "%USERPROFILE%"
+name = ".aws"
+kind = "dir"
+category = "developer"
+tier = "keep"
+example = "%USERPROFILE%\\.aws"
+nearMiss = "%USERPROFILE%\\x-.aws"
+
+[[rule]]
+id = "def-dot-azure"
+define = true
+parent = "%USERPROFILE%"
+name = ".azure"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.azure"
+nearMiss = "%USERPROFILE%\\x-.azure"
+
+[[rule]]
+id = "def-dot-kube"
+define = true
+parent = "%USERPROFILE%"
+name = ".kube"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.kube"
+nearMiss = "%USERPROFILE%\\x-.kube"
+
+[[rule]]
+id = "def-dot-dotnet"
+define = true
+parent = "%USERPROFILE%"
+name = ".dotnet"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.dotnet"
+nearMiss = "%USERPROFILE%\\x-.dotnet"
+
+[[rule]]
+id = "def-dot-templateengine"
+define = true
+parent = "%USERPROFILE%"
+name = ".templateengine"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.templateengine"
+nearMiss = "%USERPROFILE%\\x-.templateengine"
+
+[[rule]]
+id = "def-dot-jupyter"
+define = true
+parent = "%USERPROFILE%"
+name = ".jupyter"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.jupyter"
+nearMiss = "%USERPROFILE%\\x-.jupyter"
+
+[[rule]]
+id = "def-dot-ipython"
+define = true
+parent = "%USERPROFILE%"
+name = ".ipython"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.ipython"
+nearMiss = "%USERPROFILE%\\x-.ipython"
+
+[[rule]]
+id = "def-dot-keras"
+define = true
+parent = "%USERPROFILE%"
+name = ".keras"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.keras"
+nearMiss = "%USERPROFILE%\\x-.keras"
+
+[[rule]]
+id = "def-dot-bun"
+define = true
+parent = "%USERPROFILE%"
+name = ".bun"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.bun"
+nearMiss = "%USERPROFILE%\\x-.bun"
+
+[[rule]]
+id = "def-dot-deno"
+define = true
+parent = "%USERPROFILE%"
+name = ".deno"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.deno"
+nearMiss = "%USERPROFILE%\\x-.deno"
+
+[[rule]]
+id = "def-dot-pyenv"
+define = true
+parent = "%USERPROFILE%"
+name = ".pyenv"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.pyenv"
+nearMiss = "%USERPROFILE%\\x-.pyenv"
+
+[[rule]]
+id = "def-dot-vs"
+define = true
+parent = "%USERPROFILE%"
+name = ".vs"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\.vs"
+nearMiss = "%USERPROFILE%\\x-.vs"
+
+[[rule]]
+id = "def-dot-wslconfig"
+define = true
+parent = "%USERPROFILE%"
+name = ".wslconfig"
+kind = "file"
+category = "developer"
+tier = "keep"
+example = "%USERPROFILE%\\.wslconfig"
+nearMiss = "%USERPROFILE%\\x-.wslconfig"
+
+[[rule]]
+id = "def-docs-my-games"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "My Games"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\My Games"
+nearMiss = "%USERPROFILE%\\Documents\\x-My Games"
+
+[[rule]]
+id = "def-docs-office-templates"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "{Custom Office Templates,Aangepaste Office-sjablonen}"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Custom Office Templates"
+nearMiss = "%USERPROFILE%\\Documents\\x-Custom Office Templates"
+
+[[rule]]
+id = "def-docs-outlook-files"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "{Outlook Files,Outlook-bestanden}"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Outlook Files"
+nearMiss = "%USERPROFILE%\\Documents\\x-Outlook Files"
+
+[[rule]]
+id = "def-docs-powershell"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "{WindowsPowerShell,PowerShell}"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\Documents\\WindowsPowerShell"
+nearMiss = "%USERPROFILE%\\Documents\\x-WindowsPowerShell"
+
+[[rule]]
+id = "def-docs-visual-studio"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "Visual Studio 20*"
+kind = "dir"
+category = "developer"
+example = "%USERPROFILE%\\Documents\\Visual Studio 2022"
+nearMiss = "%USERPROFILE%\\Documents\\x-Visual Studio 2022"
+
+[[rule]]
+id = "def-docs-zoom"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "Zoom"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Zoom"
+nearMiss = "%USERPROFILE%\\Documents\\x-Zoom"
+
+[[rule]]
+id = "def-docs-onenote"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "{OneNote Notebooks,OneNote-notitieblokken}"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\OneNote Notebooks"
+nearMiss = "%USERPROFILE%\\Documents\\x-OneNote Notebooks"
+
+[[rule]]
+id = "def-docs-sound-recordings"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "{Sound recordings,Sound Recordings,Geluidsopnamen}"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Sound recordings"
+nearMiss = "%USERPROFILE%\\Documents\\x-Sound recordings"
+
+[[rule]]
+id = "def-docs-scanned"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "{Scanned Documents,Gescande documenten}"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Scanned Documents"
+nearMiss = "%USERPROFILE%\\Documents\\x-Scanned Documents"
+
+[[rule]]
+id = "def-docs-adobe"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "Adobe"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Adobe"
+nearMiss = "%USERPROFILE%\\Documents\\x-Adobe"
+
+[[rule]]
+id = "def-docs-rockstar"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "Rockstar Games"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Rockstar Games"
+nearMiss = "%USERPROFILE%\\Documents\\x-Rockstar Games"
+
+[[rule]]
+id = "def-docs-ea"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "Electronic Arts"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Electronic Arts"
+nearMiss = "%USERPROFILE%\\Documents\\x-Electronic Arts"
+
+[[rule]]
+id = "def-docs-paradox"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "Paradox Interactive"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Paradox Interactive"
+nearMiss = "%USERPROFILE%\\Documents\\x-Paradox Interactive"
+
+[[rule]]
+id = "def-docs-blackmagic"
+define = true
+parent = "%USERPROFILE%\\**\\{Documents,Documenten}"
+name = "Blackmagic Design"
+kind = "dir"
+example = "%USERPROFILE%\\Documents\\Blackmagic Design"
+nearMiss = "%USERPROFILE%\\Documents\\x-Blackmagic Design"
+
+[[rule]]
+id = "def-pics-screenshots"
+define = true
+parent = "%USERPROFILE%\\**\\{Pictures,Afbeeldingen}"
+name = "{Screenshots,Schermopnamen,Schermafbeeldingen}"
+kind = "dir"
+example = "%USERPROFILE%\\Pictures\\Screenshots"
+nearMiss = "%USERPROFILE%\\Pictures\\x-Screenshots"
+
+[[rule]]
+id = "def-pics-camera-roll"
+define = true
+parent = "%USERPROFILE%\\**\\{Pictures,Afbeeldingen}"
+name = "{Camera Roll,Filmrol}"
+kind = "dir"
+example = "%USERPROFILE%\\Pictures\\Camera Roll"
+nearMiss = "%USERPROFILE%\\Pictures\\x-Camera Roll"
+
+[[rule]]
+id = "def-pics-saved-pictures"
+define = true
+parent = "%USERPROFILE%\\**\\{Pictures,Afbeeldingen}"
+name = "{Saved Pictures,Opgeslagen afbeeldingen}"
+kind = "dir"
+example = "%USERPROFILE%\\Pictures\\Saved Pictures"
+nearMiss = "%USERPROFILE%\\Pictures\\x-Saved Pictures"
+
+[[rule]]
+id = "def-vids-captures"
+define = true
+parent = "%USERPROFILE%\\**\\{Videos,Video's}"
+name = "Captures"
+kind = "dir"
+example = "%USERPROFILE%\\Videos\\Captures"
+nearMiss = "%USERPROFILE%\\Videos\\x-Captures"
+
+[[rule]]
+id = "def-vids-screen-recordings"
+define = true
+parent = "%USERPROFILE%\\**\\{Videos,Video's}"
+name = "{Screen Recordings,Schermopnamen}"
+kind = "dir"
+example = "%USERPROFILE%\\Videos\\Screen Recordings"
+nearMiss = "%USERPROFILE%\\Videos\\x-Screen Recordings"
+
+[[rule]]
+id = "def-appdata-local"
+define = true
+parent = "%USERPROFILE%\\AppData"
+name = "Local"
+kind = "dir"
+example = "%USERPROFILE%\\AppData\\Local"
+nearMiss = "%USERPROFILE%\\AppData\\x-Local"
+
+[[rule]]
+id = "def-appdata-roaming"
+define = true
+parent = "%USERPROFILE%\\AppData"
+name = "Roaming"
+kind = "dir"
+example = "%USERPROFILE%\\AppData\\Roaming"
+nearMiss = "%USERPROFILE%\\AppData\\x-Roaming"
+
+[[rule]]
+id = "def-appdata-locallow"
+define = true
+parent = "%USERPROFILE%\\AppData"
+name = "LocalLow"
+kind = "dir"
+example = "%USERPROFILE%\\AppData\\LocalLow"
+nearMiss = "%USERPROFILE%\\AppData\\x-LocalLow"
+
+[[rule]]
+id = "def-pf-common-files"
+define = true
+parent = "?:\\Program Files*"
+name = "Common Files"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Common Files"
+nearMiss = "C:\\Program Files\\x-Common Files"
+
+[[rule]]
+id = "def-pf-windowsapps"
+define = true
+parent = "?:\\Program Files*"
+name = "WindowsApps"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\WindowsApps"
+nearMiss = "C:\\Program Files\\x-WindowsApps"
+
+[[rule]]
+id = "def-pf-modifiablewindowsapps"
+define = true
+parent = "?:\\Program Files*"
+name = "ModifiableWindowsApps"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\ModifiableWindowsApps"
+nearMiss = "C:\\Program Files\\x-ModifiableWindowsApps"
+
+[[rule]]
+id = "def-pf-windows-defender"
+define = true
+parent = "?:\\Program Files*"
+name = "Windows Defender"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Windows Defender"
+nearMiss = "C:\\Program Files\\x-Windows Defender"
+
+[[rule]]
+id = "def-pf-windows-nt"
+define = true
+parent = "?:\\Program Files*"
+name = "Windows NT"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Windows NT"
+nearMiss = "C:\\Program Files\\x-Windows NT"
+
+[[rule]]
+id = "def-pf-windows-mail"
+define = true
+parent = "?:\\Program Files*"
+name = "Windows Mail"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Windows Mail"
+nearMiss = "C:\\Program Files\\x-Windows Mail"
+
+[[rule]]
+id = "def-pf-windows-media-player"
+define = true
+parent = "?:\\Program Files*"
+name = "Windows Media Player"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Windows Media Player"
+nearMiss = "C:\\Program Files\\x-Windows Media Player"
+
+[[rule]]
+id = "def-pf-windows-photo-viewer"
+define = true
+parent = "?:\\Program Files*"
+name = "Windows Photo Viewer"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Windows Photo Viewer"
+nearMiss = "C:\\Program Files\\x-Windows Photo Viewer"
+
+[[rule]]
+id = "def-pf-internet-explorer"
+define = true
+parent = "?:\\Program Files*"
+name = "Internet Explorer"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Internet Explorer"
+nearMiss = "C:\\Program Files\\x-Internet Explorer"
+
+[[rule]]
+id = "def-pf-reference-assemblies"
+define = true
+parent = "?:\\Program Files*"
+name = "Reference Assemblies"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Reference Assemblies"
+nearMiss = "C:\\Program Files\\x-Reference Assemblies"
+
+[[rule]]
+id = "def-pf-msbuild"
+define = true
+parent = "?:\\Program Files*"
+name = "MSBuild"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\MSBuild"
+nearMiss = "C:\\Program Files\\x-MSBuild"
+
+[[rule]]
+id = "def-pf-uninstall-information"
+define = true
+parent = "?:\\Program Files*"
+name = "Uninstall Information"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Uninstall Information"
+nearMiss = "C:\\Program Files\\x-Uninstall Information"
+
+[[rule]]
+id = "def-pf-windowspowershell"
+define = true
+parent = "?:\\Program Files*"
+name = "WindowsPowerShell"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\WindowsPowerShell"
+nearMiss = "C:\\Program Files\\x-WindowsPowerShell"
+
+[[rule]]
+id = "def-pf-dotnet"
+define = true
+parent = "?:\\Program Files*"
+name = "dotnet"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\dotnet"
+nearMiss = "C:\\Program Files\\x-dotnet"
+
+[[rule]]
+id = "def-pf-windows-kits"
+define = true
+parent = "?:\\Program Files*"
+name = "Windows Kits"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\Windows Kits"
+nearMiss = "C:\\Program Files\\x-Windows Kits"
+
+[[rule]]
+id = "def-pf-wsl"
+define = true
+parent = "?:\\Program Files*"
+name = "WSL"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files\\WSL"
+nearMiss = "C:\\Program Files\\x-WSL"
+
+[[rule]]
+id = "def-pd-microsoft"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Microsoft"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\Microsoft"
+nearMiss = "%PROGRAMDATA%\\x-Microsoft"
+
+[[rule]]
+id = "def-pd-packages"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Packages"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\Packages"
+nearMiss = "%PROGRAMDATA%\\x-Packages"
+
+[[rule]]
+id = "def-pd-usoshared"
+define = true
+parent = "%PROGRAMDATA%"
+name = "USOShared"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\USOShared"
+nearMiss = "%PROGRAMDATA%\\x-USOShared"
+
+[[rule]]
+id = "def-pd-usoprivate"
+define = true
+parent = "%PROGRAMDATA%"
+name = "USOPrivate"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\USOPrivate"
+nearMiss = "%PROGRAMDATA%\\x-USOPrivate"
+
+[[rule]]
+id = "def-pd-regid"
+define = true
+parent = "%PROGRAMDATA%"
+name = "regid.*"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\regid.1991-06.com.microsoft"
+nearMiss = "%PROGRAMDATA%\\x-regid.1991-06.com.microsoft"
+
+[[rule]]
+id = "def-pd-ssh"
+define = true
+parent = "%PROGRAMDATA%"
+name = "ssh"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\ssh"
+nearMiss = "%PROGRAMDATA%\\x-ssh"
+
+[[rule]]
+id = "def-pd-chocolatey"
+define = true
+parent = "%PROGRAMDATA%"
+name = "chocolatey"
+kind = "dir"
+category = "developer"
+example = "%PROGRAMDATA%\\chocolatey"
+nearMiss = "%PROGRAMDATA%\\x-chocolatey"
+
+[[rule]]
+id = "def-pd-docker"
+define = true
+parent = "%PROGRAMDATA%"
+name = "{Docker,DockerDesktop}"
+kind = "dir"
+category = "developer"
+example = "%PROGRAMDATA%\\Docker"
+nearMiss = "%PROGRAMDATA%\\x-Docker"
+
+[[rule]]
+id = "def-pd-nvidia"
+define = true
+parent = "%PROGRAMDATA%"
+name = "{NVIDIA,NVIDIA Corporation}"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\NVIDIA"
+nearMiss = "%PROGRAMDATA%\\x-NVIDIA"
+
+[[rule]]
+id = "def-pd-intel"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Intel"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Intel"
+nearMiss = "%PROGRAMDATA%\\x-Intel"
+
+[[rule]]
+id = "def-pd-adobe"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Adobe"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Adobe"
+nearMiss = "%PROGRAMDATA%\\x-Adobe"
+
+[[rule]]
+id = "def-pd-epic"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Epic"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Epic"
+nearMiss = "%PROGRAMDATA%\\x-Epic"
+
+[[rule]]
+id = "def-pd-battlenet"
+define = true
+parent = "%PROGRAMDATA%"
+name = "{Battle.net,Blizzard Entertainment}"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Battle.net"
+nearMiss = "%PROGRAMDATA%\\x-Battle.net"
+
+[[rule]]
+id = "def-pd-ea"
+define = true
+parent = "%PROGRAMDATA%"
+name = "{Electronic Arts,EA Desktop,Origin}"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Electronic Arts"
+nearMiss = "%PROGRAMDATA%\\x-Electronic Arts"
+
+[[rule]]
+id = "def-pd-riot"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Riot Games"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Riot Games"
+nearMiss = "%PROGRAMDATA%\\x-Riot Games"
+
+[[rule]]
+id = "def-pd-apple"
+define = true
+parent = "%PROGRAMDATA%"
+name = "{Apple,Apple Computer}"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Apple"
+nearMiss = "%PROGRAMDATA%\\x-Apple"
+
+[[rule]]
+id = "def-pd-lenovo"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Lenovo"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Lenovo"
+nearMiss = "%PROGRAMDATA%\\x-Lenovo"
+
+[[rule]]
+id = "def-pd-dell"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Dell"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Dell"
+nearMiss = "%PROGRAMDATA%\\x-Dell"
+
+[[rule]]
+id = "def-pd-hp"
+define = true
+parent = "%PROGRAMDATA%"
+name = "{HP,Hewlett-Packard}"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\HP"
+nearMiss = "%PROGRAMDATA%\\x-HP"
+
+[[rule]]
+id = "def-pd-mozilla"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Mozilla*"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Mozilla"
+nearMiss = "%PROGRAMDATA%\\x-Mozilla"
+
+[[rule]]
+id = "def-pd-vmware"
+define = true
+parent = "%PROGRAMDATA%"
+name = "VMware"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\VMware"
+nearMiss = "%PROGRAMDATA%\\x-VMware"
+
+[[rule]]
+id = "def-pd-onedrive"
+define = true
+parent = "%PROGRAMDATA%"
+name = "Microsoft OneDrive"
+kind = "dir"
+category = "apps"
+example = "%PROGRAMDATA%\\Microsoft OneDrive"
+nearMiss = "%PROGRAMDATA%\\x-Microsoft OneDrive"
+
+[[rule]]
+id = "def-pd-ms-search"
+define = true
+parent = "%PROGRAMDATA%\\Microsoft"
+name = "Search"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\Microsoft\\Search"
+nearMiss = "%PROGRAMDATA%\\Microsoft\\x-Search"
+
+[[rule]]
+id = "def-pd-ms-defender"
+define = true
+parent = "%PROGRAMDATA%\\Microsoft"
+name = "Windows Defender"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\Microsoft\\Windows Defender"
+nearMiss = "%PROGRAMDATA%\\Microsoft\\x-Windows Defender"
+
+[[rule]]
+id = "def-pd-ms-diagnosis"
+define = true
+parent = "%PROGRAMDATA%\\Microsoft"
+name = "Diagnosis"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\Microsoft\\Diagnosis"
+nearMiss = "%PROGRAMDATA%\\Microsoft\\x-Diagnosis"
+
+[[rule]]
+id = "def-pd-ms-clicktorun"
+define = true
+parent = "%PROGRAMDATA%\\Microsoft"
+name = "ClickToRun"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\Microsoft\\ClickToRun"
+nearMiss = "%PROGRAMDATA%\\Microsoft\\x-ClickToRun"
+
+[[rule]]
+id = "def-pd-ms-visualstudio"
+define = true
+parent = "%PROGRAMDATA%\\Microsoft"
+name = "VisualStudio"
+kind = "dir"
+tier = "keep"
+example = "%PROGRAMDATA%\\Microsoft\\VisualStudio"
+nearMiss = "%PROGRAMDATA%\\Microsoft\\x-VisualStudio"

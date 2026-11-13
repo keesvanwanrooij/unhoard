@@ -28,10 +28,19 @@ options and trade-offs, before they are built.
 | Primary audience: home users with a full disk and a large photo library; second: power users and developers | The first question "where did my space go?" is theirs, and no current tool answers it with explanations |
 | Windows 10 and 11 only, with a portable architecture | Where the audience is; the platform layer keeps macOS and Linux possible later |
 | Works without admin; elevation only for documented opt-in features | Most home users should never see a UAC prompt for a scan |
-| The **elevated read-only "Reveal hidden space"** rescan is in the MVP | Hidden space is often the biggest unexplained block; a read-only, short-lived helper keeps the risk low |
+| The **elevated read-only "Reveal hidden space"** rescan is in the MVP | Hidden space is often the biggest unexplained block; a read-only helper keeps the risk low |
+| The elevated helper stays for the app session once the user said yes, and the Ask setting asks once per session | A UAC prompt for every scan or folder is tiring and teaches users to click yes blindly; a read-only helper that only the app's pipe can reach adds little risk by living longer |
+| Touching, poking and dragging cells keep their softness in the calm setting; only Windows' animation effects off removes it | The calm setting is about the map moving by itself; motion the user makes with their own hand is part of the fun |
 | Unhoard **never selects anything by itself**; every move is a user click (S1) | Trust: the user stays in control |
 | The **organic cell map is the default view**, with a simple treemap switch | The living map makes "where did it go" fun and memorable; the treemap stays for people who want it plain |
-| Default motion is **"living", subtle**: cells breathe by about ±2%; a "calm" setting and reduced motion stop it | Premium feel without becoming tiring in daily use |
+| Motion lives in the scan and the transitions: cells grow while the scan runs, then the map **stands still**; the radar sweeps only during a scan; "calm" and reduced motion shorten transitions | A map that keeps moving is hard to read and was experienced as restless |
+| During a scan the map, list and details reload every 1.5 seconds, and cells move one layout step per frame | Faster updates made the cells jump, and three seconds felt slow; 1.5 seconds shows the drive filling in while the cells still glide |
+| A drive scan's progress is the scanned size against the drive's used space, held below 100% until the scan ends | The used space is the only total known in advance; hidden space is never scanned, so the bar would otherwise stall short of the end |
+| The companion shows one bubble and never a stack: newer messages replace older ones, progress updates in place, and closing a bubble silences its topic until the operation ends | Stacked, repeated progress bubbles buried the message the user wanted and came back right after being closed |
+| The companion can be dragged anywhere on the stage, and its spot is remembered on this PC | The best spot depends on what the user is looking at; a fixed corner can cover a cell |
+| A third view, the **priority matrix**: x = days since last use, y = size on disk, bubble size = size on disk, colour = kind; zoom and pan | Answers "where do I start": big items unused for long sit top right; zoom separates crowded bubbles. There is no effort axis: no simple measure reflects how much work an item really takes |
+| The matrix uses **log scales** for size (y and bubble) and for days (x) | Sizes and ages span many orders of magnitude; a log scale keeps one huge item from squashing the rest and stays honest about ratios, where percentiles or z-scores would hide or distort them |
+| "Last use" comes from the best source per kind: Steam's last played, Windows' program history (UserAssist), else the newest change inside | Each is the most accurate date available without admin; the source is shown |
 | Colour by kind of content | A glance shows what fills the disk, not just how big things are |
 | A calm, readable shell around a show-piece centre stage | Balances a futuristic command-center look with ease of use |
 | The look is **Holo Command**: black-navy, cyan and ice hologram, HUD rings and a radar sweep on the stage ([Storage map](10-storage-map.md#look-and-feel)) | Chosen from four design explorations; it is the clearest command-center feel |
@@ -65,6 +74,8 @@ options and trade-offs, before they are built.
 | A local **activity log** of every move, restore and purge | The user can always see what Unhoard did and when |
 | Risk tiers Safe, Likely safe, Review, Keep (system), always with a reason | Simple enough for home users, honest enough for power users |
 | Quarantine on another drive is in Next | Same-drive renames are the safe base; cross-volume copy and verify needs its own tests |
+| Reading protected folders: a setting (Ask, Always, Never), one question when a scan starts, and a per-folder button | Complete numbers when the user wants them, without a UAC prompt they did not expect; the main app still never runs elevated |
+| Items read with admin rights never offer a move | The app itself has no rights there; a move would fail or need elevation, which only the read-only helper has |
 
 ## Known locations
 
@@ -73,7 +84,20 @@ options and trade-offs, before they are built.
 | The library is data: TOML rules in `data/known-locations/`, text in the locale files | Contributors add entries without Rust; every rule gets a fixture test |
 | `12-known-locations.md` is its own doc | It is a large, community-curated list |
 | The most specific rule wins; on a tie the strictest tier | A Keep item is never shown as safer than it is |
-| Unmatched large items get a generic explanation and tier Review | Every big item still gets context, without guessing it is safe |
+| Every item gets an explanation of its own: a rule's text, or sentences built from its name, its file type or contents, and the place it lies in with the app that place belongs to | A user asks "what is this?" about any item, not only the known ones; facts from the path and the scan totals answer it without reading a file and without guessing it is safe |
+| A **definition** (`define = true`) explains a known folder with a title and a text, without an action and without a tier other than Keep; it is never a suggestion, and a full rule wins over it | Most folders deserve an explanation but not an opinion about removing them; keeping the two apart lets the library grow large without flooding Suggestions |
+| A definition rests on what is commonly known about a folder; a full rule needs its path and behaviour confirmed in official documentation | A wrong tier or action can cost data, a wrong description can be corrected; this lets every known folder have a definition |
+| A definition may leave out its category | A category colours everything inside the item; a container such as Documents should keep the colours of its contents |
+| Unmatched large items (1 GiB or more) get tier Review | They are worth a look for their size, without guessing they are safe |
+| Cells are soft: a cell can be dragged, also during a scan, neighbours flow out of the way, and moving cells stretch and wobble | The map should feel alive and fun to touch; after a touch it rests again, so nothing moves while the user reads |
+| Dragged layouts flow without momentum (each site covers 30% of the way to its centroid per frame); the wobble is drawn on top from each cell's speed | A power diagram whose sites overshoot never comes to rest; a spring on the drawn stretch gives the slime feel and always dies out |
+| App knowledge has three layers: Windows' list of installed programs (automatic), a large curated library of app data and cache folders, and adapters for apps with their own records (Steam, Ollama, Docker) | The automatic layer covers nearly every program without upkeep; the curated library adds what an app's data and caches are; adapters add what only the app knows |
+| Adapters may run an installed tool's read-only command after a click (`docker system df`), from the tool's fixed install folder, with fixed arguments | Exact numbers about a container disk are only available from the tool; a fixed command from a known folder keeps it safe |
+| The details of Docker, Ollama and Steam items open the app itself on a click, from its fixed install folder (per user or per machine) or through Steam's own link | Cleaning up often means working in the app; the registry is not used for the path, because any program of the user can change it |
+| The user's Temp folder is offered item by item once an item is a day old; WSL's Remote Desktop traces are their own entry | One large leftover can then be cleared without the rest; the traces can grow by tens of gigabytes a day through a known WSL issue |
+| Suggestions with the same rule are grouped into one expandable row | Dozens of browser-profile caches or build folders hid the items that matter |
+| Project rules (`node_modules`, `.venv`, `target`, `bin`, `obj`) never match inside app folders (`%LOCALAPPDATA%`, `%APPDATA%`, Program Files, `%PROGRAMDATA%`), hidden folders in the profile or another `node_modules` | There they are what an installed app or extension runs from; moving them breaks the app |
+| Suggestions count size on disk and leave out items under 1 MiB | An online-only file or an empty cache frees nothing; hundreds of tiny entries hid the ones that matter |
 
 ## Cloud
 
@@ -104,7 +128,7 @@ options and trade-offs, before they are built.
 | **Size on disk** is the default measure; logical size is a switch | It is what the drive actually loses |
 | **Binary units labelled "GB"**, as Explorer does | The numbers match what users see in Explorer and Settings |
 | Items under 0.5% of the current view are grouped into "N smaller items" | Keeps the map readable and the layout fast |
-| Cell areas are within 3% of their share after settling | Accurate enough to trust, loose enough to breathe |
+| Cell areas are within 3% of their share after settling | Accurate enough to trust, and the layout converges in a fraction of a second |
 | An unknown size is `null` or "unknown", never 0 | A 0 would mislead |
 
 ## Privacy and network
@@ -127,7 +151,13 @@ options and trade-offs, before they are built.
 | Test-driven development for every Medium or higher change | The tests prove the safety invariants |
 | Test data is always generated, never real photos or scans | Privacy, and reproducible tests |
 | `unsafe` only in the Windows FFI module | Keeps the unsafe surface small and reviewable |
-| Enumeration through `NtQueryDirectoryFile(Ex)` with a `FindFirstFileExW` fallback | Sizes, IDs and reparse tags in one batched call |
+| Enumeration through `GetFileInformationByHandleEx` with `FileIdExtdDirectoryInfo`, falling back to `FileIdBothDirectoryInfo` on FAT and exFAT | Sizes, 128-bit file IDs and reparse tags in one batched call per folder, through a documented Win32 API |
+| The minimum Rust version is 1.97 | The patched releases of `quick-xml` and `time`, needed to clear RustSec advisories, require it |
+| Known-location rule IDs are kebab-case (`node-modules`) and match their text keys | One ID links the rule, its text, the manifest and the CLI output |
+| The Review case for large unmatched items also covers files of 1 GiB or more | A large unknown file is exactly what the user asks about; it gets context without a guess that it is safe |
+| A known location with a tier and an action is added only when its path and behaviour are confirmed in official documentation | A wrong explanation or tier would break trust; unconfirmed entries wait for a contributor who can verify them |
+| The overview screen stays mounted and is hidden when another screen shows | Switching back is instant and the cell map keeps its settled layout (P2) |
+| The performance runs use a production build with a fake core that generates a tree of a set size | The numbers measure the UI itself, repeatable on any PC and on CI, without a real disk |
 | The UI asks for views of the tree, never the whole tree | Memory and IPC stay bounded |
 | Canvas 2D for the cell map; WebGL only if the frame-rate target fails | Simplest first |
 | Our own power-diagram layout | No maintained library does weighted Voronoi treemaps with per-frame relaxation |
@@ -165,15 +195,17 @@ package.
 | `serde`, `serde_json`, `toml` | Manifests, settings, rule files and CLI JSON |
 | `thiserror`, `anyhow` | Typed errors in libraries, context at the binary edge |
 | `clap` | CLI arguments |
-| `tracing` | Local diagnostic logging, off by default |
+| `globset` | Matches all parent globs of the known-locations rules in one pass; part of ripgrep, widely used and maintained |
 | `blake3` | Fast, chunked content hashing |
 | `tempfile` (dev) | Generated test trees |
-| `react`, `react-dom`, `typescript`, `vite` | The UI |
+| `react`, `react-dom`, `typescript`, `vite`, `@vitejs/plugin-react` | The UI |
+| `@tauri-apps/api`, `@tauri-apps/cli` | IPC from the UI to the Rust core, and the build and bundle tool |
+| `@fontsource/rajdhani`, `@fontsource/jetbrains-mono` | The bundled fonts as local files, so the app loads nothing from the network |
 | `i18next`, `react-i18next` | Translations with plurals |
 | `zustand` | Small state stores |
-| `motion` | UI transitions |
-| `d3-hierarchy` | The squarified treemap |
-| `vitest`, `@testing-library/react`, `eslint`, `prettier` | Tests and checks |
+| `vitest`, `jsdom`, `@testing-library/react` (dev) | UI unit tests in a simulated DOM |
+| `eslint`, `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `globals`, `prettier` (dev) | Lints and formatting; `typescript-eslint` supplies the type-aware rules such as no floating promises |
+| `@types/react`, `@types/react-dom`, `@types/node` (dev) | Types for React and for the Node-based perf scripts |
 | `criterion` (dev) | Statistically sound Rust benchmarks for the performance budgets |
 | `@playwright/test` (dev) | Drives the UI to measure interaction budgets; widely used and maintained by Microsoft |
 | GitHub Actions: `actions/checkout`, `actions/setup-node`, `dtolnay/rust-toolchain`, `Swatinem/rust-cache`, `EmbarkStudios/cargo-deny-action`, `gitleaks/gitleaks-action` | CI, each pinned to a full commit SHA |

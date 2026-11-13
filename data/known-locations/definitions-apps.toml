@@ -1,0 +1,1758 @@
+# Definitions: app folders in AppData, well-known Microsoft Store apps, and the parts many
+# apps share (cache, logs, built-in browser data). See definitions-windows.toml for what a
+# definition is.
+
+[[rule]]
+id = "def-local-microsoft"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Microsoft"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Microsoft"
+nearMiss = "%LOCALAPPDATA%\\x-Microsoft"
+
+[[rule]]
+id = "def-local-packages"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Packages"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Packages"
+nearMiss = "%LOCALAPPDATA%\\x-Packages"
+
+[[rule]]
+id = "def-local-programs"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Programs"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Programs"
+nearMiss = "%LOCALAPPDATA%\\x-Programs"
+
+[[rule]]
+id = "def-local-temp"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Temp"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Temp"
+nearMiss = "%LOCALAPPDATA%\\x-Temp"
+
+[[rule]]
+id = "def-local-google"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Google"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Google"
+nearMiss = "%LOCALAPPDATA%\\x-Google"
+
+[[rule]]
+id = "def-local-google-drivefs"
+define = true
+parent = "%LOCALAPPDATA%\\Google"
+name = "DriveFS"
+kind = "dir"
+category = "cloud"
+example = "%LOCALAPPDATA%\\Google\\DriveFS"
+nearMiss = "%LOCALAPPDATA%\\Google\\x-DriveFS"
+
+[[rule]]
+id = "def-local-mozilla"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Mozilla"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Mozilla"
+nearMiss = "%LOCALAPPDATA%\\x-Mozilla"
+
+[[rule]]
+id = "def-local-brave"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "BraveSoftware"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\BraveSoftware"
+nearMiss = "%LOCALAPPDATA%\\x-BraveSoftware"
+
+[[rule]]
+id = "def-local-connecteddevices"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "ConnectedDevicesPlatform"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\ConnectedDevicesPlatform"
+nearMiss = "%LOCALAPPDATA%\\x-ConnectedDevicesPlatform"
+
+[[rule]]
+id = "def-local-comms"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Comms"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Comms"
+nearMiss = "%LOCALAPPDATA%\\x-Comms"
+
+[[rule]]
+id = "def-local-virtualstore"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "VirtualStore"
+kind = "dir"
+example = "%LOCALAPPDATA%\\VirtualStore"
+nearMiss = "%LOCALAPPDATA%\\x-VirtualStore"
+
+[[rule]]
+id = "def-local-publishers"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Publishers"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Publishers"
+nearMiss = "%LOCALAPPDATA%\\x-Publishers"
+
+[[rule]]
+id = "def-local-placeholder-tiles"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "PlaceholderTileLogoFolder"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\PlaceholderTileLogoFolder"
+nearMiss = "%LOCALAPPDATA%\\x-PlaceholderTileLogoFolder"
+
+[[rule]]
+id = "def-local-squirreltemp"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "SquirrelTemp"
+kind = "dir"
+example = "%LOCALAPPDATA%\\SquirrelTemp"
+nearMiss = "%LOCALAPPDATA%\\x-SquirrelTemp"
+
+[[rule]]
+id = "def-local-package-cache"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Package Cache"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Package Cache"
+nearMiss = "%LOCALAPPDATA%\\x-Package Cache"
+
+[[rule]]
+id = "def-local-downloaded-installations"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Downloaded Installations"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Downloaded Installations"
+nearMiss = "%LOCALAPPDATA%\\x-Downloaded Installations"
+
+[[rule]]
+id = "def-local-iconcache"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "IconCache.db"
+kind = "file"
+tier = "keep"
+example = "%LOCALAPPDATA%\\IconCache.db"
+nearMiss = "%LOCALAPPDATA%\\x-IconCache.db"
+
+[[rule]]
+id = "def-local-node-gyp"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "node-gyp"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\node-gyp"
+nearMiss = "%LOCALAPPDATA%\\x-node-gyp"
+
+[[rule]]
+id = "def-local-pnpm"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "pnpm"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\pnpm"
+nearMiss = "%LOCALAPPDATA%\\x-pnpm"
+
+[[rule]]
+id = "def-local-yarn"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Yarn"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\Yarn"
+nearMiss = "%LOCALAPPDATA%\\x-Yarn"
+
+[[rule]]
+id = "def-local-pip"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "pip"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\pip"
+nearMiss = "%LOCALAPPDATA%\\x-pip"
+
+[[rule]]
+id = "def-local-nuget"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "NuGet"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\NuGet"
+nearMiss = "%LOCALAPPDATA%\\x-NuGet"
+
+[[rule]]
+id = "def-local-uv"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "uv"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\uv"
+nearMiss = "%LOCALAPPDATA%\\x-uv"
+
+[[rule]]
+id = "def-local-pypoetry"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "pypoetry"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\pypoetry"
+nearMiss = "%LOCALAPPDATA%\\x-pypoetry"
+
+[[rule]]
+id = "def-local-android"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Android"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\Android"
+nearMiss = "%LOCALAPPDATA%\\x-Android"
+
+[[rule]]
+id = "def-local-ms-playwright"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "ms-playwright"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\ms-playwright"
+nearMiss = "%LOCALAPPDATA%\\x-ms-playwright"
+
+[[rule]]
+id = "def-local-elevated-diagnostics"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "ElevatedDiagnostics"
+kind = "dir"
+example = "%LOCALAPPDATA%\\ElevatedDiagnostics"
+nearMiss = "%LOCALAPPDATA%\\x-ElevatedDiagnostics"
+
+[[rule]]
+id = "def-lm-edge"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "Edge"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Microsoft\\Edge"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-Edge"
+
+[[rule]]
+id = "def-lm-windows"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "Windows"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-Windows"
+
+[[rule]]
+id = "def-lm-windowsapps"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "WindowsApps"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Microsoft\\WindowsApps"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-WindowsApps"
+
+[[rule]]
+id = "def-lm-onedrive"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "OneDrive"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Microsoft\\OneDrive"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-OneDrive"
+
+[[rule]]
+id = "def-lm-teams"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "Teams"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Microsoft\\Teams"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-Teams"
+
+[[rule]]
+id = "def-lm-office"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "Office"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Microsoft\\Office"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-Office"
+
+[[rule]]
+id = "def-lm-outlook"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "Outlook"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Microsoft\\Outlook"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-Outlook"
+
+[[rule]]
+id = "def-lm-visualstudio"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "VisualStudio"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\Microsoft\\VisualStudio"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-VisualStudio"
+
+[[rule]]
+id = "def-lm-typescript"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "TypeScript"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\Microsoft\\TypeScript"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-TypeScript"
+
+[[rule]]
+id = "def-lm-terminal-server-client"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "Terminal Server Client"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Microsoft\\Terminal Server Client"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-Terminal Server Client"
+
+[[rule]]
+id = "def-lm-winget"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft"
+name = "WinGet"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Microsoft\\WinGet"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\x-WinGet"
+
+[[rule]]
+id = "def-lm-win-inetcache"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft\\Windows"
+name = "INetCache"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows\\INetCache"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Windows\\x-INetCache"
+
+[[rule]]
+id = "def-lm-win-explorer"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft\\Windows"
+name = "Explorer"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows\\Explorer"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Windows\\x-Explorer"
+
+[[rule]]
+id = "def-lm-win-wer"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft\\Windows"
+name = "WER"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows\\WER"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Windows\\x-WER"
+
+[[rule]]
+id = "def-lm-win-webcache"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft\\Windows"
+name = "WebCache"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows\\WebCache"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Windows\\x-WebCache"
+
+[[rule]]
+id = "def-lm-win-fonts"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft\\Windows"
+name = "Fonts"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows\\Fonts"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Windows\\x-Fonts"
+
+[[rule]]
+id = "def-lm-win-notifications"
+define = true
+parent = "%LOCALAPPDATA%\\Microsoft\\Windows"
+name = "Notifications"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows\\Notifications"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Windows\\x-Notifications"
+
+[[rule]]
+id = "def-roaming-microsoft"
+define = true
+parent = "%APPDATA%"
+name = "Microsoft"
+kind = "dir"
+tier = "keep"
+example = "%APPDATA%\\Microsoft"
+nearMiss = "%APPDATA%\\x-Microsoft"
+
+[[rule]]
+id = "def-roaming-mozilla"
+define = true
+parent = "%APPDATA%"
+name = "Mozilla"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Mozilla"
+nearMiss = "%APPDATA%\\x-Mozilla"
+
+[[rule]]
+id = "def-roaming-thunderbird"
+define = true
+parent = "%APPDATA%"
+name = "Thunderbird"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Thunderbird"
+nearMiss = "%APPDATA%\\x-Thunderbird"
+
+[[rule]]
+id = "def-roaming-minecraft"
+define = true
+parent = "%APPDATA%"
+name = ".minecraft"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\.minecraft"
+nearMiss = "%APPDATA%\\x-.minecraft"
+
+[[rule]]
+id = "def-rm-windows"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "Windows"
+kind = "dir"
+tier = "keep"
+example = "%APPDATA%\\Microsoft\\Windows"
+nearMiss = "%APPDATA%\\Microsoft\\x-Windows"
+
+[[rule]]
+id = "def-rm-teams"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "Teams"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Microsoft\\Teams"
+nearMiss = "%APPDATA%\\Microsoft\\x-Teams"
+
+[[rule]]
+id = "def-rm-templates"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "{Templates,Sjablonen}"
+kind = "dir"
+example = "%APPDATA%\\Microsoft\\Templates"
+nearMiss = "%APPDATA%\\Microsoft\\x-Templates"
+
+[[rule]]
+id = "def-rm-signatures"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "{Signatures,Handtekeningen}"
+kind = "dir"
+example = "%APPDATA%\\Microsoft\\Signatures"
+nearMiss = "%APPDATA%\\Microsoft\\x-Signatures"
+
+[[rule]]
+id = "def-rm-protect"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "Protect"
+kind = "dir"
+tier = "keep"
+example = "%APPDATA%\\Microsoft\\Protect"
+nearMiss = "%APPDATA%\\Microsoft\\x-Protect"
+
+[[rule]]
+id = "def-rm-crypto"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "Crypto"
+kind = "dir"
+tier = "keep"
+example = "%APPDATA%\\Microsoft\\Crypto"
+nearMiss = "%APPDATA%\\Microsoft\\x-Crypto"
+
+[[rule]]
+id = "def-rm-credentials"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "Credentials"
+kind = "dir"
+tier = "keep"
+example = "%APPDATA%\\Microsoft\\Credentials"
+nearMiss = "%APPDATA%\\Microsoft\\x-Credentials"
+
+[[rule]]
+id = "def-rm-uproof"
+define = true
+parent = "%APPDATA%\\Microsoft"
+name = "UProof"
+kind = "dir"
+example = "%APPDATA%\\Microsoft\\UProof"
+nearMiss = "%APPDATA%\\Microsoft\\x-UProof"
+
+[[rule]]
+id = "def-locallow-microsoft"
+define = true
+parent = "%USERPROFILE%\\AppData\\LocalLow"
+name = "Microsoft"
+kind = "dir"
+tier = "keep"
+example = "%USERPROFILE%\\AppData\\LocalLow\\Microsoft"
+nearMiss = "%USERPROFILE%\\AppData\\LocalLow\\x-Microsoft"
+
+[[rule]]
+id = "def-pk-photos"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.Windows.Photos_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.Windows.Photos_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.Windows.Photos_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-whatsapp"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "5319275A.WhatsAppDesktop_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\5319275A.WhatsAppDesktop_cv1g1gvanyjgm"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-5319275A.WhatsAppDesktop_cv1g1gvanyjgm"
+
+[[rule]]
+id = "def-pk-spotify"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "SpotifyAB.SpotifyMusic_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\SpotifyAB.SpotifyMusic_zpdnekdrzrea0"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-SpotifyAB.SpotifyMusic_zpdnekdrzrea0"
+
+[[rule]]
+id = "def-pk-teams"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "MSTeams_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\MSTeams_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-MSTeams_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-outlook"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.OutlookForWindows_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.OutlookForWindows_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.OutlookForWindows_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-xbox"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.GamingApp_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.GamingApp_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.GamingApp_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-minecraft"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.MinecraftUWP_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.MinecraftUWP_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-phone-link"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.YourPhone_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.YourPhone_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.YourPhone_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-terminal"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.WindowsTerminal_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.WindowsTerminal_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-winget"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.DesktopAppInstaller_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-spotlight"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.Windows.ContentDeliveryManager_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy"
+
+[[rule]]
+id = "def-pk-store"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.WindowsStore_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.WindowsStore_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.WindowsStore_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-ubuntu"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "CanonicalGroupLimited.*"
+kind = "dir"
+category = "developer"
+example = "%LOCALAPPDATA%\\Packages\\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
+
+[[rule]]
+id = "def-pk-clipchamp"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Clipchamp.Clipchamp_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Clipchamp.Clipchamp_yxz26nhyzhsrt"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Clipchamp.Clipchamp_yxz26nhyzhsrt"
+
+[[rule]]
+id = "def-pk-copilot"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "Microsoft.Copilot_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\Microsoft.Copilot_8wekyb3d8bbwe"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-Microsoft.Copilot_8wekyb3d8bbwe"
+
+[[rule]]
+id = "def-pk-icloud"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "AppleInc.iCloud_*"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Packages\\AppleInc.iCloud_nzyj5cx40ttqa"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-AppleInc.iCloud_nzyj5cx40ttqa"
+
+[[rule]]
+id = "def-pk-cbs"
+define = true
+parent = "%LOCALAPPDATA%\\Packages"
+name = "MicrosoftWindows.Client.CBS_*"
+kind = "dir"
+tier = "keep"
+example = "%LOCALAPPDATA%\\Packages\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy"
+nearMiss = "%LOCALAPPDATA%\\Packages\\x-MicrosoftWindows.Client.CBS_cw5n1h2txyewy"
+
+[[rule]]
+id = "def-any-ebwebview"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "EBWebView"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\EBWebView"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-EBWebView"
+
+[[rule]]
+id = "def-any-user-data"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "User Data"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\User Data"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-User Data"
+
+[[rule]]
+id = "def-any-cache"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{Cache,Caches,cache2,CachedData,Cache_Data}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\Cache"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-Cache"
+
+[[rule]]
+id = "def-any-code-cache"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{Code Cache,GPUCache,ShaderCache,GrShaderCache,DawnCache,DawnGraphiteCache,DawnWebGPUCache}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\Code Cache"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-Code Cache"
+
+[[rule]]
+id = "def-any-logs"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{logs,log,Logs}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\logs"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-logs"
+
+[[rule]]
+id = "def-any-crashpad"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{Crashpad,CrashReports,Crash Reports,crashes,CrashDumps,Crashes}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\Crashpad"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-Crashpad"
+
+[[rule]]
+id = "def-any-service-worker"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "Service Worker"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\Service Worker"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-Service Worker"
+
+[[rule]]
+id = "def-any-web-storage"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{IndexedDB,Local Storage,Session Storage,WebStorage,databases}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\IndexedDB"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-IndexedDB"
+
+[[rule]]
+id = "def-any-updates"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{Update,Updates,updater,pending}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\Update"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-Update"
+
+[[rule]]
+id = "def-any-backups"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{Backup,Backups,backup,backups}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\Backups"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-Backups"
+
+[[rule]]
+id = "def-any-extensions"
+define = true
+parent = "%USERPROFILE%\\AppData\\**"
+name = "{Extensions,extensions,Plugins,plugins,Addons,addons}"
+kind = "dir"
+example = "%LOCALAPPDATA%\\Vendor\\App\\Extensions"
+nearMiss = "%LOCALAPPDATA%\\Vendor\\App\\x-Extensions"
+
+[[rule]]
+id = "def-local-discord"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Discord"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Discord"
+nearMiss = "%LOCALAPPDATA%\\x-Discord"
+
+[[rule]]
+id = "def-roaming-discord"
+define = true
+parent = "%APPDATA%"
+name = "discord"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\discord"
+nearMiss = "%APPDATA%\\x-discord"
+
+[[rule]]
+id = "def-local-spotify"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Spotify"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Spotify"
+nearMiss = "%LOCALAPPDATA%\\x-Spotify"
+
+[[rule]]
+id = "def-roaming-spotify"
+define = true
+parent = "%APPDATA%"
+name = "Spotify"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Spotify"
+nearMiss = "%APPDATA%\\x-Spotify"
+
+[[rule]]
+id = "def-local-steam"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Steam"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Steam"
+nearMiss = "%LOCALAPPDATA%\\x-Steam"
+
+[[rule]]
+id = "def-local-epic-launcher"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "EpicGamesLauncher"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\EpicGamesLauncher"
+nearMiss = "%LOCALAPPDATA%\\x-EpicGamesLauncher"
+
+[[rule]]
+id = "def-local-unreal-engine"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "UnrealEngine"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\UnrealEngine"
+nearMiss = "%LOCALAPPDATA%\\x-UnrealEngine"
+
+[[rule]]
+id = "def-local-unity"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Unity"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Unity"
+nearMiss = "%LOCALAPPDATA%\\x-Unity"
+
+[[rule]]
+id = "def-roaming-unity"
+define = true
+parent = "%APPDATA%"
+name = "Unity"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Unity"
+nearMiss = "%APPDATA%\\x-Unity"
+
+[[rule]]
+id = "def-local-docker"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Docker"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Docker"
+nearMiss = "%LOCALAPPDATA%\\x-Docker"
+
+[[rule]]
+id = "def-roaming-docker"
+define = true
+parent = "%APPDATA%"
+name = "{Docker,Docker Desktop}"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Docker"
+nearMiss = "%APPDATA%\\x-Docker"
+
+[[rule]]
+id = "def-local-wsl"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "wsl"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\wsl"
+nearMiss = "%LOCALAPPDATA%\\x-wsl"
+
+[[rule]]
+id = "def-local-ollama"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Ollama"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Ollama"
+nearMiss = "%LOCALAPPDATA%\\x-Ollama"
+
+[[rule]]
+id = "def-local-github-desktop"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "GitHubDesktop"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\GitHubDesktop"
+nearMiss = "%LOCALAPPDATA%\\x-GitHubDesktop"
+
+[[rule]]
+id = "def-roaming-github-desktop"
+define = true
+parent = "%APPDATA%"
+name = "GitHub Desktop"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\GitHub Desktop"
+nearMiss = "%APPDATA%\\x-GitHub Desktop"
+
+[[rule]]
+id = "def-local-jetbrains"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "JetBrains"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\JetBrains"
+nearMiss = "%LOCALAPPDATA%\\x-JetBrains"
+
+[[rule]]
+id = "def-roaming-jetbrains"
+define = true
+parent = "%APPDATA%"
+name = "JetBrains"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\JetBrains"
+nearMiss = "%APPDATA%\\x-JetBrains"
+
+[[rule]]
+id = "def-local-postman"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Postman"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Postman"
+nearMiss = "%LOCALAPPDATA%\\x-Postman"
+
+[[rule]]
+id = "def-roaming-postman"
+define = true
+parent = "%APPDATA%"
+name = "Postman"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Postman"
+nearMiss = "%APPDATA%\\x-Postman"
+
+[[rule]]
+id = "def-local-slack"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "slack"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\slack"
+nearMiss = "%LOCALAPPDATA%\\x-slack"
+
+[[rule]]
+id = "def-roaming-slack"
+define = true
+parent = "%APPDATA%"
+name = "Slack"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Slack"
+nearMiss = "%APPDATA%\\x-Slack"
+
+[[rule]]
+id = "def-local-battlenet"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Battle.net"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Battle.net"
+nearMiss = "%LOCALAPPDATA%\\x-Battle.net"
+
+[[rule]]
+id = "def-roaming-battlenet"
+define = true
+parent = "%APPDATA%"
+name = "Battle.net"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Battle.net"
+nearMiss = "%APPDATA%\\x-Battle.net"
+
+[[rule]]
+id = "def-local-blizzard"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Blizzard Entertainment"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Blizzard Entertainment"
+nearMiss = "%LOCALAPPDATA%\\x-Blizzard Entertainment"
+
+[[rule]]
+id = "def-local-riot"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Riot Games"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Riot Games"
+nearMiss = "%LOCALAPPDATA%\\x-Riot Games"
+
+[[rule]]
+id = "def-local-ubisoft"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Ubisoft Game Launcher"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Ubisoft Game Launcher"
+nearMiss = "%LOCALAPPDATA%\\x-Ubisoft Game Launcher"
+
+[[rule]]
+id = "def-local-rockstar"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Rockstar Games"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Rockstar Games"
+nearMiss = "%LOCALAPPDATA%\\x-Rockstar Games"
+
+[[rule]]
+id = "def-local-ea-desktop"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "{EADesktop,Electronic Arts,Origin}"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\EADesktop"
+nearMiss = "%LOCALAPPDATA%\\x-EADesktop"
+
+[[rule]]
+id = "def-local-gog"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "GOG.com"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\GOG.com"
+nearMiss = "%LOCALAPPDATA%\\x-GOG.com"
+
+[[rule]]
+id = "def-local-larian"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Larian Studios"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Larian Studios"
+nearMiss = "%LOCALAPPDATA%\\x-Larian Studios"
+
+[[rule]]
+id = "def-local-figma"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Figma"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Figma"
+nearMiss = "%LOCALAPPDATA%\\x-Figma"
+
+[[rule]]
+id = "def-roaming-figma"
+define = true
+parent = "%APPDATA%"
+name = "Figma"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Figma"
+nearMiss = "%APPDATA%\\x-Figma"
+
+[[rule]]
+id = "def-roaming-notion"
+define = true
+parent = "%APPDATA%"
+name = "Notion"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Notion"
+nearMiss = "%APPDATA%\\x-Notion"
+
+[[rule]]
+id = "def-roaming-obsidian"
+define = true
+parent = "%APPDATA%"
+name = "obsidian"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\obsidian"
+nearMiss = "%APPDATA%\\x-obsidian"
+
+[[rule]]
+id = "def-local-1password"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "1Password"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\1Password"
+nearMiss = "%LOCALAPPDATA%\\x-1Password"
+
+[[rule]]
+id = "def-roaming-bitwarden"
+define = true
+parent = "%APPDATA%"
+name = "Bitwarden"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Bitwarden"
+nearMiss = "%APPDATA%\\x-Bitwarden"
+
+[[rule]]
+id = "def-local-dropbox"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Dropbox"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Dropbox"
+nearMiss = "%LOCALAPPDATA%\\x-Dropbox"
+
+[[rule]]
+id = "def-roaming-dropbox"
+define = true
+parent = "%APPDATA%"
+name = "Dropbox"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Dropbox"
+nearMiss = "%APPDATA%\\x-Dropbox"
+
+[[rule]]
+id = "def-local-claude"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "AnthropicClaude"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\AnthropicClaude"
+nearMiss = "%LOCALAPPDATA%\\x-AnthropicClaude"
+
+[[rule]]
+id = "def-roaming-claude"
+define = true
+parent = "%APPDATA%"
+name = "Claude"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Claude"
+nearMiss = "%APPDATA%\\x-Claude"
+
+[[rule]]
+id = "def-roaming-vscode"
+define = true
+parent = "%APPDATA%"
+name = "Code"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Code"
+nearMiss = "%APPDATA%\\x-Code"
+
+[[rule]]
+id = "def-roaming-cursor"
+define = true
+parent = "%APPDATA%"
+name = "Cursor"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Cursor"
+nearMiss = "%APPDATA%\\x-Cursor"
+
+[[rule]]
+id = "def-local-cursor-updater"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "cursor-updater"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\cursor-updater"
+nearMiss = "%LOCALAPPDATA%\\x-cursor-updater"
+
+[[rule]]
+id = "def-local-arduino"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Arduino15"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Arduino15"
+nearMiss = "%LOCALAPPDATA%\\x-Arduino15"
+
+[[rule]]
+id = "def-local-autodesk"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Autodesk"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Autodesk"
+nearMiss = "%LOCALAPPDATA%\\x-Autodesk"
+
+[[rule]]
+id = "def-roaming-autodesk"
+define = true
+parent = "%APPDATA%"
+name = "Autodesk"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Autodesk"
+nearMiss = "%APPDATA%\\x-Autodesk"
+
+[[rule]]
+id = "def-local-vivaldi"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Vivaldi"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Vivaldi"
+nearMiss = "%LOCALAPPDATA%\\x-Vivaldi"
+
+[[rule]]
+id = "def-local-opera"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Opera Software"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Opera Software"
+nearMiss = "%LOCALAPPDATA%\\x-Opera Software"
+
+[[rule]]
+id = "def-roaming-opera"
+define = true
+parent = "%APPDATA%"
+name = "Opera Software"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Opera Software"
+nearMiss = "%APPDATA%\\x-Opera Software"
+
+[[rule]]
+id = "def-local-techsmith"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "TechSmith"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\TechSmith"
+nearMiss = "%LOCALAPPDATA%\\x-TechSmith"
+
+[[rule]]
+id = "def-local-apple"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "{Apple,Apple Computer}"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Apple"
+nearMiss = "%LOCALAPPDATA%\\x-Apple"
+
+[[rule]]
+id = "def-roaming-apple"
+define = true
+parent = "%APPDATA%"
+name = "Apple Computer"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Apple Computer"
+nearMiss = "%APPDATA%\\x-Apple Computer"
+
+[[rule]]
+id = "def-local-adobe"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Adobe"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Adobe"
+nearMiss = "%LOCALAPPDATA%\\x-Adobe"
+
+[[rule]]
+id = "def-roaming-adobe"
+define = true
+parent = "%APPDATA%"
+name = "Adobe"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Adobe"
+nearMiss = "%APPDATA%\\x-Adobe"
+
+[[rule]]
+id = "def-locallow-adobe"
+define = true
+parent = "%USERPROFILE%\\AppData\\LocalLow"
+name = "Adobe"
+kind = "dir"
+category = "apps"
+example = "%USERPROFILE%\\AppData\\LocalLow\\Adobe"
+nearMiss = "%USERPROFILE%\\AppData\\LocalLow\\x-Adobe"
+
+[[rule]]
+id = "def-local-amd"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "AMD"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\AMD"
+nearMiss = "%LOCALAPPDATA%\\x-AMD"
+
+[[rule]]
+id = "def-local-intel"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Intel"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Intel"
+nearMiss = "%LOCALAPPDATA%\\x-Intel"
+
+[[rule]]
+id = "def-local-nvidia-corp"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "NVIDIA Corporation"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\NVIDIA Corporation"
+nearMiss = "%LOCALAPPDATA%\\x-NVIDIA Corporation"
+
+[[rule]]
+id = "def-local-nvidia"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "NVIDIA"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\NVIDIA"
+nearMiss = "%LOCALAPPDATA%\\x-NVIDIA"
+
+[[rule]]
+id = "def-local-plex"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "Plex Media Server"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\Plex Media Server"
+nearMiss = "%LOCALAPPDATA%\\x-Plex Media Server"
+
+[[rule]]
+id = "def-local-qbittorrent"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "qBittorrent"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\qBittorrent"
+nearMiss = "%LOCALAPPDATA%\\x-qBittorrent"
+
+[[rule]]
+id = "def-roaming-qbittorrent"
+define = true
+parent = "%APPDATA%"
+name = "qBittorrent"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\qBittorrent"
+nearMiss = "%APPDATA%\\x-qBittorrent"
+
+[[rule]]
+id = "def-local-teamviewer"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "TeamViewer"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\TeamViewer"
+nearMiss = "%LOCALAPPDATA%\\x-TeamViewer"
+
+[[rule]]
+id = "def-roaming-teamviewer"
+define = true
+parent = "%APPDATA%"
+name = "TeamViewer"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\TeamViewer"
+nearMiss = "%APPDATA%\\x-TeamViewer"
+
+[[rule]]
+id = "def-roaming-anydesk"
+define = true
+parent = "%APPDATA%"
+name = "AnyDesk"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\AnyDesk"
+nearMiss = "%APPDATA%\\x-AnyDesk"
+
+[[rule]]
+id = "def-local-calibre"
+define = true
+parent = "%LOCALAPPDATA%"
+name = "calibre-cache"
+kind = "dir"
+category = "apps"
+example = "%LOCALAPPDATA%\\calibre-cache"
+nearMiss = "%LOCALAPPDATA%\\x-calibre-cache"
+
+[[rule]]
+id = "def-roaming-calibre"
+define = true
+parent = "%APPDATA%"
+name = "calibre"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\calibre"
+nearMiss = "%APPDATA%\\x-calibre"
+
+[[rule]]
+id = "def-roaming-vlc"
+define = true
+parent = "%APPDATA%"
+name = "vlc"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\vlc"
+nearMiss = "%APPDATA%\\x-vlc"
+
+[[rule]]
+id = "def-roaming-obs"
+define = true
+parent = "%APPDATA%"
+name = "obs-studio"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\obs-studio"
+nearMiss = "%APPDATA%\\x-obs-studio"
+
+[[rule]]
+id = "def-roaming-handbrake"
+define = true
+parent = "%APPDATA%"
+name = "HandBrake"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\HandBrake"
+nearMiss = "%APPDATA%\\x-HandBrake"
+
+[[rule]]
+id = "def-roaming-gimp"
+define = true
+parent = "%APPDATA%"
+name = "GIMP"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\GIMP"
+nearMiss = "%APPDATA%\\x-GIMP"
+
+[[rule]]
+id = "def-roaming-inkscape"
+define = true
+parent = "%APPDATA%"
+name = "inkscape"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\inkscape"
+nearMiss = "%APPDATA%\\x-inkscape"
+
+[[rule]]
+id = "def-roaming-libreoffice"
+define = true
+parent = "%APPDATA%"
+name = "LibreOffice"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\LibreOffice"
+nearMiss = "%APPDATA%\\x-LibreOffice"
+
+[[rule]]
+id = "def-roaming-notepadpp"
+define = true
+parent = "%APPDATA%"
+name = "Notepad++"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Notepad++"
+nearMiss = "%APPDATA%\\x-Notepad++"
+
+[[rule]]
+id = "def-roaming-sublime"
+define = true
+parent = "%APPDATA%"
+name = "Sublime Text*"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Sublime Text"
+nearMiss = "%APPDATA%\\x-Sublime Text"
+
+[[rule]]
+id = "def-roaming-npm-global"
+define = true
+parent = "%APPDATA%"
+name = "npm"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\npm"
+nearMiss = "%APPDATA%\\x-npm"
+
+[[rule]]
+id = "def-roaming-nvm"
+define = true
+parent = "%APPDATA%"
+name = "nvm"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\nvm"
+nearMiss = "%APPDATA%\\x-nvm"
+
+[[rule]]
+id = "def-roaming-python-user"
+define = true
+parent = "%APPDATA%"
+name = "Python"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Python"
+nearMiss = "%APPDATA%\\x-Python"
+
+[[rule]]
+id = "def-roaming-blender"
+define = true
+parent = "%APPDATA%"
+name = "Blender Foundation"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Blender Foundation"
+nearMiss = "%APPDATA%\\x-Blender Foundation"
+
+[[rule]]
+id = "def-roaming-telegram"
+define = true
+parent = "%APPDATA%"
+name = "Telegram Desktop"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Telegram Desktop"
+nearMiss = "%APPDATA%\\x-Telegram Desktop"
+
+[[rule]]
+id = "def-roaming-signal"
+define = true
+parent = "%APPDATA%"
+name = "Signal"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Signal"
+nearMiss = "%APPDATA%\\x-Signal"
+
+[[rule]]
+id = "def-roaming-whatsapp-old"
+define = true
+parent = "%APPDATA%"
+name = "WhatsApp"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\WhatsApp"
+nearMiss = "%APPDATA%\\x-WhatsApp"
+
+[[rule]]
+id = "def-roaming-skype"
+define = true
+parent = "%APPDATA%"
+name = "Skype"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Skype"
+nearMiss = "%APPDATA%\\x-Skype"
+
+[[rule]]
+id = "def-roaming-zoom"
+define = true
+parent = "%APPDATA%"
+name = "Zoom"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Zoom"
+nearMiss = "%APPDATA%\\x-Zoom"
+
+[[rule]]
+id = "def-roaming-filezilla"
+define = true
+parent = "%APPDATA%"
+name = "FileZilla"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\FileZilla"
+nearMiss = "%APPDATA%\\x-FileZilla"
+
+[[rule]]
+id = "def-roaming-winrar"
+define = true
+parent = "%APPDATA%"
+name = "WinRAR"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\WinRAR"
+nearMiss = "%APPDATA%\\x-WinRAR"
+
+[[rule]]
+id = "def-roaming-audacity"
+define = true
+parent = "%APPDATA%"
+name = "audacity"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\audacity"
+nearMiss = "%APPDATA%\\x-audacity"
+
+[[rule]]
+id = "def-roaming-anki"
+define = true
+parent = "%APPDATA%"
+name = "Anki2"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Anki2"
+nearMiss = "%APPDATA%\\x-Anki2"
+
+[[rule]]
+id = "def-roaming-godot"
+define = true
+parent = "%APPDATA%"
+name = "Godot"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\Godot"
+nearMiss = "%APPDATA%\\x-Godot"
+
+[[rule]]
+id = "def-roaming-utorrent"
+define = true
+parent = "%APPDATA%"
+name = "uTorrent"
+kind = "dir"
+category = "apps"
+example = "%APPDATA%\\uTorrent"
+nearMiss = "%APPDATA%\\x-uTorrent"
+
+[[rule]]
+id = "def-locallow-unity"
+define = true
+parent = "%USERPROFILE%\\AppData\\LocalLow"
+name = "Unity"
+kind = "dir"
+category = "apps"
+example = "%USERPROFILE%\\AppData\\LocalLow\\Unity"
+nearMiss = "%USERPROFILE%\\AppData\\LocalLow\\x-Unity"
+
+[[rule]]
+id = "def-locallow-java"
+define = true
+parent = "%USERPROFILE%\\AppData\\LocalLow"
+name = "{Sun,Oracle}"
+kind = "dir"
+category = "apps"
+example = "%USERPROFILE%\\AppData\\LocalLow\\Sun"
+nearMiss = "%USERPROFILE%\\AppData\\LocalLow\\x-Sun"
+
+[[rule]]
+id = "def-locallow-intel"
+define = true
+parent = "%USERPROFILE%\\AppData\\LocalLow"
+name = "Intel"
+kind = "dir"
+category = "apps"
+example = "%USERPROFILE%\\AppData\\LocalLow\\Intel"
+nearMiss = "%USERPROFILE%\\AppData\\LocalLow\\x-Intel"

@@ -1,0 +1,189 @@
+# Known locations: developer caches and per-project build folders. Build folders are found
+# by a sibling marker, so a folder called "target" is only a Rust build folder next to a
+# Cargo.toml. They never match inside app folders, hidden folders in the profile or another
+# node_modules: there they are what an installed app or extension runs from.
+
+[[rule]]
+id = "npm-cache"
+parent = "%LOCALAPPDATA%"
+name = "npm-cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\npm-cache"
+nearMiss = "%LOCALAPPDATA%\\npm-cache2"
+
+[[rule]]
+id = "pnpm-store"
+parent = "%LOCALAPPDATA%\\pnpm"
+name = "store"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\pnpm\\store"
+nearMiss = "%LOCALAPPDATA%\\pnpm\\global"
+
+[[rule]]
+id = "yarn-cache"
+parent = "%LOCALAPPDATA%\\Yarn"
+name = "Cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Yarn\\Cache"
+nearMiss = "%LOCALAPPDATA%\\Yarn\\Data"
+
+[[rule]]
+id = "pip-cache"
+parent = "%LOCALAPPDATA%\\pip"
+name = "cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\pip\\cache"
+nearMiss = "%LOCALAPPDATA%\\pip\\cache2"
+
+[[rule]]
+id = "cargo-registry"
+parent = "%USERPROFILE%\\.cargo"
+name = "registry"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%USERPROFILE%\\.cargo\\registry"
+nearMiss = "%USERPROFILE%\\.cargo\\bin"
+
+[[rule]]
+id = "cargo-git"
+parent = "%USERPROFILE%\\.cargo"
+name = "git"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%USERPROFILE%\\.cargo\\git"
+nearMiss = "%USERPROFILE%\\.cargo\\gits"
+
+[[rule]]
+id = "nuget-packages"
+parent = "%USERPROFILE%\\.nuget"
+name = "packages"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%USERPROFILE%\\.nuget\\packages"
+nearMiss = "%USERPROFILE%\\.nuget\\packages2"
+
+[[rule]]
+id = "nuget-http-cache"
+parent = "%LOCALAPPDATA%\\NuGet"
+name = "v3-cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\NuGet\\v3-cache"
+nearMiss = "%LOCALAPPDATA%\\NuGet\\plugins-cache"
+
+[[rule]]
+id = "gradle-caches"
+parent = "%USERPROFILE%\\.gradle"
+name = "caches"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%USERPROFILE%\\.gradle\\caches"
+nearMiss = "%USERPROFILE%\\.gradle\\wrapper"
+
+[[rule]]
+id = "maven-repository"
+parent = "%USERPROFILE%\\.m2"
+name = "repository"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%USERPROFILE%\\.m2\\repository"
+nearMiss = "%USERPROFILE%\\.m2\\settings"
+
+[[rule]]
+id = "node-modules"
+parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
+name = "node_modules"
+kind = "dir"
+sibling = "package.json"
+category = "developer"
+tier = "likelySafe"
+action = "quarantine"
+example = "C:\\code\\app\\node_modules"
+nearMiss = "C:\\code\\lib\\node_modules"
+
+[[rule]]
+id = "rust-target"
+parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
+name = "target"
+kind = "dir"
+sibling = "Cargo.toml"
+category = "developer"
+tier = "likelySafe"
+action = "quarantine"
+example = "C:\\code\\tool\\target"
+nearMiss = "C:\\code\\other\\target"
+
+[[rule]]
+id = "python-venv"
+parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
+name = ".venv"
+kind = "dir"
+category = "developer"
+tier = "likelySafe"
+action = "quarantine"
+example = "C:\\code\\py\\.venv"
+nearMiss = "C:\\code\\py\\.venv-notes"
+
+[[rule]]
+id = "dotnet-bin"
+parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
+name = "bin"
+kind = "dir"
+sibling = "*.csproj"
+category = "developer"
+tier = "likelySafe"
+action = "quarantine"
+example = "C:\\code\\net\\bin"
+nearMiss = "C:\\code\\scripts\\bin"
+
+[[rule]]
+id = "dotnet-obj"
+parent = "**"
+exclude = ["%LOCALAPPDATA%", "%APPDATA%", "%PROGRAMFILES%", "%PROGRAMFILES(X86)%", "%PROGRAMDATA%", "%USERPROFILE%\\.*", "**\\node_modules"]
+name = "obj"
+kind = "dir"
+sibling = "*.csproj"
+category = "developer"
+tier = "likelySafe"
+action = "quarantine"
+example = "C:\\code\\net\\obj"
+nearMiss = "C:\\code\\models\\obj"
+
+[[rule]]
+id = "package-cache"
+parent = "%PROGRAMDATA%"
+name = "Package Cache"
+kind = "dir"
+category = "apps"
+tier = "keep"
+action = "explainOnly"
+example = "%PROGRAMDATA%\\Package Cache"
+nearMiss = "%PROGRAMDATA%\\Package Caches"

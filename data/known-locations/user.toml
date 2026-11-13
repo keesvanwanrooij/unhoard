@@ -1,0 +1,59 @@
+# Known locations: things the user keeps without knowing. %DOWNLOADS% is the Downloads
+# Known Folder. Large files that match nothing get the generic explanation instead.
+
+[[rule]]
+id = "downloads-old-installers"
+parent = "%DOWNLOADS%"
+name = "*.{exe,msi,msix,msixbundle,appx}"
+kind = "file"
+minAgeDays = 30
+category = "downloads"
+tier = "likelySafe"
+action = "quarantine"
+example = "%DOWNLOADS%\\setup.exe"
+nearMiss = "%DOWNLOADS%\\setup.txt"
+
+[[rule]]
+id = "downloads-iso"
+parent = "%DOWNLOADS%"
+name = "*.iso"
+kind = "file"
+category = "downloads"
+tier = "review"
+action = "quarantine"
+example = "%DOWNLOADS%\\linux.iso"
+nearMiss = "%DOWNLOADS%\\linux.img.txt"
+
+[[rule]]
+id = "downloads-extracted-zip"
+parent = "%DOWNLOADS%"
+name = "*.zip"
+kind = "file"
+stemSibling = true
+category = "downloads"
+tier = "likelySafe"
+action = "quarantine"
+example = "%DOWNLOADS%\\photos.zip"
+nearMiss = "%DOWNLOADS%\\archive.zip"
+
+[[rule]]
+id = "phone-backup-itunes"
+parent = "%APPDATA%\\Apple Computer\\MobileSync"
+name = "Backup"
+kind = "dir"
+category = "media"
+tier = "review"
+action = "quarantine"
+example = "%APPDATA%\\Apple Computer\\MobileSync\\Backup"
+nearMiss = "%APPDATA%\\Apple Computer\\MobileSync\\Logs"
+
+[[rule]]
+id = "phone-backup-apple-devices"
+parent = "%USERPROFILE%\\Apple\\MobileSync"
+name = "Backup"
+kind = "dir"
+category = "media"
+tier = "review"
+action = "quarantine"
+example = "%USERPROFILE%\\Apple\\MobileSync\\Backup"
+nearMiss = "%USERPROFILE%\\Apple\\MobileSync\\Logs"

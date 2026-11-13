@@ -9,9 +9,10 @@ Acceptance criteria: F6 in [MVP scope](05-mvp-scope.md).
 
 ## Finding sync roots
 
-- Sync roots are detected with `StorageProviderSyncRootManager.GetCurrentSyncRoots()`
-  (WinRT).
-- Fallback for OneDrive personal: the registry value
+- Sync roots are read from the registry, where Windows records each provider's roots per
+  user: `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager\*\UserSyncRoots`,
+  value named after the user's SID.
+- The OneDrive personal folder is added from
   `HKCU\Software\Microsoft\OneDrive\Accounts\Personal\UserFolder`.
 - **OneDrive personal is tested.** Other providers that use the Cloud Files API (Dropbox,
   iCloud for Windows, Box, Synology Drive) show as "detected, not tested".
@@ -80,8 +81,9 @@ download them and delete them from the cloud. Instead, each sync root gets its o
   online-only files online-only is part of the manual checks
   ([Development](22-development.md#manual-checks)) (verify).
 - **Manifest:** the batch manifest sits next to the items in the cloud quarantine, so it
-  syncs with them. A small local copy in `%LOCALAPPDATA%\Unhoard\` lets the app show the
-  batch without opening the cloud copy.
+  syncs with them. Unhoard reads a manifest only while it is on this PC; if OneDrive
+  made it online-only, that batch is not shown until it is local again, because
+  reading it would download it.
 - **Purge:** after 30 days, and after the companion warning, the purge deletes the batch
   inside the sync root. OneDrive moves it to its online recycle bin, where it stays
   another 30 days for personal accounts. A cloud item is restorable for about 60 days in

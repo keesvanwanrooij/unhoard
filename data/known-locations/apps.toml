@@ -1,0 +1,236 @@
+# Known locations: data and cache folders of popular apps and developer tools. Caches the
+# app rebuilds are Safe; downloads the user chose (models, toolchains, mailboxes) are Review
+# and point to the app's own way of removing them.
+
+[[rule]]
+id = "conda-pkgs-miniconda"
+parent = "%USERPROFILE%\\miniconda3"
+name = "pkgs"
+kind = "dir"
+category = "developer"
+tier = "likelySafe"
+action = "explainOnly"
+example = "%USERPROFILE%\\miniconda3\\pkgs"
+nearMiss = "%USERPROFILE%\\miniconda3\\envs"
+
+[[rule]]
+id = "conda-pkgs-anaconda"
+parent = "%USERPROFILE%\\anaconda3"
+name = "pkgs"
+kind = "dir"
+category = "developer"
+tier = "likelySafe"
+action = "explainOnly"
+example = "%USERPROFILE%\\anaconda3\\pkgs"
+nearMiss = "%USERPROFILE%\\anaconda3\\envs"
+
+[[rule]]
+id = "go-mod-cache"
+parent = "%USERPROFILE%\\go\\pkg"
+name = "mod"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%USERPROFILE%\\go\\pkg\\mod"
+nearMiss = "%USERPROFILE%\\go\\src\\mod"
+
+[[rule]]
+id = "bun-cache"
+parent = "%USERPROFILE%\\.bun\\install"
+name = "cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%USERPROFILE%\\.bun\\install\\cache"
+nearMiss = "%USERPROFILE%\\.bun\\install\\global"
+
+[[rule]]
+id = "uv-cache"
+parent = "%LOCALAPPDATA%\\uv"
+name = "cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\uv\\cache"
+nearMiss = "%LOCALAPPDATA%\\uv\\python"
+
+[[rule]]
+id = "poetry-cache"
+parent = "%LOCALAPPDATA%\\pypoetry"
+name = "Cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\pypoetry\\Cache"
+nearMiss = "%LOCALAPPDATA%\\pypoetry\\Config"
+
+[[rule]]
+id = "whisper-models"
+parent = "%USERPROFILE%\\.cache"
+name = "whisper"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "quarantine"
+example = "%USERPROFILE%\\.cache\\whisper"
+nearMiss = "%USERPROFILE%\\.cache\\whisperx-notes"
+
+[[rule]]
+id = "torch-hub"
+parent = "%USERPROFILE%\\.cache\\torch"
+name = "hub"
+kind = "dir"
+category = "developer"
+tier = "likelySafe"
+action = "quarantine"
+example = "%USERPROFILE%\\.cache\\torch\\hub"
+nearMiss = "%USERPROFILE%\\.cache\\torch\\kernels"
+
+[[rule]]
+id = "ollama-updates"
+parent = "%LOCALAPPDATA%\\Ollama"
+name = "updates*"
+kind = "dir"
+category = "downloads"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Ollama\\updates_v2"
+nearMiss = "%LOCALAPPDATA%\\Ollama\\logs"
+
+[[rule]]
+id = "vscode-caches"
+parent = "%APPDATA%\\Code"
+name = "{Cache,CachedData,CachedExtensionVSIXs,Code Cache,GPUCache}"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%APPDATA%\\Code\\CachedData"
+nearMiss = "%APPDATA%\\Code\\User"
+
+[[rule]]
+id = "cursor-caches"
+parent = "%APPDATA%\\Cursor"
+name = "{Cache,CachedData,CachedExtensionVSIXs,Code Cache,GPUCache}"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%APPDATA%\\Cursor\\CachedData"
+nearMiss = "%APPDATA%\\Cursor\\User"
+
+[[rule]]
+id = "teams-cache"
+parent = "%LOCALAPPDATA%\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache\\Microsoft"
+name = "MSTeams"
+kind = "dir"
+category = "apps"
+tier = "likelySafe"
+action = "quarantine"
+docs = ["https://learn.microsoft.com/troubleshoot/microsoftteams/teams-administration/clear-teams-cache"]
+example = "%LOCALAPPDATA%\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache\\Microsoft\\MSTeams"
+nearMiss = "%LOCALAPPDATA%\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache\\Microsoft\\Other"
+
+[[rule]]
+id = "slack-cache"
+parent = "%APPDATA%\\Slack"
+name = "{Cache,Code Cache,GPUCache,Service Worker}"
+kind = "dir"
+category = "apps"
+tier = "safe"
+action = "quarantine"
+example = "%APPDATA%\\Slack\\Cache"
+nearMiss = "%APPDATA%\\Slack\\storage"
+
+[[rule]]
+id = "epic-webcache"
+parent = "%LOCALAPPDATA%\\EpicGamesLauncher\\Saved"
+name = "webcache*"
+kind = "dir"
+category = "apps"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\EpicGamesLauncher\\Saved\\webcache_4430"
+nearMiss = "%LOCALAPPDATA%\\EpicGamesLauncher\\Saved\\Config"
+
+[[rule]]
+id = "steam-htmlcache"
+parent = "%LOCALAPPDATA%\\Steam"
+name = "htmlcache"
+kind = "dir"
+category = "apps"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Steam\\htmlcache"
+nearMiss = "%LOCALAPPDATA%\\Steam\\config"
+
+[[rule]]
+id = "outlook-offline-mail"
+parent = "%LOCALAPPDATA%\\Microsoft\\Outlook"
+name = "*.ost"
+kind = "file"
+category = "documents"
+tier = "review"
+action = "explainOnly"
+docs = ["https://support.microsoft.com/office/introduction-to-outlook-data-files-pst-and-ost-222eaf92-a995-45d9-bde2-f331f60e2790"]
+example = "%LOCALAPPDATA%\\Microsoft\\Outlook\\mail@example.com.ost"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Outlook\\archive.pst"
+
+[[rule]]
+id = "lmstudio-models"
+parent = "%USERPROFILE%\\.lmstudio"
+name = "models"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\.lmstudio\\models"
+nearMiss = "%USERPROFILE%\\.lmstudio\\config-presets"
+
+[[rule]]
+id = "lmstudio-models-cache"
+parent = "%USERPROFILE%\\.cache\\lm-studio"
+name = "models"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\.cache\\lm-studio\\models"
+nearMiss = "%USERPROFILE%\\.cache\\lm-studio\\config"
+
+[[rule]]
+id = "jetbrains-caches"
+parent = "%LOCALAPPDATA%\\JetBrains\\*"
+name = "caches"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\JetBrains\\IntelliJIdea2025.2\\caches"
+nearMiss = "%LOCALAPPDATA%\\JetBrains\\IntelliJIdea2025.2\\log"
+
+[[rule]]
+id = "unity-cache"
+parent = "%LOCALAPPDATA%\\Unity"
+name = "cache"
+kind = "dir"
+category = "developer"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Unity\\cache"
+nearMiss = "%LOCALAPPDATA%\\Unity\\Editor"
+
+[[rule]]
+id = "rustup-toolchains"
+parent = "%USERPROFILE%\\.rustup"
+name = "toolchains"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\.rustup\\toolchains"
+nearMiss = "%USERPROFILE%\\.rustup\\downloads"

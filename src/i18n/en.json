@@ -1,0 +1,2790 @@
+{
+  "app": {
+    "name": "Unhoard",
+    "tagline": "See where your disk space went, and get it back safely."
+  },
+  "nav": {
+    "overview": "Overview",
+    "suggestions": "Suggestions",
+    "quarantine": "Quarantine",
+    "cloud": "Cloud",
+    "photos": "Photos",
+    "settings": "Settings"
+  },
+  "top": {
+    "scan": "Scan",
+    "rescan": "Scan again",
+    "cancel": "Stop",
+    "search": "Search this view",
+    "cells": "Cell map",
+    "treemap": "Treemap",
+    "scanning": "Scanning… {{files}} files · {{seconds}} s",
+    "scanDone": "Scan done · {{files}} files · {{seconds}} s",
+    "partial": "partial",
+    "ready": "Ready to scan",
+    "drive": "{{drive}} · {{size}}",
+    "systemDrive": "system drive",
+    "matrix": "Matrix"
+  },
+  "category": {
+    "media": "Photos & videos",
+    "apps": "Apps & games",
+    "downloads": "Downloads",
+    "system": "System",
+    "documents": "Documents",
+    "developer": "Developer",
+    "cloud": "Cloud",
+    "hidden": "Hidden space",
+    "other": "Other"
+  },
+  "tier": {
+    "safe": "Safe",
+    "likelySafe": "Likely safe",
+    "review": "Review",
+    "keep": "Keep (system)"
+  },
+  "map": {
+    "hiddenSpace": "Hidden space",
+    "smaller_one": "{{count}} smaller item",
+    "smaller_other": "{{count}} smaller items",
+    "legend": "Legend",
+    "keys": "Cell map. Arrow keys move between cells, Enter zooms in, Backspace goes up, the Menu key opens the actions.",
+    "others_one": "{{count}} more item",
+    "others_other": "{{count}} more items",
+    "empty": "Scan a drive to see where your space went.",
+    "readouts": {
+      "files": "Files",
+      "scanned": "Scanned",
+      "hidden": "Hidden"
+    },
+    "progress": {
+      "drive": "Scanning · {{share}} of the used space · {{size}}",
+      "folder": "Scanning · {{size}} so far"
+    }
+  },
+  "list": {
+    "title": "Largest items",
+    "unknown": "unreadable"
+  },
+  "details": {
+    "sizeOnDisk": "Size on disk",
+    "logical": "Size",
+    "share": "Share",
+    "kind": "Kind",
+    "files": "Files",
+    "path": "Location",
+    "protected": "Protected: Unhoard never moves this.",
+    "revealSmall_one": "and {{count}} smaller folder · {{size}}",
+    "revealSmall_other": "and {{count}} smaller folders · {{size}}",
+    "unreadable": "This folder could not be read without admin rights. Its size is unknown.",
+    "cloudState": "{{local}} on this PC · {{cloud}} in the cloud",
+    "requiresAdmin": "Needs admin rights, so Unhoard points you to the Windows tool.",
+    "nothing": "Select an item to see what it is.",
+    "largeReason": "Large enough to be worth a look.",
+    "keepReason": "Windows or a program needs this to work."
+  },
+  "actions": {
+    "quarantine": "Move to quarantine",
+    "freeUpSpace": "Free up space",
+    "showInExplorer": "Show in Explorer",
+    "explainOnly": "Explain only",
+    "uninstaller": "Uninstall through Settings › Apps",
+    "zoomIn": "Zoom in",
+    "reveal": "Reveal hidden space",
+    "windowsTool": {
+      "storageSettings": "Open Storage settings",
+      "storageSense": "Open Storage Sense",
+      "diskCleanup": "Open Disk Cleanup",
+      "apps": "Open Installed apps",
+      "systemProtection": "Open System Protection",
+      "recycleBin": "Open the Recycle Bin"
+    },
+    "appUninstall": "Uninstall in Steam",
+    "adminRead": "Read with admin rights",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "preview": {
+    "title": "Preview: nothing has changed yet",
+    "items_one": "{{count}} item · {{size}}",
+    "items_other": "{{count}} items · {{size}}",
+    "destination": "Goes to",
+    "skipped": "Skipped",
+    "confirm": "Move",
+    "confirmFree": "Free up space",
+    "cancel": "Cancel",
+    "notFreed": "On the same drive this frees nothing yet: the space comes back after 30 days, or when you delete the items yourself.",
+    "freeNote": "Files become online-only. Nothing is deleted and nothing is downloaded.",
+    "reasons": {
+      "protected": "protected",
+      "changed": "changed since the scan; scan again",
+      "link": "a link, takes no space",
+      "unsupportedName": "name not supported",
+      "insideSelection": "already part of a selected folder",
+      "unavailable": "could not be read",
+      "notInSync": "not uploaded yet",
+      "notInSyncRoot": "not in a cloud folder"
+    },
+    "done": "{{moved}} moved, {{failed}} failed."
+  },
+  "drive": {
+    "used": "{{size}} used",
+    "free": "{{size}} free",
+    "notFreed": "{{size}} not freed yet",
+    "of": "of {{size}}"
+  },
+  "quarantine": {
+    "title": "Quarantine",
+    "empty": "The quarantine is empty.",
+    "intro": "Everything you move waits here for 30 days. Restore puts it back exactly where it was.",
+    "batch": "Moved on {{date}} · deleted after {{purge}}",
+    "notFreed": "Not freed yet: {{size}}",
+    "restore": "Restore",
+    "restoreAll": "Restore all",
+    "open": "Open in Explorer",
+    "status": {
+      "moving": "moving",
+      "quarantined": "in quarantine",
+      "restored": "restored",
+      "deletedByUser": "deleted by you",
+      "purged": "deleted"
+    },
+    "restoredAs": "Restored as {{name}}, because the original name is in use.",
+    "cloud": "cloud",
+    "log": "Activity"
+  },
+  "cloud": {
+    "title": "Cloud",
+    "none": "No cloud folders were found on this PC.",
+    "scanFirst": "Scan the drive that holds your cloud folder first.",
+    "cloudSize": "In the cloud",
+    "localSize": "On this PC",
+    "onlineOnly": "Online-only",
+    "locallyAvailable": "Locally available",
+    "alwaysKeep": "Always keep on this device",
+    "freeUp": "Free up space",
+    "tested": "Tested with OneDrive personal.",
+    "notTested": "Detected, not tested.",
+    "freed": "{{size}} is now online-only."
+  },
+  "photos": {
+    "title": "Photos & videos",
+    "analyze": "Find duplicates and bursts",
+    "analyzing": "Looking at your photos… nothing is downloaded.",
+    "scanFirst": "Scan a drive first.",
+    "empty": "No groups found.",
+    "summary": "{{media}} photos and videos · {{groups}} groups",
+    "kind": {
+      "exactDuplicates": "Duplicates",
+      "nearDuplicates": "Very similar",
+      "burst": "Burst",
+      "chatMedia": "Chat media",
+      "screenshots": "Screenshots"
+    },
+    "certainty": {
+      "identical": "Identical",
+      "almostCertainlyIdentical": "Almost certainly identical",
+      "verySimilar": "Very similar",
+      "sameMoment": "Taken within seconds",
+      "sameSource": "Same source and month"
+    },
+    "keeper": "Suggested keeper",
+    "reason": {
+      "sharpest": "sharpest",
+      "highestResolution": "most pixels",
+      "largestFile": "largest file"
+    },
+    "selectAllButKeeper": "Select all but the keeper",
+    "clear": "Clear selection",
+    "move": "Move selected to quarantine",
+    "next": "Next group",
+    "previous": "Previous group",
+    "keys": "Arrows move · Space selects · Enter moves · N next group",
+    "noThumb": "no preview",
+    "selected": "{{count}} selected"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "followWindows": "Follow Windows",
+    "english": "English",
+    "dutch": "Nederlands",
+    "mapStyle": "Map",
+    "motion": "Motion",
+    "living": "Living",
+    "calm": "Calm",
+    "measure": "Size",
+    "onDisk": "Size on disk",
+    "logicalSize": "Logical size",
+    "companion": "Companion",
+    "normal": "All tips",
+    "quiet": "Quiet (warnings only)",
+    "about": "About",
+    "build": "Build {{build}}",
+    "privacy": "Unhoard makes no network connections and sends nothing anywhere.",
+    "license": "Free software under the GNU GPL, version 3 or later.",
+    "adminRead": "Read protected folders",
+    "adminAsk": "Ask",
+    "adminAlways": "Always",
+    "adminNever": "Never"
+  },
+  "firstRun": {
+    "title": "Where did your space go?",
+    "body": "Unhoard maps your drive, explains every big item and helps you clear what you do not need. It never deletes anything without you, and everything you move can be restored for 30 days.",
+    "privacy": "Everything stays on this PC. No account, no network.",
+    "start": "Scan {{drive}}"
+  },
+  "errors": {
+    "noScan": "Scan a drive first.",
+    "staleScan": "This view is out of date. Scan again.",
+    "unknownItem": "This item is no longer there. Scan again.",
+    "invalidArgument": "That did not work. Try again.",
+    "busy": "Wait until the scan has finished.",
+    "fs": {
+      "notFound": "It is no longer there.",
+      "accessDenied": "Windows does not allow this.",
+      "locked": "It is in use by another program. Close that program and try again.",
+      "diskFull": "The disk is full.",
+      "alreadyExists": "Something with that name already exists.",
+      "changed": "It changed since the scan, so Unhoard left it alone. Scan again.",
+      "unsupported": "This is not supported here.",
+      "other": "Windows reported an error."
+    }
+  },
+  "companion": {
+    "name": "Lumen",
+    "history": "Earlier messages",
+    "earlier": "Earlier",
+    "drag": "Drag to move, click for earlier messages",
+    "close": "Close",
+    "types": {
+      "tip": "Tip",
+      "explanation": "Explanation",
+      "progress": "Progress",
+      "warning": "Warning",
+      "celebration": "Done"
+    },
+    "script": {
+      "firstRun": [
+        "Hi, I'm Lumen. I'll explain what you see, in bubbles like this one. Never in a popup."
+      ],
+      "scanStart": [
+        "I'm scanning {{drive}} now. I only look; I change nothing."
+      ],
+      "scanProgress": [
+        "{{files}} files counted. The big blocks are already showing."
+      ],
+      "scanDone": [
+        "Done. The three largest: {{top}}. Click a cell to zoom in."
+      ],
+      "hiddenSpace": [
+        "The striped cell is hidden space: {{size}} in use that the scan could not see, such as restore points. Click it to find out more."
+      ],
+      "revealDeclined": [
+        "No problem. Without admin rights that part stays unknown, and nothing else changes."
+      ],
+      "revealDone": [
+        "Revealed {{size}}. Most of it is usually restore points; manage those in System Protection."
+      ],
+      "selected": {
+        "safe": [
+          "{{name}} is a cache: it is rebuilt by itself. Safe to move to the quarantine."
+        ],
+        "likelySafe": [
+          "You probably no longer need {{name}}. From the quarantine you can restore it for 30 days."
+        ],
+        "review": [
+          "Only you know whether you still need {{name}}. Have a look before you decide."
+        ],
+        "keep": [
+          "{{name}} belongs to Windows or an app. Don't remove it by hand; the right Windows tool does it safely."
+        ],
+        "protected": [
+          "{{name}} is a protected location. I explain it, but I never move it."
+        ]
+      },
+      "previewShown": [
+        "First a preview, so you see exactly what will happen. Nothing has changed yet."
+      ],
+      "quarantineMoved": [
+        "Moved to the quarantine. Note: not freed yet. I'll delete it after 30 days, and warn you first."
+      ],
+      "purgeWarning": {
+        "5": [
+          "In 5 days I'll delete the batch from {{date}} ({{size}}). Restore anything you still want."
+        ],
+        "3": [
+          "In 3 days I'll delete the batch from {{date}} ({{size}})."
+        ],
+        "1": [
+          "Tomorrow I'll delete the batch from {{date}} ({{size}}). Last chance to restore."
+        ]
+      },
+      "deleteEarly": [
+        "Want the space now? Open the folder, select the items and press Shift+Delete, or press Delete and empty the Recycle Bin."
+      ],
+      "restored": [
+        "Put back exactly where it was."
+      ],
+      "freeUpSpaceDone": [
+        "{{size}} is online-only now. It stays safe in the cloud."
+      ],
+      "photoReview": [
+        "Each group starts with nothing selected. 'Select all but the keeper' keeps the best shot."
+      ],
+      "photoNoThumbs": [
+        "Some cloud photos have no cached preview. I group those by name, size and date only, so nothing is downloaded."
+      ],
+      "windowsTool": [
+        "I'm opening the Windows tool. That's the safe place to clean this up."
+      ],
+      "zoomTip": [
+        "Backspace or the breadcrumb takes you back up."
+      ],
+      "cloudIntro": [
+        "These files are also in the cloud. Free up space makes them online-only, without downloading or deleting anything."
+      ],
+      "error": [
+        "That didn't work: {{message}}"
+      ],
+      "adminAsk": [
+        "Some folders cannot be read without admin rights, so their size stays unknown. May I read them? I only read, I change nothing."
+      ],
+      "adminReadDone": [
+        "I read {{count}} protected folders with admin rights: {{size}} is no longer hidden."
+      ]
+    },
+    "adminYes": "Yes, with admin rights",
+    "adminNo": "Not now"
+  },
+  "knownLocations": {
+    "adobe-media-cache": {
+      "title": "Adobe media cache",
+      "explain": "Preview files Premiere Pro and other Adobe apps made of your footage.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "amd-dxcache": {
+      "title": "AMD DirectX cache",
+      "explain": "Shaders the AMD driver prepared for games.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "android-emulators": {
+      "title": "Android emulators",
+      "explain": "Virtual Android phones of Android Studio.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove emulators you no longer use in the Device Manager of Android Studio."
+    },
+    "android-sdk": {
+      "title": "Android SDK",
+      "explain": "Android platforms, system images and tools.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove old platforms in the SDK Manager of Android Studio."
+    },
+    "battlenet": {
+      "title": "Battle.net",
+      "explain": "Games installed with Battle.net. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through Battle.net, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "brave-cache": {
+      "title": "Brave cache",
+      "explain": "Web pages and images Brave saved to load sites faster.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "cargo-git": {
+      "title": "Cargo git checkouts",
+      "explain": "Packages Cargo downloaded once, kept to install them faster next time.",
+      "reason": "Cargo downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "cargo-registry": {
+      "title": "Cargo registry",
+      "explain": "Packages Cargo downloaded once, kept to install them faster next time.",
+      "reason": "Cargo downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "chrome-cache": {
+      "title": "Chrome cache",
+      "explain": "Web pages and images Chrome saved to load sites faster. Bookmarks and passwords are elsewhere.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "chrome-code-cache": {
+      "title": "Chrome code cache",
+      "explain": "Compiled website scripts Chrome keeps to start sites faster.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "chrome-gpu-cache": {
+      "title": "Chrome graphics cache",
+      "explain": "Graphics shaders Chrome prepared for your video card.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "crash-dumps": {
+      "title": "App crash dumps",
+      "explain": "Crash reports that apps saved when they stopped unexpectedly.",
+      "reason": "Only useful to report those crashes.",
+      "action": "Move them to the quarantine."
+    },
+    "d3d-shader-cache": {
+      "title": "DirectX shader cache",
+      "explain": "Graphics shaders Windows prepared for games and apps.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "delivery-optimization": {
+      "title": "Delivery Optimization files",
+      "explain": "Update files Windows shares with other PCs to save bandwidth.",
+      "reason": "Only a cache for sharing updates.",
+      "action": "Clean it with Disk Cleanup › Delivery Optimization Files."
+    },
+    "discord-cache": {
+      "title": "Discord cache",
+      "explain": "Images and media Discord saved from your chats.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "docker-disk": {
+      "title": "Docker Desktop disk",
+      "explain": "Images, containers and volumes of Docker Desktop.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Run docker system prune, then compact the disk in Docker Desktop."
+    },
+    "dotnet-bin": {
+      "title": ".NET build output",
+      "explain": "Build output of a .NET project (found next to its .csproj).",
+      "reason": "It can be rebuilt with dotnet build.",
+      "action": "Move it to the quarantine."
+    },
+    "dotnet-obj": {
+      "title": ".NET intermediate files",
+      "explain": "Intermediate build files of a .NET project.",
+      "reason": "It can be rebuilt with dotnet build.",
+      "action": "Move it to the quarantine."
+    },
+    "downloads-extracted-zip": {
+      "title": "Already extracted archive",
+      "explain": "A ZIP file whose extracted folder is right next to it.",
+      "reason": "The content is already in the folder next to it.",
+      "action": "Move the ZIP to the quarantine."
+    },
+    "downloads-iso": {
+      "title": "Disc images",
+      "explain": "ISO files: copies of installation discs or other disks.",
+      "reason": "Only you know whether you still need it.",
+      "action": "Check it, then move it to the quarantine."
+    },
+    "downloads-old-installers": {
+      "title": "Old installers",
+      "explain": "Installers you downloaded more than a month ago. The programs are usually installed already, and you can download them again.",
+      "reason": "You can usually download them again.",
+      "action": "Move them to the quarantine."
+    },
+    "driver-store": {
+      "title": "Driver store",
+      "explain": "Every driver Windows has installed, so it can reinstall them.",
+      "reason": "Windows needs it for your hardware.",
+      "action": "Leave it alone."
+    },
+    "ea-games": {
+      "title": "EA games",
+      "explain": "Games installed with the EA app. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through the EA app, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "edge-cache": {
+      "title": "Edge cache",
+      "explain": "Web pages and images Edge saved to load sites faster. Favourites and passwords are elsewhere.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "edge-code-cache": {
+      "title": "Edge code cache",
+      "explain": "Compiled website scripts Edge keeps to start sites faster.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "epic-games": {
+      "title": "Epic Games",
+      "explain": "Games installed with the Epic Games Launcher. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through the Epic Games Launcher, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "firefox-cache": {
+      "title": "Firefox cache",
+      "explain": "Web pages and images Firefox saved to load sites faster. Bookmarks and passwords are elsewhere.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "gradle-caches": {
+      "title": "Gradle caches",
+      "explain": "Packages Gradle downloaded once, kept to install them faster next time.",
+      "reason": "Gradle downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "hiberfil": {
+      "title": "Hibernation file",
+      "explain": "Windows writes your memory here for hibernate and Fast Startup. Its size follows your RAM.",
+      "reason": "Windows needs it while hibernation is on.",
+      "action": "To make it smaller, run powercfg /h /type reduced as administrator. That also affects Fast Startup."
+    },
+    "huggingface-cache": {
+      "title": "Hugging Face models",
+      "explain": "AI models downloaded by Hugging Face tools.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove models with huggingface-cli delete-cache."
+    },
+    "hyperv-disks": {
+      "title": "Hyper-V virtual disk",
+      "explain": "The disk of a Hyper-V virtual machine.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove machines you no longer need in Hyper-V Manager."
+    },
+    "maven-repository": {
+      "title": "Maven repository",
+      "explain": "Packages Maven downloaded once, kept to install them faster next time.",
+      "reason": "Maven downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "memory-dump": {
+      "title": "Crash memory dump",
+      "explain": "A full copy of memory from the last system crash, for troubleshooting.",
+      "reason": "Only useful to analyse that crash.",
+      "action": "Remove it with Disk Cleanup › System error memory dump files."
+    },
+    "minidump": {
+      "title": "Crash minidumps",
+      "explain": "Small crash reports from earlier system crashes.",
+      "reason": "Only useful to analyse those crashes.",
+      "action": "Remove them with Disk Cleanup."
+    },
+    "node-modules": {
+      "title": "node_modules",
+      "explain": "The installed packages of a JavaScript project (found next to its package.json).",
+      "reason": "It can be rebuilt with npm install.",
+      "action": "Move it to the quarantine."
+    },
+    "npm-cache": {
+      "title": "npm cache",
+      "explain": "Packages npm downloaded once, kept to install them faster next time.",
+      "reason": "npm downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "nuget-http-cache": {
+      "title": "NuGet HTTP cache",
+      "explain": "Packages NuGet downloaded once, kept to install them faster next time.",
+      "reason": "NuGet downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "nuget-packages": {
+      "title": "NuGet packages",
+      "explain": "Packages NuGet downloaded once, kept to install them faster next time.",
+      "reason": "NuGet downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "nvidia-dxcache": {
+      "title": "NVIDIA DirectX cache",
+      "explain": "Shaders the NVIDIA driver prepared for DirectX games.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "nvidia-glcache": {
+      "title": "NVIDIA OpenGL cache",
+      "explain": "Shaders the NVIDIA driver prepared for OpenGL apps.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "ollama-models": {
+      "title": "Ollama models",
+      "explain": "AI models downloaded by Ollama.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove models with ollama rm <model>."
+    },
+    "package-cache": {
+      "title": "Installer package cache",
+      "explain": "Installers that programs need to repair or uninstall themselves.",
+      "reason": "Without it programs cannot be repaired or removed.",
+      "action": "Leave it alone."
+    },
+    "pagefile": {
+      "title": "Page file",
+      "explain": "Virtual memory: Windows uses it when RAM runs low and for crash dumps.",
+      "reason": "Windows needs it, also with plenty of RAM.",
+      "action": "Leave it alone. Never turn the page file off."
+    },
+    "phone-backup-apple-devices": {
+      "title": "iPhone backup (Apple Devices)",
+      "explain": "A full backup of an iPhone or iPad made by the Apple Devices app.",
+      "reason": "Only you know whether you have a newer backup.",
+      "action": "Check you have a newer backup, then move it to the quarantine."
+    },
+    "phone-backup-itunes": {
+      "title": "iPhone backup (iTunes)",
+      "explain": "A full backup of an iPhone or iPad made by iTunes.",
+      "reason": "Only you know whether you have a newer backup.",
+      "action": "Check you have a newer backup, then move it to the quarantine."
+    },
+    "pip-cache": {
+      "title": "pip cache",
+      "explain": "Packages pip downloaded once, kept to install them faster next time.",
+      "reason": "pip downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "pnpm-store": {
+      "title": "pnpm store",
+      "explain": "Packages pnpm downloaded once, kept to install them faster next time.",
+      "reason": "pnpm downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "python-venv": {
+      "title": "Python virtual environment",
+      "explain": "The installed packages of a Python project.",
+      "reason": "It can be rebuilt with pip install -r requirements.txt.",
+      "action": "Move it to the quarantine."
+    },
+    "recycle-bin": {
+      "title": "Recycle Bin",
+      "explain": "Files you already deleted. They take space until the Recycle Bin is emptied.",
+      "reason": "You already chose to delete them.",
+      "action": "Check it, then empty the Recycle Bin."
+    },
+    "rust-target": {
+      "title": "Rust build folder",
+      "explain": "Build output of a Rust project (found next to its Cargo.toml).",
+      "reason": "It can be rebuilt with cargo build.",
+      "action": "Move it to the quarantine."
+    },
+    "steam-games": {
+      "title": "Steam games",
+      "explain": "Games installed with Steam. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through Steam, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "steam-shadercache": {
+      "title": "Steam shader cache",
+      "explain": "Shaders Steam prepared for your games. Steam rebuilds them when you play.",
+      "reason": "The app rebuilds it by itself. Close the app first.",
+      "action": "Move it to the quarantine."
+    },
+    "swapfile": {
+      "title": "Swap file",
+      "explain": "A small helper file Windows uses for apps from the Store.",
+      "reason": "Windows manages it.",
+      "action": "Leave it alone."
+    },
+    "system-volume-information": {
+      "title": "Restore points",
+      "explain": "Restore points and shadow copies that let Windows undo system changes.",
+      "reason": "Deleting them blindly removes your safety net.",
+      "action": "Manage them in System Protection: choose how much space they may use, or delete old ones."
+    },
+    "thumbnail-cache": {
+      "title": "Thumbnail cache",
+      "explain": "Small previews Explorer made of your pictures and videos.",
+      "reason": "Explorer makes them again when needed.",
+      "action": "Clean it with Disk Cleanup › Thumbnails."
+    },
+    "ubisoft-games": {
+      "title": "Ubisoft games",
+      "explain": "Games installed with Ubisoft Connect. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through Ubisoft Connect, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "update-downloads": {
+      "title": "Windows Update downloads",
+      "explain": "Update files Windows already installed or still has to install.",
+      "reason": "Windows downloads them again when needed.",
+      "action": "Clean it with Disk Cleanup › Clean up system files › Windows Update Cleanup."
+    },
+    "user-temp": {
+      "title": "Your temporary files",
+      "explain": "Apps leave temporary files here and often forget to clean them up.",
+      "reason": "It is at least a day old; apps recreate what they need, and items still in use are skipped.",
+      "action": "Move it to the quarantine."
+    },
+    "virtualbox-vms": {
+      "title": "VirtualBox machine",
+      "explain": "A VirtualBox virtual machine with its disks.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove machines you no longer need in VirtualBox."
+    },
+    "vmware-vms": {
+      "title": "VMware machine",
+      "explain": "A VMware virtual machine with its disks.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Remove machines you no longer need in VMware."
+    },
+    "windows-installer": {
+      "title": "Windows Installer cache",
+      "explain": "Copies of installers Windows needs to repair, update or remove your programs.",
+      "reason": "Without it programs cannot be repaired or removed.",
+      "action": "Leave it alone. Remove programs you no longer use in Settings › Apps."
+    },
+    "windows-old": {
+      "title": "Previous Windows installation",
+      "explain": "A copy of your previous Windows, kept after an upgrade so you can go back. Windows removes it after about 10 days, or you can remove it yourself.",
+      "reason": "Only needed to roll back an upgrade.",
+      "action": "Remove it with Disk Cleanup › Previous Windows installation(s)."
+    },
+    "windows-temp": {
+      "title": "Windows temporary files",
+      "explain": "Temporary files of Windows and installers.",
+      "reason": "Windows recreates what it needs.",
+      "action": "Clean it with Disk Cleanup › Clean up system files."
+    },
+    "winsxs": {
+      "title": "Windows component store",
+      "explain": "Holds the Windows components and updates. Explorer shows it larger than it is, because many files are hard links shared with System32.",
+      "reason": "Removing files by hand breaks Windows Update and repairs.",
+      "action": "Disk Cleanup cleans old components safely, or run DISM /Online /Cleanup-Image /StartComponentCleanup."
+    },
+    "wsl-disk": {
+      "title": "WSL Linux disk",
+      "explain": "The virtual disk of a Linux distribution in WSL. It grows as you use it, but never shrinks by itself.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Clean up inside Linux, then compact the disk (wsl --manage <distro> --set-sparse true, or Optimize-VHD)."
+    },
+    "wsl-disk-store": {
+      "title": "WSL Linux disk",
+      "explain": "The virtual disk of a Linux distribution in WSL. It grows as you use it, but never shrinks by itself.",
+      "reason": "It holds your data in one big file or folder.",
+      "action": "Clean up inside Linux, then compact the disk."
+    },
+    "xbox-games": {
+      "title": "Xbox games",
+      "explain": "Games installed with the Xbox app. Games often take tens of gigabytes each.",
+      "reason": "Only you know which games you still play.",
+      "action": "Uninstall games through the Xbox app, so it stays consistent. Unhoard never moves a game folder."
+    },
+    "yarn-cache": {
+      "title": "Yarn cache",
+      "explain": "Packages Yarn downloaded once, kept to install them faster next time.",
+      "reason": "Yarn downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "conda-pkgs-miniconda": {
+      "title": "conda package cache",
+      "explain": "Packages conda downloaded and unpacked to build your environments.",
+      "reason": "Your environments keep working; conda downloads packages again when it needs them.",
+      "action": "Run conda clean --all in the Anaconda Prompt."
+    },
+    "conda-pkgs-anaconda": {
+      "title": "conda package cache",
+      "explain": "Packages conda downloaded and unpacked to build your environments.",
+      "reason": "Your environments keep working; conda downloads packages again when it needs them.",
+      "action": "Run conda clean --all in the Anaconda Prompt."
+    },
+    "go-mod-cache": {
+      "title": "Go module cache",
+      "explain": "Source code of Go modules, downloaded once for your projects.",
+      "reason": "Go downloads modules again when a build needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "bun-cache": {
+      "title": "Bun cache",
+      "explain": "Packages Bun downloaded once, kept to install them faster.",
+      "reason": "Bun downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "uv-cache": {
+      "title": "uv cache",
+      "explain": "Python packages uv downloaded and built, shared by your projects.",
+      "reason": "uv downloads or builds them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "poetry-cache": {
+      "title": "Poetry cache",
+      "explain": "Python packages Poetry downloaded once.",
+      "reason": "Poetry downloads them again when needed.",
+      "action": "Move it to the quarantine."
+    },
+    "whisper-models": {
+      "title": "Whisper speech models",
+      "explain": "Speech-recognition models that Whisper downloaded the first time you used them.",
+      "reason": "Whisper downloads a model again the next time you use it, which can take a while.",
+      "action": "Move it to the quarantine if you no longer transcribe audio."
+    },
+    "torch-hub": {
+      "title": "PyTorch Hub models",
+      "explain": "Models and code PyTorch Hub downloaded for scripts you ran.",
+      "reason": "PyTorch downloads them again when a script needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "ollama-updates": {
+      "title": "Ollama update downloads",
+      "explain": "Installers Ollama downloaded to update itself.",
+      "reason": "Ollama downloads a new one for its next update.",
+      "action": "Move it to the quarantine."
+    },
+    "vscode-caches": {
+      "title": "VS Code caches",
+      "explain": "Caches Visual Studio Code builds up: old versions, extension downloads and web content.",
+      "reason": "VS Code rebuilds them; close it first, or the files are in use.",
+      "action": "Close VS Code, then move it to the quarantine."
+    },
+    "cursor-caches": {
+      "title": "Cursor caches",
+      "explain": "Caches the Cursor editor builds up: old versions, extension downloads and web content.",
+      "reason": "Cursor rebuilds them; close it first, or the files are in use.",
+      "action": "Close Cursor, then move it to the quarantine."
+    },
+    "teams-cache": {
+      "title": "Microsoft Teams cache",
+      "explain": "Cached chats, images and web content of the new Microsoft Teams.",
+      "reason": "Microsoft documents clearing it; Teams downloads what it needs again. Quit Teams first.",
+      "action": "Quit Teams, then move it to the quarantine."
+    },
+    "slack-cache": {
+      "title": "Slack cache",
+      "explain": "Images, files and web content Slack keeps to load faster.",
+      "reason": "Slack rebuilds it; quit Slack first.",
+      "action": "Quit Slack, then move it to the quarantine."
+    },
+    "epic-webcache": {
+      "title": "Epic Games Launcher web cache",
+      "explain": "Web pages and images of the Epic Games Launcher.",
+      "reason": "The launcher rebuilds it; Epic's support suggests clearing it when the launcher misbehaves.",
+      "action": "Quit the launcher, then move it to the quarantine."
+    },
+    "steam-htmlcache": {
+      "title": "Steam web cache",
+      "explain": "Pages and images of Steam's built-in browser (the store and the community).",
+      "reason": "Steam rebuilds it; quit Steam first.",
+      "action": "Quit Steam, then move it to the quarantine."
+    },
+    "outlook-offline-mail": {
+      "title": "Outlook offline mailbox",
+      "explain": "A copy of your mailbox that Outlook keeps on this PC (an .ost file), so mail works offline.",
+      "reason": "The mail itself stays on the server, but Outlook downloads everything again if the file is gone.",
+      "action": "In Outlook, keep less mail offline: Account settings › your account › Change › Mail to keep offline."
+    },
+    "lmstudio-models": {
+      "title": "LM Studio models",
+      "explain": "Language models you downloaded in LM Studio.",
+      "reason": "Only you know which models you still use; downloading one again takes a while.",
+      "action": "Delete models you no longer use in LM Studio, under My Models."
+    },
+    "lmstudio-models-cache": {
+      "title": "LM Studio models",
+      "explain": "Language models you downloaded in LM Studio.",
+      "reason": "Only you know which models you still use; downloading one again takes a while.",
+      "action": "Delete models you no longer use in LM Studio, under My Models."
+    },
+    "jetbrains-caches": {
+      "title": "JetBrains IDE caches",
+      "explain": "Indexes and caches of a JetBrains IDE such as IntelliJ IDEA or PyCharm.",
+      "reason": "The IDE rebuilds them, which takes a while the first time; close the IDE first.",
+      "action": "Close the IDE, then move it to the quarantine."
+    },
+    "unity-cache": {
+      "title": "Unity cache",
+      "explain": "Downloaded packages and assets the Unity editor shares between projects.",
+      "reason": "Unity downloads them again when a project needs them.",
+      "action": "Move it to the quarantine."
+    },
+    "rustup-toolchains": {
+      "title": "Rust toolchains",
+      "explain": "Rust compilers rustup installed, one folder per version.",
+      "reason": "Only you know which versions your projects need.",
+      "action": "List them with rustup toolchain list and remove old ones with rustup toolchain uninstall <name>."
+    },
+    "wsl-rdclient-traces": {
+      "title": "WSL Remote Desktop traces",
+      "explain": "Diagnostic traces of the Remote Desktop client WSL uses to show Linux apps in a window (WSLg). A known issue can make them grow by tens of gigabytes a day.",
+      "reason": "They are only logs; nothing needs them.",
+      "action": "Quit Docker Desktop and run wsl --shutdown, then move it to the quarantine. If you never use Linux apps with a window, add guiApplications=false under [wsl2] in .wslconfig in your profile folder."
+    },
+    "def-windows": {
+      "title": "Windows itself",
+      "explain": "The operating system: its programs, drivers and built-in apps. Unhoard never touches it; Disk Cleanup can shrink it safely."
+    },
+    "def-program-files": {
+      "title": "Installed programs (64-bit)",
+      "explain": "Programs installed for everyone on this PC. Remove a program through Settings › Apps, never by deleting its folder here."
+    },
+    "def-program-files-x86": {
+      "title": "Installed programs (32-bit)",
+      "explain": "Older 32-bit programs, installed for everyone on this PC. Remove a program through Settings › Apps."
+    },
+    "def-programdata": {
+      "title": "Shared program data",
+      "explain": "Data that programs share between all users: licences, databases, caches and downloaded updates. Windows hides this folder by default."
+    },
+    "def-users": {
+      "title": "Everyone's personal folders",
+      "explain": "One folder per person who uses this PC, with their documents, desktop, downloads and app settings."
+    },
+    "def-perflogs": {
+      "title": "Performance logs",
+      "explain": "Where Windows stores performance measurements when someone asks for them. It is usually empty."
+    },
+    "def-recovery": {
+      "title": "Windows recovery environment",
+      "explain": "The repair tools Windows starts when the PC no longer boots. Small, and needed in an emergency."
+    },
+    "def-winreagent": {
+      "title": "Recovery update files",
+      "explain": "Working files Windows uses to update its recovery environment during an update. Windows clears it by itself."
+    },
+    "def-windows-bt": {
+      "title": "Windows upgrade files",
+      "explain": "Installation files of a Windows upgrade. Disk Cleanup removes them under “Temporary Windows installation files”."
+    },
+    "def-windows-ws": {
+      "title": "Windows setup download",
+      "explain": "Files the Windows setup or Media Creation Tool downloaded to install or upgrade Windows. Disk Cleanup removes them."
+    },
+    "def-getcurrent": {
+      "title": "Update Assistant leftovers",
+      "explain": "Logs and setup files left by the Windows Update Assistant after a feature update."
+    },
+    "def-sysreset": {
+      "title": "PC reset logs",
+      "explain": "Logs of a “Reset this PC” attempt. Useful only when a reset failed."
+    },
+    "def-msocache": {
+      "title": "Office installation cache",
+      "explain": "A local copy of the Office installation files that older Office versions keep for repairs."
+    },
+    "def-config-msi": {
+      "title": "Installer rollback files",
+      "explain": "Files the Windows Installer keeps so it can undo an install that fails halfway."
+    },
+    "def-root-intel": {
+      "title": "Unpacked Intel drivers",
+      "explain": "Driver installers from Intel, unpacked here during installation. The drivers themselves are already installed elsewhere."
+    },
+    "def-root-amd": {
+      "title": "Unpacked AMD drivers",
+      "explain": "Driver installers from AMD, unpacked here during installation. The drivers themselves are already installed elsewhere."
+    },
+    "def-root-nvidia": {
+      "title": "Unpacked NVIDIA drivers",
+      "explain": "Driver installers from NVIDIA, unpacked here during installation. The drivers themselves are already installed elsewhere."
+    },
+    "def-swsetup": {
+      "title": "HP software installers",
+      "explain": "Copies of the installers for the software and drivers HP put on this PC."
+    },
+    "def-onedrivetemp": {
+      "title": "OneDrive working files",
+      "explain": "Temporary files OneDrive uses while it syncs. OneDrive clears them itself."
+    },
+    "def-inetpub": {
+      "title": "Web server folder",
+      "explain": "The folder of Windows' built-in web server (IIS): websites hosted on this PC and their logs."
+    },
+    "def-msys64": {
+      "title": "MSYS2",
+      "explain": "A Unix-like toolset for Windows developers, with its own installed packages."
+    },
+    "def-esd": {
+      "title": "Windows installation download",
+      "explain": "Windows installation files downloaded by the Media Creation Tool. Not needed once the upgrade or USB stick is done."
+    },
+    "def-dumpstack": {
+      "title": "Crash log",
+      "explain": "A small log Windows writes while it handles a crash."
+    },
+    "def-bootmgr": {
+      "title": "Windows boot manager",
+      "explain": "The program that starts Windows when the PC is switched on."
+    },
+    "def-system32": {
+      "title": "The core of Windows",
+      "explain": "System programs, libraries and drivers (64-bit). Almost everything in Windows depends on it."
+    },
+    "def-syswow64": {
+      "title": "32-bit system files",
+      "explain": "The 32-bit counterpart of System32, so older 32-bit programs keep working."
+    },
+    "def-softwaredistribution": {
+      "title": "Windows Update's working folder",
+      "explain": "Downloaded updates and the update history. The downloads inside can be cleared; the folder itself stays."
+    },
+    "def-fonts": {
+      "title": "Installed fonts",
+      "explain": "Every font installed for all users of this PC."
+    },
+    "def-win-logs": {
+      "title": "Windows component logs",
+      "explain": "Logs of Windows components such as updates (CBS) and repairs (DISM). Disk Cleanup trims them."
+    },
+    "def-prefetch": {
+      "title": "Startup hints",
+      "explain": "Small files that record how programs start, so Windows can launch them faster. Windows manages its size."
+    },
+    "def-assembly": {
+      "title": ".NET shared libraries",
+      "explain": "Libraries that .NET Framework programs share (the global assembly cache), plus their precompiled versions."
+    },
+    "def-microsoft-net": {
+      "title": ".NET Framework",
+      "explain": "The .NET Framework itself: the runtime many Windows programs need."
+    },
+    "def-servicing": {
+      "title": "Update servicing",
+      "explain": "The tools and packages Windows uses to install updates and switch features on or off."
+    },
+    "def-systemapps": {
+      "title": "Built-in Windows apps",
+      "explain": "Apps that are part of Windows itself, such as Start, Search and the lock screen."
+    },
+    "def-systemresources": {
+      "title": "System resources",
+      "explain": "Images, icons and text that Windows' own programs show."
+    },
+    "def-panther": {
+      "title": "Windows Setup logs",
+      "explain": "Logs of installing and upgrading Windows. Useful only when an upgrade went wrong."
+    },
+    "def-livekernelreports": {
+      "title": "Driver problem dumps",
+      "explain": "Memory dumps of driver or hardware problems that did not crash the PC. They can grow to gigabytes; Disk Cleanup removes them under “System error memory dump files”."
+    },
+    "def-inf": {
+      "title": "Driver setup information",
+      "explain": "The setup information of installed drivers and Windows components."
+    },
+    "def-globalization": {
+      "title": "Language and region data",
+      "explain": "Sorting rules, time zones and other data Windows needs for languages and regions."
+    },
+    "def-ime": {
+      "title": "Input method editors",
+      "explain": "The tools for typing languages such as Chinese, Japanese and Korean."
+    },
+    "def-win-boot": {
+      "title": "Boot files",
+      "explain": "The files Windows copies to the boot partition so the PC can start."
+    },
+    "def-win-media": {
+      "title": "Windows sounds",
+      "explain": "The sounds Windows plays for notifications, errors and start-up."
+    },
+    "def-win-web": {
+      "title": "Wallpapers",
+      "explain": "The desktop backgrounds and lock screen pictures that come with Windows."
+    },
+    "def-cursors": {
+      "title": "Mouse pointers",
+      "explain": "The mouse pointer shapes that come with Windows."
+    },
+    "def-speech": {
+      "title": "Speech recognition",
+      "explain": "The speech recognition engine and voices of classic Windows."
+    },
+    "def-speech-onecore": {
+      "title": "Voices and dictation",
+      "explain": "The voices and dictation models Windows uses for Narrator and voice typing."
+    },
+    "def-immersivecontrolpanel": {
+      "title": "The Settings app",
+      "explain": "The program behind Windows Settings."
+    },
+    "def-shellexperiences": {
+      "title": "Windows shell parts",
+      "explain": "Parts of the Windows interface, such as the notification centre and quick settings."
+    },
+    "def-appcompat": {
+      "title": "Compatibility data",
+      "explain": "What Windows knows about making older programs work, plus its record of installed programs."
+    },
+    "def-apppatch": {
+      "title": "Compatibility fixes",
+      "explain": "Fixes Windows applies to specific older programs so they run correctly."
+    },
+    "def-diagnostics": {
+      "title": "Troubleshooters",
+      "explain": "The built-in troubleshooters of Windows."
+    },
+    "def-win-debug": {
+      "title": "Debug logs",
+      "explain": "Logs a few Windows services write for troubleshooting."
+    },
+    "def-serviceprofiles": {
+      "title": "Profiles of system services",
+      "explain": "The personal folders of the built-in service accounts (Local Service and Network Service), including their caches."
+    },
+    "def-systemtemp": {
+      "title": "Temporary files of system services",
+      "explain": "Temporary files written by services that run as the system, such as browser updaters."
+    },
+    "def-win-security": {
+      "title": "Security policy data",
+      "explain": "The databases and logs of Windows' local security policy."
+    },
+    "def-policydefinitions": {
+      "title": "Group policy templates",
+      "explain": "The templates that describe every group policy setting."
+    },
+    "def-rescache": {
+      "title": "Resource cache",
+      "explain": "A cache of text and images that speeds up Windows' own apps."
+    },
+    "def-csc": {
+      "title": "Offline files cache",
+      "explain": "Local copies of network files marked “always available offline”."
+    },
+    "def-downloaded-program-files": {
+      "title": "Old browser add-ons",
+      "explain": "ActiveX controls that Internet Explorer downloaded. Disk Cleanup can empty it."
+    },
+    "def-win-resources": {
+      "title": "Themes",
+      "explain": "The themes and visual styles of Windows."
+    },
+    "def-win-tasks": {
+      "title": "Scheduled tasks (old format)",
+      "explain": "Scheduled tasks stored in the format of older Windows versions."
+    },
+    "def-containers": {
+      "title": "Windows container images",
+      "explain": "Base files for Windows Sandbox and Windows containers."
+    },
+    "def-uus": {
+      "title": "Update stack",
+      "explain": "The part of Windows Update that installs the updates, kept separately so it can update itself."
+    },
+    "def-win-help": {
+      "title": "Help files",
+      "explain": "Help files of Windows and some older programs."
+    },
+    "def-win-provisioning": {
+      "title": "Provisioning packages",
+      "explain": "Settings packages used to set up a PC for a school or company."
+    },
+    "def-win-migration": {
+      "title": "Upgrade migration rules",
+      "explain": "The rules Windows follows to carry settings over during an upgrade."
+    },
+    "def-win-system": {
+      "title": "16-bit leftovers",
+      "explain": "A few files kept so that very old 16-bit programs still find what they expect."
+    },
+    "def-s32-drivers": {
+      "title": "Device drivers",
+      "explain": "The drivers Windows loads for your hardware."
+    },
+    "def-s32-config": {
+      "title": "The registry",
+      "explain": "The Windows registry: the settings of Windows, hardware, programs and user accounts."
+    },
+    "def-s32-winevt": {
+      "title": "Event logs",
+      "explain": "The logs you see in Event Viewer. Windows caps their size."
+    },
+    "def-s32-spool": {
+      "title": "Print queue",
+      "explain": "Print jobs waiting for the printer, plus printer drivers."
+    },
+    "def-s32-catroot2": {
+      "title": "Update signature database",
+      "explain": "The signatures Windows uses to check that updates and drivers are genuine."
+    },
+    "def-s32-logfiles": {
+      "title": "System log files",
+      "explain": "Logs of Windows services such as the firewall, Wi-Fi and setup. Windows rotates most of them."
+    },
+    "def-s32-tasks": {
+      "title": "Scheduled tasks",
+      "explain": "Every task in Task Scheduler, from Windows and from your programs."
+    },
+    "def-s32-sru": {
+      "title": "Resource usage history",
+      "explain": "The database behind Task Manager's app history and the data usage overview."
+    },
+    "def-s32-wdi": {
+      "title": "Diagnostic traces",
+      "explain": "Traces Windows records to diagnose slow start-up and shutdown."
+    },
+    "def-s32-wbem": {
+      "title": "Management database (WMI)",
+      "explain": "The database and tools programs use to ask Windows about hardware and settings."
+    },
+    "def-sd-datastore": {
+      "title": "Update history database",
+      "explain": "The database in which Windows Update keeps which updates are installed."
+    },
+    "def-desktop": {
+      "title": "Your desktop",
+      "explain": "Everything you see on your desktop: files, folders and shortcuts."
+    },
+    "def-documents": {
+      "title": "Your documents",
+      "explain": "The standard place for your own documents. Many programs and games also keep their saves and settings here."
+    },
+    "def-pictures": {
+      "title": "Your pictures",
+      "explain": "The standard place for your photos, screenshots and other images."
+    },
+    "def-videos": {
+      "title": "Your videos",
+      "explain": "The standard place for your videos, including screen and game recordings."
+    },
+    "def-music": {
+      "title": "Your music",
+      "explain": "The standard place for your music and other sound files."
+    },
+    "def-downloads": {
+      "title": "Your downloads",
+      "explain": "Everything your browsers and apps downloaded. It fills up unnoticed: installers, archives and files you opened once."
+    },
+    "def-favorites": {
+      "title": "Favourites",
+      "explain": "The favourites of Internet Explorer and some older programs."
+    },
+    "def-links": {
+      "title": "Quick access links",
+      "explain": "Shortcuts that older Windows versions showed in Explorer's sidebar."
+    },
+    "def-contacts": {
+      "title": "Contacts",
+      "explain": "Address cards of the old Windows Contacts feature. Usually empty."
+    },
+    "def-saved-games": {
+      "title": "Saved games",
+      "explain": "Where some games keep your progress and settings."
+    },
+    "def-searches": {
+      "title": "Saved searches",
+      "explain": "Searches you saved in Explorer."
+    },
+    "def-3d-objects": {
+      "title": "3D objects",
+      "explain": "The standard place for 3D models, made for the Paint 3D app. Usually empty."
+    },
+    "def-onedrive": {
+      "title": "Your OneDrive folder",
+      "explain": "The files OneDrive keeps in sync with the cloud. A file marked online-only takes no space here; “Free up space” turns local copies back into online-only ones."
+    },
+    "def-appdata": {
+      "title": "App data",
+      "explain": "Where your programs keep their own data for your account: settings, caches, logs and sometimes downloads. Windows hides it by default."
+    },
+    "def-ntuser-dat": {
+      "title": "Your part of the registry",
+      "explain": "Your personal Windows settings: the part of the registry that belongs to your account."
+    },
+    "def-dropbox": {
+      "title": "Your Dropbox folder",
+      "explain": "The files Dropbox keeps in sync with the cloud."
+    },
+    "def-icloud-drive": {
+      "title": "Your iCloud Drive folder",
+      "explain": "The files iCloud keeps in sync with Apple's cloud."
+    },
+    "def-creative-cloud-files": {
+      "title": "Creative Cloud files",
+      "explain": "The files Adobe Creative Cloud keeps in sync with your Adobe account."
+    },
+    "def-source": {
+      "title": "Your code projects",
+      "explain": "Where Visual Studio creates new projects (in “repos”). It holds your own source code and build output."
+    },
+    "def-scoop": {
+      "title": "Scoop",
+      "explain": "Programs installed with the Scoop package manager, with every installed version and its download cache."
+    },
+    "def-go-workspace": {
+      "title": "Go workspace",
+      "explain": "The workspace of the Go language: downloaded modules and tools you built."
+    },
+    "def-miniconda": {
+      "title": "Miniconda",
+      "explain": "A Python distribution with its environments and downloaded packages."
+    },
+    "def-anaconda": {
+      "title": "Anaconda",
+      "explain": "A large Python distribution for data science, with its environments and downloaded packages."
+    },
+    "def-intel-graphics-profiles": {
+      "title": "Intel graphics profiles",
+      "explain": "Display profiles saved by Intel's graphics software. Tiny."
+    },
+    "def-dot-ssh": {
+      "title": "SSH keys",
+      "explain": "Your SSH keys and the list of servers you trust. Losing them locks you out of servers and Git hosts."
+    },
+    "def-dot-gitconfig": {
+      "title": "Git settings",
+      "explain": "Your Git name, e-mail address and preferences."
+    },
+    "def-dot-docker": {
+      "title": "Docker settings",
+      "explain": "Docker's settings and sign-in for your account. The images and containers live in Docker's virtual disk, not here."
+    },
+    "def-dot-vscode": {
+      "title": "VS Code extensions",
+      "explain": "The extensions you installed in Visual Studio Code. Remove one from within VS Code."
+    },
+    "def-dot-cursor": {
+      "title": "Cursor extensions",
+      "explain": "The extensions and settings of the Cursor code editor."
+    },
+    "def-dot-claude": {
+      "title": "Claude Code data",
+      "explain": "Settings, memory and conversation history of Claude Code."
+    },
+    "def-dot-cache": {
+      "title": "Tool caches",
+      "explain": "A shared cache folder for developer and AI tools: downloaded models, packages and build results. Each tool refills what it needs."
+    },
+    "def-dot-config": {
+      "title": "Tool settings",
+      "explain": "Settings of command-line tools that follow the Linux convention."
+    },
+    "def-dot-nuget": {
+      "title": "NuGet",
+      "explain": "The .NET package manager's folder; the downloaded packages inside can be cleared and come back on the next build."
+    },
+    "def-dot-cargo": {
+      "title": "Cargo (Rust)",
+      "explain": "Rust's package manager: the tools you installed with it and the packages it downloaded."
+    },
+    "def-dot-rustup": {
+      "title": "Rust toolchains",
+      "explain": "The Rust compilers rustup installed, one folder per version."
+    },
+    "def-dot-gradle": {
+      "title": "Gradle",
+      "explain": "The Gradle build tool: downloaded Gradle versions and the libraries your Java and Android projects use."
+    },
+    "def-dot-m2": {
+      "title": "Maven",
+      "explain": "The Maven build tool's folder with downloaded Java libraries."
+    },
+    "def-dot-android": {
+      "title": "Android tools data",
+      "explain": "Settings of the Android development tools and the virtual phones of the emulator."
+    },
+    "def-dot-conda": {
+      "title": "Conda environments",
+      "explain": "Python environments and package caches that conda created in your profile."
+    },
+    "def-dot-ollama": {
+      "title": "Ollama",
+      "explain": "Ollama's folder: the AI models you downloaded and its keys. Remove a model with Ollama, so its list stays right."
+    },
+    "def-dot-lmstudio": {
+      "title": "LM Studio",
+      "explain": "LM Studio's folder: downloaded AI models, chats and settings."
+    },
+    "def-dot-aws": {
+      "title": "AWS credentials",
+      "explain": "Your access keys and settings for Amazon Web Services."
+    },
+    "def-dot-azure": {
+      "title": "Azure CLI data",
+      "explain": "Sign-in tokens, settings and logs of the Azure command-line tool."
+    },
+    "def-dot-kube": {
+      "title": "Kubernetes settings",
+      "explain": "The clusters kubectl can reach, plus its cache."
+    },
+    "def-dot-dotnet": {
+      "title": ".NET tools",
+      "explain": "Tools you installed with “dotnet tool” and data of the .NET command line."
+    },
+    "def-dot-templateengine": {
+      "title": ".NET project templates",
+      "explain": "The cache of project templates for “dotnet new”."
+    },
+    "def-dot-jupyter": {
+      "title": "Jupyter settings",
+      "explain": "Settings of Jupyter notebooks."
+    },
+    "def-dot-ipython": {
+      "title": "IPython settings",
+      "explain": "Settings and command history of the interactive Python shell."
+    },
+    "def-dot-keras": {
+      "title": "Keras data",
+      "explain": "Datasets and pretrained models that Keras downloaded."
+    },
+    "def-dot-bun": {
+      "title": "Bun",
+      "explain": "The Bun JavaScript runtime and its package cache."
+    },
+    "def-dot-deno": {
+      "title": "Deno",
+      "explain": "The Deno JavaScript runtime and the tools installed with it."
+    },
+    "def-dot-pyenv": {
+      "title": "pyenv Python versions",
+      "explain": "The Python versions pyenv installed, one folder per version."
+    },
+    "def-dot-vs": {
+      "title": "Visual Studio workspace cache",
+      "explain": "Visual Studio's cache for folders you opened without a project."
+    },
+    "def-dot-wslconfig": {
+      "title": "WSL settings",
+      "explain": "Your settings for the Windows Subsystem for Linux, such as its memory limit."
+    },
+    "def-docs-my-games": {
+      "title": "Game saves and settings",
+      "explain": "Where many games keep your saved games, settings and screenshots. Deleting a game's folder here loses its progress unless the game syncs to the cloud."
+    },
+    "def-docs-office-templates": {
+      "title": "Your Office templates",
+      "explain": "Templates you saved yourself in Word, Excel or PowerPoint."
+    },
+    "def-docs-outlook-files": {
+      "title": "Outlook data files",
+      "explain": "Mailboxes and archives of classic Outlook (.pst). An archive here can be the only copy of old mail."
+    },
+    "def-docs-powershell": {
+      "title": "PowerShell profile and modules",
+      "explain": "Your PowerShell start-up script and the modules you installed for your account."
+    },
+    "def-docs-visual-studio": {
+      "title": "Visual Studio user files",
+      "explain": "Your Visual Studio templates, code snippets and settings."
+    },
+    "def-docs-zoom": {
+      "title": "Zoom recordings",
+      "explain": "Meetings you recorded with Zoom on this PC, one folder per meeting."
+    },
+    "def-docs-onenote": {
+      "title": "OneNote notebooks",
+      "explain": "Notebooks of the desktop version of OneNote that are stored on this PC."
+    },
+    "def-docs-sound-recordings": {
+      "title": "Sound recordings",
+      "explain": "Recordings you made with the Windows Sound Recorder."
+    },
+    "def-docs-scanned": {
+      "title": "Scanned documents",
+      "explain": "Pages you scanned with Windows Fax and Scan."
+    },
+    "def-docs-adobe": {
+      "title": "Adobe project files",
+      "explain": "Auto-saves, presets and project files of Adobe apps such as Premiere Pro and After Effects."
+    },
+    "def-docs-rockstar": {
+      "title": "Rockstar Games saves",
+      "explain": "Saved games and settings of Rockstar titles such as GTA and Red Dead Redemption."
+    },
+    "def-docs-ea": {
+      "title": "Electronic Arts saves",
+      "explain": "Saved games, settings and mods of EA titles such as The Sims."
+    },
+    "def-docs-paradox": {
+      "title": "Paradox saves and mods",
+      "explain": "Saved games, settings and downloaded mods of Paradox games."
+    },
+    "def-docs-blackmagic": {
+      "title": "DaVinci Resolve files",
+      "explain": "Project backups, render caches and gallery stills of DaVinci Resolve."
+    },
+    "def-pics-screenshots": {
+      "title": "Your screenshots",
+      "explain": "Screenshots Windows saved when you pressed Win + PrtScn or used the Snipping Tool."
+    },
+    "def-pics-camera-roll": {
+      "title": "Camera roll",
+      "explain": "Photos and videos taken with this PC's camera, or uploaded from your phone by OneDrive."
+    },
+    "def-pics-saved-pictures": {
+      "title": "Saved pictures",
+      "explain": "Pictures you saved from apps such as Photos."
+    },
+    "def-vids-captures": {
+      "title": "Game and screen recordings",
+      "explain": "Clips and screenshots recorded with the Xbox Game Bar (Win + G). Recordings are large and easy to forget."
+    },
+    "def-vids-screen-recordings": {
+      "title": "Screen recordings",
+      "explain": "Videos of your screen recorded with the Snipping Tool."
+    },
+    "def-appdata-local": {
+      "title": "App data for this PC",
+      "explain": "Data your programs keep for this PC only: caches, logs, downloaded updates and whole programs installed just for you. Usually the largest part of AppData."
+    },
+    "def-appdata-roaming": {
+      "title": "App settings",
+      "explain": "Settings and profiles your programs keep for your account, such as browser profiles, editor settings and chat history."
+    },
+    "def-appdata-locallow": {
+      "title": "Data of restricted apps",
+      "explain": "Data of programs that run with fewer rights, such as browser plug-ins. Many games built with Unity keep their saves here."
+    },
+    "def-pf-common-files": {
+      "title": "Shared program parts",
+      "explain": "Libraries and services that several programs share, such as Microsoft Office's and Adobe's."
+    },
+    "def-pf-windowsapps": {
+      "title": "Microsoft Store apps",
+      "explain": "The programs installed from the Microsoft Store, including Xbox games. Windows locks this folder; uninstall an app through Settings › Apps."
+    },
+    "def-pf-modifiablewindowsapps": {
+      "title": "Store games that allow mods",
+      "explain": "Microsoft Store games installed so that mods can change their files."
+    },
+    "def-pf-windows-defender": {
+      "title": "Microsoft Defender Antivirus",
+      "explain": "The antivirus built into Windows."
+    },
+    "def-pf-windows-nt": {
+      "title": "Windows accessories",
+      "explain": "Small programs that come with Windows, such as WordPad."
+    },
+    "def-pf-windows-mail": {
+      "title": "Windows Mail leftovers",
+      "explain": "Parts of the old Windows Mail program that Windows still ships."
+    },
+    "def-pf-windows-media-player": {
+      "title": "Windows Media Player",
+      "explain": "The classic media player that comes with Windows."
+    },
+    "def-pf-windows-photo-viewer": {
+      "title": "Windows Photo Viewer",
+      "explain": "The classic photo viewer that comes with Windows."
+    },
+    "def-pf-internet-explorer": {
+      "title": "Internet Explorer",
+      "explain": "What is left of Internet Explorer; Edge uses parts of it for its IE mode."
+    },
+    "def-pf-reference-assemblies": {
+      "title": ".NET reference libraries",
+      "explain": "Library descriptions that developer tools use to build .NET programs."
+    },
+    "def-pf-msbuild": {
+      "title": "MSBuild",
+      "explain": "Microsoft's build tool, installed with Visual Studio or the .NET SDK."
+    },
+    "def-pf-uninstall-information": {
+      "title": "Uninstall information",
+      "explain": "What some programs need to uninstall themselves cleanly."
+    },
+    "def-pf-windowspowershell": {
+      "title": "PowerShell modules",
+      "explain": "PowerShell modules installed for every user."
+    },
+    "def-pf-dotnet": {
+      "title": ".NET",
+      "explain": "The modern .NET runtimes and SDKs. Each installed version has its own folder; remove old versions through Settings › Apps."
+    },
+    "def-pf-windows-kits": {
+      "title": "Windows SDK",
+      "explain": "Tools and libraries for building Windows programs, installed with Visual Studio."
+    },
+    "def-pf-wsl": {
+      "title": "Windows Subsystem for Linux",
+      "explain": "The program that runs Linux inside Windows. Your Linux files live in a virtual disk elsewhere."
+    },
+    "def-pd-microsoft": {
+      "title": "Windows and Microsoft data",
+      "explain": "Shared data of Windows and Microsoft programs: the search index, Defender's definitions, the Start menu and Office's installer."
+    },
+    "def-pd-packages": {
+      "title": "Shared Store app data",
+      "explain": "Data that Microsoft Store apps share between all users."
+    },
+    "def-pd-usoshared": {
+      "title": "Update orchestrator logs",
+      "explain": "Logs of the service that plans Windows updates."
+    },
+    "def-pd-usoprivate": {
+      "title": "Update orchestrator data",
+      "explain": "Working data of the service that plans Windows updates."
+    },
+    "def-pd-regid": {
+      "title": "Software identification tags",
+      "explain": "Small tags that tell inventory tools which software is installed."
+    },
+    "def-pd-ssh": {
+      "title": "SSH server settings",
+      "explain": "Settings and host keys of the OpenSSH server that comes with Windows."
+    },
+    "def-pd-chocolatey": {
+      "title": "Chocolatey",
+      "explain": "Programs installed with the Chocolatey package manager, plus its downloaded packages."
+    },
+    "def-pd-docker": {
+      "title": "Docker Desktop shared data",
+      "explain": "Settings and data Docker Desktop keeps for all users. The images and containers live in Docker's virtual disk in your own AppData."
+    },
+    "def-pd-nvidia": {
+      "title": "NVIDIA shared data",
+      "explain": "Logs, downloaded driver installers and shader caches of the NVIDIA software."
+    },
+    "def-pd-intel": {
+      "title": "Intel shared data",
+      "explain": "Logs and downloaded installers of Intel's driver and support software."
+    },
+    "def-pd-adobe": {
+      "title": "Adobe shared data",
+      "explain": "Licences, installers and shared resources of the Adobe apps on this PC."
+    },
+    "def-pd-epic": {
+      "title": "Epic Games Launcher data",
+      "explain": "The list of installed Epic games and the launcher's shared data."
+    },
+    "def-pd-battlenet": {
+      "title": "Battle.net shared data",
+      "explain": "The Battle.net updater and the shared data of Blizzard games."
+    },
+    "def-pd-ea": {
+      "title": "EA app shared data",
+      "explain": "Licences, install information and logs of the EA app and its games."
+    },
+    "def-pd-riot": {
+      "title": "Riot Games shared data",
+      "explain": "Install information of Riot's games, such as League of Legends and Valorant."
+    },
+    "def-pd-apple": {
+      "title": "Apple shared data",
+      "explain": "Installers and shared data of Apple software such as iTunes and iCloud."
+    },
+    "def-pd-lenovo": {
+      "title": "Lenovo shared data",
+      "explain": "Logs, downloaded updates and settings of Lenovo's own software such as Vantage."
+    },
+    "def-pd-dell": {
+      "title": "Dell shared data",
+      "explain": "Logs, downloaded updates and settings of Dell's own software."
+    },
+    "def-pd-hp": {
+      "title": "HP shared data",
+      "explain": "Logs, downloaded updates and settings of HP's own software."
+    },
+    "def-pd-mozilla": {
+      "title": "Firefox shared data",
+      "explain": "Update files and shared settings of Firefox."
+    },
+    "def-pd-vmware": {
+      "title": "VMware shared data",
+      "explain": "Settings, logs and network configuration of VMware's virtual machine software."
+    },
+    "def-pd-onedrive": {
+      "title": "OneDrive setup data",
+      "explain": "Setup and update files of OneDrive for all users."
+    },
+    "def-pd-ms-search": {
+      "title": "Windows search index",
+      "explain": "The index that makes searching from Start and Explorer fast. It grows with the number of files and mails; Windows can rebuild it from Indexing Options."
+    },
+    "def-pd-ms-defender": {
+      "title": "Defender data",
+      "explain": "Virus definitions, scan history and quarantined files of Microsoft Defender."
+    },
+    "def-pd-ms-diagnosis": {
+      "title": "Diagnostic data",
+      "explain": "Diagnostic data Windows collects before sending it to Microsoft. Settings › Privacy › Diagnostics lets you delete it."
+    },
+    "def-pd-ms-clicktorun": {
+      "title": "Office installer data",
+      "explain": "Working files of the installer that keeps Microsoft Office up to date."
+    },
+    "def-pd-ms-visualstudio": {
+      "title": "Visual Studio installer cache",
+      "explain": "Packages the Visual Studio Installer keeps for repairs and updates. Shrink it from the installer, not by hand."
+    },
+    "def-local-microsoft": {
+      "title": "Windows and Microsoft app data",
+      "explain": "Your account's data of Windows itself and of Microsoft programs: Edge, OneDrive, Office, Teams and the Windows caches."
+    },
+    "def-local-packages": {
+      "title": "Microsoft Store app data",
+      "explain": "One folder per app from the Microsoft Store, with its settings, cache and files. Uninstalling an app removes its folder."
+    },
+    "def-local-programs": {
+      "title": "Programs installed just for you",
+      "explain": "Programs that were installed for your account only, without admin rights, such as VS Code, Python and Docker Desktop. Uninstall them through Settings › Apps."
+    },
+    "def-local-temp": {
+      "title": "Your temporary files",
+      "explain": "Where programs put files they need for a short while and often forget to remove. Unhoard offers each item inside once it is a day old."
+    },
+    "def-local-google": {
+      "title": "Google apps",
+      "explain": "Data of Google programs. Chrome's whole profile is here (bookmarks, history, extensions, saved passwords, cache), and Google Drive keeps its cache of streamed files in DriveFS."
+    },
+    "def-local-google-drivefs": {
+      "title": "Google Drive cache",
+      "explain": "Local copies of files Google Drive streamed or keeps available offline. Clear it from Google Drive's settings, so nothing unsynced is lost."
+    },
+    "def-local-mozilla": {
+      "title": "Firefox cache",
+      "explain": "The cache and downloaded updates of Firefox. Your bookmarks and passwords are in the Roaming part of AppData."
+    },
+    "def-local-brave": {
+      "title": "Brave browser",
+      "explain": "Brave's whole profile: bookmarks, history, extensions, saved passwords and cache."
+    },
+    "def-local-connecteddevices": {
+      "title": "Activity and device sync",
+      "explain": "What Windows syncs between your devices, such as the clipboard history and timeline."
+    },
+    "def-local-comms": {
+      "title": "Mail and calendar store",
+      "explain": "The local database of the Windows Mail, Calendar and People apps."
+    },
+    "def-local-virtualstore": {
+      "title": "Redirected program files",
+      "explain": "Files that older programs tried to write into Program Files or Windows; Windows redirected them here for your account."
+    },
+    "def-local-publishers": {
+      "title": "Shared Store publisher data",
+      "explain": "Data that apps of the same Microsoft Store publisher share."
+    },
+    "def-local-placeholder-tiles": {
+      "title": "Start tile placeholders",
+      "explain": "Icons Windows shows for apps that are still installing."
+    },
+    "def-local-squirreltemp": {
+      "title": "App updater leftovers",
+      "explain": "Working files of the updater that apps such as Discord, Slack and Teams use."
+    },
+    "def-local-package-cache": {
+      "title": "Installer cache (your account)",
+      "explain": "Installers that setup programs keep so they can repair or uninstall later. Removing them can break uninstalling."
+    },
+    "def-local-downloaded-installations": {
+      "title": "Downloaded installers",
+      "explain": "Copies of installers that some setup programs keep for repairs."
+    },
+    "def-local-iconcache": {
+      "title": "Icon cache",
+      "explain": "The cache of the icons Explorer shows. Windows rebuilds it by itself."
+    },
+    "def-local-node-gyp": {
+      "title": "node-gyp cache",
+      "explain": "Node.js header files downloaded to build native add-ons."
+    },
+    "def-local-pnpm": {
+      "title": "pnpm",
+      "explain": "The pnpm package manager: its shared store of downloaded packages and the tools installed with it."
+    },
+    "def-local-yarn": {
+      "title": "Yarn",
+      "explain": "The Yarn package manager's cache and global packages."
+    },
+    "def-local-pip": {
+      "title": "pip",
+      "explain": "The Python package installer's cache of downloaded packages."
+    },
+    "def-local-nuget": {
+      "title": "NuGet caches",
+      "explain": "Caches of the .NET package manager; “dotnet nuget locals all --clear” empties them."
+    },
+    "def-local-uv": {
+      "title": "uv",
+      "explain": "The uv Python tool: its package cache and the Python versions it installed."
+    },
+    "def-local-pypoetry": {
+      "title": "Poetry",
+      "explain": "The Poetry Python tool: its cache and the virtual environments of your projects."
+    },
+    "def-local-android": {
+      "title": "Android SDK",
+      "explain": "The Android development kit: platforms, build tools and emulator images."
+    },
+    "def-local-ms-playwright": {
+      "title": "Playwright browsers",
+      "explain": "Browsers that the Playwright test tool downloaded, one folder per version. Old versions stay behind after upgrades."
+    },
+    "def-local-elevated-diagnostics": {
+      "title": "Troubleshooter reports",
+      "explain": "Reports of Windows troubleshooters that ran with admin rights."
+    },
+    "def-lm-edge": {
+      "title": "Microsoft Edge profile",
+      "explain": "Edge's whole profile: favourites, history, extensions, saved passwords and cache."
+    },
+    "def-lm-windows": {
+      "title": "Windows caches for your account",
+      "explain": "Caches and histories Windows keeps for your account: thumbnails, notifications, the web cache and error reports."
+    },
+    "def-lm-windowsapps": {
+      "title": "App shortcuts for the command line",
+      "explain": "Tiny placeholders that let you start Store apps by name from a terminal."
+    },
+    "def-lm-onedrive": {
+      "title": "The OneDrive program",
+      "explain": "The OneDrive program itself with its logs and settings. Your synced files are in your OneDrive folder, not here."
+    },
+    "def-lm-teams": {
+      "title": "Classic Microsoft Teams",
+      "explain": "The classic Teams program with its cache. The new Teams is a Store app and keeps its data in Packages."
+    },
+    "def-lm-office": {
+      "title": "Office document cache",
+      "explain": "Copies of documents Office opened from OneDrive or SharePoint, kept while changes upload."
+    },
+    "def-lm-outlook": {
+      "title": "Outlook offline mail",
+      "explain": "Offline copies of your mailboxes (.ost). Outlook downloads them again; a smaller sync window in the account settings shrinks them."
+    },
+    "def-lm-visualstudio": {
+      "title": "Visual Studio user data",
+      "explain": "Caches, extensions and settings of Visual Studio for your account, one folder per installed version."
+    },
+    "def-lm-typescript": {
+      "title": "TypeScript type cache",
+      "explain": "Type definitions that editors downloaded to give suggestions for JavaScript."
+    },
+    "def-lm-terminal-server-client": {
+      "title": "Remote Desktop cache",
+      "explain": "Picture caches of Remote Desktop sessions, which make reconnecting faster."
+    },
+    "def-lm-winget": {
+      "title": "winget packages",
+      "explain": "Programs and shortcuts installed with the Windows package manager (winget)."
+    },
+    "def-lm-win-inetcache": {
+      "title": "Temporary internet files",
+      "explain": "The web cache of Windows and of programs that use its built-in browser parts."
+    },
+    "def-lm-win-explorer": {
+      "title": "Thumbnail and icon caches",
+      "explain": "The caches of the thumbnails and icons Explorer shows. Disk Cleanup clears the thumbnails."
+    },
+    "def-lm-win-wer": {
+      "title": "Error reports",
+      "explain": "Reports of programs that crashed under your account, waiting to be sent to Microsoft or already sent."
+    },
+    "def-lm-win-webcache": {
+      "title": "Web history database",
+      "explain": "The database of history and cookies used by Windows' built-in browser parts."
+    },
+    "def-lm-win-fonts": {
+      "title": "Your own fonts",
+      "explain": "Fonts you installed for your account only."
+    },
+    "def-lm-win-notifications": {
+      "title": "Notification history",
+      "explain": "The database behind the notification centre."
+    },
+    "def-roaming-microsoft": {
+      "title": "Windows and Microsoft app settings",
+      "explain": "Your personal settings of Windows and Microsoft programs: the Start menu, recent files, Office templates, signatures and the keys that protect your saved passwords."
+    },
+    "def-roaming-mozilla": {
+      "title": "Firefox profile",
+      "explain": "Your Firefox profile: bookmarks, history, extensions and saved passwords."
+    },
+    "def-roaming-thunderbird": {
+      "title": "Thunderbird mail",
+      "explain": "Your Thunderbird profile with all downloaded mail. For POP accounts this is the only copy of your mail."
+    },
+    "def-roaming-minecraft": {
+      "title": "Minecraft (Java Edition)",
+      "explain": "The game with your worlds, resource packs, mods and screenshots. Your worlds are in “saves” and exist only here unless you back them up."
+    },
+    "def-rm-windows": {
+      "title": "Your Windows shell settings",
+      "explain": "Your Start menu shortcuts, recent files, “Send to” entries and themes."
+    },
+    "def-rm-teams": {
+      "title": "Classic Teams cache",
+      "explain": "The cache and settings of classic Microsoft Teams. Your chats are in the cloud."
+    },
+    "def-rm-templates": {
+      "title": "Office templates",
+      "explain": "The standard templates of Word and other Office apps, including Normal.dotm with your default styles."
+    },
+    "def-rm-signatures": {
+      "title": "Outlook signatures",
+      "explain": "The e-mail signatures you made in classic Outlook."
+    },
+    "def-rm-protect": {
+      "title": "Your encryption keys",
+      "explain": "The keys Windows uses to protect your saved passwords and certificates. Without them that data cannot be read."
+    },
+    "def-rm-crypto": {
+      "title": "Your private keys",
+      "explain": "The private keys of your certificates."
+    },
+    "def-rm-credentials": {
+      "title": "Saved sign-ins",
+      "explain": "Sign-ins that Windows saved for you, encrypted."
+    },
+    "def-rm-uproof": {
+      "title": "Your spelling dictionaries",
+      "explain": "The words you added to Office's spelling dictionary."
+    },
+    "def-locallow-microsoft": {
+      "title": "Data of restricted Microsoft parts",
+      "explain": "Data of Microsoft components that run with fewer rights, such as certificate caches."
+    },
+    "def-pk-photos": {
+      "title": "Photos app data",
+      "explain": "The Photos app's database and thumbnails of your pictures."
+    },
+    "def-pk-whatsapp": {
+      "title": "WhatsApp data",
+      "explain": "WhatsApp's local copy of your chats, photos and videos. Deleting a chat's media inside WhatsApp frees space here."
+    },
+    "def-pk-spotify": {
+      "title": "Spotify data (Store version)",
+      "explain": "Songs saved for offline listening and the streaming cache of Spotify. Spotify's settings can clear them under Storage."
+    },
+    "def-pk-teams": {
+      "title": "Microsoft Teams data",
+      "explain": "The cache and settings of the new Microsoft Teams. Your chats are in the cloud."
+    },
+    "def-pk-outlook": {
+      "title": "New Outlook data",
+      "explain": "The cache of the new Outlook app. Your mail is on the mail server."
+    },
+    "def-pk-xbox": {
+      "title": "Xbox app data",
+      "explain": "Settings and cache of the Xbox app. The games are in the XboxGames folder."
+    },
+    "def-pk-minecraft": {
+      "title": "Minecraft (Bedrock) data",
+      "explain": "Your Minecraft worlds, packs and settings. The worlds exist only here unless they sync to your account."
+    },
+    "def-pk-phone-link": {
+      "title": "Phone Link data",
+      "explain": "Copies of recent photos and messages from your phone, shown by Phone Link."
+    },
+    "def-pk-terminal": {
+      "title": "Windows Terminal settings",
+      "explain": "Your Windows Terminal profiles and settings."
+    },
+    "def-pk-winget": {
+      "title": "winget data",
+      "explain": "The package list, logs and downloaded installers of the Windows package manager."
+    },
+    "def-pk-spotlight": {
+      "title": "Spotlight pictures and suggestions",
+      "explain": "The lock screen pictures of Windows Spotlight and the app suggestions Windows downloads."
+    },
+    "def-pk-store": {
+      "title": "Microsoft Store cache",
+      "explain": "The Store's cache; “wsreset” empties it."
+    },
+    "def-pk-ubuntu": {
+      "title": "Ubuntu on WSL",
+      "explain": "An Ubuntu installation for the Windows Subsystem for Linux. Everything inside that Linux lives in its virtual disk here; remove it with “wsl --unregister”, not by hand."
+    },
+    "def-pk-clipchamp": {
+      "title": "Clipchamp data",
+      "explain": "The video editor's cache and the local copies of your project media."
+    },
+    "def-pk-copilot": {
+      "title": "Copilot data",
+      "explain": "The cache and settings of the Copilot app."
+    },
+    "def-pk-icloud": {
+      "title": "iCloud data",
+      "explain": "The cache of iCloud for Windows, including downloaded iCloud Photos."
+    },
+    "def-pk-cbs": {
+      "title": "Windows shell app data",
+      "explain": "Data of the Windows interface itself: Start, Search and the taskbar."
+    },
+    "def-any-ebwebview": {
+      "title": "Built-in browser data",
+      "explain": "The data of the built-in browser (WebView2) this app shows its pages with: cache, cookies and sign-in."
+    },
+    "def-any-user-data": {
+      "title": "Browser-style profile",
+      "explain": "The profile of a browser or of an app built like one: settings, history, extensions, sign-ins and cache, one folder per profile."
+    },
+    "def-any-cache": {
+      "title": "App cache",
+      "explain": "Files this app saved so it loads faster next time. The app fetches again what it needs."
+    },
+    "def-any-code-cache": {
+      "title": "Compiled code and graphics cache",
+      "explain": "Scripts and graphics code this app compiled once so it starts faster. The app rebuilds it by itself."
+    },
+    "def-any-logs": {
+      "title": "App logs",
+      "explain": "Log files in which this app writes what it did. Useful only when you are solving a problem with the app."
+    },
+    "def-any-crashpad": {
+      "title": "App crash reports",
+      "explain": "Reports and memory dumps of the times this app crashed."
+    },
+    "def-any-service-worker": {
+      "title": "Offline web data",
+      "explain": "Data that web pages inside this app stored so they work faster or offline."
+    },
+    "def-any-web-storage": {
+      "title": "Data saved by the app's pages",
+      "explain": "What the pages inside this app saved on this PC: settings, drafts and sign-ins. Removing it can sign you out or lose unsynced work."
+    },
+    "def-any-updates": {
+      "title": "App updates",
+      "explain": "Downloaded updates of this app, waiting to be installed or left behind afterwards."
+    },
+    "def-any-backups": {
+      "title": "App backups",
+      "explain": "Backup copies this app made of your work or settings."
+    },
+    "def-any-extensions": {
+      "title": "Extensions and plug-ins",
+      "explain": "Extensions or plug-ins installed in this app. Remove one from within the app."
+    },
+    "def-local-discord": {
+      "title": "Discord: local data",
+      "explain": "Local data of Discord, the chat app: cache, logs and files that belong to this PC. Each update leaves the previous version behind in its own folder."
+    },
+    "def-roaming-discord": {
+      "title": "Discord: settings and profile",
+      "explain": "Settings and data of Discord, the chat app: your profile, preferences and history. Your messages are on Discord's servers, not here."
+    },
+    "def-local-spotify": {
+      "title": "Spotify: local data",
+      "explain": "Local data of Spotify, the music app: cache, logs and files that belong to this PC. Songs saved for offline listening and the streaming cache are here; Spotify's settings can clear them under Storage."
+    },
+    "def-roaming-spotify": {
+      "title": "Spotify: settings and profile",
+      "explain": "Settings and data of Spotify, the music app: your profile, preferences and history."
+    },
+    "def-local-steam": {
+      "title": "Steam: local data",
+      "explain": "Local data of Steam, the game store: cache, logs and files that belong to this PC. The games themselves are in Steam's library folders, not here."
+    },
+    "def-local-epic-launcher": {
+      "title": "Epic Games Launcher: local data",
+      "explain": "Local data of Epic Games Launcher, Epic's game store: cache, logs and files that belong to this PC."
+    },
+    "def-local-unreal-engine": {
+      "title": "Unreal Engine: local data",
+      "explain": "Local data of Unreal Engine, the game engine: cache, logs and files that belong to this PC. Its derived data cache can grow to many gigabytes and is rebuilt when a project needs it."
+    },
+    "def-local-unity": {
+      "title": "Unity: local data",
+      "explain": "Local data of Unity, the game engine: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-unity": {
+      "title": "Unity: settings and profile",
+      "explain": "Settings and data of Unity, the game engine: your profile, preferences and history. Downloaded Asset Store packages are kept here."
+    },
+    "def-local-docker": {
+      "title": "Docker Desktop: local data",
+      "explain": "Local data of Docker Desktop, the container tool: cache, logs and files that belong to this PC. Its virtual disk with every image, container and volume is here. Prune inside Docker and then compact the disk; never delete the disk file by hand."
+    },
+    "def-roaming-docker": {
+      "title": "Docker Desktop: settings and profile",
+      "explain": "Settings and data of Docker Desktop, the container tool: your profile, preferences and history."
+    },
+    "def-local-wsl": {
+      "title": "WSL: local data",
+      "explain": "Local data of WSL, Linux inside Windows: cache, logs and files that belong to this PC. The virtual disks of your Linux distributions are here: everything inside Linux lives in them."
+    },
+    "def-local-ollama": {
+      "title": "Ollama: local data",
+      "explain": "Local data of Ollama, the tool that runs AI models on your own PC: cache, logs and files that belong to this PC. The models themselves are in the .ollama folder of your profile."
+    },
+    "def-local-github-desktop": {
+      "title": "GitHub Desktop: local data",
+      "explain": "Local data of GitHub Desktop, the Git app: cache, logs and files that belong to this PC. Each update leaves the previous version behind in its own folder."
+    },
+    "def-roaming-github-desktop": {
+      "title": "GitHub Desktop: settings and profile",
+      "explain": "Settings and data of GitHub Desktop, the Git app: your profile, preferences and history."
+    },
+    "def-local-jetbrains": {
+      "title": "JetBrains: local data",
+      "explain": "Local data of JetBrains, the maker of IDEs such as IntelliJ, PyCharm and Rider: cache, logs and files that belong to this PC. Each IDE version keeps its own caches and indexes; folders of versions you no longer use can go."
+    },
+    "def-roaming-jetbrains": {
+      "title": "JetBrains: settings and profile",
+      "explain": "Settings and data of JetBrains, the maker of IDEs such as IntelliJ, PyCharm and Rider: your profile, preferences and history. Your settings and plug-ins per IDE version."
+    },
+    "def-local-postman": {
+      "title": "Postman: local data",
+      "explain": "Local data of Postman, the API testing tool: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-postman": {
+      "title": "Postman: settings and profile",
+      "explain": "Settings and data of Postman, the API testing tool: your profile, preferences and history."
+    },
+    "def-local-slack": {
+      "title": "Slack: local data",
+      "explain": "Local data of Slack, the team chat app: cache, logs and files that belong to this PC. Each update leaves the previous version behind in its own folder."
+    },
+    "def-roaming-slack": {
+      "title": "Slack: settings and profile",
+      "explain": "Settings and data of Slack, the team chat app: your profile, preferences and history. Your messages are on Slack's servers, not here."
+    },
+    "def-local-battlenet": {
+      "title": "Battle.net: local data",
+      "explain": "Local data of Battle.net, Blizzard's game launcher: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-battlenet": {
+      "title": "Battle.net: settings and profile",
+      "explain": "Settings and data of Battle.net, Blizzard's game launcher: your profile, preferences and history."
+    },
+    "def-local-blizzard": {
+      "title": "Blizzard: local data",
+      "explain": "Local data of Blizzard, the maker of World of Warcraft and Diablo: cache, logs and files that belong to this PC."
+    },
+    "def-local-riot": {
+      "title": "Riot Games: local data",
+      "explain": "Local data of Riot Games, the maker of League of Legends and Valorant: cache, logs and files that belong to this PC."
+    },
+    "def-local-ubisoft": {
+      "title": "Ubisoft Connect: local data",
+      "explain": "Local data of Ubisoft Connect, Ubisoft's game launcher: cache, logs and files that belong to this PC."
+    },
+    "def-local-rockstar": {
+      "title": "Rockstar Games Launcher: local data",
+      "explain": "Local data of Rockstar Games Launcher, the launcher of GTA and Red Dead Redemption: cache, logs and files that belong to this PC."
+    },
+    "def-local-ea-desktop": {
+      "title": "EA Desktop: local data",
+      "explain": "Local data of EA Desktop, EA's game launcher: cache, logs and files that belong to this PC."
+    },
+    "def-local-gog": {
+      "title": "GOG Galaxy: local data",
+      "explain": "Local data of GOG Galaxy, GOG's game launcher: cache, logs and files that belong to this PC."
+    },
+    "def-local-larian": {
+      "title": "Larian Studios: local data",
+      "explain": "Local data of Larian Studios, the maker of Baldur's Gate 3: cache, logs and files that belong to this PC. Your saved games and mods are here."
+    },
+    "def-local-figma": {
+      "title": "Figma: local data",
+      "explain": "Local data of Figma, the design app: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-figma": {
+      "title": "Figma: settings and profile",
+      "explain": "Settings and data of Figma, the design app: your profile, preferences and history."
+    },
+    "def-roaming-notion": {
+      "title": "Notion: settings and profile",
+      "explain": "Settings and data of Notion, the notes app: your profile, preferences and history. Your pages are in Notion's cloud; this is a local copy that makes the app fast."
+    },
+    "def-roaming-obsidian": {
+      "title": "Obsidian: settings and profile",
+      "explain": "Settings and data of Obsidian, the notes app: your profile, preferences and history. Your notes are in the vault folders you chose yourself, not here."
+    },
+    "def-local-1password": {
+      "title": "1Password: local data",
+      "explain": "Local data of 1Password, the password manager: cache, logs and files that belong to this PC. It holds the encrypted copy of your vault."
+    },
+    "def-roaming-bitwarden": {
+      "title": "Bitwarden: settings and profile",
+      "explain": "Settings and data of Bitwarden, the password manager: your profile, preferences and history. It holds the encrypted copy of your vault."
+    },
+    "def-local-dropbox": {
+      "title": "Dropbox: local data",
+      "explain": "Local data of Dropbox, the cloud storage app: cache, logs and files that belong to this PC. This is the program's own data, not your synced files."
+    },
+    "def-roaming-dropbox": {
+      "title": "Dropbox: settings and profile",
+      "explain": "Settings and data of Dropbox, the cloud storage app: your profile, preferences and history."
+    },
+    "def-local-claude": {
+      "title": "Claude: local data",
+      "explain": "Local data of Claude, the AI assistant's desktop app: cache, logs and files that belong to this PC. Each update leaves the previous version behind in its own folder."
+    },
+    "def-roaming-claude": {
+      "title": "Claude: settings and profile",
+      "explain": "Settings and data of Claude, the AI assistant's desktop app: your profile, preferences and history."
+    },
+    "def-roaming-vscode": {
+      "title": "Visual Studio Code: settings and profile",
+      "explain": "Settings and data of Visual Studio Code, the code editor: your profile, preferences and history. Besides settings it holds workspace history and extension data, which grow with use."
+    },
+    "def-roaming-cursor": {
+      "title": "Cursor: settings and profile",
+      "explain": "Settings and data of Cursor, the AI code editor: your profile, preferences and history. Besides settings it holds workspace history and extension data, which grow with use."
+    },
+    "def-local-cursor-updater": {
+      "title": "Cursor: local data",
+      "explain": "Local data of Cursor, the AI code editor: cache, logs and files that belong to this PC. It holds the downloaded installer of the next update."
+    },
+    "def-local-arduino": {
+      "title": "Arduino: local data",
+      "explain": "Local data of Arduino, the electronics toolkit: cache, logs and files that belong to this PC. Downloaded board packages and compilers take most of the space."
+    },
+    "def-local-autodesk": {
+      "title": "Autodesk: local data",
+      "explain": "Local data of Autodesk, the maker of AutoCAD and Fusion: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-autodesk": {
+      "title": "Autodesk: settings and profile",
+      "explain": "Settings and data of Autodesk, the maker of AutoCAD and Fusion: your profile, preferences and history."
+    },
+    "def-local-vivaldi": {
+      "title": "Vivaldi: local data",
+      "explain": "Local data of Vivaldi, the web browser: cache, logs and files that belong to this PC. Your whole browser profile is here: bookmarks, history, extensions and saved passwords."
+    },
+    "def-local-opera": {
+      "title": "Opera: local data",
+      "explain": "Local data of Opera, the web browser: cache, logs and files that belong to this PC. Mostly the browser's cache."
+    },
+    "def-roaming-opera": {
+      "title": "Opera: settings and profile",
+      "explain": "Settings and data of Opera, the web browser: your profile, preferences and history. Your browser profile is here: bookmarks, history, extensions and saved passwords."
+    },
+    "def-local-techsmith": {
+      "title": "TechSmith: local data",
+      "explain": "Local data of TechSmith, the maker of Snagit and Camtasia: cache, logs and files that belong to this PC. Snagit keeps every capture you ever made in its library here."
+    },
+    "def-local-apple": {
+      "title": "Apple: local data",
+      "explain": "Local data of Apple, the maker of iTunes and iCloud: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-apple": {
+      "title": "Apple: settings and profile",
+      "explain": "Settings and data of Apple, the maker of iTunes and iCloud: your profile, preferences and history. Backups of iPhones and iPads made with iTunes are in MobileSync and can be very large."
+    },
+    "def-local-adobe": {
+      "title": "Adobe: local data",
+      "explain": "Local data of Adobe, the maker of Photoshop, Lightroom and Premiere Pro: cache, logs and files that belong to this PC. Caches and logs take most of the space."
+    },
+    "def-roaming-adobe": {
+      "title": "Adobe: settings and profile",
+      "explain": "Settings and data of Adobe, the maker of Photoshop, Lightroom and Premiere Pro: your profile, preferences and history. The media cache of the video apps is in “Common” and may be cleared from within those apps."
+    },
+    "def-locallow-adobe": {
+      "title": "Adobe: local data",
+      "explain": "Local data of Adobe, the maker of Acrobat Reader: cache, logs and files that belong to this PC."
+    },
+    "def-local-amd": {
+      "title": "AMD Software: local data",
+      "explain": "Local data of AMD Software, AMD's graphics driver and its control panel: cache, logs and files that belong to this PC."
+    },
+    "def-local-intel": {
+      "title": "Intel Graphics: local data",
+      "explain": "Local data of Intel Graphics, Intel's graphics driver and its control panel: cache, logs and files that belong to this PC."
+    },
+    "def-local-nvidia-corp": {
+      "title": "NVIDIA app: local data",
+      "explain": "Local data of NVIDIA app, the companion app of NVIDIA's graphics driver: cache, logs and files that belong to this PC. Downloaded driver installers and recorded highlights can take gigabytes."
+    },
+    "def-local-nvidia": {
+      "title": "NVIDIA: local data",
+      "explain": "Local data of NVIDIA, the graphics driver: cache, logs and files that belong to this PC. Mostly shader caches that games rebuild when needed."
+    },
+    "def-local-plex": {
+      "title": "Plex Media Server: local data",
+      "explain": "Local data of Plex Media Server, the media server: cache, logs and files that belong to this PC. Its library database, artwork and video thumbnails are here and grow with your collection."
+    },
+    "def-local-qbittorrent": {
+      "title": "qBittorrent: local data",
+      "explain": "Local data of qBittorrent, the torrent app: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-qbittorrent": {
+      "title": "qBittorrent: settings and profile",
+      "explain": "Settings and data of qBittorrent, the torrent app: your profile, preferences and history."
+    },
+    "def-local-teamviewer": {
+      "title": "TeamViewer: local data",
+      "explain": "Local data of TeamViewer, the remote control app: cache, logs and files that belong to this PC."
+    },
+    "def-roaming-teamviewer": {
+      "title": "TeamViewer: settings and profile",
+      "explain": "Settings and data of TeamViewer, the remote control app: your profile, preferences and history."
+    },
+    "def-roaming-anydesk": {
+      "title": "AnyDesk: settings and profile",
+      "explain": "Settings and data of AnyDesk, the remote control app: your profile, preferences and history."
+    },
+    "def-local-calibre": {
+      "title": "calibre: local data",
+      "explain": "Local data of calibre, the e-book manager: cache, logs and files that belong to this PC. Your books are in the library folder you chose yourself, not here."
+    },
+    "def-roaming-calibre": {
+      "title": "calibre: settings and profile",
+      "explain": "Settings and data of calibre, the e-book manager: your profile, preferences and history."
+    },
+    "def-roaming-vlc": {
+      "title": "VLC: settings and profile",
+      "explain": "Settings and data of VLC, the media player: your profile, preferences and history."
+    },
+    "def-roaming-obs": {
+      "title": "OBS Studio: settings and profile",
+      "explain": "Settings and data of OBS Studio, the recording and streaming app: your profile, preferences and history. Your recordings are in your Videos folder unless you chose another place."
+    },
+    "def-roaming-handbrake": {
+      "title": "HandBrake: settings and profile",
+      "explain": "Settings and data of HandBrake, the video converter: your profile, preferences and history."
+    },
+    "def-roaming-gimp": {
+      "title": "GIMP: settings and profile",
+      "explain": "Settings and data of GIMP, the image editor: your profile, preferences and history."
+    },
+    "def-roaming-inkscape": {
+      "title": "Inkscape: settings and profile",
+      "explain": "Settings and data of Inkscape, the vector drawing app: your profile, preferences and history."
+    },
+    "def-roaming-libreoffice": {
+      "title": "LibreOffice: settings and profile",
+      "explain": "Settings and data of LibreOffice, the office suite: your profile, preferences and history."
+    },
+    "def-roaming-notepadpp": {
+      "title": "Notepad++: settings and profile",
+      "explain": "Settings and data of Notepad++, the text editor: your profile, preferences and history. Unsaved tabs are kept in its backup folder."
+    },
+    "def-roaming-sublime": {
+      "title": "Sublime Text: settings and profile",
+      "explain": "Settings and data of Sublime Text, the text editor: your profile, preferences and history."
+    },
+    "def-roaming-npm-global": {
+      "title": "npm: settings and profile",
+      "explain": "Settings and data of npm, the Node.js package manager: your profile, preferences and history. It holds the command-line tools you installed with “npm install -g”."
+    },
+    "def-roaming-nvm": {
+      "title": "nvm: settings and profile",
+      "explain": "Settings and data of nvm, the Node.js version manager: your profile, preferences and history. Every Node.js version you installed has its own folder here."
+    },
+    "def-roaming-python-user": {
+      "title": "Python: settings and profile",
+      "explain": "Settings and data of Python, the programming language: your profile, preferences and history. It holds the packages you installed with “pip install --user”."
+    },
+    "def-roaming-blender": {
+      "title": "Blender: settings and profile",
+      "explain": "Settings and data of Blender, the 3D app: your profile, preferences and history. Add-ons and settings are kept per Blender version."
+    },
+    "def-roaming-telegram": {
+      "title": "Telegram: settings and profile",
+      "explain": "Settings and data of Telegram, the chat app: your profile, preferences and history. Its local cache of photos and videos can be cleared in Telegram's settings under Data and storage."
+    },
+    "def-roaming-signal": {
+      "title": "Signal: settings and profile",
+      "explain": "Settings and data of Signal, the chat app: your profile, preferences and history. Your messages and attachments exist only here and on your phone; there is no cloud copy."
+    },
+    "def-roaming-whatsapp-old": {
+      "title": "WhatsApp: settings and profile",
+      "explain": "Settings and data of WhatsApp, the chat app (older desktop version): your profile, preferences and history."
+    },
+    "def-roaming-skype": {
+      "title": "Skype: settings and profile",
+      "explain": "Settings and data of Skype, the calling app: your profile, preferences and history."
+    },
+    "def-roaming-zoom": {
+      "title": "Zoom: settings and profile",
+      "explain": "Settings and data of Zoom, the video meeting app: your profile, preferences and history. The program itself is installed here too, in “bin”."
+    },
+    "def-roaming-filezilla": {
+      "title": "FileZilla: settings and profile",
+      "explain": "Settings and data of FileZilla, the FTP app: your profile, preferences and history. It stores your saved server sign-ins."
+    },
+    "def-roaming-winrar": {
+      "title": "WinRAR: settings and profile",
+      "explain": "Settings and data of WinRAR, the archive tool: your profile, preferences and history."
+    },
+    "def-roaming-audacity": {
+      "title": "Audacity: settings and profile",
+      "explain": "Settings and data of Audacity, the audio editor: your profile, preferences and history."
+    },
+    "def-roaming-anki": {
+      "title": "Anki: settings and profile",
+      "explain": "Settings and data of Anki, the flashcard app: your profile, preferences and history. Your decks and their media are here."
+    },
+    "def-roaming-godot": {
+      "title": "Godot: settings and profile",
+      "explain": "Settings and data of Godot, the game engine: your profile, preferences and history."
+    },
+    "def-roaming-utorrent": {
+      "title": "µTorrent: settings and profile",
+      "explain": "Settings and data of µTorrent, the torrent app: your profile, preferences and history."
+    },
+    "def-locallow-unity": {
+      "title": "Unity: local data",
+      "explain": "Local data of Unity, the game engine: cache, logs and files that belong to this PC."
+    },
+    "def-locallow-java": {
+      "title": "Java: local data",
+      "explain": "Local data of Java, the runtime for Java programs: cache, logs and files that belong to this PC. Mostly the cache of downloaded Java applications."
+    },
+    "def-locallow-intel": {
+      "title": "Intel Graphics: local data",
+      "explain": "Local data of Intel Graphics, Intel's graphics driver and its control panel: cache, logs and files that belong to this PC. Mostly shader caches."
+    }
+  },
+  "matrix": {
+    "title": "Priority matrix",
+    "waiting": "The matrix appears when the scan is done.",
+    "empty": "Nothing to suggest yet.",
+    "axisX": "Not used for →",
+    "quadrant": {
+      "bigOld": "Big and unused for long",
+      "bigRecent": "Big but used recently"
+    },
+    "use": {
+      "played": "Last played {{when}}",
+      "started": "Last started {{when}}",
+      "changed": "Last changed {{when}}",
+      "unknown": "Last use unknown"
+    },
+    "axisY": "↑ Space it takes",
+    "ageUnknown": "unknown",
+    "ages": {
+      "1": "1 day",
+      "7": "1 week",
+      "30": "1 month",
+      "365": "1 year",
+      "3650": "10 years"
+    },
+    "zoom": "Zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomFit": "Fit"
+  },
+  "facts": {
+    "program": "This is {{name}} by {{publisher}}.",
+    "unknownPublisher": "an unknown publisher",
+    "installed": "Installed on {{date}}.",
+    "steamGame": "This is the Steam game {{name}}.",
+    "steamLeftover": "A leftover of an uninstalled Steam game: Steam no longer knows this folder.",
+    "steamGameAction": "Uninstall it in Steam, so Steam stays consistent.",
+    "programAction": "Uninstall it through Settings › Apps.",
+    "elevated": "Read with admin rights. Unhoard cannot move it, because the app itself has no rights here."
+  },
+  "adapters": {
+    "ollama": {
+      "show": "Show the models",
+      "none": "No Ollama models found.",
+      "title": "Ollama models",
+      "explain": "The size is what removing a model frees: data other models share stays.",
+      "pulled": "Downloaded {{when}}",
+      "shared": "{{size}} shared with other models",
+      "quarantine": "Move model to quarantine"
+    },
+    "docker": {
+      "title": "Docker Desktop",
+      "explain": "This virtual disk holds all of Docker's images, containers, volumes and build cache. Never delete the file by hand: that resets Docker and everything in it is gone.",
+      "show": "Show what Docker uses",
+      "reclaimable": "{{size}} can go",
+      "kinds": {
+        "Images": "Images",
+        "Containers": "Containers",
+        "LocalVolumes": "Volumes",
+        "BuildCache": "Build cache"
+      },
+      "errors": {
+        "notInstalled": "Docker Desktop is not installed in its usual folder.",
+        "notRunning": "Start Docker Desktop first, then try again.",
+        "timedOut": "Docker did not answer in time.",
+        "failed": "Docker could not be asked."
+      },
+      "never": "Do you no longer use Docker? Uninstall Docker Desktop through Settings › Apps; the disk goes with it.",
+      "buildCache": "The build cache is usually the biggest win and only makes the next build slower:",
+      "containers": "Remove stopped containers of projects you no longer run (their volumes stay):",
+      "images": "Then remove images no container uses, such as old versions:",
+      "volumes": "Volumes hold your databases. Remove unused ones only if their projects are gone for good:",
+      "compact": "The disk file does not shrink by itself. Quit Docker Desktop, run wsl --shutdown, and compact the disk with diskpart as administrator (select vdisk file=…docker_data.vhdx, attach vdisk readonly, compact vdisk, detach vdisk)."
+    },
+    "open": {
+      "dockerDesktop": "Open Docker Desktop",
+      "ollama": "Open Ollama",
+      "steam": "Open Steam",
+      "errors": {
+        "notInstalled": "That app is not in its usual install folder.",
+        "notRunning": "The app did not start.",
+        "timedOut": "The app did not start in time.",
+        "failed": "Windows could not open the app."
+      }
+    }
+  },
+  "hidden": {
+    "kinds": {
+      "restorePoints": {
+        "title": "Restore points",
+        "explain": "Windows keeps restore points and shadow copies here, so you can roll back the system. Choose in System Protection how much space they may use, or delete old ones."
+      },
+      "storeApps": {
+        "title": "Microsoft Store apps",
+        "explain": "Apps installed from the Microsoft Store. Remove the ones you no longer use in Settings › Apps."
+      },
+      "recovery": {
+        "title": "Recovery environment",
+        "explain": "What Windows needs to repair or reset your PC. Leave it alone."
+      },
+      "defender": {
+        "title": "Windows Defender",
+        "explain": "Scan history, definition updates and quarantine of Windows' antivirus. Windows manages it; leave it alone."
+      },
+      "errorReports": {
+        "title": "Error reports",
+        "explain": "Reports Windows kept after crashes. Disk Cleanup removes them safely (Windows error reports)."
+      },
+      "otherAccounts": {
+        "title": "Other accounts",
+        "explain": "Folders of other accounts on this PC, or of Windows' own service accounts. Only that account, or an administrator, can tidy them."
+      },
+      "recycleBin": {
+        "title": "Other Recycle Bins",
+        "explain": "The Recycle Bin of other accounts or of the system. Each account empties its own."
+      },
+      "other": {
+        "title": "Other protected folders",
+        "explain": "Folders apps or Windows protect. Unhoard explains them but never moves them."
+      }
+    }
+  },
+  "suggestions": {
+    "groups": {
+      "steamGames": "Steam games",
+      "steamLeftovers": "Leftovers of uninstalled games",
+      "programs": "Installed programs",
+      "large": "Large files"
+    },
+    "count_one": "{{count}} item",
+    "count_other": "{{count}} items",
+    "moveAll_one": "Move {{count}} to quarantine",
+    "moveAll_other": "Move all {{count}} to quarantine"
+  },
+  "explain": {
+    "file": "“{{name}}” is {{type}}.",
+    "fileOther": "“{{name}}” is a file of the type {{ext}}, which Unhoard has no name for; the program that made it knows how to open it.",
+    "fileBare": "“{{name}}” is a file without an extension, so only the program that made it knows what is inside.",
+    "folder_one": "“{{name}}” is a folder with {{files}} file.",
+    "folder_other": "“{{name}}” is a folder with {{files}} files.",
+    "folderEmpty": "“{{name}}” is an empty folder.",
+    "link": "“{{name}}” is a link to another folder. It takes no space itself, and Unhoard never follows or moves it.",
+    "mix": "{{percent}} of its space goes to {{kind}}.",
+    "mixKind": {
+      "media": "photos and videos",
+      "apps": "programs and games",
+      "downloads": "downloads",
+      "system": "Windows files",
+      "documents": "documents",
+      "developer": "developer files",
+      "cloud": "cloud files",
+      "hidden": "hidden space",
+      "other": "other files"
+    },
+    "place": {
+      "downloads": "It is in your Downloads folder, among the things you fetched yourself.",
+      "desktop": "It is on your desktop.",
+      "documents": "It is in your Documents folder.",
+      "pictures": "It is in your Pictures folder.",
+      "videos": "It is in your Videos folder.",
+      "music": "It is in your Music folder.",
+      "cloud": "It is in a folder that syncs with the cloud.",
+      "appData": "It is part of the data programs keep for your account (AppData).",
+      "appDataOf": "It belongs to the data the app “{{owner}}” keeps for your account (AppData).",
+      "userPrograms": "It is among the programs installed for your account only.",
+      "userProgramsOf": "It belongs to the program “{{owner}}”, which is installed for your account only.",
+      "storeApp": "It is part of the data of Microsoft Store apps.",
+      "storeAppOf": "It belongs to the data of the Microsoft Store app “{{owner}}”.",
+      "temp": "It is among your temporary files.",
+      "programFiles": "It is in Program Files, where programs are installed.",
+      "programFilesOf": "It belongs to the program “{{owner}}” in Program Files.",
+      "programData": "It is in ProgramData, where programs keep data for all users.",
+      "programDataOf": "It belongs to the data “{{owner}}” shares between all users of this PC (ProgramData).",
+      "windows": "It is part of Windows itself.",
+      "profile": "It is in your personal folder, outside the standard folders.",
+      "otherUser": "It is in the personal folders of this PC's users.",
+      "otherUserOf": "It is in the personal folder of the user “{{owner}}”.",
+      "recycleBin": "It is in the Recycle Bin.",
+      "quarantine": "It is in Unhoard's quarantine.",
+      "drive": "It is not in one of the standard folders of Windows or of your account."
+    },
+    "root": {
+      "appData": "“{{name}}” is the data folder of an app or maker with that name: settings, cache and other files it keeps for your account.",
+      "userPrograms": "“{{name}}” is a program installed for your account only. Uninstall it through Settings › Apps, not by deleting this folder.",
+      "storeApp": "“{{name}}” is the data folder of a Microsoft Store app: its settings, cache and files. Uninstalling the app removes it.",
+      "programFiles": "“{{name}}” is the installation folder of a program or maker with that name. Uninstall through Settings › Apps, not by deleting this folder.",
+      "programData": "“{{name}}” holds data that a program or maker with that name shares between all users of this PC.",
+      "otherUser": "“{{name}}” is the personal folder of another user of this PC, or of an account Windows made itself."
+    },
+    "rootShort": {
+      "appData": "Data folder of an app",
+      "userPrograms": "Program installed for you only",
+      "storeApp": "Data of a Store app",
+      "programFiles": "Installed program",
+      "programData": "Shared data of a program",
+      "otherUser": "Another user's folder"
+    },
+    "where": {
+      "downloads": "in Downloads",
+      "desktop": "on your desktop",
+      "documents": "in Documents",
+      "pictures": "in Pictures",
+      "videos": "in Videos",
+      "music": "in Music",
+      "cloud": "in your cloud folder",
+      "appData": "in AppData",
+      "appDataOf": "of the app {{owner}}",
+      "userPrograms": "among your own programs",
+      "userProgramsOf": "of the program {{owner}}",
+      "storeApp": "of a Store app",
+      "storeAppOf": "of the Store app {{owner}}",
+      "temp": "among your temporary files",
+      "programFiles": "in Program Files",
+      "programFilesOf": "of the program {{owner}}",
+      "programData": "in ProgramData",
+      "programDataOf": "of {{owner}} (shared data)",
+      "windows": "of Windows",
+      "profile": "in your personal folder",
+      "otherUser": "of another user",
+      "otherUserOf": "of the user {{owner}}",
+      "recycleBin": "in the Recycle Bin",
+      "quarantine": "in the quarantine",
+      "drive": "on this drive"
+    },
+    "short": {
+      "file": "File ({{ext}})",
+      "fileBare": "File",
+      "folder": "Folder",
+      "folderMix": "Folder with mostly {{kind}}",
+      "link": "Link"
+    },
+    "fileType": {
+      "video": {
+        "name": "Video",
+        "a": "a video",
+        "about": "Videos are among the largest files on a disk."
+      },
+      "photo": {
+        "name": "Image",
+        "a": "a photo or other image",
+        "about": "A single image is small; thousands of them add up."
+      },
+      "rawPhoto": {
+        "name": "Raw photo",
+        "a": "a raw photo straight from a camera",
+        "about": "A raw photo holds everything the sensor saw and is many times larger than a JPEG of the same shot."
+      },
+      "audio": {
+        "name": "Audio",
+        "a": "a sound file",
+        "about": "Music, a recording or a sound effect."
+      },
+      "archive": {
+        "name": "Archive",
+        "a": "a compressed archive",
+        "about": "It packs other files together. If you already unpacked it, the same content is on the disk twice."
+      },
+      "diskImage": {
+        "name": "Disk image",
+        "a": "a disk image",
+        "about": "A disk image is a complete copy of a disc or drive, often the installer of Windows, Linux or a game."
+      },
+      "virtualDisk": {
+        "name": "Virtual disk",
+        "a": "a virtual disk",
+        "about": "It is the whole disk of a virtual machine, WSL or Docker in one file. It grows as you use it and does not shrink by itself."
+      },
+      "installer": {
+        "name": "Installer",
+        "a": "an installer package",
+        "about": "Once the program is installed, the installer itself is rarely needed again."
+      },
+      "program": {
+        "name": "Program",
+        "a": "a program or script",
+        "about": "It runs when you open it."
+      },
+      "library": {
+        "name": "Library",
+        "a": "a code library",
+        "about": "Programs load it while they run; it belongs to the program in whose folder it lies."
+      },
+      "document": {
+        "name": "Document",
+        "a": "a text document",
+        "about": "Written in a word processor such as Word."
+      },
+      "spreadsheet": {
+        "name": "Spreadsheet",
+        "a": "a spreadsheet",
+        "about": "Made in a program such as Excel."
+      },
+      "presentation": {
+        "name": "Presentation",
+        "a": "a presentation",
+        "about": "Made in a program such as PowerPoint; pictures and video inside make it large."
+      },
+      "pdf": {
+        "name": "PDF",
+        "a": "a PDF document",
+        "about": "A document that looks the same on every device."
+      },
+      "ebook": {
+        "name": "E-book",
+        "a": "an e-book",
+        "about": "A book for an e-reader or reading app."
+      },
+      "text": {
+        "name": "Text file",
+        "a": "a plain text file",
+        "about": "Notes or a read-me without formatting."
+      },
+      "code": {
+        "name": "Source code",
+        "a": "a source code file",
+        "about": "Part of a software project."
+      },
+      "data": {
+        "name": "Data file",
+        "a": "a data file",
+        "about": "Structured data that a program or script reads."
+      },
+      "database": {
+        "name": "Database",
+        "a": "a database",
+        "about": "A program keeps its records in it; the program that owns it needs it to work."
+      },
+      "log": {
+        "name": "Log",
+        "a": "a log file",
+        "about": "A program wrote down what it did. Logs matter only while you are solving a problem."
+      },
+      "backup": {
+        "name": "Backup copy",
+        "a": "a backup copy",
+        "about": "A program or a person kept an older version here. Check that the original still exists before you rely on either."
+      },
+      "dump": {
+        "name": "Crash dump",
+        "a": "a memory dump of a crash",
+        "about": "It holds what was in memory when a program or Windows crashed. Only a developer looking into that crash needs it."
+      },
+      "aiModel": {
+        "name": "AI model",
+        "a": "the weights of an AI model",
+        "about": "Model files are measured in gigabytes. The tool that downloaded it can download it again."
+      },
+      "gameData": {
+        "name": "Game data",
+        "a": "a pack of game data",
+        "about": "It holds the textures, sound and levels of a game and belongs to that game's installation."
+      },
+      "font": {
+        "name": "Font",
+        "a": "a font",
+        "about": "A typeface for documents and designs."
+      },
+      "mail": {
+        "name": "Mail",
+        "a": "a mail file",
+        "about": "It holds one message or a whole mailbox. A mailbox file can be the only copy of old mail."
+      },
+      "design": {
+        "name": "Design project",
+        "a": "a design or editing project",
+        "about": "The working file of a creative app, with all its layers or edits."
+      },
+      "partial": {
+        "name": "Unfinished download",
+        "a": "a download that did not finish",
+        "about": "The browser or app left it behind when the download stopped. It is of no use unless that download can still resume."
+      },
+      "temporary": {
+        "name": "Temporary file",
+        "a": "a temporary file",
+        "about": "A program made it for brief use and should have removed it."
+      },
+      "shortcut": {
+        "name": "Shortcut",
+        "a": "a shortcut",
+        "about": "It only points to a file, folder or website and takes almost no space."
+      },
+      "system": {
+        "name": "System file",
+        "a": "a system or driver file",
+        "about": "Windows or a device driver uses it."
+      }
+    }
+  }
+}

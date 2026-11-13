@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-free-up-apply"
+description = "Enables the free_up_apply command without any pre-configured scope."
+commands.allow = ["free_up_apply"]
+
+[[permission]]
+identifier = "deny-free-up-apply"
+description = "Denies the free_up_apply command without any pre-configured scope."
+commands.deny = ["free_up_apply"]

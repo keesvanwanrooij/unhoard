@@ -1,0 +1,114 @@
+# Known locations: large containers that hold data in one big file or folder. All are
+# Review: Unhoard explains how to shrink them with their own tool and moves nothing itself.
+
+[[rule]]
+id = "wsl-disk"
+parent = "%LOCALAPPDATA%\\Packages\\*\\LocalState"
+name = "ext4.vhdx"
+kind = "file"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+docs = ["https://learn.microsoft.com/windows/wsl/disk-space"]
+example = "%LOCALAPPDATA%\\Packages\\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\\LocalState\\ext4.vhdx"
+nearMiss = "%LOCALAPPDATA%\\Packages\\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\\LocalState\\ext4.vhd"
+
+[[rule]]
+id = "wsl-disk-store"
+parent = "%LOCALAPPDATA%\\wsl\\*"
+name = "ext4.vhdx"
+kind = "file"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+docs = ["https://learn.microsoft.com/windows/wsl/disk-space"]
+example = "%LOCALAPPDATA%\\wsl\\{00000000-0000-0000-0000-000000000000}\\ext4.vhdx"
+nearMiss = "%LOCALAPPDATA%\\wsl\\{00000000-0000-0000-0000-000000000000}\\swap.vhdx"
+
+[[rule]]
+id = "docker-disk"
+parent = "%LOCALAPPDATA%\\Docker\\wsl\\*"
+name = "*.vhdx"
+kind = "file"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%LOCALAPPDATA%\\Docker\\wsl\\disk\\docker_data.vhdx"
+nearMiss = "%LOCALAPPDATA%\\Docker\\wsl\\disk\\docker_data.log"
+
+[[rule]]
+id = "hyperv-disks"
+parent = "%PROGRAMDATA%\\Microsoft\\Windows\\Virtual Hard Disks"
+name = "*.vhdx"
+kind = "file"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%PROGRAMDATA%\\Microsoft\\Windows\\Virtual Hard Disks\\vm.vhdx"
+nearMiss = "%PROGRAMDATA%\\Microsoft\\Windows\\Virtual Hard Disks\\vm.txt"
+
+[[rule]]
+id = "virtualbox-vms"
+parent = "%USERPROFILE%\\VirtualBox VMs"
+name = "*"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\VirtualBox VMs\\Ubuntu"
+nearMiss = "%USERPROFILE%\\VirtualBox VMs Old\\Ubuntu"
+
+[[rule]]
+id = "vmware-vms"
+parent = "%USERPROFILE%\\Documents\\Virtual Machines"
+name = "*"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\Documents\\Virtual Machines\\Windows Test"
+nearMiss = "%USERPROFILE%\\Documents\\Machines\\Windows Test"
+
+[[rule]]
+id = "android-emulators"
+parent = "%USERPROFILE%\\.android"
+name = "avd"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\.android\\avd"
+nearMiss = "%USERPROFILE%\\.android\\cache"
+
+[[rule]]
+id = "android-sdk"
+parent = "%LOCALAPPDATA%\\Android"
+name = "Sdk"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%LOCALAPPDATA%\\Android\\Sdk"
+nearMiss = "%LOCALAPPDATA%\\Android\\Sdk2"
+
+[[rule]]
+id = "huggingface-cache"
+parent = "%USERPROFILE%\\.cache"
+name = "huggingface"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\.cache\\huggingface"
+nearMiss = "%USERPROFILE%\\.cache\\huggingface2"
+
+[[rule]]
+id = "ollama-models"
+parent = "%USERPROFILE%\\.ollama"
+name = "models"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
+example = "%USERPROFILE%\\.ollama\\models"
+nearMiss = "%USERPROFILE%\\.ollama\\logs"

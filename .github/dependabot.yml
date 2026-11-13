@@ -1,5 +1,4 @@
-# Dependabot keeps the pinned GitHub Actions current. The Cargo and npm entries are
-# switched on in the MVP build, once Cargo.toml and package.json exist.
+# Dependabot keeps the pinned GitHub Actions, the Rust crates and the npm packages current.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -12,16 +11,16 @@ updates:
       actions:
         patterns: ["*"]
 
-  # - package-ecosystem: cargo
-  #   directory: /
-  #   schedule:
-  #     interval: weekly
-  #   commit-message:
-  #     prefix: chore
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
 
-  # - package-ecosystem: npm
-  #   directory: /
-  #   schedule:
-  #     interval: weekly
-  #   commit-message:
-  #     prefix: chore
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore

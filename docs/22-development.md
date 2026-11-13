@@ -32,10 +32,12 @@ npm ci
 | `npm run tauri dev` | Runs the app with hot reload |
 | `npm run tauri build` | Builds the installer and the portable exe |
 | `cargo run -p unhoard-cli -- scan <path> --json` | Runs the CLI |
+| `npx vite --mode fake` | Runs the UI in a browser against a fake core that generates a tree, so no disk is read; `?entries=200000` sets the tree size |
 
 ## Checks
 
-Every change runs these before it is done. CI runs them on `windows-latest`.
+Every change runs these before it is done. CI runs them on `windows-latest`. Run
+`npm run build` once before the Rust checks, because the Tauri crate embeds the built UI.
 
 ```powershell
 cargo fmt --all --check
@@ -52,7 +54,8 @@ npm audit --audit-level=high
 If a check does not exist yet, the report says so. It is never reported as passed.
 
 Changes that touch the UI, the core's hot paths or IPC also run the performance checks.
-Run them before you start and after each step, so a slowdown shows up while you work:
+Run them before you start and after each step, so a slowdown shows up while you work.
+Install the browser once with `npx playwright install chromium`.
 
 ```powershell
 cargo bench -p unhoard-core

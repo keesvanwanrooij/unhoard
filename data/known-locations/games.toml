@@ -1,0 +1,68 @@
+# Known locations: game libraries. A game folder is never quarantined: removing games
+# through their launcher keeps the launcher consistent.
+
+[[rule]]
+id = "steam-games"
+parent = "**\\steamapps"
+name = "common"
+kind = "dir"
+category = "apps"
+tier = "review"
+action = "uninstaller"
+example = "D:\\SteamLibrary\\steamapps\\common"
+nearMiss = "D:\\SteamLibrary\\steamapps\\downloading"
+
+[[rule]]
+id = "epic-games"
+parent = "%PROGRAMFILES%"
+name = "Epic Games"
+kind = "dir"
+category = "apps"
+tier = "review"
+action = "uninstaller"
+example = "%PROGRAMFILES%\\Epic Games"
+nearMiss = "%PROGRAMFILES%\\Epic Gamez"
+
+[[rule]]
+id = "xbox-games"
+parent = "?:"
+name = "XboxGames"
+kind = "dir"
+category = "apps"
+tier = "review"
+action = "uninstaller"
+example = "C:\\XboxGames"
+nearMiss = "C:\\XboxGamesBackup"
+
+[[rule]]
+id = "ea-games"
+parent = "%PROGRAMFILES%"
+name = "EA Games"
+kind = "dir"
+category = "apps"
+tier = "review"
+action = "uninstaller"
+example = "%PROGRAMFILES%\\EA Games"
+nearMiss = "%PROGRAMFILES%\\EA Gamez"
+
+[[rule]]
+id = "ubisoft-games"
+parent = "%PROGRAMFILES(X86)%\\Ubisoft\\Ubisoft Game Launcher"
+name = "games"
+kind = "dir"
+category = "apps"
+tier = "review"
+action = "uninstaller"
+example = "%PROGRAMFILES(X86)%\\Ubisoft\\Ubisoft Game Launcher\\games"
+nearMiss = "%PROGRAMFILES(X86)%\\Ubisoft\\Ubisoft Game Launcher\\logs"
+
+[[rule]]
+id = "battlenet"
+parent = "%PROGRAMFILES(X86)%"
+name = "Battle.net"
+kind = "dir"
+category = "apps"
+tier = "review"
+action = "uninstaller"
+example = "%PROGRAMFILES(X86)%\\Battle.net"
+nearMiss = "%PROGRAMFILES(X86)%\\Battle.net Old"

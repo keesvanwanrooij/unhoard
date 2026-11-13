@@ -31,12 +31,10 @@ React has the largest pool of contributors, which matters for an open-source pro
 | Library | Use |
 |---|---|
 | Vite | Dev server and build |
-| Plain CSS with design tokens (CSS variables) and CSS modules | Styling, theming and the design direction's palette |
-| Motion (formerly Framer Motion) | UI transitions in the shell |
+| Plain CSS with design tokens (CSS variables) | Styling, theming and the light and dark palettes |
 | Zustand | Small global state stores |
 | i18next with react-i18next | English and Dutch, ICU-style plurals |
-| d3-hierarchy | The squarified treemap |
-| Our own code | The power-diagram cell map and the polygon morph |
+| Our own code | The power-diagram cell map, the squarified treemap, the polygon morph and the canvas renderer |
 | Rajdhani and JetBrains Mono (SIL Open Font License), bundled | Headings, stage labels, numbers and paths; body text uses Segoe UI Variable from Windows |
 
 ## Core: Rust
@@ -49,9 +47,9 @@ React has the largest pool of contributors, which matters for an open-source pro
 | `thiserror` | Typed errors in library crates |
 | `anyhow` | Error handling at the binary edge (CLI, Tauri entry) |
 | `clap` | CLI arguments |
-| `tracing` | Local diagnostic logging, off unless switched on |
+| `globset` | Matching the parent globs of the known-locations rules in one pass |
 | `blake3` | Full content hashes for local exact duplicates |
-| Our own code | dHash and pHash, the Laplacian sharpness score |
+| Our own code | The dHash perceptual hash and the Laplacian sharpness score |
 
 ## Tests and checks
 
@@ -67,7 +65,7 @@ React has the largest pool of contributors, which matters for an open-source pro
 | `npm audit --audit-level=high` | npm advisories |
 | gitleaks | Secrets in the history |
 | criterion | Rust core benchmarks with statistics ([Performance](25-performance.md)) |
-| Vitest bench | Benchmarks of the layout functions, built into Vitest |
+| A timing script run by Vitest (`perf/layout.perf.ts`) | Layout timings |
 | Playwright | Scripted interaction timings of the real UI in Chromium, with CPU throttling |
 
 ## Packaging
