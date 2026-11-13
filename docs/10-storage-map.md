@@ -123,12 +123,15 @@ state:
   the pointer, and every other site flows 30% of the way to its cell's centroid per
   frame, so the neighbours give way and ooze back. A press pokes the cell. On top of
   that, each moving cell is drawn stretched along its direction of movement and squeezed
-  across (same area), by an amount that follows its speed on a spring; the spring
-  overshoots, which is the wobble. A drag works during a scan too and costs one
+  across (same area, up to 30%), by an amount that follows its speed on a spring; the
+  spring overshoots, which is the wobble. Touching a cell with the pointer jiggles it
+  (AC2.12). A drag works during a scan too and costs one
   relaxation step per frame, like a scan. Once nothing moves any more, the normal
   relaxation restores the areas to within 3% and the map stands still again.
 - **Reduced motion** (Windows animation effects off, or the "calm" motion setting):
-  transitions last at most 200 ms, and a dragged cell moves without stretch or wobble.
+  transitions last at most 200 ms. The calm setting keeps the softness, because that
+  motion comes from the user's hand; with Windows' animation effects off a dragged cell
+  moves without flow, stretch or wobble.
 
 ### Rendering
 

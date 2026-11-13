@@ -28,7 +28,9 @@ options and trade-offs, before they are built.
 | Primary audience: home users with a full disk and a large photo library; second: power users and developers | The first question "where did my space go?" is theirs, and no current tool answers it with explanations |
 | Windows 10 and 11 only, with a portable architecture | Where the audience is; the platform layer keeps macOS and Linux possible later |
 | Works without admin; elevation only for documented opt-in features | Most home users should never see a UAC prompt for a scan |
-| The **elevated read-only "Reveal hidden space"** rescan is in the MVP | Hidden space is often the biggest unexplained block; a read-only, short-lived helper keeps the risk low |
+| The **elevated read-only "Reveal hidden space"** rescan is in the MVP | Hidden space is often the biggest unexplained block; a read-only helper keeps the risk low |
+| The elevated helper stays for the app session once the user said yes, and the Ask setting asks once per session | A UAC prompt for every scan or folder is tiring and teaches users to click yes blindly; a read-only helper that only the app's pipe can reach adds little risk by living longer |
+| Touching, poking and dragging cells keep their softness in the calm setting; only Windows' animation effects off removes it | The calm setting is about the map moving by itself; motion the user makes with their own hand is part of the fun |
 | Unhoard **never selects anything by itself**; every move is a user click (S1) | Trust: the user stays in control |
 | The **organic cell map is the default view**, with a simple treemap switch | The living map makes "where did it go" fun and memorable; the treemap stays for people who want it plain |
 | Motion lives in the scan and the transitions: cells grow while the scan runs, then the map **stands still**; the radar sweeps only during a scan; "calm" and reduced motion shorten transitions | A map that keeps moving is hard to read and was experienced as restless |

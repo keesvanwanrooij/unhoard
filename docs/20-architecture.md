@@ -4,7 +4,7 @@
 
 How the pieces of Unhoard fit together: a Rust core that decides, a platform layer that
 talks to Windows, a Tauri app that exposes a small command surface, a React UI that only
-renders, a CLI, and a short-lived read-only elevated helper.
+renders, a CLI, and a read-only elevated helper that lives for one app session.
 
 ## Overview
 
@@ -132,12 +132,17 @@ The "Reveal hidden space" rescan needs admin. The main app never runs elevated (
   the process ID of the helper it started, then sends the folders to read: the unscanned
   ones, plus System Volume Information for "Reveal hidden space". Because the list goes
   over the pipe, the helper can start when a scan starts and get its list when the scan
-  ends.
+  ends. Every request and every reply carries its length first.
+- The helper **stays for the rest of the app session**: later scans, the per-folder button
+  and "Reveal hidden space" send it new requests, so the user answers the UAC prompt once.
+  Reads wait for each other. A helper that fails is dropped, and the next read starts a new
+  one.
 - The helper validates every folder (an absolute local path without `.` or `..`
   components, at most 4,096 folders), enables `SeBackupPrivilege`, and scans them with
   `FILE_FLAG_BACKUP_SEMANTICS`, which lets it read listings the user may not.
 - It is **read-only**: it has no command that moves, changes or deletes anything. It
-  sends its results back over the same pipe and exits.
+  sends its results back over the same pipe, and exits when the app closes the pipe,
+  which happens when the app quits.
 - The app fills the scanned tree with the results. Those items are marked "read with
   admin rights" and offer no move.
 

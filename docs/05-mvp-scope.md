@@ -102,8 +102,10 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   can be dragged, also during a scan: it follows the pointer, its neighbours flow out of
   the way, and every moving cell stretches and wobbles back like slime. When it is let
   go, the map flows to its new arrangement, the areas return to within 3% and the map
-  stands still again. A drag is not a click: it neither selects nor zooms. In the calm
-  setting cells move without the stretch and the wobble.
+  stands still again. A drag is not a click: it neither selects nor zooms.
+- AC2.12 Touching a cell with the pointer makes it jiggle. Poking, dragging and the
+  jiggle work in the calm setting too, because the motion comes from the user's own hand;
+  only Windows' animation effects off turns them into plain moves.
 - AC2.8 Keyboard: arrow keys move between cells, Enter zooms in, the Menu key or
   Shift+F10 opens the actions for the selected item.
 - AC2.9 The map holds 60 frames per second at rest with up to 300 visible cells on
@@ -128,13 +130,15 @@ These hold for the whole app. Each has at least one automated test (marked T-Sâ€
   It scans only the folders that were unscanned plus System Volume Information. Its
   results replace part of the hidden cell with named cells.
 - AC3.4 If UAC is declined, nothing changes and the companion explains what that means.
-- AC3.5 The helper exits when done and offers no command that moves, changes or deletes
-  files (S7).
+- AC3.5 The helper stays for the rest of the app session, so the UAC prompt appears at
+  most once per session, and exits when the app closes its pipe. It offers no command that
+  moves, changes or deletes files (S7).
 - AC3.6 A setting decides how Unhoard reads folders the user may not read: **Ask**
   (default), **Always** or **Never**.
-- AC3.7 With Ask, the companion asks once when a scan starts, with the reason and two
-  buttons. With Yes, or with Always, the helper starts right away (one UAC prompt) and
-  reads every folder the scan could not read once the scan ends. Their sizes fill the
+- AC3.7 With Ask, the companion asks once per app session, when the first scan starts,
+  with the reason and two buttons; the answer holds for every later scan in that session.
+  With Yes, or with Always, the helper starts right away (one UAC prompt) and reads every
+  folder the scan could not read once each scan ends. Their sizes fill the
   map; such items are marked "read with admin rights" and never offer a move.
 - AC3.8 The details of an unreadable folder offer "Read with admin rights" for that
   folder, whatever the setting.
