@@ -246,12 +246,17 @@ export class Renderer {
   setFlags(f: { living: boolean; scanning: boolean; selected: string | null; query: string; active: boolean }): void {
     this.active = f.active;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    this.living = f.living && !reduced;
+    const query = f.query.toLowerCase();
+    const living = f.living && !reduced;
+    // Showing the map again needs no redraw: the canvas keeps its picture while hidden, and
+    // anything that changed meanwhile has marked it dirty already (P1).
+    const changed = living !== this.living || f.scanning !== this.scanning || f.selected !== this.selected || query !== this.query;
+    this.living = living;
     this.squishy = !reduced;
     this.scanning = f.scanning;
     this.selected = f.selected;
-    this.query = f.query.toLowerCase();
-    this.dirty = true;
+    this.query = query;
+    if (changed) this.dirty = true;
   }
 
   /** Switches between the cell map and the treemap with a morph. */
