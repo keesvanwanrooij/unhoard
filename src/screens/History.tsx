@@ -1,7 +1,7 @@
 // Storage history (F17): the drive's used space over time, the period switch, and what grew
 // or shrank, each with its explanation and a sparkline. A click on a grower selects it in
 // the overview when the current scan has it.
-import { useEffect, useMemo, useState, type JSX } from "react";
+import { startTransition, useEffect, useMemo, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
@@ -115,7 +115,11 @@ export function History(): JSX.Element {
     api
       .historyTimeline(drive)
       .then((p) => {
-        if (alive) setPoints(p);
+        // Loaded data renders as an interruptible update, so opening the screen never blocks
+        // input with one long task (P1, P11).
+        if (alive) startTransition(() => {
+          setPoints(p);
+        });
       })
       .catch(() => {
         if (alive) setPoints([]);
@@ -130,7 +134,9 @@ export function History(): JSX.Element {
     api
       .historyGrowth(drive, days)
       .then((g) => {
-        if (alive) setGrowth(g);
+        if (alive) startTransition(() => {
+          setGrowth(g);
+        });
       })
       .catch(() => {
         if (alive) setGrowth(null);

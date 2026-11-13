@@ -1,7 +1,7 @@
 // Suggestions: every recognised item and every large unrecognised file, by tier and size.
 // Items of the same kind form one expandable group with one preview for all of them
 // (AC4.13). Nothing is pre-selected; each move starts with its preview (S1).
-import { useEffect, useState, type JSX } from "react";
+import { startTransition, useEffect, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
@@ -58,7 +58,11 @@ export function Suggestions(): JSX.Element {
     api
       .suggestions(2000)
       .then(([, list]) => {
-        if (alive) setItems(list);
+        // Loaded data renders as an interruptible update, so opening the screen never blocks
+        // input with one long task (P1, P11).
+        if (alive) startTransition(() => {
+          setItems(list);
+        });
       })
       .catch(() => {
         if (alive) setItems([]);

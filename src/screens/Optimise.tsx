@@ -1,7 +1,7 @@
 // Optimise (F16): the honest check-up. Findings in six groups, each with its state, what was
 // measured, the source and the next step; no score. The only action is switching a startup
 // app of the current user, with a preview first and an undo after.
-import { useCallback, useEffect, useState, type JSX } from "react";
+import { startTransition, useCallback, useEffect, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
@@ -48,14 +48,24 @@ export function Optimise(): JSX.Element {
   const fetchAll = useCallback(() => {
     api
       .optimiseCheck()
-      .then(setFindings)
+      // Loaded data renders as an interruptible update, so opening the screen never blocks
+      // input with one long task (P1, P11).
+      .then((f) => {
+        startTransition(() => {
+          setFindings(f);
+        });
+      })
       .catch((e: unknown) => {
         setFindings([]);
         sayError(e, t);
       });
     api
       .optimiseUpdates()
-      .then(setUpdates)
+      .then((u) => {
+        startTransition(() => {
+          setUpdates(u);
+        });
+      })
       .catch(() => {
         setUpdates([]);
       });
