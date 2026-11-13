@@ -1,0 +1,203 @@
+# Known locations: Windows itself. Parent and name are globs; %VAR% is expanded per PC.
+# Every rule has an example that must match it and a nearMiss that must not (tested).
+
+[[rule]]
+id = "windows-old"
+parent = "?:"
+name = "Windows.old"
+kind = "dir"
+category = "system"
+tier = "likelySafe"
+action = "windowsTool:diskCleanup"
+requiresAdmin = true
+docs = ["https://support.microsoft.com/windows/delete-your-previous-version-of-windows-f8b26680-e083-c710-b757-7567d69dbb74"]
+example = "C:\\Windows.old"
+nearMiss = "C:\\Windows.older"
+
+[[rule]]
+id = "hiberfil"
+parent = "?:"
+name = "hiberfil.sys"
+kind = "file"
+category = "system"
+tier = "keep"
+action = "explainOnly"
+docs = ["https://learn.microsoft.com/troubleshoot/windows-client/setup-upgrade-and-drivers/disable-and-re-enable-hibernation"]
+example = "C:\\hiberfil.sys"
+nearMiss = "C:\\hiberfil.sys.bak"
+
+[[rule]]
+id = "pagefile"
+parent = "?:"
+name = "pagefile.sys"
+kind = "file"
+category = "system"
+tier = "keep"
+action = "explainOnly"
+example = "C:\\pagefile.sys"
+nearMiss = "C:\\pagefile.old"
+
+[[rule]]
+id = "swapfile"
+parent = "?:"
+name = "swapfile.sys"
+kind = "file"
+category = "system"
+tier = "keep"
+action = "explainOnly"
+example = "C:\\swapfile.sys"
+nearMiss = "C:\\swapfile.txt"
+
+[[rule]]
+id = "winsxs"
+parent = "%WINDIR%"
+name = "WinSxS"
+kind = "dir"
+category = "system"
+tier = "keep"
+action = "windowsTool:diskCleanup"
+requiresAdmin = true
+docs = ["https://learn.microsoft.com/windows-hardware/manufacture/desktop/clean-up-the-winsxs-folder"]
+example = "%WINDIR%\\WinSxS"
+nearMiss = "%WINDIR%\\WinSxS2"
+
+[[rule]]
+# Each item in the user's Temp folder on its own, once it is a day old, so a large
+# leftover can be cleared without the rest; items still in use are skipped by the move.
+id = "user-temp"
+parent = "%LOCALAPPDATA%\\Temp"
+name = "*"
+kind = "any"
+minAgeDays = 1
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Temp\\setup.log"
+nearMiss = "%LOCALAPPDATA%\\Templates\\setup.log"
+
+[[rule]]
+# Diagnostic traces of the Remote Desktop client WSL uses to show Linux apps (WSLg).
+id = "wsl-rdclient-traces"
+parent = "%LOCALAPPDATA%\\Temp\\DiagOutputDir"
+name = "RdClientAutoTrace"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Temp\\DiagOutputDir\\RdClientAutoTrace"
+nearMiss = "%LOCALAPPDATA%\\Temp\\DiagOutputDir\\Other"
+
+[[rule]]
+id = "windows-temp"
+parent = "%WINDIR%"
+name = "Temp"
+kind = "dir"
+category = "system"
+tier = "safe"
+action = "windowsTool:diskCleanup"
+requiresAdmin = true
+example = "%WINDIR%\\Temp"
+nearMiss = "%WINDIR%\\Tempo"
+
+[[rule]]
+id = "update-downloads"
+parent = "%WINDIR%\\SoftwareDistribution"
+name = "Download"
+kind = "dir"
+category = "system"
+tier = "likelySafe"
+action = "windowsTool:diskCleanup"
+requiresAdmin = true
+example = "%WINDIR%\\SoftwareDistribution\\Download"
+nearMiss = "%WINDIR%\\SoftwareDistribution\\DataStore"
+
+[[rule]]
+id = "delivery-optimization"
+parent = "%WINDIR%\\ServiceProfiles\\NetworkService\\AppData\\Local\\Microsoft\\Windows"
+name = "DeliveryOptimization"
+kind = "dir"
+category = "system"
+tier = "likelySafe"
+action = "windowsTool:diskCleanup"
+requiresAdmin = true
+example = "%WINDIR%\\ServiceProfiles\\NetworkService\\AppData\\Local\\Microsoft\\Windows\\DeliveryOptimization"
+nearMiss = "%WINDIR%\\ServiceProfiles\\NetworkService\\AppData\\Local\\Microsoft\\Windows\\DeliveryOptimizationOld"
+
+[[rule]]
+id = "memory-dump"
+parent = "%WINDIR%"
+name = "MEMORY.DMP"
+kind = "file"
+category = "system"
+tier = "likelySafe"
+action = "windowsTool:diskCleanup"
+requiresAdmin = true
+example = "%WINDIR%\\MEMORY.DMP"
+nearMiss = "%WINDIR%\\MEMORY.TXT"
+
+[[rule]]
+id = "minidump"
+parent = "%WINDIR%"
+name = "Minidump"
+kind = "dir"
+category = "system"
+tier = "likelySafe"
+action = "windowsTool:diskCleanup"
+requiresAdmin = true
+example = "%WINDIR%\\Minidump"
+nearMiss = "%WINDIR%\\Minidumps"
+
+[[rule]]
+id = "crash-dumps"
+parent = "%LOCALAPPDATA%"
+name = "CrashDumps"
+kind = "dir"
+category = "other"
+tier = "likelySafe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\CrashDumps"
+nearMiss = "%LOCALAPPDATA%\\CrashDump"
+
+[[rule]]
+id = "windows-installer"
+parent = "%WINDIR%"
+name = "Installer"
+kind = "dir"
+category = "system"
+tier = "keep"
+action = "explainOnly"
+example = "%WINDIR%\\Installer"
+nearMiss = "%WINDIR%\\Installers"
+
+[[rule]]
+id = "driver-store"
+parent = "%WINDIR%\\System32"
+name = "DriverStore"
+kind = "dir"
+category = "system"
+tier = "keep"
+action = "explainOnly"
+example = "%WINDIR%\\System32\\DriverStore"
+nearMiss = "%WINDIR%\\System32\\DriverStores"
+
+[[rule]]
+id = "system-volume-information"
+parent = "?:"
+name = "System Volume Information"
+kind = "dir"
+category = "system"
+tier = "keep"
+action = "windowsTool:systemProtection"
+example = "C:\\System Volume Information"
+nearMiss = "C:\\System Volume Info"
+
+[[rule]]
+id = "recycle-bin"
+parent = "?:"
+name = "$Recycle.Bin"
+kind = "dir"
+category = "other"
+tier = "likelySafe"
+action = "windowsTool:recycleBin"
+example = "C:\\$Recycle.Bin"
+nearMiss = "C:\\$Recycle.Bin2"

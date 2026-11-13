@@ -1,0 +1,762 @@
+# Definitions: what Windows' own folders are. A definition (define = true) explains an
+# item without an opinion about removing it and is never listed as a suggestion; with
+# tier = "keep" it also says the item must stay. Every definition has an example that
+# must match it and a nearMiss that must not (tested).
+
+[[rule]]
+id = "def-windows"
+define = true
+parent = "?:"
+name = "Windows"
+kind = "dir"
+tier = "keep"
+example = "C:\\Windows"
+nearMiss = "C:\\x-Windows"
+
+[[rule]]
+id = "def-program-files"
+define = true
+parent = "?:"
+name = "Program Files"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files"
+nearMiss = "C:\\x-Program Files"
+
+[[rule]]
+id = "def-program-files-x86"
+define = true
+parent = "?:"
+name = "Program Files (x86)"
+kind = "dir"
+tier = "keep"
+example = "C:\\Program Files (x86)"
+nearMiss = "C:\\x-Program Files (x86)"
+
+[[rule]]
+id = "def-programdata"
+define = true
+parent = "?:"
+name = "ProgramData"
+kind = "dir"
+tier = "keep"
+example = "C:\\ProgramData"
+nearMiss = "C:\\x-ProgramData"
+
+[[rule]]
+id = "def-users"
+define = true
+parent = "?:"
+name = "Users"
+kind = "dir"
+tier = "keep"
+example = "C:\\Users"
+nearMiss = "C:\\x-Users"
+
+[[rule]]
+id = "def-perflogs"
+define = true
+parent = "?:"
+name = "PerfLogs"
+kind = "dir"
+example = "C:\\PerfLogs"
+nearMiss = "C:\\x-PerfLogs"
+
+[[rule]]
+id = "def-recovery"
+define = true
+parent = "?:"
+name = "Recovery"
+kind = "dir"
+tier = "keep"
+example = "C:\\Recovery"
+nearMiss = "C:\\x-Recovery"
+
+[[rule]]
+id = "def-winreagent"
+define = true
+parent = "?:"
+name = "$WinREAgent"
+kind = "dir"
+example = "C:\\$WinREAgent"
+nearMiss = "C:\\x-$WinREAgent"
+
+[[rule]]
+id = "def-windows-bt"
+define = true
+parent = "?:"
+name = "$Windows.~BT"
+kind = "dir"
+example = "C:\\$Windows.~BT"
+nearMiss = "C:\\x-$Windows.~BT"
+
+[[rule]]
+id = "def-windows-ws"
+define = true
+parent = "?:"
+name = "$Windows.~WS"
+kind = "dir"
+example = "C:\\$Windows.~WS"
+nearMiss = "C:\\x-$Windows.~WS"
+
+[[rule]]
+id = "def-getcurrent"
+define = true
+parent = "?:"
+name = "$GetCurrent"
+kind = "dir"
+example = "C:\\$GetCurrent"
+nearMiss = "C:\\x-$GetCurrent"
+
+[[rule]]
+id = "def-sysreset"
+define = true
+parent = "?:"
+name = "$SysReset"
+kind = "dir"
+example = "C:\\$SysReset"
+nearMiss = "C:\\x-$SysReset"
+
+[[rule]]
+id = "def-msocache"
+define = true
+parent = "?:"
+name = "MSOCache"
+kind = "dir"
+example = "C:\\MSOCache"
+nearMiss = "C:\\x-MSOCache"
+
+[[rule]]
+id = "def-config-msi"
+define = true
+parent = "?:"
+name = "Config.Msi"
+kind = "dir"
+tier = "keep"
+example = "C:\\Config.Msi"
+nearMiss = "C:\\x-Config.Msi"
+
+[[rule]]
+id = "def-root-intel"
+define = true
+parent = "?:"
+name = "Intel"
+kind = "dir"
+example = "C:\\Intel"
+nearMiss = "C:\\x-Intel"
+
+[[rule]]
+id = "def-root-amd"
+define = true
+parent = "?:"
+name = "AMD"
+kind = "dir"
+example = "C:\\AMD"
+nearMiss = "C:\\x-AMD"
+
+[[rule]]
+id = "def-root-nvidia"
+define = true
+parent = "?:"
+name = "NVIDIA"
+kind = "dir"
+example = "C:\\NVIDIA"
+nearMiss = "C:\\x-NVIDIA"
+
+[[rule]]
+id = "def-swsetup"
+define = true
+parent = "?:"
+name = "SWSetup"
+kind = "dir"
+example = "C:\\SWSetup"
+nearMiss = "C:\\x-SWSetup"
+
+[[rule]]
+id = "def-onedrivetemp"
+define = true
+parent = "?:"
+name = "OneDriveTemp"
+kind = "dir"
+example = "C:\\OneDriveTemp"
+nearMiss = "C:\\x-OneDriveTemp"
+
+[[rule]]
+id = "def-inetpub"
+define = true
+parent = "?:"
+name = "inetpub"
+kind = "dir"
+example = "C:\\inetpub"
+nearMiss = "C:\\x-inetpub"
+
+[[rule]]
+id = "def-msys64"
+define = true
+parent = "?:"
+name = "msys64"
+kind = "dir"
+category = "developer"
+example = "C:\\msys64"
+nearMiss = "C:\\x-msys64"
+
+[[rule]]
+id = "def-esd"
+define = true
+parent = "?:"
+name = "ESD"
+kind = "dir"
+example = "C:\\ESD"
+nearMiss = "C:\\x-ESD"
+
+[[rule]]
+id = "def-dumpstack"
+define = true
+parent = "?:"
+name = "DumpStack.log.tmp"
+kind = "file"
+tier = "keep"
+example = "C:\\DumpStack.log.tmp"
+nearMiss = "C:\\x-DumpStack.log.tmp"
+
+[[rule]]
+id = "def-bootmgr"
+define = true
+parent = "?:"
+name = "bootmgr"
+kind = "file"
+tier = "keep"
+example = "C:\\bootmgr"
+nearMiss = "C:\\x-bootmgr"
+
+[[rule]]
+id = "def-system32"
+define = true
+parent = "%WINDIR%"
+name = "System32"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32"
+nearMiss = "%WINDIR%\\x-System32"
+
+[[rule]]
+id = "def-syswow64"
+define = true
+parent = "%WINDIR%"
+name = "SysWOW64"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\SysWOW64"
+nearMiss = "%WINDIR%\\x-SysWOW64"
+
+[[rule]]
+id = "def-softwaredistribution"
+define = true
+parent = "%WINDIR%"
+name = "SoftwareDistribution"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\SoftwareDistribution"
+nearMiss = "%WINDIR%\\x-SoftwareDistribution"
+
+[[rule]]
+id = "def-fonts"
+define = true
+parent = "%WINDIR%"
+name = "Fonts"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Fonts"
+nearMiss = "%WINDIR%\\x-Fonts"
+
+[[rule]]
+id = "def-win-logs"
+define = true
+parent = "%WINDIR%"
+name = "Logs"
+kind = "dir"
+example = "%WINDIR%\\Logs"
+nearMiss = "%WINDIR%\\x-Logs"
+
+[[rule]]
+id = "def-prefetch"
+define = true
+parent = "%WINDIR%"
+name = "Prefetch"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Prefetch"
+nearMiss = "%WINDIR%\\x-Prefetch"
+
+[[rule]]
+id = "def-assembly"
+define = true
+parent = "%WINDIR%"
+name = "assembly"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\assembly"
+nearMiss = "%WINDIR%\\x-assembly"
+
+[[rule]]
+id = "def-microsoft-net"
+define = true
+parent = "%WINDIR%"
+name = "Microsoft.NET"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Microsoft.NET"
+nearMiss = "%WINDIR%\\x-Microsoft.NET"
+
+[[rule]]
+id = "def-servicing"
+define = true
+parent = "%WINDIR%"
+name = "servicing"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\servicing"
+nearMiss = "%WINDIR%\\x-servicing"
+
+[[rule]]
+id = "def-systemapps"
+define = true
+parent = "%WINDIR%"
+name = "SystemApps"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\SystemApps"
+nearMiss = "%WINDIR%\\x-SystemApps"
+
+[[rule]]
+id = "def-systemresources"
+define = true
+parent = "%WINDIR%"
+name = "SystemResources"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\SystemResources"
+nearMiss = "%WINDIR%\\x-SystemResources"
+
+[[rule]]
+id = "def-panther"
+define = true
+parent = "%WINDIR%"
+name = "Panther"
+kind = "dir"
+example = "%WINDIR%\\Panther"
+nearMiss = "%WINDIR%\\x-Panther"
+
+[[rule]]
+id = "def-livekernelreports"
+define = true
+parent = "%WINDIR%"
+name = "LiveKernelReports"
+kind = "dir"
+example = "%WINDIR%\\LiveKernelReports"
+nearMiss = "%WINDIR%\\x-LiveKernelReports"
+
+[[rule]]
+id = "def-inf"
+define = true
+parent = "%WINDIR%"
+name = "INF"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\INF"
+nearMiss = "%WINDIR%\\x-INF"
+
+[[rule]]
+id = "def-globalization"
+define = true
+parent = "%WINDIR%"
+name = "Globalization"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Globalization"
+nearMiss = "%WINDIR%\\x-Globalization"
+
+[[rule]]
+id = "def-ime"
+define = true
+parent = "%WINDIR%"
+name = "IME"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\IME"
+nearMiss = "%WINDIR%\\x-IME"
+
+[[rule]]
+id = "def-win-boot"
+define = true
+parent = "%WINDIR%"
+name = "Boot"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Boot"
+nearMiss = "%WINDIR%\\x-Boot"
+
+[[rule]]
+id = "def-win-media"
+define = true
+parent = "%WINDIR%"
+name = "Media"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Media"
+nearMiss = "%WINDIR%\\x-Media"
+
+[[rule]]
+id = "def-win-web"
+define = true
+parent = "%WINDIR%"
+name = "Web"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Web"
+nearMiss = "%WINDIR%\\x-Web"
+
+[[rule]]
+id = "def-cursors"
+define = true
+parent = "%WINDIR%"
+name = "Cursors"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Cursors"
+nearMiss = "%WINDIR%\\x-Cursors"
+
+[[rule]]
+id = "def-speech"
+define = true
+parent = "%WINDIR%"
+name = "Speech"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Speech"
+nearMiss = "%WINDIR%\\x-Speech"
+
+[[rule]]
+id = "def-speech-onecore"
+define = true
+parent = "%WINDIR%"
+name = "Speech_OneCore"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Speech_OneCore"
+nearMiss = "%WINDIR%\\x-Speech_OneCore"
+
+[[rule]]
+id = "def-immersivecontrolpanel"
+define = true
+parent = "%WINDIR%"
+name = "ImmersiveControlPanel"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\ImmersiveControlPanel"
+nearMiss = "%WINDIR%\\x-ImmersiveControlPanel"
+
+[[rule]]
+id = "def-shellexperiences"
+define = true
+parent = "%WINDIR%"
+name = "ShellExperiences"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\ShellExperiences"
+nearMiss = "%WINDIR%\\x-ShellExperiences"
+
+[[rule]]
+id = "def-appcompat"
+define = true
+parent = "%WINDIR%"
+name = "appcompat"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\appcompat"
+nearMiss = "%WINDIR%\\x-appcompat"
+
+[[rule]]
+id = "def-apppatch"
+define = true
+parent = "%WINDIR%"
+name = "apppatch"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\apppatch"
+nearMiss = "%WINDIR%\\x-apppatch"
+
+[[rule]]
+id = "def-diagnostics"
+define = true
+parent = "%WINDIR%"
+name = "diagnostics"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\diagnostics"
+nearMiss = "%WINDIR%\\x-diagnostics"
+
+[[rule]]
+id = "def-win-debug"
+define = true
+parent = "%WINDIR%"
+name = "debug"
+kind = "dir"
+example = "%WINDIR%\\debug"
+nearMiss = "%WINDIR%\\x-debug"
+
+[[rule]]
+id = "def-serviceprofiles"
+define = true
+parent = "%WINDIR%"
+name = "ServiceProfiles"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\ServiceProfiles"
+nearMiss = "%WINDIR%\\x-ServiceProfiles"
+
+[[rule]]
+id = "def-systemtemp"
+define = true
+parent = "%WINDIR%"
+name = "SystemTemp"
+kind = "dir"
+example = "%WINDIR%\\SystemTemp"
+nearMiss = "%WINDIR%\\x-SystemTemp"
+
+[[rule]]
+id = "def-win-security"
+define = true
+parent = "%WINDIR%"
+name = "security"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\security"
+nearMiss = "%WINDIR%\\x-security"
+
+[[rule]]
+id = "def-policydefinitions"
+define = true
+parent = "%WINDIR%"
+name = "PolicyDefinitions"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\PolicyDefinitions"
+nearMiss = "%WINDIR%\\x-PolicyDefinitions"
+
+[[rule]]
+id = "def-rescache"
+define = true
+parent = "%WINDIR%"
+name = "rescache"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\rescache"
+nearMiss = "%WINDIR%\\x-rescache"
+
+[[rule]]
+id = "def-csc"
+define = true
+parent = "%WINDIR%"
+name = "CSC"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\CSC"
+nearMiss = "%WINDIR%\\x-CSC"
+
+[[rule]]
+id = "def-downloaded-program-files"
+define = true
+parent = "%WINDIR%"
+name = "Downloaded Program Files"
+kind = "dir"
+example = "%WINDIR%\\Downloaded Program Files"
+nearMiss = "%WINDIR%\\x-Downloaded Program Files"
+
+[[rule]]
+id = "def-win-resources"
+define = true
+parent = "%WINDIR%"
+name = "Resources"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Resources"
+nearMiss = "%WINDIR%\\x-Resources"
+
+[[rule]]
+id = "def-win-tasks"
+define = true
+parent = "%WINDIR%"
+name = "Tasks"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Tasks"
+nearMiss = "%WINDIR%\\x-Tasks"
+
+[[rule]]
+id = "def-containers"
+define = true
+parent = "%WINDIR%"
+name = "Containers"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Containers"
+nearMiss = "%WINDIR%\\x-Containers"
+
+[[rule]]
+id = "def-uus"
+define = true
+parent = "%WINDIR%"
+name = "UUS"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\UUS"
+nearMiss = "%WINDIR%\\x-UUS"
+
+[[rule]]
+id = "def-win-help"
+define = true
+parent = "%WINDIR%"
+name = "Help"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Help"
+nearMiss = "%WINDIR%\\x-Help"
+
+[[rule]]
+id = "def-win-provisioning"
+define = true
+parent = "%WINDIR%"
+name = "Provisioning"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Provisioning"
+nearMiss = "%WINDIR%\\x-Provisioning"
+
+[[rule]]
+id = "def-win-migration"
+define = true
+parent = "%WINDIR%"
+name = "Migration"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\Migration"
+nearMiss = "%WINDIR%\\x-Migration"
+
+[[rule]]
+id = "def-win-system"
+define = true
+parent = "%WINDIR%"
+name = "System"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System"
+nearMiss = "%WINDIR%\\x-System"
+
+[[rule]]
+id = "def-s32-drivers"
+define = true
+parent = "%WINDIR%\\System32"
+name = "drivers"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\drivers"
+nearMiss = "%WINDIR%\\System32\\x-drivers"
+
+[[rule]]
+id = "def-s32-config"
+define = true
+parent = "%WINDIR%\\System32"
+name = "config"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\config"
+nearMiss = "%WINDIR%\\System32\\x-config"
+
+[[rule]]
+id = "def-s32-winevt"
+define = true
+parent = "%WINDIR%\\System32"
+name = "winevt"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\winevt"
+nearMiss = "%WINDIR%\\System32\\x-winevt"
+
+[[rule]]
+id = "def-s32-spool"
+define = true
+parent = "%WINDIR%\\System32"
+name = "spool"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\spool"
+nearMiss = "%WINDIR%\\System32\\x-spool"
+
+[[rule]]
+id = "def-s32-catroot2"
+define = true
+parent = "%WINDIR%\\System32"
+name = "catroot2"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\catroot2"
+nearMiss = "%WINDIR%\\System32\\x-catroot2"
+
+[[rule]]
+id = "def-s32-logfiles"
+define = true
+parent = "%WINDIR%\\System32"
+name = "LogFiles"
+kind = "dir"
+example = "%WINDIR%\\System32\\LogFiles"
+nearMiss = "%WINDIR%\\System32\\x-LogFiles"
+
+[[rule]]
+id = "def-s32-tasks"
+define = true
+parent = "%WINDIR%\\System32"
+name = "Tasks"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\Tasks"
+nearMiss = "%WINDIR%\\System32\\x-Tasks"
+
+[[rule]]
+id = "def-s32-sru"
+define = true
+parent = "%WINDIR%\\System32"
+name = "sru"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\sru"
+nearMiss = "%WINDIR%\\System32\\x-sru"
+
+[[rule]]
+id = "def-s32-wdi"
+define = true
+parent = "%WINDIR%\\System32"
+name = "WDI"
+kind = "dir"
+example = "%WINDIR%\\System32\\WDI"
+nearMiss = "%WINDIR%\\System32\\x-WDI"
+
+[[rule]]
+id = "def-s32-wbem"
+define = true
+parent = "%WINDIR%\\System32"
+name = "wbem"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\System32\\wbem"
+nearMiss = "%WINDIR%\\System32\\x-wbem"
+
+[[rule]]
+id = "def-sd-datastore"
+define = true
+parent = "%WINDIR%\\SoftwareDistribution"
+name = "DataStore"
+kind = "dir"
+tier = "keep"
+example = "%WINDIR%\\SoftwareDistribution\\DataStore"
+nearMiss = "%WINDIR%\\SoftwareDistribution\\x-DataStore"

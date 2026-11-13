@@ -1,0 +1,42 @@
+# Release build: runs only when started by hand. It builds the per-user installer and the
+# portable exe with SHA-256 checksums and uploads them as workflow artifacts. Publishing a
+# GitHub Release and submitting the winget manifest are done by the maintainer.
+name: Release build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Installer and portable exe
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run tauri build
+      - run: cargo build --release -p unhoard-cli
+      - name: Collect files and checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          Copy-Item target/release/bundle/nsis/*.exe out/
+          Copy-Item target/release/unhoard-app.exe out/Unhoard-portable.exe
+          Copy-Item target/release/unhoard.exe out/unhoard-cli.exe
+          Get-ChildItem out -File | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
+          } | Set-Content out/SHA256SUMS.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unhoard-windows
+          path: out/

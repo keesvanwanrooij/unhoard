@@ -1,0 +1,167 @@
+# Known locations: caches that apps rebuild by themselves. Close the app first; profile
+# data (bookmarks, passwords, history) is never matched.
+
+[[rule]]
+id = "chrome-cache"
+parent = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\*"
+name = "Cache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Cache"
+nearMiss = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Caches"
+
+[[rule]]
+id = "chrome-code-cache"
+parent = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\*"
+name = "Code Cache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Code Cache"
+nearMiss = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Code Caches"
+
+[[rule]]
+id = "chrome-gpu-cache"
+parent = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\*"
+name = "GPUCache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\GPUCache"
+nearMiss = "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\GPUCache2"
+
+[[rule]]
+id = "edge-cache"
+parent = "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\*"
+name = "Cache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Cache"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Cachex"
+
+[[rule]]
+id = "edge-code-cache"
+parent = "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\*"
+name = "Code Cache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Code Cache"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Code Cachex"
+
+[[rule]]
+id = "brave-cache"
+parent = "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\*"
+name = "Cache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Cache"
+nearMiss = "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Cachex"
+
+[[rule]]
+id = "firefox-cache"
+parent = "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*"
+name = "cache2"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\abc.default\\cache2"
+nearMiss = "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\abc.default\\cache3"
+
+[[rule]]
+id = "d3d-shader-cache"
+parent = "%LOCALAPPDATA%"
+name = "D3DSCache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\D3DSCache"
+nearMiss = "%LOCALAPPDATA%\\D3DSCacheOld"
+
+[[rule]]
+id = "nvidia-dxcache"
+parent = "%LOCALAPPDATA%\\NVIDIA"
+name = "DXCache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\NVIDIA\\DXCache"
+nearMiss = "%LOCALAPPDATA%\\NVIDIA\\DXCacheX"
+
+[[rule]]
+id = "nvidia-glcache"
+parent = "%LOCALAPPDATA%\\NVIDIA"
+name = "GLCache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\NVIDIA\\GLCache"
+nearMiss = "%LOCALAPPDATA%\\NVIDIA\\GLCacheX"
+
+[[rule]]
+id = "amd-dxcache"
+parent = "%LOCALAPPDATA%\\AMD"
+name = "DxCache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%LOCALAPPDATA%\\AMD\\DxCache"
+nearMiss = "%LOCALAPPDATA%\\AMD\\DxCache2"
+
+[[rule]]
+id = "steam-shadercache"
+parent = "**\\steamapps"
+name = "shadercache"
+kind = "dir"
+category = "apps"
+tier = "safe"
+action = "quarantine"
+example = "D:\\SteamLibrary\\steamapps\\shadercache"
+nearMiss = "D:\\SteamLibrary\\steamapps\\shaders"
+
+[[rule]]
+id = "thumbnail-cache"
+parent = "%LOCALAPPDATA%\\Microsoft\\Windows\\Explorer"
+name = "thumbcache_*.db"
+kind = "file"
+category = "other"
+tier = "safe"
+action = "windowsTool:diskCleanup"
+example = "%LOCALAPPDATA%\\Microsoft\\Windows\\Explorer\\thumbcache_256.db"
+nearMiss = "%LOCALAPPDATA%\\Microsoft\\Windows\\Explorer\\iconcache_256.db"
+
+[[rule]]
+id = "discord-cache"
+parent = "%APPDATA%\\discord"
+name = "Cache"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%APPDATA%\\discord\\Cache"
+nearMiss = "%APPDATA%\\discord\\Local Storage"
+
+[[rule]]
+id = "adobe-media-cache"
+parent = "%APPDATA%\\Adobe\\Common"
+name = "Media Cache Files"
+kind = "dir"
+category = "other"
+tier = "safe"
+action = "quarantine"
+example = "%APPDATA%\\Adobe\\Common\\Media Cache Files"
+nearMiss = "%APPDATA%\\Adobe\\Common\\Peak Files"

@@ -53,6 +53,7 @@ Windows terms follow Windows NL ([Translations](23-translations.md)).
 | Not freed yet | Nog niet vrijgemaakt | Space in the quarantine that returns only after the purge |
 | Activity log | Activiteitenlogboek | The local list of every move, restore and purge |
 | Known location | Bekende locatie | A library entry that explains a common big item |
+| Definition | Definitie | A library entry that says what a known folder is, without an opinion about removing it |
 | Safe | Veilig | Regenerable; the app or Windows rebuilds it |
 | Likely safe | Waarschijnlijk veilig | Usually unneeded, but it was yours or an app's |
 | Review | Bekijken | Only you can judge |
@@ -67,6 +68,8 @@ Windows terms follow Windows NL ([Translations](23-translations.md)).
 | Power diagram | Machtsdiagram | The weighted Voronoi layout behind the cell map |
 | Treemap | Treemap | The simple map of nested rectangles |
 | Breadcrumb | Kruimelpad | The path above the map that shows where you are |
+| Priority matrix | Prioriteitsmatrix | The view that plots suggestions by size and by how long they went unused |
+| App adapter | App-koppeling | Code that reads an app's own records, such as Steam's game list |
 
 ## Photos
 

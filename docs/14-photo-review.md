@@ -29,9 +29,7 @@ The file name tells where most photos come from (T-7.1).
 | Google Pixel | `PXL_YYYYMMDD_HHMMSSmmm.jpg` | |
 | iPhone | `IMG_####.HEIC` or `.JPG`, `.MOV` live photos, edited `IMG_E####` | |
 | Windows Phone, Nokia Lumia | `WP_YYYYMMDD_###.jpg` | |
-| Older Nokia | `Image###.jpg` style | (verify) |
 | Screenshots | `Screenshot_*`, `Schermafbeelding *`, `Screenshot YYYY-MM-DD *` | |
-| Telegram, Signal | their own patterns | (verify) |
 
 ## Groups
 
@@ -41,7 +39,7 @@ Each group says how sure the match is.
 |---|---|---|
 | **Exact duplicates, local** | Same size, then a partial hash (first and last 64 KB), then a full BLAKE3 hash | "Identical" |
 | **Exact duplicates, cloud-only** | Same size, same extension and an identical thumbnail perceptual hash | "Almost certainly identical", never "identical" |
-| **Near duplicates** | Perceptual hash (dHash or pHash) Hamming distance at or below a threshold, tuned on generated images | "Very similar" |
+| **Near duplicates** | Perceptual hash (dHash) Hamming distance at or below a threshold, tuned on generated images | "Very similar" |
 | **Bursts** | Same source pattern, timestamps from the name or EXIF within about 2 seconds | "Burst of N" |
 | **Chat media** | WhatsApp, Telegram and Signal patterns | "Chat media", grouped by month |
 | **Screenshots** | Screenshot patterns | "Screenshots", grouped by month |
@@ -71,11 +69,12 @@ and it is a suggestion only.
 ## Thumbnails
 
 - Thumbnails come from `IShellItemImageFactory::GetImage` with `SIIGBF_THUMBNAILONLY`, so
-  Windows never renders a full image to make one. Calls run on a small pool of COM STA
-  worker threads.
-- For online-only files, OneDrive's thumbnail provider can serve the thumbnail without a
-  download (verify in the manual checks). If a thumbnail cannot be obtained without
-  hydration, the item is grouped by name, size and date only, and marked so.
+  Windows never renders a full image to make one. Analysis runs on a worker pool; each
+  thread initialises COM as a single-threaded apartment.
+- For files in a sync root, Unhoard asks only for a thumbnail Windows already has in its
+  cache (`SIIGBF_INCACHEONLY`) and reads properties only from the fast property cache, so
+  no cloud file is opened. Without a cached thumbnail, the item is grouped by name, size
+  and date only, and marked so.
 - Unhoard decodes nothing itself beyond the thumbnail bitmap it receives, with fixed size
   limits ([Threat model](32-threat-model.md)).
 
@@ -86,11 +85,10 @@ and it is a suggestion only.
   Whether these are available on placeholders is part of the manual checks (verify).
 - Similar videos (re-encoded or trimmed) need ffmpeg and are in Next.
 
-## Local cache
+## Nothing is stored
 
-Thumbnail hashes and content hashes are cached in `%LOCALAPPDATA%\Unhoard\cache\`, so a
-second review is fast. The cache holds hashes and IDs, never images. It stays on the PC
-and can be deleted in Settings ([Privacy](30-privacy.md)).
+Thumbnail hashes and content hashes live in memory for the session only. Nothing about
+your photos is written to disk ([Privacy](30-privacy.md)).
 
 ## Roadmap
 

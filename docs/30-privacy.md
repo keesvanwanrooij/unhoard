@@ -22,14 +22,11 @@ all of it on your PC.
 
 | What | Where | What it holds | How to remove it |
 |---|---|---|---|
-| Settings | `%APPDATA%\Unhoard\settings.json` | Language, view, motion, measure, companion mode | Settings › Reset, or delete the folder |
+| Settings | `%APPDATA%\Unhoard\settings.json` | Language, view, motion, measure, companion mode | Delete the file |
 | Scan results | Memory only | The scanned tree | Closing the app; nothing is saved unless you export (S9) |
-| Quarantine index | `%LOCALAPPDATA%\Unhoard\` | A copy of the batch list, rebuilt from the manifests | Rebuilt automatically; safe to delete |
 | Batch manifests | Inside each quarantine folder | Original paths, sizes, timestamps, file IDs | Deleted with the batch by the purge |
-| Activity log | `%LOCALAPPDATA%\Unhoard\activity.jsonl` | Time, operation, item IDs, result; never file contents | Settings › Privacy › Clear activity log |
-| Photo cache | `%LOCALAPPDATA%\Unhoard\cache\` | Thumbnail hashes and content hashes, never images | Settings › Privacy › Clear cache |
+| Activity log | `%LOCALAPPDATA%\Unhoard\activity.jsonl` | Time, operation, item IDs, result; never paths or file contents | Delete the file |
 | Background insights (Next) | `%LOCALAPPDATA%\Unhoard\insights\` | Daily sizes of the largest folders, startup impact, disk health; at most 6 MB, 2 years | Settings › Optimise › turn off and clear |
-| Diagnostic log | `%LOCALAPPDATA%\Unhoard\logs\` | Off by default. When you turn it on, it may hold paths | Settings › Privacy |
 
 Uninstalling Unhoard removes the program. Your settings and caches stay until you delete
 them, and quarantine folders always stay, so an uninstall never deletes your files.
@@ -39,7 +36,7 @@ them, and quarantine folders always stay, so an uninstall never deletes your fil
 - An export happens only when you ask for one.
 - Exports and CLI output replace your profile path with `%USERPROFILE%`, so a shared
   report does not show your user name (S9). A test proves the redaction works.
-- Logs contain no file paths unless you turn on diagnostic logging.
+- Unhoard writes no log besides the activity log, which holds no paths.
 
 ## Background insights
 
@@ -56,9 +53,19 @@ growth over time is only visible if it is measured from the start.
 ## Elevation
 
 - The main app never runs as administrator (S7).
-- "Reveal hidden space" starts a separate helper after a UAC prompt. The helper only
-  reads folder listings, sends the results back to the app, and exits. It cannot move,
-  change or delete anything.
+- "Reveal hidden space" and "Read protected folders" start a separate helper after a
+  UAC prompt. The helper only reads folder listings, sends the results back to the app,
+  and exits. It cannot move, change or delete anything.
+
+## What Unhoard reads besides your files
+
+All of it stays on your PC:
+
+- Windows' list of installed programs, to name install folders.
+- Windows' program history (UserAssist), only the last start time of programs, to show
+  when you last used them.
+- Steam's and Ollama's own records of what is installed.
+- After you click, the output of `docker system df`, which Docker answers locally.
 
 ## AI, later
 
