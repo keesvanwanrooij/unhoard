@@ -1,9 +1,9 @@
 //! Starting the elevated read-only helper and talking to it over a named pipe: the app
-//! sends one request and reads one reply.
+//! sends requests and reads a reply to each, for as long as the session lasts.
 
 use std::io::{Read, Write};
 use std::os::windows::io::{FromRawHandle, OwnedHandle};
-use std::sync::mpsc::Receiver;
+use std::sync::mpsc::{Receiver, Sender};
 
 use unhoard_core::fs::FsError;
 use windows::Win32::Foundation::{ERROR_CANCELLED, ERROR_PIPE_CONNECTED, HANDLE, WAIT_OBJECT_0};
@@ -20,6 +20,9 @@ use super::{Handle, Wide, map_err};
 
 /// A pipe server waiting for one client.
 pub(crate) struct PipeServer(Handle);
+
+/// One request to the helper, and where its reply goes.
+pub(crate) type Request = (Vec<u8>, Sender<Result<Vec<u8>, FsError>>);
 
 /// Creates a one-instance, two-way, local-only pipe. Its default security lets only
 /// SYSTEM, Administrators and this user open it.
@@ -45,15 +48,16 @@ pub(crate) fn create_pipe(name: &str) -> Result<PipeServer, FsError> {
 }
 
 impl PipeServer {
-    /// Waits for the client and checks its process ID; then waits for the request, sends
-    /// it, and reads everything the client sends back, at most `max` bytes. The request is
-    /// never sent to any other process.
+    /// Waits for the client and checks its process ID; then, for each request that
+    /// arrives, sends it and reads the reply: a little-endian length, then at most `max`
+    /// bytes. Requests are never sent to any other process. It returns when the last
+    /// sender of `requests` is dropped, which closes the pipe and ends the helper.
     pub(crate) fn serve(
         self,
         expected_pid: u32,
-        request: &Receiver<Vec<u8>>,
+        requests: &Receiver<Request>,
         max: usize,
-    ) -> Result<Vec<u8>, FsError> {
+    ) -> Result<(), FsError> {
         // SAFETY: the pipe handle is valid; synchronous connect.
         if let Err(e) = unsafe { ConnectNamedPipe(self.0.0, None) }
             && e.code() != ERROR_PIPE_CONNECTED.to_hresult()
@@ -70,14 +74,32 @@ impl PipeServer {
         std::mem::forget(self);
         // SAFETY: ownership of the pipe handle moves into the File, which closes it.
         let mut file = std::fs::File::from(unsafe { OwnedHandle::from_raw_handle(raw.0) });
-        let body = request.recv().map_err(|_| FsError::Other { code: 0 })?;
-        file.write_all(&body).map_err(|e| super::map_io(&e))?;
-        let mut out = vec![];
-        file.take(max as u64)
-            .read_to_end(&mut out)
-            .map_err(|e| super::map_io(&e))?;
-        Ok(out)
+        for (body, reply) in requests {
+            let result = exchange(&mut file, &body, max);
+            let failed = result.is_err();
+            // The caller may have stopped waiting; the next request still gets an answer.
+            let _delivered = reply.send(result);
+            if failed {
+                // After a broken exchange the stream is out of step: end the session.
+                break;
+            }
+        }
+        Ok(())
     }
+}
+
+/// Sends one request and reads its length-prefixed reply.
+fn exchange(file: &mut std::fs::File, body: &[u8], max: usize) -> Result<Vec<u8>, FsError> {
+    file.write_all(body).map_err(|e| super::map_io(&e))?;
+    let mut len = [0u8; 4];
+    file.read_exact(&mut len).map_err(|e| super::map_io(&e))?;
+    let len = u32::from_le_bytes(len) as usize;
+    if len > max {
+        return Err(FsError::Other { code: 0 });
+    }
+    let mut out = vec![0u8; len];
+    file.read_exact(&mut out).map_err(|e| super::map_io(&e))?;
+    Ok(out)
 }
 
 /// A process started by [`run_elevated`].
@@ -88,6 +110,11 @@ impl Process {
     pub(crate) fn id(&self) -> u32 {
         // SAFETY: the process handle is valid.
         unsafe { GetProcessId(self.0.0) }
+    }
+
+    /// True while it runs.
+    pub(crate) fn alive(&self) -> bool {
+        !self.wait(0)
     }
 
     /// Waits until it exits or `ms` pass; true if it exited.

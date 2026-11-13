@@ -35,6 +35,8 @@ interface State {
   hovered: number | null;
   /** The elevated helper was started for the running scan and waits for its folders. */
   adminArmed: boolean;
+  /** The user's answer to reading protected folders, kept for this app session: asked once. */
+  adminAnswer: "yes" | "no" | null;
   query: string;
   /** Bumped whenever the tree changed (a move), so views reload. */
   treeVersion: number;
@@ -46,6 +48,7 @@ interface State {
   select: (id: number | null) => void;
   hover: (id: number | null) => void;
   setAdminArmed: (armed: boolean) => void;
+  setAdminAnswer: (answer: "yes" | "no" | null) => void;
   setQuery: (q: string) => void;
   setDrive: (d: string) => void;
   setScan: (s: ScanStatus) => void;
@@ -74,6 +77,7 @@ export const useApp = create<State>((set, get) => ({
   selected: null,
   hovered: null,
   adminArmed: false,
+  adminAnswer: null,
   query: "",
   treeVersion: 0,
   queue: new BubbleQueue(),
@@ -93,6 +97,9 @@ export const useApp = create<State>((set, get) => ({
   },
   setAdminArmed: (adminArmed) => {
     set({ adminArmed });
+  },
+  setAdminAnswer: (adminAnswer) => {
+    set({ adminAnswer });
   },
   setQuery: (query) => {
     set({ query });

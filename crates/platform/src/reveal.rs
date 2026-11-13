@@ -4,14 +4,16 @@
 //! The app never runs elevated. To look into folders the user may not read, it starts its
 //! own executable once more through the UAC prompt with `--reveal-helper` and a random pipe
 //! name. The helper connects to the pipe; the app checks that the client is the process it
-//! started and only then sends the folders to read. So the helper can start when a scan
-//! starts and get its list when the scan ends. The helper validates every folder, enables
-//! SeBackupPrivilege, lists the folders with the same read-only scanner, sends a summary
-//! back and exits. It has no code path that writes, moves or deletes.
+//! started and only then sends folders to read. The helper stays for the rest of the app
+//! session, so the user answers the UAC prompt once: it can start when a scan starts, read
+//! when the scan ends, and read again for a later scan, a folder button or "Reveal hidden
+//! space". For each request it validates every folder, lists them with the same read-only
+//! scanner and sends a summary back. It exits when the app closes the pipe, which happens
+//! when the app quits. It has no code path that writes, moves or deletes.
 
 use std::io::{Read, Write};
-use std::sync::mpsc::{Sender, channel};
-use std::thread::JoinHandle;
+use std::sync::mpsc::{RecvTimeoutError, Sender, channel};
+use std::time::{Duration, Instant};
 
 use serde::{Deserialize, Serialize};
 use unhoard_core::fs::FsError;
@@ -93,13 +95,15 @@ fn decode_request(body: &[u8]) -> Option<Vec<String>> {
     (folders.len() <= MAX_FOLDERS && folders.iter().all(|f| valid_folder(f))).then_some(folders)
 }
 
-/// A started helper, waiting for its list of folders.
+/// A started helper, waiting for folders to read. Dropping it ends the helper.
 pub struct HelperSession {
     process: elevate::Process,
     pipe: String,
-    request: Sender<Vec<u8>>,
-    reply: JoinHandle<Result<Vec<u8>, FsError>>,
+    requests: Sender<elevate::Request>,
 }
+
+/// How long one read may take before the app stops waiting.
+const READ_LIMIT: Duration = Duration::from_secs(30 * 60);
 
 /// Starts the helper: Windows shows the UAC prompt now. Blocks only until the user answers.
 pub fn start_helper() -> Result<HelperSession, RevealError> {
@@ -114,20 +118,26 @@ pub fn start_helper() -> Result<HelperSession, RevealError> {
         .map_err(RevealError::Failed)?
         .ok_or(RevealError::Declined)?;
     let pid = process.id();
-    let (request, rx) = channel();
-    let reply = std::thread::spawn(move || server.serve(pid, &rx, MAX_REPLY));
+    let (requests, rx) = channel();
+    // The thread ends with the session; a failed connection drops the queued replies,
+    // which the reader sees as a failure.
+    std::thread::spawn(move || server.serve(pid, &rx, MAX_REPLY));
     Ok(HelperSession {
         process,
         pipe,
-        request,
-        reply,
+        requests,
     })
 }
 
 impl HelperSession {
+    /// True while the helper runs and can take another request.
+    pub fn alive(&self) -> bool {
+        self.process.alive()
+    }
+
     /// Sends the folders to the helper and waits for what it found. Call it off the UI
-    /// thread; the helper exits afterwards.
-    pub fn read(self, folders: &[String]) -> Result<Vec<RevealedFolder>, RevealError> {
+    /// thread; the helper stays for the next request.
+    pub fn read(&self, folders: &[String]) -> Result<Vec<RevealedFolder>, RevealError> {
         let bad = || {
             folders
                 .iter()
@@ -136,24 +146,32 @@ impl HelperSession {
                 .unwrap_or_else(|| "too many folders".into())
         };
         let body = encode_request(folders).ok_or_else(|| RevealError::InvalidFolder(bad()))?;
-        // If the helper already ended, the reply thread reports that below.
-        let _sent = self.request.send(body);
-        if !self.process.wait(30 * 60 * 1000) {
-            return Err(RevealError::Failed(FsError::Other { code: 1460 }));
-        }
-        if !self.reply.is_finished() {
-            // The helper ended without connecting: connect once ourselves so the server
-            // stops waiting. Its process-ID check rejects this connection.
-            let _unblock = std::fs::OpenOptions::new()
-                .write(true)
-                .open(format!(r"\\.\pipe\{}", self.pipe));
-        }
-        let bytes = self
-            .reply
-            .join()
-            .map_err(|_| RevealError::Failed(FsError::Other { code: 0 }))?
-            .map_err(RevealError::Failed)?;
-        serde_json::from_slice(&bytes).map_err(|_| RevealError::Failed(FsError::Other { code: 0 }))
+        let failed = |code| RevealError::Failed(FsError::Other { code });
+        let (reply, answer) = channel();
+        self.requests.send((body, reply)).map_err(|_| failed(0))?;
+        let start = Instant::now();
+        let mut unblocked = false;
+        let bytes = loop {
+            match answer.recv_timeout(Duration::from_millis(250)) {
+                Ok(r) => break r.map_err(RevealError::Failed)?,
+                Err(RecvTimeoutError::Disconnected) => return Err(failed(0)),
+                Err(RecvTimeoutError::Timeout) if start.elapsed() > READ_LIMIT => {
+                    return Err(failed(1460));
+                }
+                Err(RecvTimeoutError::Timeout) => {
+                    if !unblocked && !self.process.alive() {
+                        // The helper ended, perhaps without ever connecting: connect once
+                        // ourselves so the server stops waiting. Its process-ID check
+                        // rejects this connection and the reply channel closes.
+                        unblocked = true;
+                        let _unblock = std::fs::OpenOptions::new()
+                            .write(true)
+                            .open(format!(r"\\.\pipe\{}", self.pipe));
+                    }
+                }
+            }
+        };
+        serde_json::from_slice(&bytes).map_err(|_| failed(0))
     }
 }
 
@@ -217,21 +235,6 @@ pub fn run_helper(args: &[String]) -> i32 {
     else {
         return 5;
     };
-    let mut len = [0u8; 4];
-    if conn.read_exact(&mut len).is_err() {
-        return 6;
-    }
-    let len = u32::from_le_bytes(len) as usize;
-    if len > MAX_REQUEST {
-        return 2;
-    }
-    let mut body = vec![0u8; len];
-    if conn.read_exact(&mut body).is_err() {
-        return 6;
-    }
-    let Some(folders) = decode_request(&body) else {
-        return 2;
-    };
     if security::enable_backup_privilege().is_err() {
         return 3;
     }
@@ -241,14 +244,43 @@ pub fn run_helper(args: &[String]) -> i32 {
         now: 0,
         knowledge: Default::default(),
     };
-    let results: Vec<RevealedFolder> = folders.iter().map(|f| reveal_one(f, &ctx)).collect();
-    let Ok(json) = serde_json::to_vec(&results) else {
-        return 4;
-    };
-    match conn.write_all(&json) {
-        Ok(()) => 0,
-        Err(_) => 5,
+    // One request after another until the app closes the pipe.
+    loop {
+        let mut len = [0u8; 4];
+        if conn.read_exact(&mut len).is_err() {
+            // The app closed the pipe: the session is over.
+            return 0;
+        }
+        let len = u32::from_le_bytes(len) as usize;
+        if len > MAX_REQUEST {
+            return 2;
+        }
+        let mut body = vec![0u8; len];
+        if conn.read_exact(&mut body).is_err() {
+            return 6;
+        }
+        let Some(folders) = decode_request(&body) else {
+            return 2;
+        };
+        let results: Vec<RevealedFolder> = folders.iter().map(|f| reveal_one(f, &ctx)).collect();
+        let Some(reply) = frame_reply(&results) else {
+            return 4;
+        };
+        if conn.write_all(&reply).is_err() {
+            return 5;
+        }
     }
+}
+
+/// A reply as sent over the pipe: a little-endian length, then the results as JSON.
+fn frame_reply(results: &[RevealedFolder]) -> Option<Vec<u8>> {
+    let json = serde_json::to_vec(results).ok()?;
+    if json.len() > MAX_REPLY {
+        return None;
+    }
+    let mut out = u32::try_from(json.len()).ok()?.to_le_bytes().to_vec();
+    out.extend(json);
+    Some(out)
 }
 
 #[cfg(test)]
@@ -290,5 +322,22 @@ mod tests {
             "the helper validates too"
         );
         assert!(decode_request(b"not json").is_none());
+    }
+
+    #[test]
+    fn f3_s7_replies_are_framed_with_their_length() {
+        let results = vec![RevealedFolder {
+            path: r"C:\System Volume Information".into(),
+            logical: 10,
+            on_disk: 12,
+            files: 3,
+            children: vec![("a".into(), 12)],
+            error: None,
+        }];
+        let reply = frame_reply(&results).unwrap();
+        let len = u32::from_le_bytes(reply[..4].try_into().unwrap()) as usize;
+        assert_eq!(len, reply.len() - 4);
+        let back: Vec<RevealedFolder> = serde_json::from_slice(&reply[4..]).unwrap();
+        assert_eq!(back, results);
     }
 }

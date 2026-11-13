@@ -410,15 +410,17 @@ pub async fn free_up_apply(
     .await
 }
 
-/// The elevated helper started for the current scan, waiting for its list of folders.
+/// The elevated helper, kept for the whole app session once the user said yes, so the UAC
+/// prompt appears only once.
 #[derive(Default)]
 pub struct AdminState(Mutex<Option<HelperSession>>);
 
-fn take_session(admin: &AdminState) -> Option<HelperSession> {
-    match admin.0.lock() {
-        Ok(mut g) => g.take(),
-        Err(p) => p.into_inner().take(),
-    }
+/// The lock on the session; a panic in another reader does not lose it.
+fn session(admin: &AdminState) -> std::sync::MutexGuard<'_, Option<HelperSession>> {
+    admin
+        .0
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
 }
 
 fn measured(r: &RevealedFolder) -> Option<Measured> {
@@ -431,46 +433,55 @@ fn measured(r: &RevealedFolder) -> Option<Measured> {
     })
 }
 
-/// Reads `folders` with the helper started earlier, or starts one now (UAC), and fills
-/// the scan with what it measured.
+/// Reads `folders` with the running helper, or starts one now (UAC) and keeps it, and fills
+/// the scan with what it measured. Reads wait for each other, so the helper serves one
+/// request at a time.
 fn read_elevated(
     svc: &Service,
     admin: &AdminState,
     generation: u64,
     folders: &[String],
 ) -> Result<Result<(Vec<RevealedFolder>, MeasuredSummary), RevealError>, CmdError> {
-    let session = match take_session(admin) {
-        Some(s) => s,
-        None => match start_helper() {
-            Ok(s) => s,
+    let mut guard = session(admin);
+    if !guard.as_ref().is_some_and(HelperSession::alive) {
+        match start_helper() {
+            Ok(s) => *guard = Some(s),
             Err(e) => return Ok(Err(e)),
-        },
+        }
+    }
+    let Some(helper) = guard.as_ref() else {
+        return Ok(Err(RevealError::Declined));
     };
-    let results = match session.read(folders) {
+    let results = match helper.read(folders) {
         Ok(r) => r,
-        Err(e) => return Ok(Err(e)),
+        Err(e) => {
+            // A failed helper is not reused; the next read starts a new one.
+            *guard = None;
+            return Ok(Err(e));
+        }
     };
+    drop(guard);
     let found: Vec<Measured> = results.iter().filter_map(measured).collect();
     let summary = svc.apply_measured(generation, &found)?;
     Ok(Ok((results, summary)))
 }
 
-/// Starts the elevated read-only helper now (one UAC prompt), so it can read the folders
-/// the scan cannot once the scan ends. `Ok(false)` when the user declines.
+/// Starts the elevated read-only helper (one UAC prompt per app session), so it can read
+/// the folders the scan cannot once the scan ends. `Ok(false)` when the user declines;
+/// `Ok(true)` at once when the helper already runs.
 #[tauri::command]
 pub async fn admin_start(
     admin: State<'_, Arc<AdminState>>,
 ) -> Result<Result<bool, RevealError>, CmdError> {
     let admin = admin.inner().clone();
     blocking(move || {
-        if admin.0.lock().map(|g| g.is_some()).unwrap_or(false) {
+        let mut guard = session(&admin);
+        if guard.as_ref().is_some_and(HelperSession::alive) {
             return Ok(Ok(true));
         }
         Ok(match start_helper() {
             Ok(s) => {
-                if let Ok(mut g) = admin.0.lock() {
-                    *g = Some(s);
-                }
+                *guard = Some(s);
                 Ok(true)
             }
             Err(RevealError::Declined) => Ok(false),
@@ -492,8 +503,7 @@ pub async fn admin_read(
     blocking(move || {
         let folders = svc.unscanned_paths(generation, ids.as_deref())?;
         if folders.is_empty() {
-            // Nothing to read: the started helper is not needed.
-            drop(take_session(&admin));
+            // Nothing to read now; the helper stays for the next scan.
             return Ok(Ok(MeasuredSummary::default()));
         }
         Ok(read_elevated(&svc, &admin, generation, &folders)?.map(|(_, sum)| sum))

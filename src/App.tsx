@@ -81,18 +81,21 @@ function readProtected(generation: number, t: T): void {
     });
 }
 
-/** Starts the elevated helper now (one UAC prompt); it reads when the scan ends. */
+/** Starts the elevated helper (one UAC prompt per app session; later scans reuse it); it
+ * reads when the scan ends. */
 function armAdmin(t: T): void {
   const st = useApp.getState();
   api
     .adminStart()
     .then((r) => {
       if ("Ok" in r && r.Ok) {
+        st.setAdminAnswer("yes");
         st.setAdminArmed(true);
         // The scan may already have ended while the question waited.
         const scan = useApp.getState().scan;
         if (scan?.done) readProtected(scan.generation, t);
       } else if ("Ok" in r) {
+        st.setAdminAnswer("no");
         st.say({ type: "explanation", text: t("companion.script.revealDeclined.0") });
       }
     })
@@ -106,9 +109,10 @@ function startScan(drive: string, t: T): void {
   st.endTopic("scan");
   st.endTopic("admin");
   st.setAdminArmed(false);
-  // Protected folders: ask once per scan, read always, or never (AC3.6, AC3.7).
-  if (st.settings.adminRead === "always") armAdmin(t);
-  else if (st.settings.adminRead === "ask") {
+  // Protected folders: ask once per app session, read always, or never (AC3.6, AC3.7). A
+  // "yes" keeps the helper running, so later scans read without a new question or prompt.
+  if (st.settings.adminRead === "always" || (st.settings.adminRead === "ask" && st.adminAnswer === "yes")) armAdmin(t);
+  else if (st.settings.adminRead === "ask" && st.adminAnswer === null) {
     st.say({
       type: "explanation",
       key: "admin",
@@ -120,7 +124,12 @@ function startScan(drive: string, t: T): void {
             armAdmin(t);
           },
         },
-        { label: t("companion.adminNo"), run: () => undefined },
+        {
+          label: t("companion.adminNo"),
+          run: () => {
+            useApp.getState().setAdminAnswer("no");
+          },
+        },
       ],
     });
   }
