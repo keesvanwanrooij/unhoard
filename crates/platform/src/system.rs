@@ -67,6 +67,9 @@ pub fn open_tool(tool: WindowsTool) -> std::io::Result<()> {
         WindowsTool::Apps => ("explorer.exe", "ms-settings:appsfeatures"),
         WindowsTool::DiskCleanup => ("cleanmgr.exe", ""),
         WindowsTool::RecycleBin => ("explorer.exe", "shell:RecycleBinFolder"),
+        WindowsTool::TaskManager => ("taskmgr.exe", ""),
+        WindowsTool::WindowsUpdate => ("explorer.exe", "ms-settings:windowsupdate"),
+        WindowsTool::Disks => ("explorer.exe", "ms-settings:disksandvolumes"),
         WindowsTool::SystemProtection => {
             // System Protection needs admin rights; only the shell can raise the UAC prompt.
             let windows = std::env::var("SystemRoot").map_err(|_| std::io::ErrorKind::NotFound)?;
