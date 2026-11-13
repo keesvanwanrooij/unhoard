@@ -92,14 +92,15 @@ const SETTLE_STEPS = 60;
 /** Frames the map stays soft after a touch at most: time to flow back and stop wobbling. */
 const SOFT_FRAMES = 180;
 /** A moving cell stretches by this much per pixel of speed, up to the limit. */
-const STRETCH_PER_PX = 0.012;
-const STRETCH_MAX = 0.12;
+const STRETCH_PER_PX = 0.03;
+const STRETCH_MAX = 0.3;
 /** The spring that pulls a cell's stretch to where its speed wants it: the pull, and how
  * much of the swing survives a frame. Together they overshoot, which is the wobble. */
-const WOBBLE_PULL = 0.3;
-const WOBBLE_KEEP = 0.75;
-/** A poke squashes a cell by giving its stretch this push. */
-const POKE = 0.07;
+const WOBBLE_PULL = 0.25;
+const WOBBLE_KEEP = 0.82;
+/** A press squashes a cell by giving its stretch this push; touching it with the pointer
+ * gives a smaller one. */
+const POKE = 0.2;
 
 /** How far a cell is stretched along the direction it last moved in, on a spring. */
 interface Jelly {
@@ -121,6 +122,9 @@ export class Renderer {
   private levelKey = "root";
   private mode: "cells" | "treemap" = "cells";
   private living = true;
+  /** Cells squash and wobble when touched. Only Windows' "animation effects off" stops it:
+   * the motion comes from the user's own hand, so the calm setting keeps it. */
+  private squishy = true;
   private scanning = false;
   private hovered: string | null = null;
   private selected: string | null = null;
@@ -225,7 +229,9 @@ export class Renderer {
   /** Animation and state flags. */
   setFlags(f: { living: boolean; scanning: boolean; selected: string | null; query: string; active: boolean }): void {
     this.active = f.active;
-    this.living = f.living && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.living = f.living && !reduced;
+    this.squishy = !reduced;
     this.scanning = f.scanning;
     this.selected = f.selected;
     this.query = f.query.toLowerCase();
@@ -285,10 +291,11 @@ export class Renderer {
     return j;
   }
 
-  /** Pokes a cell: it squashes and wobbles back. Does nothing in the calm setting. */
-  poke(id: string): void {
-    if (!this.living || this.mode !== "cells" || this.trans) return;
-    this.jellyOf(id).v -= POKE;
+  /** Pokes a cell: it squashes by `strength` times a press and wobbles back. Does nothing
+   * when Windows' animation effects are off. */
+  poke(id: string, strength = 1): void {
+    if (!this.squishy || this.mode !== "cells" || this.trans) return;
+    this.jellyOf(id).v -= POKE * strength;
     this.soft = Math.max(this.soft, SOFT_FRAMES);
     this.dirty = true;
   }
@@ -399,8 +406,8 @@ export class Renderer {
     if (this.softNow) {
       // A soft map takes one step a frame: the held cell goes to the pointer and the
       // others flow, so a drag costs what a scan costs.
-      const speed = relax(level, entries, 1, { pin: this.held, glide: this.living });
-      const swing = this.living ? this.wobble(level.sites.values()) : 0;
+      const speed = relax(level, entries, 1, { pin: this.held, glide: this.squishy });
+      const swing = this.squishy ? this.wobble(level.sites.values()) : 0;
       level.settled = false;
       if (!this.held) {
         this.soft = speed < 0.05 && swing < 0.004 ? 0 : this.soft - 1;

@@ -243,6 +243,8 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     const x = e.clientX - b.left;
     const y = e.clientY - b.top;
     const cell = r.hit(x, y);
+    // Touching a new cell with the pointer makes it jiggle a little.
+    if (cell && tip?.cell.id !== cell.id) r.poke(cell.id, 0.35);
     r.setHover(cell?.id ?? null);
     setTip(cell ? { cell, x: Math.min(x + 16, b.width - 250), y: Math.max(8, y - 12) } : null);
   };
