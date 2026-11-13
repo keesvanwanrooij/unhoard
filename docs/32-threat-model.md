@@ -70,10 +70,15 @@ when it adds an asset, a boundary or a threat.
 
 | Threat | Mitigations |
 |---|---|
-| T15. Data leaves the PC (A5) | No network in the MVP; no HTTP client in the build; no telemetry, ever (S8, T-S8) |
+| T15. Data leaves the PC (A5) | No connection to another computer; no HTTP client in the build; the Ollama client connects only to 127.0.0.1:11434 and only while the chat is on; no telemetry, ever (S8, T-S8, T-8.3) |
+| T32. A file name tricks the chat model into harmful advice (prompt injection) (B2, A1) | Tools are read-only and the chat can only select items; every move needs its preview and a click (S1); answers about safety must quote the tier and reason from the tools |
+| T33. Another local program poses as Ollama on port 11434 (B7) | It receives only questions and metadata the user chose to send; replies are shown as text and links that only select; nothing from a reply is executed |
+| T34. The history file reveals folder names to another account (A5, B7) | It lives in the user's own `%LOCALAPPDATA%`, which other standard accounts cannot read; it holds no names below the largest folders |
+| T35. The scheduled task is changed to run something else (B7) | It is created for the current user and points to Unhoard's own executable with a fixed argument; any program of the same user could already run code, so the task adds no new privilege; turning insights off removes it |
+| T36. The startup toggle disables something the user needs (A3) | It writes only the value Task Manager writes, previews first, undoes with one click and logs the change; machine-wide entries are not touched |
 | T16. A shared export, CLI output or bug report shows the user name or private paths (A5) | `%USERPROFILE%` redaction with a test; logs hold no paths unless diagnostic logging is on (S9, rule 2.7, T-10.3) |
 | T17. Other local accounts read items moved from a private profile into `X:\Unhoard Quarantine\`, which inherits the drive root's permissive ACL (B7, A5) | The quarantine folder gets an explicit, non-inherited ACL for the current user, SYSTEM and Administrators only, set when it is created and checked before every move |
-| T18. Background insights become a hidden record of the user's files (A5) | They store only sizes of the largest folders, no names below them and no contents; local only; limited to 6 MB and 2 years; switchable off and clearable ([Optimise](16-optimise.md#background-insights)) |
+| T18. Background insights become a hidden record of the user's files (A5) | They store only sizes of the largest folders, no names below them and no contents; local only; limited to 20 MB and 2 years; switchable off and clearable ([Optimise](16-optimise.md#background-insights)) |
 
 ### Malicious content on disk
 

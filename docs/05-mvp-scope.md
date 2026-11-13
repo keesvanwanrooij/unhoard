@@ -44,7 +44,7 @@ These hold for the whole app. Each has at least one automated test (marked T-S�
 | S5 | Every move writes its manifest entry before the move starts, so a restore is always possible. |
 | S6 | Purge deletes only inside quarantine folders and never follows links out of them. |
 | S7 | The main app never runs elevated. The elevated helper is read-only. |
-| S8 | The MVP opens no network connections. |
+| S8 | Unhoard opens no connection to another computer. The only connection it ever makes is to Ollama on this PC (`127.0.0.1:11434`), and only while the AI chat is switched on. |
 | S9 | Scan results stay in memory unless the user exports them. Exports and CLI output replace the profile path with `%USERPROFILE%`. Logs contain no file paths unless the user turns on diagnostic logging. |
 | S10 | Freed space is reported only after it is really free (re-measured). |
 
@@ -474,7 +474,7 @@ placeholders and errors without a real disk or cloud.
 | T-10.2 | the CLI and the app core report the same totals | CLI integration |
 | T-10.3 | CLI output and exports replace the profile path with `%USERPROFILE%` | CLI integration |
 | T-S2 | scanning and classification change no file, timestamp or attribute (temp tree identical before and after) | Windows integration (temp dir) |
-| T-S8 | the MVP binary has no network capability enabled (Tauri capabilities, no HTTP client in the dependency tree) | CI check |
+| T-S8 | the binary has no network capability enabled (Tauri capabilities, no HTTP client in the dependency tree); the only socket code connects to 127.0.0.1:11434 | CI check + app unit |
 | T-P1 | core benchmarks (view query, aggregation, subtree rescan, rule matching, search) on a generated 1-million-entry tree stay within P13–P14 | core benchmark (criterion) |
 | T-P2 | layout benchmarks (relaxation step, treemap, morph, grouping) with 50 and 300 cells | UI benchmark (Vitest bench) |
 | T-P3 | scripted interactions (screen switches, zoom, map toggle, hover, scroll, search) stay within P1–P12 at 4× CPU throttling | UI interaction (Playwright, fake core) |

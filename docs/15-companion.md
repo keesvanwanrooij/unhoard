@@ -94,15 +94,76 @@ Script lines live in the locale files under `companion.<trigger>.<n>`. A trigger
 several lines; one is chosen at random so the companion does not repeat itself. Every
 trigger has English and Dutch text (T-8.1).
 
+## AI chat
+
+Ask Lumen questions about your storage in plain language: "Why is my disk full?", "What
+grew this month?", "Which games haven't I played in a year?". The chat runs on a local
+model through **Ollama**, the free app that runs AI models on your own PC. Nothing goes to
+the internet.
+
+### Switching it on
+
+- The chat is **off by default**. Settings › Lumen › "Chat with a local model" turns it on.
+- When switched on, Unhoard looks for Ollama at `http://127.0.0.1:11434` (only that
+  address; a remote host is never used). Without Ollama, Lumen explains what it is and
+  links to its download page in the browser; Unhoard downloads nothing itself.
+- Unhoard lists the installed models and **recommends `qwen3:8b`**, which handled Dutch and
+  tool calls best in the test during the build ([Decisions](24-decisions.md)).
+  When the recommended model is missing, Lumen shows the `ollama pull <model>` command to
+  copy, and "Open Ollama".
+- The user may pick any installed model; a model that cannot call tools gets a warning.
+
+### What the model sees
+
+The model gets **tools**, never raw data. Each tool returns metadata from the current scan,
+the history and the library:
+
+| Tool | Returns |
+|---|---|
+| `overview` | Drive size, used, free and hidden space, and the top 10 folders of the scan |
+| `children(path)` | The largest children of a folder, with size, kind and explanation |
+| `explain(path)` | The explanation, tier, last use and actions of one item |
+| `suggestions(group?)` | The suggestion groups with counts and sizes, or the items of one group |
+| `growth(period)` | The largest growers over a day, week, month or three months |
+| `search(name)` | Items whose name contains the text, at most 50 |
+| `apps()` | Installed programs with size and last use; Steam games with last played |
+
+- No tool returns file contents, and no tool changes anything. The chat can **point**:
+  an answer may carry links to items, and a click selects the item in the overview or
+  opens its group in Suggestions. Every move still goes through its preview and a click
+  (S1).
+- Paths are passed to the model as they are, because the model runs on this PC. They are
+  never logged.
+
+### The conversation
+
+- A chat panel opens from the "Ask Lumen" button under Lumen on the overview. Replies
+  stream in, and while the model calls a tool the panel says what Lumen is looking at.
+- The system prompt says who Lumen is, that it answers in the user's language, that it
+  only knows what the tools return, and that it never claims something is safe to delete
+  without the tier and reason the tools give.
+- A conversation lives in memory only and is gone when the app closes.
+- A reply that takes longer than 60 seconds can be stopped; Ollama keeps running.
+
+### Acceptance criteria
+
+- AC8.6 The chat is off until switched on; when off, Unhoard opens no connection at all.
+- AC8.7 Unhoard connects only to `127.0.0.1:11434`; any other host is refused in code.
+- AC8.8 The tools return only the metadata listed above, never file contents, and no tool
+  changes the disk or the settings.
+- AC8.9 Without Ollama, or without the recommended model, Lumen explains the next step
+  and Unhoard downloads nothing.
+- AC8.10 Links in a reply select items or open groups; they never start a move.
+
+| ID | Test | Kind |
+|---|---|---|
+| T-8.3 | the Ollama client refuses every host but 127.0.0.1:11434 | app unit |
+| T-8.4 | every tool's output for a generated scan holds no file contents and stays under its size limit | core unit |
+| T-8.5 | a tool call with an unknown name or bad arguments returns an error to the model, never a panic | app unit |
+| T-8.6 | with the chat off, no connection is opened (fake transport) | app unit |
+
 ## Roadmap
 
-- **AI chat with a local model.** Ask questions about your storage in plain language.
-  - Candidates: Gemma 4 E4B or Qwen3.5 4B, about 3 GB as GGUF, run through llama.cpp. The
-    choice depends on a test of Dutch quality and tool-call reliability. Models below
-    about 2B parameters are too weak.
-  - The model is downloaded only when you ask for it, never bundled.
-  - It sees only metadata from the scan index, through tools. It never reads file
-    contents unless you explicitly allow it.
 - **Bring your own API key** for a cloud model, only after explicit consent.
 - **Background notifications** from the tray icon when storage changes, together with
   [Optimise](16-optimise.md) background insights.

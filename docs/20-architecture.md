@@ -189,7 +189,9 @@ index file.
 
 - Tauri capabilities in `src-tauri/capabilities/` grant the window only Unhoard's own
   commands.
-- No HTTP plugin and no HTTP client in the dependency tree (T-S8).
+- No HTTP plugin and no HTTP client in the dependency tree (T-S8). The AI chat talks to
+  Ollama through a small loopback-only client in the platform layer that can connect to
+  `127.0.0.1:11434` and nothing else, and only while the chat is on.
 - A strict Content Security Policy, and no remote content.
 - No `fs` or `shell` plugin scope beyond what a documented feature needs.
 

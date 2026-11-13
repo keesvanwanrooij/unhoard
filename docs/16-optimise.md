@@ -4,7 +4,7 @@
 
 Optimise (Dutch: "Optimaliseren") is an **honest check-up**: a diagnosis of where
 performance, space and system health are lost, with a few safe and reversible actions.
-It is never a button that promises a faster PC. Optimise is in **Next**, not in the MVP
+It is never a button that promises a faster PC. Optimise is part of the insights phase
 ([Roadmap](06-roadmap.md)).
 
 ## How it works
@@ -103,8 +103,8 @@ average PC can give without anyone noticing.
 
 | Resource | Expected need | Twice that | What an average PC can spare | Limit |
 |---|---|---|---|---|
-| CPU | One rescan of the system drive per day, about 2 CPU-minutes, plus seconds for startup and disk readings: about 0.15% of one core averaged over a day | 0.3% of one core | About 1% of one core at idle priority | **0.3% of one core, averaged over a day** |
-| Local storage | About 16 KB per daily snapshot. Daily snapshots for 90 days, then one per week, kept for 2 years: about 3 MB | 6 MB | Hundreds of MB | **6 MB, oldest snapshots dropped first** |
+| CPU | One rescan of the system drive per day. Measured: 124 CPU-seconds for a 1 TB drive with 2.8 million files, about 0.14% of one core averaged over a day | 0.29% of one core (250 s) | About 1% of one core at idle priority | **250 CPU-seconds per measurement (0.29% of one core per day)** |
+| Local storage | Measured: 55 KB per snapshot of 1,000 folders. Daily snapshots for 90 days, then one per week, kept for 2 years: about 194 snapshots, 10.7 MB | 21 MB | Hundreds of MB | **20 MB, oldest snapshots dropped first** |
 | Retention | Year-on-year growth needs at least 13 months | – | – | **2 years** |
 
 How the limits are kept:
@@ -119,6 +119,56 @@ How the limits are kept:
 The background insights tie in with the Next items "Background insights with a tray icon"
 and "Storage history". What they store is listed in [Privacy](30-privacy.md), and the
 threats are in the [Threat model](32-threat-model.md).
+
+## Data sources
+
+Each check reads a documented Windows source. Checked on a Windows 11 PC without admin
+rights on 2026-11-13 where marked.
+
+| Check | Source | Without admin |
+|---|---|---|
+| Top consumers of CPU and memory | Process list (`CreateToolhelp32Snapshot`), two samples a second apart for CPU (`GetProcessTimes`), working set (`K32GetProcessMemoryInfo`) | Own processes in full; other users' and system processes are left out |
+| Memory pressure and page file | `GlobalMemoryStatusEx`, page-file usage from `GetPerformanceInfo` | Yes |
+| Disk health status | Storage Management API, `MSFT_PhysicalDisk.HealthStatus` | Yes (checked) |
+| Wear, temperature, error counts | `MSFT_StorageReliabilityCounter` | **No** (checked): Unhoard opens Settings › Disks, where Windows shows them |
+| Startup apps | The `Run` keys of the user and the machine, the Startup folders, and their `StartupApproved` entries | Yes (checked: 13 entries) |
+| Pending updates | Windows Update Agent (`IUpdateSearcher`, `IsInstalled=0 and IsHidden=0`) | Yes (checked) |
+| Update errors | The Windows Update history from the same API | Yes |
+| System-file integrity | Not readable without admin; Unhoard explains the two commands to run | – |
+| Page file | The `PagingFiles` value under `Memory Management` in the registry | Yes |
+| Power mode | The active overlay scheme under `Control\Power\User\PowerSchemes` in the registry | Yes |
+
+Task Manager's "startup impact" rating has no public API, so Unhoard does not show it.
+Each startup app shows its command and whether its program file still exists. TRIM status,
+the last "Optimize drives" run, process disk activity and update errors per update are not
+shown in this phase: they need admin rights or a performance-counter query that adds
+little.
+Startup impact over time comes from the background insights only when Windows offers it
+through a public API; until then that line is left out.
+
+## Acceptance criteria
+
+- AC16.1 The Optimise screen (EN "Optimise", NL "Optimaliseren") lists findings in the six
+  groups, each with its state, measurement, source, reason and next step, and no score.
+- AC16.2 Every check only reads, except the startup toggle.
+- AC16.3 The startup toggle writes only the `StartupApproved` value Task Manager writes,
+  shows a preview first, can be undone with one click, and writes an activity-log entry.
+  Machine-wide entries that need admin are explained and point to Task Manager.
+- AC16.4 A startup entry whose file no longer exists is flagged and never deleted.
+- AC16.5 A disk finding shows the health Windows reports and opens Settings › Disks for
+  wear, temperature and warnings, which need admin rights to read.
+- AC16.6 The check-up shows its findings after about a second (one second of CPU
+  sampling). The Windows Update search, which can take half a minute, runs on its own and
+  shows its finding when it is done; the screen stays usable meanwhile.
+- AC16.7 The companion explains the myths (freeing RAM, registry cleaners, disabling the
+  page file) when the user opens a related finding.
+
+| ID | Test | Kind |
+|---|---|---|
+| T-16.1 | each finding's state follows from its measurement for generated inputs (thresholds per check) | core unit |
+| T-16.2 | the startup toggle writes the disabled and enabled byte patterns Windows uses, and undo restores the exact old value | platform unit (temporary registry key) |
+| T-16.3 | a startup entry pointing to a missing file is flagged and left in place | core unit |
+| T-16.4 | the dry run of the startup toggle writes nothing | platform unit |
 
 ## Messaging
 

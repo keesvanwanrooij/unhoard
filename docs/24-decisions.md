@@ -52,7 +52,7 @@ options and trade-offs, before they are built.
 | English and Dutch; the language follows Windows with an English fallback, switchable | The maintainer's audience starts in the Netherlands; English reaches everyone else |
 | **Optimise** is an honest check-up in Next: no score, measured findings, few reversible actions | "PC optimisers" are a category full of false promises; honesty is the advantage |
 | Optimise **background insights are on by default**, switchable, local only | Growth over time is valuable only if it is measured from the start; the first run says it is on and how to turn it off |
-| Background-insight **limits are the smaller of twice the expected need and what an average PC can spare**: 0.3% of one core per day, 6 MB, 2 years | A background feature that slows the PC gets uninstalled; 2 years allows year-on-year comparison. The build measures the real numbers and applies the same rule |
+| Background-insight **limits are the smaller of twice the expected need and what an average PC can spare**: 250 CPU-seconds per daily run (0.29% of one core), 20 MB, 2 years, set from measurements on a 1 TB drive with 2.8 million files | A background feature that slows the PC gets uninstalled; 2 years allows year-on-year comparison. The build measures the real numbers and applies the same rule |
 | A small CLI in the MVP (`unhoard scan <path> --json`) | Power users and scripts; it also tests the core without the UI |
 
 ## Cleanup and safety
@@ -135,7 +135,19 @@ options and trade-offs, before they are built.
 
 | Decision | Reason |
 |---|---|
-| **The MVP makes no network calls at all** (S8) | The strongest privacy promise is one that is easy to verify |
+| **Unhoard makes no connection to another computer** (S8); the only connection is to Ollama on `127.0.0.1:11434` while the chat is on | The strongest privacy promise is one that is easy to verify; a local model keeps it, because nothing leaves the PC |
+| The insights phase builds storage history, leftovers, Optimise and the AI chat in one round, plus the remaining speed budgets; the first public release follows it | The maintainer's choice; the four features share the background insights, the explanations and the companion |
+| The daily measurement runs as a scheduled task for the current user (`unhoard-app.exe --measure`), plus a measurement at app start when the last one is older than a day | A measurement "in the background" must also happen while the app is closed; a per-user task needs no admin and no resident process, and is removed when insights are turned off |
+| Storage history keeps snapshots of up to 1,000 of the largest folders, three levels deep, plus rule matches; growth is attributed to the deepest folder holding 80% of it | Enough to answer "what grew" without storing file names; the 80% rule names the real cause (`RdClientAutoTrace`) instead of its parent (`Temp`) |
+| No tray icon and no notifications outside the app in this phase | The maintainer's choice; Lumen tells about fast growth the next time the app opens |
+| Leftovers have two levels: a gone program from the program history (Likely safe), or a top-level AppData or ProgramData folder no installed program claims and unchanged for 180 days (Review) | High precision where Windows' own records prove the program is gone, and a careful net for the rest |
+| The AI chat uses Ollama on this PC; Unhoard recommends a model but downloads nothing | People who run local models often already have Ollama; reusing it means no second copy of multi-gigabyte models and far less code than embedding llama.cpp |
+| The Ollama client is a small loopback-only HTTP/1.1 client over `std::net::TcpStream`, not an HTTP library | It can reach only `127.0.0.1:11434` by construction, and the build keeps "no HTTP client in the dependency tree" (T-S8) |
+| Chat tools are read-only and return metadata; links in replies only select | A model can be misled by a file name; with no tool that changes anything, the worst case is a wrong answer, and every move still needs its preview and a click (S1) |
+| Optimise does not show Task Manager's startup impact | It has no public API; Unhoard shows only what it can source |
+| Wear and temperature of disks are not read; the disk finding opens Settings › Disks | They need admin rights; Windows shows them there, and the read-only helper stays a folder reader only |
+| The chat recommends `qwen3:8b` | In a test on a PC with Ollama (2026-11-13), it called the overview tool and answered in good Dutch; llama3.1 8B also did but slower; qwen2.5-coder 7B and aya-expanse 8B wrote the tool call as text instead of calling it |
+| The Windows Update search runs as its own command | It can take half a minute; the other findings must not wait for it |
 | The opt-in update check is in Next | Keeps the MVP fully offline |
 | **No telemetry, ever** | Trust; a disk tool sees the whole PC |
 | Exports and CLI output replace the profile path with `%USERPROFILE%` (S9) | Shared output does not leak the user name |

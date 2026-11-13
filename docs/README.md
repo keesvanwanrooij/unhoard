@@ -39,6 +39,8 @@ How each part of the app behaves.
   what to do with them.
 - [Cloud storage](13-cloud-storage.md): OneDrive placeholders, local versus cloud size, and
   freeing up space without downloads.
+- [Storage history](17-storage-history.md): snapshots over time, the growth timeline and
+  what grew, and why.
 - [Photo review](14-photo-review.md): duplicates, bursts, chat media and screenshots,
   reviewed per group without downloading.
 - [Companion](15-companion.md): the guide character, its speech bubbles and its script.

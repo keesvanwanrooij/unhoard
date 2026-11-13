@@ -9,8 +9,10 @@ all of it on your PC.
 
 - **No telemetry, ever.** No usage analytics, no crash uploads, no "anonymous
   statistics".
-- **No network in the MVP.** The app opens no network connection at all (S8). A CI check
-  proves that no HTTP client is in the build (T-S8).
+- **Nothing leaves your PC.** Unhoard opens no connection to another computer (S8). A CI
+  check proves that no HTTP client is in the build (T-S8). The one connection it can make
+  is to Ollama on this PC, for the AI chat, only while you have the chat switched on;
+  Ollama runs the model locally.
 - **Network features are opt-in and come later.** The update check (Next) is off until you
   switch it on and then makes one request to GitHub Releases. A OneDrive sign-in (Next)
   happens only when you start it.
@@ -26,10 +28,21 @@ all of it on your PC.
 | Scan results | Memory only | The scanned tree | Closing the app; nothing is saved unless you export (S9) |
 | Batch manifests | Inside each quarantine folder | Original paths, sizes, timestamps, file IDs | Deleted with the batch by the purge |
 | Activity log | `%LOCALAPPDATA%\Unhoard\activity.jsonl` | Time, operation, item IDs, result; never paths or file contents | Delete the file |
-| Background insights (Next) | `%LOCALAPPDATA%\Unhoard\insights\` | Daily sizes of the largest folders, startup impact, disk health; at most 6 MB, 2 years | Settings › Optimise › turn off and clear |
+| Storage history and background insights | `%LOCALAPPDATA%\Unhoard\insights\history.jsonl` | Per snapshot: sizes and file counts of up to 1,000 of the largest folders, drive totals; at most 20 MB, 2 years | Settings › Background insights › turn off and clear |
+| The daily measurement | A scheduled task for your account in Task Scheduler | When to run `unhoard-app.exe --measure` | Turning background insights off, or uninstalling |
+| AI chat | Memory only | The conversation | Closing the app |
 
 Uninstalling Unhoard removes the program. Your settings and caches stay until you delete
 them, and quarantine folders always stay, so an uninstall never deletes your files.
+
+## AI chat
+
+- Off until you switch it on in Settings.
+- It talks only to Ollama on this PC (`127.0.0.1:11434`); a remote address is refused in
+  code. The model runs on your PC, so your question and the tool results stay on it.
+- The model sees file and folder names, sizes and explanations from the scan through
+  tools, never file contents.
+- The conversation is kept in memory only.
 
 ## Exports and the CLI
 
@@ -40,14 +53,17 @@ them, and quarantine folders always stay, so an uninstall never deletes your fil
 
 ## Background insights
 
-Background insights arrive with Optimise in Next. They are **on by default**, because
-growth over time is only visible if it is measured from the start.
+Background insights power [Storage history](17-storage-history.md) and Optimise. They are
+**on by default**, because growth over time is only visible if it is measured from the
+start.
 
 - The first run says that they are on and how to turn them off.
 - They measure folder sizes, startup impact and disk health. They never read file
   contents and store no file names below the largest folders.
 - They stay on your PC and never use the network.
-- Limits: 0.3% of one CPU core averaged over a day, 6 MB of storage, 2 years of
+- A scheduled task for your account runs the daily measurement while the app is closed;
+  turning background insights off removes it.
+- Limits: 0.29% of one CPU core averaged over a day, 20 MB of storage, 2 years of
   retention ([Optimise](16-optimise.md#limits)).
 
 ## Elevation

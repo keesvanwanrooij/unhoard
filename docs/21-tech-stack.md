@@ -78,7 +78,8 @@ React has the largest pool of contributors, which matters for an open-source pro
 
 ## Not used
 
-- No HTTP client and no Tauri HTTP plugin in the MVP (S8).
+- No HTTP client library and no Tauri HTTP plugin (S8). The Ollama connection uses
+  `std::net::TcpStream` to `127.0.0.1` only.
 - No crash-reporting or analytics SDK, ever ([Privacy](30-privacy.md)).
 - No image decoder for full images: thumbnails come from Windows.
 
