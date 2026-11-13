@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::explain::{Explain, explain};
 use crate::knowledge::{LastUse, Program, SteamInfo};
+use crate::leftovers::{Leftover, leftover_of};
 use crate::protect::{ProtectReason, protection};
 pub use crate::rules::{Action, Tier, WindowsTool};
 use crate::scan::ScanContext;
@@ -37,6 +38,8 @@ pub struct Description {
     pub definition: bool,
     /// The facts the explanation is built from: place, owner, file type, contents.
     pub explain: Explain,
+    /// Why the folder is a leftover of an uninstalled app, if it is one.
+    pub leftover: Option<Leftover>,
     /// Why the item may not be moved, if it is protected.
     pub protected: Option<ProtectReason>,
     /// True for an item inside a cloud sync root.
@@ -108,6 +111,10 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
         d.definition = true;
     }
     let rule = rule.filter(|r| !r.define);
+    let keep = definition.is_some_and(|r| r.opinion == Some(Tier::Keep));
+    let leftover = (steam.is_none() && rule.is_none() && program.is_none())
+        .then(|| leftover_of(tree, id, &ctx.knowledge, &ctx.roots, ctx.now, keep))
+        .flatten();
     let mut actions = match (&steam, rule, &program) {
         (Some(SteamInfo::Game { .. }), ..) => {
             // An installed game goes through Steam, so Steam stays consistent.
@@ -131,7 +138,14 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
             d.tier = Some(Tier::Review);
             vec![Action::Uninstaller, Action::ShowInExplorer]
         }
-        (None, None, None) if definition.is_some_and(|r| r.opinion == Some(Tier::Keep)) => {
+        (None, None, None) if leftover.is_some() => {
+            d.tier = Some(match leftover {
+                Some(Leftover::GoneApp { .. }) => Tier::LikelySafe,
+                _ => Tier::Review,
+            });
+            vec![Action::Quarantine, Action::ShowInExplorer]
+        }
+        (None, None, None) if keep => {
             d.tier = Some(Tier::Keep);
             vec![Action::ExplainOnly, Action::ShowInExplorer]
         }
@@ -144,6 +158,7 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
     };
     d.steam = steam;
     d.program = program;
+    d.leftover = leftover;
     if cloud && node.on_disk > 0 && !actions.contains(&Action::FreeUpSpace) {
         actions.insert(0, Action::FreeUpSpace);
     }

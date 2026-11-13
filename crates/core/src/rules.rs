@@ -66,6 +66,12 @@ pub enum WindowsTool {
     SystemProtection,
     /// The Recycle Bin in Explorer.
     RecycleBin,
+    /// Task Manager.
+    TaskManager,
+    /// Settings › Windows Update.
+    WindowsUpdate,
+    /// Settings › System › Storage › Disks & volumes.
+    Disks,
 }
 
 /// What Unhoard offers to do with an item.

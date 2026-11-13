@@ -109,6 +109,8 @@ pub struct Knowledge {
     pub programs: Vec<Program>,
     /// Recorded uses of programs.
     pub activity: Vec<Activity>,
+    /// Recorded uses of programs whose executable no longer exists: programs that are gone.
+    pub gone: Vec<Activity>,
     /// Steam libraries.
     pub steam: Vec<SteamLibrary>,
 }
