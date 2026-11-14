@@ -123,6 +123,9 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
 ### Regression check
 
 - `perf/baseline.json` holds the p95 numbers of `main`, committed to the repository.
+  The numbers come from the CI runner, the higher of two runs per measure, because CI
+  is where the check fails. The long-task measures are 0 there: P11 holds them, not a
+  ratio.
 - `npm run perf:check` compares the latest reports (Rust and UI) with the budgets and the
   baseline:
   - **over a budget:** fail
