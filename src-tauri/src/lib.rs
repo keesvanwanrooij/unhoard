@@ -6,6 +6,7 @@ pub mod chat;
 pub mod commands;
 pub mod history;
 pub mod service;
+pub mod webview_data;
 
 use std::sync::Arc;
 
@@ -117,6 +118,14 @@ fn sync_insights(service: &Service) {
 
 /// Runs the app.
 pub fn run() -> anyhow::Result<()> {
+    let context = tauri::generate_context!();
+    // Before the window opens: drop browser components an earlier start downloaded.
+    if let Some(local) = std::env::var_os("LOCALAPPDATA") {
+        let dir = std::path::Path::new(&local)
+            .join(&context.config().identifier)
+            .join("EBWebView");
+        let _freed = webview_data::trim(&dir);
+    }
     let service = Arc::new(build_service()?);
     let maintenance = service.clone();
     tauri::Builder::default()
@@ -180,6 +189,6 @@ pub fn run() -> anyhow::Result<()> {
             commands::chat_setup,
             commands::chat_pull,
         ])
-        .run(tauri::generate_context!())?;
+        .run(context)?;
     Ok(())
 }

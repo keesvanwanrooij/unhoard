@@ -164,6 +164,7 @@ options and trade-offs, before they are built.
 | Exports and CLI output replace the profile path with `%USERPROFILE%` (S9) | Shared output does not leak the user name |
 | Cloud AI only after explicit consent; the local model is the default | Privacy first |
 | Contact for the Code of Conduct and security reports goes **through GitHub only** (private vulnerability reporting and the maintainer's profile) | No personal email address in the repository |
+| WebView2 starts without component downloads, background networking or an HTTP cache, and Unhoard removes those folders at start | Its profile grew to about 110 MB with browser components (DRM, filter lists, speech) and a cache a local-only app never uses, and those downloads broke the zero-network promise; it now stays at about 15 MB |
 
 ## Engineering
 

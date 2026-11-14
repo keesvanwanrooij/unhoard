@@ -72,6 +72,12 @@ React has the largest pool of contributors, which matters for an open-source pro
 
 - Tauri's NSIS bundler in **per-user mode**, so installing needs no admin.
 - A portable exe next to the installer.
+- The window starts WebView2 with `--disable-component-update`,
+  `--disable-background-networking` and a 1-byte disk cache, next to Tauri's default
+  flags (`tauri.conf.json`). Unhoard shows only its own built-in pages, so it needs none of
+  the browser components WebView2 downloads by default (DRM, filter lists, speech) nor an
+  HTTP cache; without the flags they took about 90 MB per user. `src-tauri/src/webview_data.rs`
+  removes what an earlier start left behind, before the window opens.
 - The installer bootstraps WebView2 when it is missing. The portable exe explains how to
   install it.
 - A winget manifest in `packaging/winget/`, with the package id `KeesVanWanrooij.Unhoard`.

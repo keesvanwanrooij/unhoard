@@ -12,7 +12,9 @@ all of it on your PC.
 - **Nothing leaves your PC.** Unhoard opens no connection to another computer (S8). A CI
   check proves that no HTTP client is in the build (T-S8). The one connection it can make
   is to Ollama on this PC, for the AI chat, only while you have the chat switched on;
-  Ollama runs the model locally.
+  Ollama runs the model locally. The window's browser engine (Edge WebView2) starts with
+  its component downloads and background networking switched off, so it fetches no DRM
+  modules, filter lists or speech data either.
 - **Network features are opt-in and come later.** The update check (Next) is off until you
   switch it on and then makes one request to GitHub Releases. A OneDrive sign-in (Next)
   happens only when you start it.
@@ -31,6 +33,7 @@ all of it on your PC.
 | Storage history and background insights | `%LOCALAPPDATA%\Unhoard\insights\history.jsonl` | Per snapshot: sizes and file counts of up to 1,000 of the largest folders, drive totals; at most 20 MB, 2 years | Settings › Background insights › turn off and clear |
 | The daily measurement | A scheduled task for your account in Task Scheduler | When to run `unhoard-app.exe --measure` | Turning background insights off, or uninstalling |
 | AI chat | Memory only | The conversation | Closing the app |
+| The window's browser profile | `%LOCALAPPDATA%\io.github.keesvanwanrooij.unhoard\EBWebView` | Edge WebView2's own state and shader caches, about 15 MB; no HTTP cache and no downloaded components, which Unhoard removes at start | Delete the folder while Unhoard is closed |
 
 Uninstalling Unhoard removes the program. Your settings and caches stay until you delete
 them, and quarantine folders always stay, so an uninstall never deletes your files.
