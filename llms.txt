@@ -21,7 +21,8 @@ Start with AGENTS.md for the working rules and docs/README.md for the map of all
 - [Cloud storage](docs/13-cloud-storage.md): OneDrive placeholders, free up space, the hydration guard and the cloud quarantine.
 - [Photo review](docs/14-photo-review.md): source patterns, duplicate and burst groups, best shot and the review grid, without downloads.
 - [Companion](docs/15-companion.md): the guide character, bubble rules, triggers and the AI roadmap.
-- [Optimise](docs/16-optimise.md): the honest check-up in Next, its six groups and the background-insight limits.
+- [Optimise](docs/16-optimise.md): the honest check-up, its six groups, data sources and the background-insight limits.
+- [Storage history](docs/17-storage-history.md): snapshots per scan and per day, the growth timeline, and how growth is attributed and explained.
 
 ## Engineering
 

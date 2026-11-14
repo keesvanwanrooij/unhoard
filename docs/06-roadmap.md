@@ -11,12 +11,23 @@ reason an item sits in its horizon.
 
 ## Now
 
-The MVP, described in full in [MVP scope](05-mvp-scope.md):
+**The insights phase**, built in one round after the MVP:
+
+- [Storage history](17-storage-history.md): a snapshot per scan and a daily measurement,
+  the History screen with the growth timeline, and growth on the map
+- [Leftovers of uninstalled apps](12-known-locations.md#leftovers-of-uninstalled-apps):
+  folders of programs that are gone, and folders no program claims
+- [Optimise](16-optimise.md): the honest check-up in six groups, with the startup toggle
+- [AI chat with Lumen](15-companion.md#ai-chat) through Ollama on this PC
+- the remaining speed budgets (P1, P6, P11) brought within their limits
+- the first public release after this phase
+
+**The MVP**, described in full in [MVP scope](05-mvp-scope.md):
 
 - [x] Research and intake decisions
-- [ ] Docs (this set) and design explorations
-- [ ] Second round of questions on what the docs and designs raised
-- [ ] One-shot MVP build, test-first:
+- [x] Docs (this set) and design explorations
+- [x] Second round of questions on what the docs and designs raised
+- [x] One-shot MVP build, test-first:
   - parallel scan without admin, with live build-up
   - the living cell map (default) and the treemap switch, synced with a list
   - the hidden-space cell with an elevated read-only "reveal" rescan
@@ -28,23 +39,20 @@ The MVP, described in full in [MVP scope](05-mvp-scope.md):
   - English and Dutch
   - the CLI (`unhoard scan <path> --json`)
   - a per-user installer, a portable exe and a prepared winget manifest
-- [ ] Public GitHub repository and the first release
+- [x] Public GitHub repository
 
 ## Next
 
 | Item | Why it matters |
 |---|---|
-| **Optimise** (NL "Optimaliseren") | An honest check-up: startup apps, disk health and performance, free space and updates, Windows health, resource use and configuration. Measured findings in a list without a score, safe reversible actions, no speed promises. See [Optimise](16-optimise.md) |
 | **MFT turbo-scan** (admin, NTFS) | Closes the speed gap with MFT-based tools for people who allow elevation |
-| **Storage history and growth timeline** | Answers "what grew and why" by comparing saved scans over time |
-| **Background insights with a tray icon** | On by default, light and local, and switchable in Settings. They power storage growth, startup impact and disk health, and the companion tells you when something changes |
-| **AI companion chat with a local model** | Ask questions about your storage in plain language. Runs locally by default (a model of about 3 GB, downloaded only when you ask for it), sees only metadata through tools. See [Companion](15-companion.md#roadmap) |
+| **Tray icon and notifications** | The daily measurement runs without one; a tray icon would let Lumen tell you about fast growth while the app is closed |
+| **Built-in chat model** | A model Unhoard downloads and runs itself (llama.cpp), for people without Ollama |
 | **OneDrive login through Microsoft Graph** | Quota and content hashes, so cloud duplicates become exact without downloads |
 | **Synology and NAS** | Scan SMB shares and mapped drives; an archive assistant that moves cold files to the NAS |
 | **Quarantine on another drive** | Moving to an external drive or NAS frees space at once instead of after 30 days |
 | **Similar videos** (ffmpeg) | Find re-encoded or trimmed copies, not only exact duplicates |
 | **Local AI photo categories and faces** | Sort photos by what is in them, on the device, never in the cloud |
-| **Leftovers of uninstalled apps** | Find folders in AppData and ProgramData that belong to apps that are gone; Steam game leftovers are already recognised |
 | **Opt-in update check** | Off by default; one request to GitHub Releases when switched on |
 | **Other cloud providers tested** | Dropbox, iCloud for Windows, Box and Synology Drive use the same Cloud Files API; test and label them |
 | **Explorer context menu** | "Show in Unhoard" on any folder |

@@ -24,9 +24,18 @@ const MAX_MANIFEST_DEPTH: usize = 6;
 
 /// Everything known about this PC besides the files.
 pub fn gather(roots: &Roots) -> Knowledge {
+    let activity = activity(roots);
+    // A recorded program whose executable is gone was uninstalled (or moved).
+    let gone = activity
+        .iter()
+        .filter(|a| a.path.to_ascii_lowercase().ends_with(".exe"))
+        .filter(|a| !std::path::Path::new(&a.path).exists())
+        .cloned()
+        .collect();
     Knowledge {
         programs: programs(),
-        activity: activity(roots),
+        activity,
+        gone,
         steam: steam_libraries(),
     }
 }

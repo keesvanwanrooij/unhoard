@@ -84,6 +84,13 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
   thread.
 - Transitions are interruptible and never block input.
 - Heavy work (scanning, hashing, aggregation) runs in Rust worker threads.
+- The map relaxes and draws in a Web Worker on an OffscreenCanvas (`src/map/mapWorker.ts`).
+  The page keeps the outlines of the last frame, so hover, clicks, the keyboard and zoom
+  starts are answered without waiting for the worker.
+- A navigation click paints the pressed tab first and renders the new screen as a deferred
+  update; the parts of the shell that do not depend on the screen are memoised.
+- The UI font's weights are laid out once at idle after start (`src/warmFonts.ts`), so the
+  first screen that uses a new weight does not pay for it.
 
 ## How the budgets are tested
 
@@ -116,6 +123,10 @@ every 250 ms, and a full scan of about 1 million files finishes in under 60 seco
 ### Regression check
 
 - `perf/baseline.json` holds the p95 numbers of `main`, committed to the repository.
+  The numbers come from the CI runner, the highest of at least three runs of the same
+  code per measure, because CI is where the check fails and a single runner varies by up
+  to 50%. The long-task measures are 0 there: P11 holds them, not a
+  ratio.
 - `npm run perf:check` compares the latest reports (Rust and UI) with the budgets and the
   baseline:
   - **over a budget:** fail

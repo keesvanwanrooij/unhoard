@@ -196,6 +196,7 @@ function buildSuggestions(): unknown[] {
           steam: k.steam,
           elevated: false,
           lastUse: null,
+          leftover: null,
         },
       };
     }),
@@ -220,6 +221,65 @@ function matrixPoints(limit: number): unknown[] {
     }));
 }
 
+/** A month of daily measurements plus a few scans, with the drive filling up. */
+function fakeTimeline(): unknown[] {
+  const now = Math.floor(Date.now() / 1000);
+  return Array.from({ length: 30 }, (_, i) => {
+    const at = now - (29 - i) * 86_400;
+    const used = (780 + i * 2.6 + (i > 24 ? 40 : 0)) * GB;
+    return { at, kind: i % 7 === 3 ? "scan" : "daily", totals: { used, free: 951 * GB - used, hidden: 58 * GB } };
+  });
+}
+
+/** Growers for the History screen and the growth colours. */
+function fakeGrowth(days: number): unknown {
+  const now = Math.floor(Date.now() / 1000);
+  const top = nodes[0];
+  const kids = (top?.children ?? []).map((c) => nodes[c]).filter((n): n is FakeNode => n !== undefined);
+  const items = kids.slice(0, 6).map((n, i) => {
+    const delta = Math.round((i === 0 ? 54 : i === 3 ? -31 : 8 / (i + 1)) * GB);
+    return {
+      path: `C:\\${n.name}`,
+      name: n.name,
+      before: Math.max(0, n.size - delta),
+      after: n.size,
+      delta,
+      id: n.id,
+      ruleId: null,
+      explain: fakeExplain(n),
+      trend: Array.from({ length: 8 }, (_, k) => [now - (7 - k) * 86_400, Math.max(0, n.size - delta + (delta * k) / 7)]),
+    };
+  });
+  return {
+    from: now - days * 86_400,
+    to: now,
+    items,
+    deltas: kids.map((n, i) => [`C:\\${n.name}`, i === 0 ? 54 * GB : i === 3 ? -31 * GB : i % 2 === 0 ? 200 * 1024 ** 2 : 0]),
+  };
+}
+
+/** A check-up with each kind of finding. */
+function fakeFindings(): unknown[] {
+  const f = (id: string, group: string, state: string, values: [string, string][], source: string): unknown => ({ id, group, state, values, source });
+  return [
+    f("memory", "performance", "ok", [["load", "48"], ["total", String(32 * GB)], ["available", String(16 * GB)], ["commit", String(20 * GB)], ["commitLimit", String(40 * GB)]], "memoryStatus"),
+    f("process:0", "performance", "ok", [["name", "chrome.exe"], ["cpu", "6"], ["memory", String(2.1 * GB)], ["known", "chrome"]], "processList"),
+    f("process:1", "performance", "ok", [["name", "docker desktop.exe"], ["cpu", "3"], ["memory", String(1.4 * GB)], ["known", "docker"]], "processList"),
+    f("disk:NVMe SSD", "storage", "ok", [["name", "NVMe SSD"], ["media", "SSD"], ["health", "Healthy"], ["size", String(953 * GB)], ["partitions", "4"]], "storageManagement"),
+    f("partition:NVMe SSD:1", "storage", "ok", [["disk", "NVMe SSD"], ["number", "1"], ["kind", "efi"], ["size", String(260 * 1024 ** 2)]], "storageManagement"),
+    f("partition:NVMe SSD:2", "storage", "ok", [["disk", "NVMe SSD"], ["number", "2"], ["kind", "reserved"], ["size", String(16 * 1024 ** 2)]], "storageManagement"),
+    f("partition:NVMe SSD:3", "storage", "ok", [["disk", "NVMe SSD"], ["number", "3"], ["kind", "data"], ["size", String(951 * GB)], ["letter", "C"], ["fileSystem", "NTFS"], ["label", "Windows"], ["free", String(83 * GB)]], "storageManagement"),
+    f("partition:NVMe SSD:4", "storage", "ok", [["disk", "NVMe SSD"], ["number", "4"], ["kind", "recovery"], ["size", String(2 * GB)], ["fileSystem", "NTFS"], ["label", "WinRE_DRV"], ["free", String(GB)]], "storageManagement"),
+    f("startup:UserRun:Chat", "startup", "action", [["name", "Chat"], ["command", "\"C:\\Apps\\chat.exe\" --tray"], ["enabled", "true"], ["missing", "false"], ["publisher", ""]], "startupApproved"),
+    f("startup:UserRun:Old Tool", "startup", "look", [["name", "Old Tool"], ["command", "C:\\Old\\tool.exe"], ["enabled", "true"], ["missing", "true"], ["publisher", ""]], "startupApproved"),
+    f("startup:MachineRun:Audio", "startup", "ok", [["name", "Audio"], ["command", "C:\\Windows\\audio.exe"], ["enabled", "true"], ["missing", "false"], ["publisher", ""]], "startupApproved"),
+    f("freeSpace", "space", "ok", [["free", String(83 * GB)], ["total", String(951 * GB)]], "volume"),
+    f("systemFiles", "health", "ok", [], "explainOnly"),
+    f("pageFile", "config", "ok", [["on", "true"]], "memoryManagement"),
+    f("power", "config", "ok", [["mode", "balanced"]], "powerMode"),
+  ];
+}
+
 /** Installs the fake core. `?entries=N` sets the tree size (default 20 000). */
 export function installFakeCore(): void {
   const entries = Number(new URLSearchParams(location.search).get("entries") ?? "20000");
@@ -232,7 +292,7 @@ export function installFakeCore(): void {
       const a = (args ?? {}) as Record<string, unknown>;
       switch (cmd) {
         case "settings_get":
-          return { language: null, mapStyle: "cells", motion: "living", measure: "onDisk", companion: "normal", adminRead: "never", firstRunDone: true };
+          return { language: null, mapStyle: "cells", motion: "living", measure: "onDisk", companion: "normal", adminRead: "never", firstRunDone: true, insights: true, chat: true, chatModel: null };
         case "settings_set":
           return null;
         case "app_info":
@@ -273,6 +333,7 @@ export function installFakeCore(): void {
               steam: null,
               elevated: false,
               lastUse: { at: Date.now() / 1000 - 90 * 86_400, source: "changed" },
+              leftover: null,
             },
             cloud: null,
             measured: null,
@@ -294,6 +355,75 @@ export function installFakeCore(): void {
           return null;
         case "open_app":
           return { Ok: null };
+        case "history_timeline":
+          return fakeTimeline();
+        case "history_growth":
+          return fakeGrowth(Number(a["days"] ?? 7));
+        case "history_clear":
+          return null;
+        case "optimise_check":
+          return fakeFindings();
+        case "optimise_updates":
+          return new Promise((resolve) =>
+            setTimeout(() => {
+              resolve([{ id: "updates", group: "health", state: "look", values: [["pending", "3"], ["failed", "0"]], source: "windowsUpdate" }]);
+            }, 1500),
+          );
+        case "startup_preview":
+          return { Ok: { name: a["name"], scope: a["scope"], old: null, enabled: a["enabled"] } };
+        case "startup_set":
+          return { Ok: 0 };
+        case "startup_undo":
+          return { Ok: null };
+        case "chat_models":
+          return { Ok: [{ name: "qwen3:8b", size: 5.2 * GB, recommended: true }, { name: "llama3.1:8b", size: 4.9 * GB, recommended: false }] };
+        case "quarantine_preview": {
+          // Every asked item moves to the quarantine on the same drive.
+          const ids = (a["ids"] as number[] | undefined) ?? [];
+          const moves = ids.map((id) => {
+            const size = nodes[id]?.size ?? 0;
+            return { node: id, path: `C:\\fake\\${String(id)}`, destRoot: "C:\\Unhoard Quarantine", logical: size, onDisk: size, cloud: false };
+          });
+          const total = moves.reduce((n, m) => n + m.onDisk, 0);
+          return { moves, skipped: [], totalLogical: total, totalOnDisk: total, destinations: ["C:\\Unhoard Quarantine"] };
+        }
+        case "chat_setup":
+          return {
+            Ok: {
+              ollama: "running",
+              models: [{ name: "llama3.1:8b", size: 4.9 * GB, recommended: false }],
+              recommendation: { model: "qwen3:8b", fit: "fast", download: 5.2 * GB },
+              ram: 32 * GB,
+              vram: 8 * GB,
+            },
+          };
+        case "chat_pull":
+          // A download that reports progress for a few seconds.
+          return new Promise((resolve) => {
+            for (let i = 0; i <= 10; i++)
+              setTimeout(() => {
+                emit("chat-pull", { status: "pulling", completed: i * 0.52 * GB, total: 5.2 * GB }).catch(() => undefined);
+                if (i === 10) resolve({ Ok: true });
+              }, i * 300);
+          });
+        case "chat_send": {
+          // A canned answer that streams in, with a link to the largest item.
+          const words = ["Je ", "schijf ", "is ", "vooral ", "vol ", "door ", "[Steam library](unhoard:item/1)", ". ", "Kijk ", "ook ", "bij ", "[de suggesties](unhoard:group/large)", "."];
+          emit("chat-event", { kind: "tool", name: "overview" }).catch(() => undefined);
+          words.forEach((w, i) => {
+            setTimeout(() => {
+              emit("chat-event", { kind: "delta", text: w }).catch(() => undefined);
+            }, 400 + i * 80);
+          });
+          return new Promise((resolve) =>
+            setTimeout(() => {
+              emit("chat-event", { kind: "done" }).catch(() => undefined);
+              resolve({ Ok: null });
+            }, 500 + words.length * 80),
+          );
+        }
+        case "chat_stop":
+          return null;
         case "docker_usage":
           return {
             Ok: [

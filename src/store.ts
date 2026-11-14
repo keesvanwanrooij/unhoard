@@ -9,7 +9,7 @@ import { i18n } from "./i18n";
 import { mark } from "./perf/marks";
 
 /** The screens of the app. */
-export type Screen = "overview" | "suggestions" | "quarantine" | "cloud" | "photos" | "settings";
+export type Screen = "overview" | "suggestions" | "history" | "optimise" | "quarantine" | "cloud" | "photos" | "settings";
 
 /** The default settings, before the stored ones are read. */
 export const DEFAULT_SETTINGS: Settings = {
@@ -20,6 +20,9 @@ export const DEFAULT_SETTINGS: Settings = {
   companion: "normal",
   adminRead: "ask",
   firstRunDone: false,
+  insights: true,
+  chat: false,
+  chatModel: null,
 };
 
 interface State {
@@ -37,6 +40,10 @@ interface State {
   adminArmed: boolean;
   /** The user's answer to reading protected folders, kept for this app session: asked once. */
   adminAnswer: "yes" | "no" | null;
+  /** The chat panel is open. */
+  chatOpen: boolean;
+  /** The overview colours cells by growth instead of by kind. */
+  growthMap: boolean;
   query: string;
   /** Bumped whenever the tree changed (a move), so views reload. */
   treeVersion: number;
@@ -49,6 +56,8 @@ interface State {
   hover: (id: number | null) => void;
   setAdminArmed: (armed: boolean) => void;
   setAdminAnswer: (answer: "yes" | "no" | null) => void;
+  setChatOpen: (open: boolean) => void;
+  setGrowthMap: (on: boolean) => void;
   setQuery: (q: string) => void;
   setDrive: (d: string) => void;
   setScan: (s: ScanStatus) => void;
@@ -78,6 +87,8 @@ export const useApp = create<State>((set, get) => ({
   hovered: null,
   adminArmed: false,
   adminAnswer: null,
+  chatOpen: false,
+  growthMap: false,
   query: "",
   treeVersion: 0,
   queue: new BubbleQueue(),
@@ -100,6 +111,12 @@ export const useApp = create<State>((set, get) => ({
   },
   setAdminAnswer: (adminAnswer) => {
     set({ adminAnswer });
+  },
+  setChatOpen: (chatOpen) => {
+    set({ chatOpen });
+  },
+  setGrowthMap: (growthMap) => {
+    set({ growthMap });
   },
   setQuery: (query) => {
     set({ query });

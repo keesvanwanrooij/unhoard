@@ -134,6 +134,41 @@ items never share an explanation. An owner's own folder gets its own sentence ("
 folder of an app or maker with that name"). The details panel shows the full explanation;
 the map tooltip and the list show one line, such as "Video in Downloads" (T-4.8).
 
+## Leftovers of uninstalled apps
+
+Uninstallers often leave their data behind in `AppData` and `ProgramData`. Unhoard finds
+such folders on two levels, each with its reason:
+
+| Level | When | Tier |
+|---|---|---|
+| **Gone app** | The folder's name matches a program that ran on this PC and is gone: Windows' record of programs the user started (UserAssist) names an executable that no longer exists, and that program's folder, product or company name matches the folder | Likely safe |
+| **No owner** | A folder directly in `AppData\Local`, `AppData\Roaming`, `AppData\LocalLow` or `ProgramData` that matches no installed program (name, publisher or install folder from Windows' list of installed programs), no definition, no full rule and no Steam library, and has not changed for 180 days | Review |
+
+- A match compares names without case, spaces, punctuation and version numbers, so
+  `Some App 3` matches `SomeApp`. A folder that matches an installed program is never a
+  leftover, even when it also matches a gone one.
+- Folders that belong to Windows (`Microsoft`, `Packages`, `Publishers`, `Temp`,
+  `Programs`, …) and every folder a definition says to keep are never leftovers.
+- A leftover offers Move to quarantine and Show in Explorer, through the normal preview
+  (S1). Its explanation names the gone program and when it last ran, or says that no
+  installed program claims the folder.
+- In Suggestions, leftovers form their own group: "Leftovers of removed apps".
+
+### Acceptance criteria
+
+- AC4.14 A folder that matches a gone program from the program history is a leftover with
+  tier Likely safe, and its explanation names that program.
+- AC4.15 A top-level folder in AppData or ProgramData that no installed program, rule or
+  definition claims and that has not changed for 180 days is a leftover with tier Review.
+- AC4.16 A folder that matches an installed program, a Windows folder or a keep
+  definition is never a leftover.
+
+| ID | Test | Kind |
+|---|---|---|
+| T-4.9 | name matching ignores case, spaces, punctuation and version numbers | core unit |
+| T-4.10 | a gone program's folder is Likely safe; an unclaimed old folder is Review; a young one is nothing | core unit |
+| T-4.11 | installed programs, Windows folders and keep definitions are never leftovers | core unit |
+
 ## MVP entries
 
 Paths marked (verify) are confirmed with a fixture and an official source during the

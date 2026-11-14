@@ -135,7 +135,9 @@ state:
 
 ### Rendering
 
-- Canvas 2D first. Each cell is drawn as a membrane: the polygon inset by a small gap,
+- Canvas 2D first, drawn in a Web Worker on an OffscreenCanvas so the map never blocks
+  input; where a browser cannot hand a canvas to a worker, the same renderer runs on the
+  page. Each cell is drawn as a membrane: the polygon inset by a small gap,
   with rounded corners, a radial gradient and an optional soft nucleus glow.
 - If the frame-rate target fails (AC2.9: 60 fps with 300 visible cells on integrated
   graphics), effects are reduced first: glow, then gradients. Moving to WebGL (PixiJS) is

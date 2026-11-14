@@ -6,9 +6,10 @@ export function mark(name: string): void {
   performance.mark(name);
 }
 
-/** Measures from the latest `start` mark to now, if that mark exists, and clears it. */
-export function measureSince(name: string, start: string): void {
+/** Measures from the latest `start` mark to `end` (default now), if that mark exists, and
+ * clears it. */
+export function measureSince(name: string, start: string, end?: number): void {
   if (performance.getEntriesByName(start, "mark").length === 0) return;
-  performance.measure(name, start);
+  performance.measure(name, end === undefined ? start : { start, end });
   performance.clearMarks(start);
 }

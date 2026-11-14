@@ -4,7 +4,7 @@ export type Category = "media" | "apps" | "downloads" | "system" | "documents" |
 export type Tier = "safe" | "likelySafe" | "review" | "keep";
 export type NodeKind = "file" | "folder" | "link";
 export type PinState = "onlineOnly" | "locallyAvailable" | "alwaysKeep";
-export type WindowsTool = "storageSettings" | "storageSense" | "diskCleanup" | "apps" | "systemProtection" | "recycleBin";
+export type WindowsTool = "storageSettings" | "storageSense" | "diskCleanup" | "apps" | "systemProtection" | "recycleBin" | "taskManager" | "windowsUpdate" | "disks";
 export type Action =
   | { type: "quarantine" }
   | { type: "freeUpSpace" }
@@ -161,6 +161,7 @@ export interface Description {
   steam: SteamInfo | null;
   elevated: boolean;
   lastUse: LastUse | null;
+  leftover: Leftover | null;
 }
 
 export type UseSource = "played" | "started" | "changed";
@@ -215,7 +216,7 @@ export interface DockerUsage {
 }
 
 export type ToolError = { kind: "notInstalled" | "notRunning" | "timedOut" | "failed" };
-export type AppName = "dockerDesktop" | "ollama" | "steam";
+export type AppName = "dockerDesktop" | "ollama" | "steam" | "ollamaDownload";
 export type OpenAppResult = { Ok: null } | { Err: ToolError };
 export type DockerResult = { Ok: DockerUsage[] } | { Err: ToolError };
 
@@ -368,7 +369,7 @@ export interface MediaItem {
 }
 
 export type GroupKind = "exactDuplicates" | "nearDuplicates" | "burst" | "chatMedia" | "screenshots";
-export type Certainty = "identical" | "almostCertainlyIdentical" | "verySimilar" | "sameMoment" | "sameSource";
+export type Certainty = "identical" | "almostCertainlyIdentical" | "likelyIdentical" | "verySimilar" | "sameMoment" | "sameSource";
 export type KeeperReason = "sharpest" | "highestResolution" | "largestFile";
 
 export interface Group {
@@ -414,7 +415,115 @@ export interface Settings {
   companion: "normal" | "quiet";
   adminRead: "ask" | "always" | "never";
   firstRunDone: boolean;
+  /** Background insights: the daily measurement for storage history. */
+  insights: boolean;
+  /** The AI chat through Ollama on this PC. */
+  chat: boolean;
+  /** The chat model, or null for the recommended one. */
+  chatModel: string | null;
 }
+
+/** Why a folder is a leftover of an uninstalled app. */
+export type Leftover = { kind: "goneApp"; name: string; lastRun: number } | { kind: "unclaimed"; unchangedDays: number };
+
+export type SnapshotKind = "scan" | "daily";
+
+export interface Totals {
+  used: number | null;
+  free: number | null;
+  hidden: number | null;
+}
+
+export interface TimelinePoint {
+  /** Seconds since 1970. */
+  at: number;
+  kind: SnapshotKind;
+  totals: Totals;
+}
+
+export interface GrowthItem {
+  path: string;
+  name: string;
+  before: number;
+  after: number;
+  delta: number;
+  id: number | null;
+  ruleId: string | null;
+  explain: Explain;
+  /** [seconds since 1970, size on disk] per snapshot of the period. */
+  trend: [number, number][];
+}
+
+export interface GrowthView {
+  from: number | null;
+  to: number | null;
+  items: GrowthItem[];
+  deltas: [string, number][];
+}
+
+export type FindingGroup = "performance" | "storage" | "startup" | "space" | "health" | "config";
+export type FindingState = "ok" | "look" | "action";
+
+export interface Finding {
+  id: string;
+  group: FindingGroup;
+  state: FindingState;
+  values: [string, string][];
+  source: string;
+}
+
+export type StartupScope = "userRun" | "machineRun" | "userFolder" | "commonFolder";
+
+export interface StartupChange {
+  name: string;
+  scope: StartupScope;
+  old: number[] | null;
+  enabled: boolean;
+}
+
+export type StartupError = "needsAdmin" | "notFound" | "failed";
+export type ChatError = "notRunning" | "refused" | "badReply" | "notAllowed" | "off";
+
+/** Where Ollama stands on this PC. */
+export type OllamaState = "notInstalled" | "notRunning" | "running";
+
+/** The model Unhoard recommends for this PC. */
+export interface Recommendation {
+  model: string;
+  fit: "fast" | "slow" | "tooSmall";
+  download: number;
+}
+
+/** What Settings needs to set up the chat. */
+export interface ChatSetup {
+  ollama: OllamaState;
+  models: ModelInfo[];
+  recommendation: Recommendation;
+  ram: number | null;
+  vram: number | null;
+}
+
+/** Download progress of a model. */
+export interface PullProgress {
+  status: string;
+  completed: number | null;
+  total: number | null;
+}
+
+export interface ModelInfo {
+  name: string;
+  size: number;
+  recommended: boolean;
+}
+
+export type ChatEvent = { kind: "delta"; text: string } | { kind: "tool"; name: string } | { kind: "done" };
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export type Result<T, E> = { Ok: T } | { Err: E };
 
 export interface ScanStatus {
   generation: number;

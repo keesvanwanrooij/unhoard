@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Description, Suggestion } from "../api/types";
-import { groupKey, groupSuggestions } from "./Suggestions";
+import { groupKey, groupSuggestions, keepOffered, selectionState, toggleAll } from "./Suggestions";
 
 function item(id: number, onDisk: number, d: Partial<Description>): Suggestion {
   return {
@@ -24,6 +24,7 @@ function item(id: number, onDisk: number, d: Partial<Description>): Suggestion {
       steam: null,
       elevated: false,
       lastUse: null,
+      leftover: null,
       ...d,
     },
   };
@@ -47,5 +48,25 @@ describe("grouped suggestions", () => {
     expect(groups.map((g) => g.key)).toEqual(["rule:a", "rule:b"]);
     expect(groups[0]?.total).toBe(35);
     expect(groups[0]?.items.map((s) => s.node.id)).toEqual([3, 1]);
+  });
+});
+
+describe("selection (multi-select)", () => {
+  it("f4_s1_nothing_is_selected_at_the_start_and_a_group_toggles_all_or_none", () => {
+    let sel = new Set<number>();
+    expect(selectionState(sel, [1, 2, 3])).toBe("none");
+    sel = toggleAll(sel, [1, 2, 3]);
+    expect([...sel].sort()).toEqual([1, 2, 3]);
+    expect(selectionState(sel, [1, 2, 3])).toBe("all");
+    sel = toggleAll(sel, [1, 2, 3]);
+    expect(sel.size).toBe(0);
+    // A partly selected group becomes fully selected first.
+    sel = toggleAll(new Set([2, 9]), [1, 2, 3]);
+    expect([...sel].sort()).toEqual([1, 2, 3, 9]);
+    expect(selectionState(new Set([2]), [1, 2, 3])).toBe("some");
+  });
+
+  it("f4_a_selection_keeps_only_items_that_are_still_offered", () => {
+    expect([...keepOffered(new Set([1, 2, 3]), [2, 3, 4])].sort()).toEqual([2, 3]);
   });
 });

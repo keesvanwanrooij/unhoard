@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { api, errorKey } from "../api/ipc";
 import type { Action, Details, HiddenKind, MovePlan, Outcome, RevealedView, ViewResponse, WindowsTool } from "../api/types";
 import { fmtBytes, fmtInt, fmtShare } from "../format";
-import { explainShort, explainText } from "../explain";
+import { explainShort, explainText, leftoverText } from "../explain";
 import { useApp } from "../store";
 import { AdminReadButton, DockerPanel, ItemFacts, OllamaPanel } from "./AppPanels";
 import { MovePreview, actionLabel } from "./Preview";
@@ -267,9 +267,11 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
         ? t("details.keepReason")
         : null
       : t(`knownLocations.${ruleId}.reason`)
-    : d.description.large
-      ? t("details.largeReason")
-      : null;
+    : d.description.leftover
+      ? leftoverText(d.description.leftover, t, lang)
+      : d.description.large
+        ? t("details.largeReason")
+        : null;
   const title = ruleId ? t(`knownLocations.${ruleId}.title`) : null;
 
   const run = (a: Action): void => {

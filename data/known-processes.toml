@@ -1,0 +1,668 @@
+# Known processes: what a running program is, for Optimise (F16). The texts live in
+# src/i18n under `processes.<id>` (`name` and `what`), in English and Dutch. `exe` holds
+# the executable names in lower case; `kind` groups them.
+
+[[process]]
+id = "system"
+exe = ["system"]
+kind = "windows"
+
+[[process]]
+id = "systemIdle"
+exe = ["system idle process", "[system process]"]
+kind = "windows"
+
+[[process]]
+id = "memoryCompression"
+exe = ["memory compression", "memcompression"]
+kind = "windows"
+
+[[process]]
+id = "registry"
+exe = ["registry"]
+kind = "windows"
+
+[[process]]
+id = "svchost"
+exe = ["svchost.exe"]
+kind = "windows"
+
+[[process]]
+id = "explorer"
+exe = ["explorer.exe"]
+kind = "windows"
+
+[[process]]
+id = "dwm"
+exe = ["dwm.exe"]
+kind = "windows"
+
+[[process]]
+id = "csrss"
+exe = ["csrss.exe"]
+kind = "windows"
+
+[[process]]
+id = "lsass"
+exe = ["lsass.exe"]
+kind = "windows"
+
+[[process]]
+id = "services"
+exe = ["services.exe"]
+kind = "windows"
+
+[[process]]
+id = "smss"
+exe = ["smss.exe"]
+kind = "windows"
+
+[[process]]
+id = "wininit"
+exe = ["wininit.exe"]
+kind = "windows"
+
+[[process]]
+id = "winlogon"
+exe = ["winlogon.exe"]
+kind = "windows"
+
+[[process]]
+id = "fontdrvhost"
+exe = ["fontdrvhost.exe"]
+kind = "windows"
+
+[[process]]
+id = "sihost"
+exe = ["sihost.exe"]
+kind = "windows"
+
+[[process]]
+id = "taskhostw"
+exe = ["taskhostw.exe"]
+kind = "windows"
+
+[[process]]
+id = "runtimeBroker"
+exe = ["runtimebroker.exe"]
+kind = "windows"
+
+[[process]]
+id = "searchHost"
+exe = ["searchhost.exe", "searchapp.exe", "searchui.exe"]
+kind = "windows"
+
+[[process]]
+id = "searchIndexer"
+exe = ["searchindexer.exe", "searchprotocolhost.exe", "searchfilterhost.exe"]
+kind = "windows"
+
+[[process]]
+id = "startMenu"
+exe = ["startmenuexperiencehost.exe"]
+kind = "windows"
+
+[[process]]
+id = "shellExperience"
+exe = ["shellexperiencehost.exe"]
+kind = "windows"
+
+[[process]]
+id = "textInput"
+exe = ["textinputhost.exe", "ctfmon.exe"]
+kind = "windows"
+
+[[process]]
+id = "widgets"
+exe = ["widgets.exe", "widgetservice.exe"]
+kind = "windows"
+
+[[process]]
+id = "spoolsv"
+exe = ["spoolsv.exe"]
+kind = "windows"
+
+[[process]]
+id = "audiodg"
+exe = ["audiodg.exe"]
+kind = "windows"
+
+[[process]]
+id = "dllhost"
+exe = ["dllhost.exe"]
+kind = "windows"
+
+[[process]]
+id = "conhost"
+exe = ["conhost.exe"]
+kind = "windows"
+
+[[process]]
+id = "wmiPrvSE"
+exe = ["wmiprvse.exe"]
+kind = "windows"
+
+[[process]]
+id = "trustedInstaller"
+exe = ["trustedinstaller.exe", "tiworker.exe"]
+kind = "windows"
+
+[[process]]
+id = "wuauclt"
+exe = ["wuauclt.exe", "usoclient.exe", "mousocoreworker.exe", "usocoreworker.exe"]
+kind = "windows"
+
+[[process]]
+id = "compatTelemetry"
+exe = ["compattelrunner.exe"]
+kind = "windows"
+
+[[process]]
+id = "securityHealth"
+exe = ["securityhealthservice.exe", "securityhealthsystray.exe"]
+kind = "security"
+
+[[process]]
+id = "defender"
+exe = ["msmpeng.exe", "nissrv.exe", "mpdefendercoreservice.exe", "mpcmdrun.exe"]
+kind = "security"
+
+[[process]]
+id = "smartscreen"
+exe = ["smartscreen.exe"]
+kind = "security"
+
+[[process]]
+id = "taskmgr"
+exe = ["taskmgr.exe"]
+kind = "windows"
+
+[[process]]
+id = "systemSettings"
+exe = ["systemsettings.exe"]
+kind = "windows"
+
+[[process]]
+id = "lockApp"
+exe = ["lockapp.exe"]
+kind = "windows"
+
+[[process]]
+id = "phoneLink"
+exe = ["phoneexperiencehost.exe", "yourphone.exe"]
+kind = "windows"
+
+[[process]]
+id = "gameBar"
+exe = ["gamebar.exe", "gamebarftserver.exe", "gamebarpresencewriter.exe", "xboxgamebarwidgets.exe"]
+kind = "windows"
+
+[[process]]
+id = "msiexec"
+exe = ["msiexec.exe"]
+kind = "windows"
+
+[[process]]
+id = "vmmem"
+exe = ["vmmem", "vmmemwsl", "vmwp.exe", "vmcompute.exe"]
+kind = "dev"
+
+[[process]]
+id = "wsl"
+exe = ["wsl.exe", "wslhost.exe", "wslservice.exe", "wslrelay.exe"]
+kind = "dev"
+
+[[process]]
+id = "crossDevice"
+exe = ["crossdeviceservice.exe", "crossdeviceresume.exe"]
+kind = "windows"
+
+[[process]]
+id = "copilot"
+exe = ["copilot.exe", "m365copilot.exe"]
+kind = "app"
+
+[[process]]
+id = "webview2"
+exe = ["msedgewebview2.exe"]
+kind = "app"
+
+[[process]]
+id = "chrome"
+exe = ["chrome.exe"]
+kind = "browser"
+
+[[process]]
+id = "edge"
+exe = ["msedge.exe"]
+kind = "browser"
+
+[[process]]
+id = "firefox"
+exe = ["firefox.exe"]
+kind = "browser"
+
+[[process]]
+id = "brave"
+exe = ["brave.exe"]
+kind = "browser"
+
+[[process]]
+id = "opera"
+exe = ["opera.exe", "opera_gx.exe"]
+kind = "browser"
+
+[[process]]
+id = "vivaldi"
+exe = ["vivaldi.exe"]
+kind = "browser"
+
+[[process]]
+id = "onedrive"
+exe = ["onedrive.exe", "onedrive.sync.service.exe", "filecoauth.exe"]
+kind = "cloud"
+
+[[process]]
+id = "dropbox"
+exe = ["dropbox.exe"]
+kind = "cloud"
+
+[[process]]
+id = "googleDrive"
+exe = ["googledrivefs.exe"]
+kind = "cloud"
+
+[[process]]
+id = "icloud"
+exe = ["icloudservices.exe", "iclouddrive.exe", "icloudphotos.exe", "icloudhome.exe"]
+kind = "cloud"
+
+[[process]]
+id = "synologyDrive"
+exe = ["cloud-drive-ui.exe", "cloud-drive-daemon.exe"]
+kind = "cloud"
+
+[[process]]
+id = "word"
+exe = ["winword.exe"]
+kind = "app"
+
+[[process]]
+id = "excel"
+exe = ["excel.exe"]
+kind = "app"
+
+[[process]]
+id = "powerpoint"
+exe = ["powerpnt.exe"]
+kind = "app"
+
+[[process]]
+id = "outlook"
+exe = ["outlook.exe", "olk.exe"]
+kind = "app"
+
+[[process]]
+id = "onenote"
+exe = ["onenote.exe", "onenotem.exe"]
+kind = "app"
+
+[[process]]
+id = "officeC2R"
+exe = ["officeclicktorun.exe"]
+kind = "app"
+
+[[process]]
+id = "teams"
+exe = ["ms-teams.exe", "teams.exe", "msteams.exe"]
+kind = "chat"
+
+[[process]]
+id = "acrobat"
+exe = ["acrobat.exe", "acrord32.exe", "acrocef.exe", "adobecollabsync.exe"]
+kind = "app"
+
+[[process]]
+id = "adobeCC"
+exe = ["creative cloud.exe", "adobe desktop service.exe", "adobeipcbroker.exe", "ccxprocess.exe", "coresync.exe", "adobeupdateservice.exe", "armsvc.exe"]
+kind = "app"
+
+[[process]]
+id = "photoshop"
+exe = ["photoshop.exe"]
+kind = "app"
+
+[[process]]
+id = "notion"
+exe = ["notion.exe"]
+kind = "app"
+
+[[process]]
+id = "obsidian"
+exe = ["obsidian.exe"]
+kind = "app"
+
+[[process]]
+id = "notepad"
+exe = ["notepad.exe"]
+kind = "app"
+
+[[process]]
+id = "claude"
+exe = ["claude.exe"]
+kind = "app"
+
+[[process]]
+id = "chatgpt"
+exe = ["chatgpt.exe"]
+kind = "app"
+
+[[process]]
+id = "discord"
+exe = ["discord.exe"]
+kind = "chat"
+
+[[process]]
+id = "slack"
+exe = ["slack.exe"]
+kind = "chat"
+
+[[process]]
+id = "zoom"
+exe = ["zoom.exe", "cpthost.exe"]
+kind = "chat"
+
+[[process]]
+id = "whatsapp"
+exe = ["whatsapp.exe", "whatsapp.root.exe"]
+kind = "chat"
+
+[[process]]
+id = "telegram"
+exe = ["telegram.exe"]
+kind = "chat"
+
+[[process]]
+id = "signal"
+exe = ["signal.exe"]
+kind = "chat"
+
+[[process]]
+id = "skype"
+exe = ["skype.exe"]
+kind = "chat"
+
+[[process]]
+id = "spotify"
+exe = ["spotify.exe"]
+kind = "media"
+
+[[process]]
+id = "vlc"
+exe = ["vlc.exe"]
+kind = "media"
+
+[[process]]
+id = "obs"
+exe = ["obs64.exe", "obs32.exe"]
+kind = "media"
+
+[[process]]
+id = "itunes"
+exe = ["itunes.exe", "applemobiledeviceservice.exe", "applemusic.exe"]
+kind = "media"
+
+[[process]]
+id = "photos"
+exe = ["photos.exe", "microsoft.photos.exe"]
+kind = "media"
+
+[[process]]
+id = "steam"
+exe = ["steam.exe", "steamservice.exe"]
+kind = "game"
+
+[[process]]
+id = "steamHelper"
+exe = ["steamwebhelper.exe"]
+kind = "game"
+
+[[process]]
+id = "epic"
+exe = ["epicgameslauncher.exe", "epicwebhelper.exe"]
+kind = "game"
+
+[[process]]
+id = "battleNet"
+exe = ["battle.net.exe", "agent.exe"]
+kind = "game"
+
+[[process]]
+id = "eaApp"
+exe = ["eadesktop.exe", "eabackgroundservice.exe", "origin.exe"]
+kind = "game"
+
+[[process]]
+id = "ubisoft"
+exe = ["upc.exe", "ubisoftconnect.exe", "ubisoftgamelauncher.exe"]
+kind = "game"
+
+[[process]]
+id = "gog"
+exe = ["galaxyclient.exe", "galaxyclient helper.exe", "galaxyclientservice.exe"]
+kind = "game"
+
+[[process]]
+id = "riot"
+exe = ["riotclientservices.exe", "riotclientux.exe", "vgc.exe", "vgtray.exe"]
+kind = "game"
+
+[[process]]
+id = "xboxApp"
+exe = ["xboxpcapp.exe", "gamingservices.exe", "gamingservicesnet.exe", "xboxappservices.exe"]
+kind = "game"
+
+[[process]]
+id = "minecraft"
+exe = ["minecraft.windows.exe", "minecraftlauncher.exe", "javaw.exe"]
+kind = "game"
+
+[[process]]
+id = "nvidia"
+exe = ["nvcontainer.exe", "nvdisplay.container.exe", "nvidia share.exe", "nvidia web helper.exe", "nvsphelper64.exe", "nvidia app.exe", "nvidia overlay.exe", "nvbroadcast.container.exe"]
+kind = "driver"
+
+[[process]]
+id = "amd"
+exe = ["radeonsoftware.exe", "amdrsserv.exe", "atieclxx.exe", "atiesrxx.exe", "amdow.exe", "cncmd.exe"]
+kind = "driver"
+
+[[process]]
+id = "intelGraphics"
+exe = ["igfxem.exe", "igfxcuiservice.exe", "intelgraphicssoftware.exe", "igcc.exe", "igfxext.exe", "lms.exe", "jhi_service.exe"]
+kind = "driver"
+
+[[process]]
+id = "realtek"
+exe = ["rtkauduservice64.exe", "ravbg64.exe", "rtkngui64.exe"]
+kind = "driver"
+
+[[process]]
+id = "lenovoVantage"
+exe = ["lenovovantage.exe", "lenovovantageservice.exe", "lenovovantage-(vantagecoreaddin).exe", "imcontroller.exe", "lenovo.modern.imcontroller.exe", "lenovoutilityservice.exe"]
+kind = "driver"
+
+[[process]]
+id = "dellSupport"
+exe = ["supportassistagent.exe", "dell.techhub.exe", "dellsupportassistremedationservice.exe", "delloptimizer.exe"]
+kind = "driver"
+
+[[process]]
+id = "hpSupport"
+exe = ["hpsupportassistant.exe", "hpsystemeventutilityhost.exe", "touchpointanalyticsclientservice.exe", "hpdiagscap.exe"]
+kind = "driver"
+
+[[process]]
+id = "logitech"
+exe = ["lghub.exe", "lghub_agent.exe", "lghub_updater.exe", "logioptionsplus.exe", "logioptionsplus_agent.exe", "logioptions.exe"]
+kind = "driver"
+
+[[process]]
+id = "razer"
+exe = ["razer synapse 3.exe", "razercentralservice.exe", "rzsdkservice.exe", "razer synapse service.exe"]
+kind = "driver"
+
+[[process]]
+id = "corsair"
+exe = ["icue.exe", "corsair.service.exe"]
+kind = "driver"
+
+[[process]]
+id = "malwarebytes"
+exe = ["mbam.exe", "mbamservice.exe", "mbamtray.exe"]
+kind = "security"
+
+[[process]]
+id = "avast"
+exe = ["avastsvc.exe", "avastui.exe", "avgsvc.exe", "avgui.exe"]
+kind = "security"
+
+[[process]]
+id = "norton"
+exe = ["nortonsecurity.exe", "ns.exe", "nortonui.exe", "nllservice.exe"]
+kind = "security"
+
+[[process]]
+id = "mcafee"
+exe = ["mcshield.exe", "mfemms.exe", "mcuicnt.exe", "mcafee.exe", "mc-fw-host.exe"]
+kind = "security"
+
+[[process]]
+id = "bitdefender"
+exe = ["bdservicehost.exe", "bdagent.exe", "vsserv.exe"]
+kind = "security"
+
+[[process]]
+id = "kaspersky"
+exe = ["avp.exe", "avpui.exe"]
+kind = "security"
+
+[[process]]
+id = "onePassword"
+exe = ["1password.exe", "1password-browsersupport.exe"]
+kind = "security"
+
+[[process]]
+id = "bitwarden"
+exe = ["bitwarden.exe"]
+kind = "security"
+
+[[process]]
+id = "nordvpn"
+exe = ["nordvpn.exe", "nordvpn-service.exe", "nordupdateservice.exe"]
+kind = "security"
+
+[[process]]
+id = "vscode"
+exe = ["code.exe", "code - insiders.exe"]
+kind = "dev"
+
+[[process]]
+id = "cursor"
+exe = ["cursor.exe"]
+kind = "dev"
+
+[[process]]
+id = "visualStudio"
+exe = ["devenv.exe", "servicehub.host.dotnet.x64.exe", "servicehub.roslyncodeanalysisservice.exe", "msbuild.exe", "vbcscompiler.exe"]
+kind = "dev"
+
+[[process]]
+id = "jetbrains"
+exe = ["idea64.exe", "pycharm64.exe", "webstorm64.exe", "rider64.exe", "clion64.exe", "phpstorm64.exe", "goland64.exe", "datagrip64.exe", "rustrover64.exe", "studio64.exe"]
+kind = "dev"
+
+[[process]]
+id = "node"
+exe = ["node.exe"]
+kind = "dev"
+
+[[process]]
+id = "python"
+exe = ["python.exe", "pythonw.exe", "python3.exe", "py.exe"]
+kind = "dev"
+
+[[process]]
+id = "java"
+exe = ["java.exe"]
+kind = "dev"
+
+[[process]]
+id = "dotnet"
+exe = ["dotnet.exe"]
+kind = "dev"
+
+[[process]]
+id = "git"
+exe = ["git.exe", "git-remote-https.exe", "bash.exe", "sh.exe"]
+kind = "dev"
+
+[[process]]
+id = "docker"
+exe = ["docker desktop.exe", "com.docker.backend.exe", "com.docker.service", "dockerd.exe", "com.docker.build.exe"]
+kind = "dev"
+
+[[process]]
+id = "ollama"
+exe = ["ollama.exe", "ollama app.exe", "ollama_llama_server.exe"]
+kind = "dev"
+
+[[process]]
+id = "rust"
+exe = ["cargo.exe", "rustc.exe", "rust-analyzer.exe", "link.exe", "cl.exe"]
+kind = "dev"
+
+[[process]]
+id = "powershell"
+exe = ["powershell.exe", "pwsh.exe"]
+kind = "dev"
+
+[[process]]
+id = "cmd"
+exe = ["cmd.exe"]
+kind = "dev"
+
+[[process]]
+id = "terminal"
+exe = ["windowsterminal.exe", "openconsole.exe"]
+kind = "dev"
+
+[[process]]
+id = "sqlServer"
+exe = ["sqlservr.exe", "postgres.exe", "mysqld.exe", "mongod.exe", "redis-server.exe"]
+kind = "dev"
+
+[[process]]
+id = "sevenZip"
+exe = ["7zfm.exe", "7zg.exe", "7z.exe", "winrar.exe"]
+kind = "app"
+
+[[process]]
+id = "powerToys"
+exe = ["powertoys.exe", "powertoys.runner.exe", "powertoys.fancyzones.exe", "powertoys.powerlauncher.exe"]
+kind = "app"
+
+[[process]]
+id = "googleUpdate"
+exe = ["googleupdate.exe", "googlecrashhandler.exe", "googlecrashhandler64.exe", "updater.exe"]
+kind = "app"
+
+[[process]]
+id = "edgeUpdate"
+exe = ["microsoftedgeupdate.exe", "elevation_service.exe"]
+kind = "app"
+
+[[process]]
+id = "unhoard"
+exe = ["unhoard-app.exe", "unhoard.exe", "unhoard-helper.exe"]
+kind = "app"

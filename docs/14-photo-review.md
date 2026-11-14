@@ -39,6 +39,7 @@ Each group says how sure the match is.
 |---|---|---|
 | **Exact duplicates, local** | Same size, then a partial hash (first and last 64 KB), then a full BLAKE3 hash | "Identical" |
 | **Exact duplicates, cloud-only** | Same size, same extension and an identical thumbnail perceptual hash | "Almost certainly identical", never "identical" |
+| **Copies, cloud-only** | Same size and extension, plus the same last-write time or the same name once a copy suffix (`(1)`, `- Copy`, `- kopie`) is removed; files under 16 KB are left out | "Likely the same", never "identical" |
 | **Near duplicates** | Perceptual hash (dHash) Hamming distance at or below a threshold, tuned on generated images | "Very similar" |
 | **Bursts** | Same source pattern, timestamps from the name or EXIF within about 2 seconds | "Burst of N" |
 | **Chat media** | WhatsApp, Telegram and Signal patterns | "Chat media", grouped by month |
@@ -77,6 +78,18 @@ and it is a suggestion only.
   and date only, and marked so.
 - Unhoard decodes nothing itself beyond the thumbnail bitmap it receives, with fixed size
   limits ([Threat model](32-threat-model.md)).
+- **Only candidates get a thumbnail.** A cloud library holds tens of thousands of photos,
+  and a thumbnail lookup takes about ten milliseconds each. Unhoard asks for a thumbnail
+  and properties only for:
+  - members of a burst (for the best shot)
+  - videos that share their size with another video
+  - cloud files that share size and type with another one and are not already matched as
+    copies, up to 2,000 of them
+  - every local picture, when there are at most 5,000 (near duplicates)
+- The screen shows how many thumbnails are done while the analysis runs, then the groups
+  largest first, filterable by kind, 100 at a time.
+- Unhoard never moves a cloud file. A group of cloud files says so; the user removes a copy
+  in OneDrive or Explorer.
 
 ## Videos
 

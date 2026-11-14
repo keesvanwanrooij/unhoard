@@ -9,7 +9,9 @@
     "quarantine": "Quarantine",
     "cloud": "Cloud",
     "photos": "Photos",
-    "settings": "Settings"
+    "settings": "Settings",
+    "history": "History",
+    "optimise": "Optimise"
   },
   "top": {
     "scan": "Scan",
@@ -24,7 +26,9 @@
     "ready": "Ready to scan",
     "drive": "{{drive}} · {{size}}",
     "systemDrive": "system drive",
-    "matrix": "Matrix"
+    "matrix": "Matrix",
+    "growth": "Growth",
+    "growthHint": "Colour the map by growth over the last week instead of by kind"
   },
   "category": {
     "media": "Photos & videos",
@@ -97,7 +101,10 @@
       "diskCleanup": "Open Disk Cleanup",
       "apps": "Open Installed apps",
       "systemProtection": "Open System Protection",
-      "recycleBin": "Open the Recycle Bin"
+      "recycleBin": "Open the Recycle Bin",
+      "taskManager": "Open Task Manager",
+      "windowsUpdate": "Open Windows Update",
+      "disks": "Open Settings › Disks"
     },
     "appUninstall": "Uninstall in Steam",
     "adminRead": "Read with admin rights",
@@ -186,7 +193,8 @@
       "almostCertainlyIdentical": "Almost certainly identical",
       "verySimilar": "Very similar",
       "sameMoment": "Taken within seconds",
-      "sameSource": "Same source and month"
+      "sameSource": "Same source and month",
+      "likelyIdentical": "Likely the same: same size, type and date or name"
     },
     "keeper": "Suggested keeper",
     "reason": {
@@ -201,7 +209,12 @@
     "previous": "Previous group",
     "keys": "Arrows move · Space selects · Enter moves · N next group",
     "noThumb": "no preview",
-    "selected": "{{count}} selected"
+    "selected": "{{count}} selected",
+    "progress": "Looking up thumbnails: {{done}} of {{total}}. Nothing is downloaded.",
+    "start": "Unhoard groups duplicates, bursts, chat media and screenshots by name, size and date. Photos that are only online stay online.",
+    "all": "All",
+    "more": "Show {{count}} more",
+    "cloudNote": "These files are in the cloud. Unhoard does not move cloud files; remove a copy in OneDrive or Explorer."
   },
   "settings": {
     "title": "Settings",
@@ -226,7 +239,34 @@
     "adminRead": "Read protected folders",
     "adminAsk": "Ask",
     "adminAlways": "Always",
-    "adminNever": "Never"
+    "adminNever": "Never",
+    "insightsTitle": "Background insights",
+    "insightsText": "Once a day, when the PC is idle, Unhoard measures the size of your largest folders, so History can show what grew. It stays on this PC, never reads file contents and uses at most 20 MB.",
+    "insights": "Daily measurement",
+    "on": "On",
+    "off": "Off",
+    "clearHistory": "Clear the history",
+    "historyCleared": "The history is cleared.",
+    "chatTitle": "Chat with Lumen",
+    "chatText": "Ask questions about your storage. A local AI model answers through Ollama on this PC; nothing goes to the internet. Lumen sees names and sizes from the scan, never file contents.",
+    "chat": "Chat with a local model",
+    "chatModel": "Model",
+    "recommendedModel": "Recommended for this PC",
+    "recommended": "recommended",
+    "loadingModels": "Asking Ollama for its models…",
+    "hints": {
+      "language": "The language of the whole app.",
+      "mapStyle": "How the overview draws your disk.",
+      "adminRead": "Read system folders with administrator rights.",
+      "motion": "Moving cells, or a still map.",
+      "measure": "Space really used, or the files' size.",
+      "companion": "How often Lumen speaks up.",
+      "insights": "Measures daily what grew, for History.",
+      "clearHistory": "Removes all saved measurements.",
+      "chat": "Ask questions; answered on this PC.",
+      "chatModel": "The AI model that answers.",
+      "firstRun": "Shows the welcome screen again."
+    }
   },
   "firstRun": {
     "title": "Where did your space go?",
@@ -352,10 +392,14 @@
       ],
       "adminReadDone": [
         "I read {{count}} protected folders with admin rights: {{size}} is no longer hidden."
+      ],
+      "growthFound": [
+        "{{name}} grew by {{size}} recently. History shows what grew and when."
       ]
     },
     "adminYes": "Yes, with admin rights",
-    "adminNo": "Not now"
+    "adminNo": "Not now",
+    "openHistory": "Open History"
   },
   "knownLocations": {
     "adobe-media-cache": {
@@ -2525,12 +2569,18 @@
       "steamGames": "Steam games",
       "steamLeftovers": "Leftovers of uninstalled games",
       "programs": "Installed programs",
-      "large": "Large files"
+      "large": "Large files",
+      "leftover": "Leftovers of removed apps"
     },
     "count_one": "{{count}} item",
     "count_other": "{{count}} items",
     "moveAll_one": "Move {{count}} to quarantine",
-    "moveAll_other": "Move all {{count}} to quarantine"
+    "moveAll_other": "Move all {{count}} to quarantine",
+    "selected": "{{count}} selected · {{size}}",
+    "moveSelected": "Preview the move to quarantine",
+    "clearSelection": "Clear selection",
+    "select": "Select {{name}}",
+    "selectHint": "Tick items in any tier and move them in one go; you always see the preview first."
   },
   "explain": {
     "file": "“{{name}}” is {{type}}.",
@@ -2785,6 +2835,784 @@
         "a": "a system or driver file",
         "about": "Windows or a device driver uses it."
       }
+    },
+    "leftover": {
+      "goneApp": "Probably left behind by “{{name}}”, a program that is no longer on this PC; it last ran on {{date}}.",
+      "unclaimed": "No installed program claims this folder, and nothing in it changed for {{days}} days."
+    }
+  },
+  "growth": {
+    "growHigh": "Grew 1 GB or more",
+    "grow": "Grew",
+    "same": "About the same",
+    "shrink": "Shrank",
+    "nodata": "No history"
+  },
+  "history": {
+    "title": "History",
+    "lead": "How full your drive was over time, and what grew. Every scan and the daily measurement add a point.",
+    "loading": "Reading the history…",
+    "timeline": "Used space over time",
+    "fewPoints": "There is not enough history yet. Every scan adds a point, and so does the daily measurement once a day.",
+    "point": "{{date}} · {{kind}} · {{used}} used · {{free}} free · {{hidden}} hidden",
+    "legend": "Point at a dot for its date and numbers. Filled dots are your own scans; open ones are daily measurements.",
+    "kind": {
+      "scan": "your scan",
+      "daily": "daily measurement"
+    },
+    "grew": "What grew or shrank",
+    "period": "Period",
+    "periods": {
+      "1": "Day",
+      "7": "Week",
+      "30": "Month",
+      "90": "3 months"
+    },
+    "range": "From {{from}} to {{to}}",
+    "nothingGrew": "Nothing grew or shrank by more than 100 MB in this period.",
+    "axisUsed": "Used space",
+    "axisDate": "Date"
+  },
+  "optimise": {
+    "title": "Optimise",
+    "lead": "An honest check-up: what Windows measures, where the number comes from and what you can do. No score, and no promises of speed.",
+    "again": "Measure again",
+    "measuring": "Measuring…",
+    "updatesLoading": "Asking Windows Update; this can take half a minute…",
+    "groups": {
+      "performance": "System performance",
+      "storage": "Disk health",
+      "startup": "Startup apps",
+      "space": "Free space",
+      "health": "Windows health",
+      "config": "System configuration"
+    },
+    "state": {
+      "ok": "In order",
+      "look": "Worth a look",
+      "action": "Action possible"
+    },
+    "source": {
+      "memoryStatus": "As measured by Windows (memory status).",
+      "processList": "Measured over one second from Windows' process list.",
+      "storageManagement": "As Windows reports it in Settings › Disks.",
+      "startupApproved": "From Windows' startup list, as Task Manager shows it.",
+      "volume": "As Windows reports the drive.",
+      "windowsUpdate": "As Windows Update reports it.",
+      "explainOnly": "Unhoard explains this; Windows runs the check.",
+      "memoryManagement": "From Windows' memory settings.",
+      "powerMode": "From Windows' power settings."
+    },
+    "findings": {
+      "memory": {
+        "title": "Memory: {{load}}% in use",
+        "text": "{{available}} of {{total}} is free. Programs have reserved {{commit}} of the {{commitLimit}} Windows can hand out (memory plus page file).",
+        "next": "Close programs you are not using, or see in Task Manager which ones use the most. Freeing memory with a tool does not help: Windows uses free memory as a cache."
+      },
+      "process": {
+        "title": "{{name}}",
+        "text": "Uses {{cpu}}% of the processor and {{memory}} of memory right now.",
+        "next": ""
+      },
+      "disk": {
+        "title": "{{name}} ({{media}})",
+        "text": "Windows reports its health as: {{health}}. Capacity {{size}}, in {{partitions}} partitions.",
+        "next": "Open Settings › Disks for its wear, temperature and warnings, and back up your files if Windows reports a problem."
+      },
+      "startup": {
+        "title": "{{name}}",
+        "text": "Starts when you sign in: {{command}}",
+        "next": "Switch it off if you do not need it right away; you can switch it back on at any time.",
+        "missing": "Its program file no longer exists, so this entry does nothing. Unhoard never deletes it; Task Manager shows it too."
+      },
+      "freeSpace": {
+        "title": "{{free}} free of {{total}}",
+        "text": "Windows needs room for updates, temporary files and its memory cache.",
+        "next": "Below 20 GB, big Windows updates can fail. Suggestions shows what you can clean up safely."
+      },
+      "updates": {
+        "title": "Windows Update: {{pending}} waiting",
+        "text": "{{pending}} updates are waiting to install; {{failed}} failed in the last 30 days.",
+        "next": "Open Windows Update to install them. If an update keeps failing, its error code there tells you why."
+      },
+      "systemFiles": {
+        "title": "System files",
+        "text": "If Windows behaves oddly, it can check and repair its own files. Run these in Terminal (Admin), one after the other: DISM /Online /Cleanup-Image /RestoreHealth and then sfc /scannow.",
+        "next": ""
+      },
+      "pageFile": {
+        "title": "Page file: {{on}}",
+        "text": "The page file lets Windows move memory it rarely uses to the disk.",
+        "next": "The page file is off. Turn it back on (System › About › Advanced system settings › Performance › Virtual memory): without it, programs can crash when memory runs out."
+      },
+      "power": {
+        "title": "Power mode: {{mode}}",
+        "text": "Best performance uses more energy, best efficiency is slower. Balanced suits most people.",
+        "next": ""
+      },
+      "partition": {
+        "title": "{{kindName}}",
+        "text": "{{kindText}}",
+        "next": ""
+      }
+    },
+    "turnOff": "Switch off",
+    "turnOn": "Switch on",
+    "undo": "Undo",
+    "openSuggestions": "Open Suggestions",
+    "openTaskManager": "Open Task Manager",
+    "openWindowsUpdate": "Open Windows Update",
+    "openDisks": "Open Settings › Disks",
+    "startupOn": "{{name}} starts again when you sign in.",
+    "startupOff": "{{name}} no longer starts when you sign in. Undo puts it back exactly as it was.",
+    "startupErrors": {
+      "needsAdmin": "This entry is set for everyone on this PC; switching it needs admin rights. Task Manager › Startup apps can do it.",
+      "notFound": "This entry is gone; measure again.",
+      "failed": "Windows did not accept the change."
+    },
+    "previewTitle": "Switch a startup app",
+    "previewOn": "{{name}} will start again when you sign in.",
+    "previewOff": "{{name}} will no longer start when you sign in. The program stays installed and you can still open it yourself.",
+    "previewHow": "Unhoard changes only the switch Task Manager uses, writes it in the activity log, and can undo it.",
+    "cancel": "Cancel",
+    "mythsTitle": "What Optimise never does",
+    "myths": "No registry cleaning, no “freeing” of memory, no switching off services or the page file, no speed promises. Those tricks do not make a PC faster and can break things.",
+    "words": {
+      "health": {
+        "Healthy": "healthy",
+        "Warning": "a warning",
+        "Unhealthy": "unhealthy",
+        "Unknown": "unknown"
+      },
+      "mode": {
+        "bestEfficiency": "best power efficiency",
+        "balanced": "balanced",
+        "bestPerformance": "best performance"
+      },
+      "on": {
+        "true": "on",
+        "false": "off"
+      }
+    },
+    "partition": {
+      "kind": {
+        "efi": {
+          "name": "EFI system partition",
+          "text": "Holds the boot loader that starts Windows. Small and needed; leave it alone."
+        },
+        "reserved": {
+          "name": "Microsoft reserved partition",
+          "text": "Empty space Windows keeps for disk management. It holds no files."
+        },
+        "recovery": {
+          "name": "Recovery partition",
+          "text": "Holds the Windows Recovery Environment, which repairs or resets Windows when it does not start."
+        },
+        "data": {
+          "name": "Data partition",
+          "text": "Holds Windows, your programs and your files."
+        },
+        "other": {
+          "name": "Partition",
+          "text": "A partition Windows does not label; another operating system or a tool may use it."
+        }
+      },
+      "drive": "Drive {{letter}}:",
+      "size": "{{size}}",
+      "free": "{{free}} free"
+    },
+    "unknownProcess": "Unhoard does not know this program. Its name in Task Manager says more.",
+    "lastMeasured": "Measured at {{time}}."
+  },
+  "chat": {
+    "ask": "Ask Lumen",
+    "title": "Ask Lumen",
+    "close": "Close the chat",
+    "off": "The chat is off. It runs on a local AI model through Ollama, on this PC; nothing goes to the internet. Switch it on in Settings.",
+    "toSettings": "Open Settings",
+    "errors": {
+      "notRunning": "Ollama is not running. Settings shows how to install or start it.",
+      "refused": "Ollama did not accept the question. Is the model {{model}} installed?",
+      "badReply": "Ollama's answer could not be read. Try again.",
+      "notAllowed": "That address is not allowed.",
+      "off": "The chat is off; switch it on in Settings."
+    },
+    "missingModel": "The model {{model}} is not installed yet. Download it in Settings with one click.",
+    "hello": "Ask me about your storage, for example: “Why is my disk full?”, “What grew this week?” or “Which games have I not played in a year?”",
+    "looking": "Looking at {{tool}}…",
+    "tools": {
+      "overview": "the overview",
+      "children": "a folder",
+      "explain": "an item",
+      "suggestions": "the suggestions",
+      "growth": "the history",
+      "search": "the scan",
+      "apps": "your programs"
+    },
+    "placeholder": "Ask a question…",
+    "stop": "Stop",
+    "send": "Send",
+    "privacy": "Runs on {{model}} through Ollama on this PC. Lumen sees names and sizes, never file contents.",
+    "setup": {
+      "whatIsOllama": "Lumen's chat runs on Ollama: a free program that runs AI models on your own PC. Nothing goes to the internet, and you need no account.",
+      "notInstalled": "Ollama is not installed on this PC yet.",
+      "installSteps": "Download Ollama for Windows, run the installer, then come back here and press Check again.",
+      "download": "Download Ollama",
+      "notRunning": "Ollama is installed but not running.",
+      "start": "Start Ollama",
+      "again": "Check again",
+      "checking": "Looking for Ollama…",
+      "machine": "This PC has {{ram}} of memory and {{vram}} of graphics memory.",
+      "machineNoVram": "This PC has {{ram}} of memory.",
+      "advice": "Unhoard recommends {{model}} (about {{size}} to download).",
+      "fit": {
+        "fast": "It fits in the graphics card, so answers come quickly.",
+        "slow": "It runs on the processor, so an answer takes a little while.",
+        "tooSmall": "This PC has little memory: the chat will be slow and less reliable."
+      },
+      "noModel": "Ollama runs, but the recommended model is not installed yet.",
+      "pull": "Download {{model}}",
+      "pullNote": "Ollama downloads the model from its library on the internet, only now that you click.",
+      "pulling": "Downloading {{model}}: {{done}} of {{total}}",
+      "pullingStep": "Downloading {{model}}: {{status}}",
+      "pulled": "{{model}} is installed. Ask Lumen something!",
+      "pullFailed": "The download did not finish. Check the internet connection and try again.",
+      "ready": "Ollama runs and the chat is ready.",
+      "toSettings": "Set up the chat"
+    }
+  },
+  "processes": {
+    "system": {
+      "name": "System",
+      "what": "The Windows kernel: drivers and core tasks run here. It is always running."
+    },
+    "systemIdle": {
+      "name": "System Idle Process",
+      "what": "Not a program: it shows how much of the processor is doing nothing."
+    },
+    "memoryCompression": {
+      "name": "Memory Compression",
+      "what": "Windows keeps rarely used memory compressed here, so more fits in memory. High use is normal."
+    },
+    "registry": {
+      "name": "Registry",
+      "what": "Holds the Windows registry in memory, the settings of Windows and your programs."
+    },
+    "svchost": {
+      "name": "Service Host",
+      "what": "Runs Windows services such as networking, updates and audio. Windows starts many of them; that is normal."
+    },
+    "explorer": {
+      "name": "Windows Explorer",
+      "what": "The desktop, the taskbar, the Start menu and your folder windows."
+    },
+    "dwm": {
+      "name": "Desktop Window Manager",
+      "what": "Draws every window and effect on the screen. It uses the graphics card."
+    },
+    "csrss": {
+      "name": "Client Server Runtime",
+      "what": "A core part of Windows that manages windows and processes. Windows cannot run without it."
+    },
+    "lsass": {
+      "name": "Local Security Authority",
+      "what": "Checks sign-ins and passwords and guards security policy."
+    },
+    "services": {
+      "name": "Services",
+      "what": "Starts and stops the Windows services in the background."
+    },
+    "smss": {
+      "name": "Session Manager",
+      "what": "Sets up your Windows session when the PC starts."
+    },
+    "wininit": {
+      "name": "Windows Start-Up",
+      "what": "Starts the core Windows services when the PC boots."
+    },
+    "winlogon": {
+      "name": "Windows Logon",
+      "what": "Handles signing in and out and the lock screen."
+    },
+    "fontdrvhost": {
+      "name": "Font Driver Host",
+      "what": "Draws fonts in a protected process."
+    },
+    "sihost": {
+      "name": "Shell Infrastructure Host",
+      "what": "Runs parts of the Windows interface such as the Start menu and notifications."
+    },
+    "taskhostw": {
+      "name": "Task Host",
+      "what": "Runs Windows background tasks that live in system files."
+    },
+    "runtimeBroker": {
+      "name": "Runtime Broker",
+      "what": "Checks that apps from the Store only use what they have permission for."
+    },
+    "searchHost": {
+      "name": "Windows Search",
+      "what": "The search box of the taskbar and the Start menu."
+    },
+    "searchIndexer": {
+      "name": "Search Indexer",
+      "what": "Builds the index that makes searching files fast. It is busy after many files changed."
+    },
+    "startMenu": {
+      "name": "Start Menu",
+      "what": "Shows the Start menu."
+    },
+    "shellExperience": {
+      "name": "Windows Shell Experience",
+      "what": "Draws the clock, the calendar, notifications and quick settings."
+    },
+    "textInput": {
+      "name": "Text Input",
+      "what": "The on-screen keyboard, emoji panel and input languages."
+    },
+    "widgets": {
+      "name": "Widgets",
+      "what": "The news and weather panel of the taskbar."
+    },
+    "spoolsv": {
+      "name": "Print Spooler",
+      "what": "Queues print jobs and sends them to the printer."
+    },
+    "audiodg": {
+      "name": "Audio Device Graph",
+      "what": "Mixes and processes all sound that Windows plays."
+    },
+    "dllhost": {
+      "name": "COM Surrogate",
+      "what": "Runs small helper parts for other programs, for example making thumbnails."
+    },
+    "conhost": {
+      "name": "Console Host",
+      "what": "The window behind command-line programs."
+    },
+    "wmiPrvSE": {
+      "name": "WMI Provider Host",
+      "what": "Lets programs ask Windows about hardware and settings. Busy when a tool queries a lot."
+    },
+    "trustedInstaller": {
+      "name": "Windows Modules Installer",
+      "what": "Installs Windows updates and optional features. Busy during and after updates."
+    },
+    "wuauclt": {
+      "name": "Windows Update",
+      "what": "Looks for, downloads and plans Windows updates."
+    },
+    "compatTelemetry": {
+      "name": "Compatibility Telemetry",
+      "what": "Collects diagnostic data about program compatibility for Microsoft. Runs now and then."
+    },
+    "securityHealth": {
+      "name": "Windows Security",
+      "what": "The Windows Security app and its icon in the taskbar."
+    },
+    "defender": {
+      "name": "Microsoft Defender Antivirus",
+      "what": "Scans files for malware as they are opened. Busy while many files change, for example during a scan or an install."
+    },
+    "smartscreen": {
+      "name": "SmartScreen",
+      "what": "Checks downloads and apps against a list of known threats."
+    },
+    "taskmgr": {
+      "name": "Task Manager",
+      "what": "Shows running programs and what they use."
+    },
+    "systemSettings": {
+      "name": "Settings",
+      "what": "The Windows Settings app."
+    },
+    "lockApp": {
+      "name": "Lock Screen",
+      "what": "Shows the lock screen."
+    },
+    "phoneLink": {
+      "name": "Phone Link",
+      "what": "Connects your phone to the PC for messages, calls and photos."
+    },
+    "gameBar": {
+      "name": "Xbox Game Bar",
+      "what": "The overlay for recording and chatting while gaming."
+    },
+    "msiexec": {
+      "name": "Windows Installer",
+      "what": "Installs, repairs or removes a program."
+    },
+    "vmmem": {
+      "name": "Virtual machine memory",
+      "what": "The memory and processor used by a virtual machine: WSL, Docker or Hyper-V."
+    },
+    "wsl": {
+      "name": "Windows Subsystem for Linux",
+      "what": "Runs Linux inside Windows."
+    },
+    "crossDevice": {
+      "name": "Cross Device Service",
+      "what": "Shares activity between your PC and your phone."
+    },
+    "copilot": {
+      "name": "Microsoft Copilot",
+      "what": "Microsoft's AI assistant."
+    },
+    "webview2": {
+      "name": "Edge WebView2",
+      "what": "Shows web content inside other apps, such as Teams, Outlook and widgets. Each app starts its own."
+    },
+    "chrome": {
+      "name": "Google Chrome",
+      "what": "The Chrome browser. It runs one process per tab and extension, so it shows up many times."
+    },
+    "edge": {
+      "name": "Microsoft Edge",
+      "what": "The Edge browser. It runs one process per tab and extension."
+    },
+    "firefox": {
+      "name": "Mozilla Firefox",
+      "what": "The Firefox browser. It runs several processes for tabs and extensions."
+    },
+    "brave": {
+      "name": "Brave",
+      "what": "The Brave browser. It runs one process per tab and extension."
+    },
+    "opera": {
+      "name": "Opera",
+      "what": "The Opera browser."
+    },
+    "vivaldi": {
+      "name": "Vivaldi",
+      "what": "The Vivaldi browser."
+    },
+    "onedrive": {
+      "name": "OneDrive",
+      "what": "Keeps your OneDrive folder in sync with the cloud. Busy while it uploads or downloads."
+    },
+    "dropbox": {
+      "name": "Dropbox",
+      "what": "Keeps your Dropbox folder in sync with the cloud."
+    },
+    "googleDrive": {
+      "name": "Google Drive",
+      "what": "Keeps your Google Drive files in sync with the cloud."
+    },
+    "icloud": {
+      "name": "iCloud",
+      "what": "Syncs iCloud Drive and iCloud Photos with this PC."
+    },
+    "synologyDrive": {
+      "name": "Synology Drive",
+      "what": "Syncs folders with a Synology NAS."
+    },
+    "word": {
+      "name": "Microsoft Word",
+      "what": "The word processor of Microsoft 365."
+    },
+    "excel": {
+      "name": "Microsoft Excel",
+      "what": "The spreadsheet program of Microsoft 365."
+    },
+    "powerpoint": {
+      "name": "Microsoft PowerPoint",
+      "what": "The presentation program of Microsoft 365."
+    },
+    "outlook": {
+      "name": "Microsoft Outlook",
+      "what": "E-mail and calendar."
+    },
+    "onenote": {
+      "name": "Microsoft OneNote",
+      "what": "The notebook app of Microsoft 365."
+    },
+    "officeC2R": {
+      "name": "Microsoft Office Click-to-Run",
+      "what": "Keeps Microsoft 365 apps up to date and lets them start quickly."
+    },
+    "teams": {
+      "name": "Microsoft Teams",
+      "what": "Chat, calls and meetings."
+    },
+    "acrobat": {
+      "name": "Adobe Acrobat",
+      "what": "Opens and edits PDF files."
+    },
+    "adobeCC": {
+      "name": "Adobe Creative Cloud",
+      "what": "Manages, updates and syncs Adobe apps in the background."
+    },
+    "photoshop": {
+      "name": "Adobe Photoshop",
+      "what": "Photo and image editing. Large images take a lot of memory."
+    },
+    "notion": {
+      "name": "Notion",
+      "what": "Notes, documents and databases."
+    },
+    "obsidian": {
+      "name": "Obsidian",
+      "what": "A notes app that keeps your notes as files on this PC."
+    },
+    "notepad": {
+      "name": "Notepad",
+      "what": "The simple text editor of Windows."
+    },
+    "claude": {
+      "name": "Claude",
+      "what": "The Claude desktop app, an AI assistant."
+    },
+    "chatgpt": {
+      "name": "ChatGPT",
+      "what": "The ChatGPT desktop app, an AI assistant."
+    },
+    "discord": {
+      "name": "Discord",
+      "what": "Chat, voice and video for communities and games."
+    },
+    "slack": {
+      "name": "Slack",
+      "what": "Chat for teams."
+    },
+    "zoom": {
+      "name": "Zoom",
+      "what": "Video meetings."
+    },
+    "whatsapp": {
+      "name": "WhatsApp",
+      "what": "The WhatsApp desktop app."
+    },
+    "telegram": {
+      "name": "Telegram",
+      "what": "The Telegram desktop app."
+    },
+    "signal": {
+      "name": "Signal",
+      "what": "The Signal desktop app."
+    },
+    "skype": {
+      "name": "Skype",
+      "what": "Calls and chat."
+    },
+    "spotify": {
+      "name": "Spotify",
+      "what": "Music streaming."
+    },
+    "vlc": {
+      "name": "VLC media player",
+      "what": "Plays video and audio files."
+    },
+    "obs": {
+      "name": "OBS Studio",
+      "what": "Records and streams your screen. Recording uses a lot of processor or graphics power."
+    },
+    "itunes": {
+      "name": "Apple Music and devices",
+      "what": "Apple's music app and the service that talks to an iPhone or iPad."
+    },
+    "photos": {
+      "name": "Microsoft Photos",
+      "what": "The Windows app for viewing and editing photos."
+    },
+    "steam": {
+      "name": "Steam",
+      "what": "The Steam game store and launcher."
+    },
+    "steamHelper": {
+      "name": "Steam web helper",
+      "what": "Draws Steam's store, library and chat. Steam runs several of them."
+    },
+    "epic": {
+      "name": "Epic Games Launcher",
+      "what": "The Epic game store and launcher."
+    },
+    "battleNet": {
+      "name": "Battle.net",
+      "what": "Blizzard's game launcher and its update agent."
+    },
+    "eaApp": {
+      "name": "EA app",
+      "what": "Electronic Arts' game launcher."
+    },
+    "ubisoft": {
+      "name": "Ubisoft Connect",
+      "what": "Ubisoft's game launcher."
+    },
+    "gog": {
+      "name": "GOG Galaxy",
+      "what": "GOG's game launcher."
+    },
+    "riot": {
+      "name": "Riot Client",
+      "what": "Riot Games' launcher and its anti-cheat service."
+    },
+    "xboxApp": {
+      "name": "Xbox",
+      "what": "The Xbox app and the services that install and run its games."
+    },
+    "minecraft": {
+      "name": "Minecraft or a Java program",
+      "what": "Minecraft, or another program written in Java."
+    },
+    "nvidia": {
+      "name": "NVIDIA software",
+      "what": "The driver services and app of an NVIDIA graphics card: settings, overlay and updates."
+    },
+    "amd": {
+      "name": "AMD software",
+      "what": "The driver services and app of an AMD graphics card or processor."
+    },
+    "intelGraphics": {
+      "name": "Intel software",
+      "what": "Driver services of Intel graphics or the Intel chipset."
+    },
+    "realtek": {
+      "name": "Realtek Audio",
+      "what": "The driver service of the sound card."
+    },
+    "lenovoVantage": {
+      "name": "Lenovo Vantage",
+      "what": "Lenovo's tool for updates, warranty and hardware settings."
+    },
+    "dellSupport": {
+      "name": "Dell SupportAssist",
+      "what": "Dell's tool for updates and hardware checks."
+    },
+    "hpSupport": {
+      "name": "HP Support Assistant",
+      "what": "HP's tool for updates and hardware checks."
+    },
+    "logitech": {
+      "name": "Logitech software",
+      "what": "Settings for a Logitech mouse, keyboard or headset."
+    },
+    "razer": {
+      "name": "Razer Synapse",
+      "what": "Settings for Razer devices."
+    },
+    "corsair": {
+      "name": "Corsair iCUE",
+      "what": "Settings and lighting for Corsair devices."
+    },
+    "malwarebytes": {
+      "name": "Malwarebytes",
+      "what": "A malware scanner."
+    },
+    "avast": {
+      "name": "Avast or AVG Antivirus",
+      "what": "An antivirus program that scans files as they are opened."
+    },
+    "norton": {
+      "name": "Norton",
+      "what": "An antivirus and security program."
+    },
+    "mcafee": {
+      "name": "McAfee",
+      "what": "An antivirus and security program."
+    },
+    "bitdefender": {
+      "name": "Bitdefender",
+      "what": "An antivirus and security program."
+    },
+    "kaspersky": {
+      "name": "Kaspersky",
+      "what": "An antivirus and security program."
+    },
+    "onePassword": {
+      "name": "1Password",
+      "what": "A password manager."
+    },
+    "bitwarden": {
+      "name": "Bitwarden",
+      "what": "A password manager."
+    },
+    "nordvpn": {
+      "name": "NordVPN",
+      "what": "A VPN that routes your internet traffic through another server."
+    },
+    "vscode": {
+      "name": "Visual Studio Code",
+      "what": "A code editor. It runs separate processes for windows, extensions and language tools."
+    },
+    "cursor": {
+      "name": "Cursor",
+      "what": "A code editor with AI built in."
+    },
+    "visualStudio": {
+      "name": "Visual Studio",
+      "what": "Microsoft's development environment and its build and analysis helpers."
+    },
+    "jetbrains": {
+      "name": "JetBrains IDE or Android Studio",
+      "what": "A development environment. Indexing a project uses a lot of processor and memory."
+    },
+    "node": {
+      "name": "Node.js",
+      "what": "Runs JavaScript programs: development servers, build tools, or part of a desktop app."
+    },
+    "python": {
+      "name": "Python",
+      "what": "Runs a Python program or script."
+    },
+    "java": {
+      "name": "Java",
+      "what": "Runs a program written in Java."
+    },
+    "dotnet": {
+      "name": ".NET",
+      "what": "Runs a .NET program or a build."
+    },
+    "git": {
+      "name": "Git",
+      "what": "Version control for code, and the Bash shell that comes with it."
+    },
+    "docker": {
+      "name": "Docker Desktop",
+      "what": "Runs containers. Its memory use shows mostly as the virtual machine."
+    },
+    "ollama": {
+      "name": "Ollama",
+      "what": "Runs AI models on this PC. A loaded model takes several gigabytes of memory or graphics memory."
+    },
+    "rust": {
+      "name": "Compiler",
+      "what": "Builds a program from source code. Building uses all processor cores for a while."
+    },
+    "powershell": {
+      "name": "PowerShell",
+      "what": "The Windows command shell; a window you opened or a script in the background."
+    },
+    "cmd": {
+      "name": "Command Prompt",
+      "what": "The classic Windows command line; a window you opened or a script."
+    },
+    "terminal": {
+      "name": "Windows Terminal",
+      "what": "The window for command-line shells."
+    },
+    "sqlServer": {
+      "name": "Database server",
+      "what": "A database running on this PC, usually for development."
+    },
+    "sevenZip": {
+      "name": "Archive tool",
+      "what": "Packs and unpacks ZIP, 7z and RAR files."
+    },
+    "powerToys": {
+      "name": "Microsoft PowerToys",
+      "what": "Extra tools for Windows, such as window layouts and a quick launcher."
+    },
+    "googleUpdate": {
+      "name": "Google Updater",
+      "what": "Keeps Chrome and other Google programs up to date."
+    },
+    "edgeUpdate": {
+      "name": "Microsoft Edge Update",
+      "what": "Keeps Edge and WebView2 up to date."
+    },
+    "unhoard": {
+      "name": "Unhoard",
+      "what": "This app. A scan uses the processor for a short while."
     }
   }
 }

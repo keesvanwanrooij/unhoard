@@ -1,14 +1,14 @@
 // Lumen, the companion: a holographic orb that speaks in bubbles, never in popups. One
 // bubble at a time; Esc or × closes it; a click on the orb shows earlier bubbles, and
 // dragging the orb moves it to another spot on the stage.
-import { useEffect, useRef, useState, type JSX } from "react";
+import { memo, useEffect, useRef, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { useApp } from "../store";
 
-/** The Lumen character as an inline SVG. */
-export function Lumen(): JSX.Element {
+/** The Lumen character as an inline SVG; memoised, as it never changes. */
+export const Lumen = memo(function Lumen(): JSX.Element {
   return (
     <svg viewBox="0 0 120 120" aria-hidden="true">
       <defs>
@@ -39,7 +39,7 @@ export function Lumen(): JSX.Element {
       </g>
     </svg>
   );
-}
+});
 
 const TTL: Record<string, number> = { tip: 7000, explanation: 11000, progress: 60000, celebration: 6000, warning: 20000 };
 /** Where the dragged position is remembered. */
@@ -77,7 +77,9 @@ function savePosition(p: Position): void {
 /** The companion with its current bubble. Drag the orb to move it; click it for history. */
 export function Companion(): JSX.Element {
   const { t } = useTranslation();
-  const { queue, dismiss, expire, bubbleVersion } = useApp(useShallow((s) => ({ queue: s.queue, dismiss: s.dismiss, expire: s.expire, bubbleVersion: s.bubbleVersion })));
+  const { queue, dismiss, expire, bubbleVersion } = useApp(
+    useShallow((s) => ({ queue: s.queue, dismiss: s.dismiss, expire: s.expire, bubbleVersion: s.bubbleVersion })),
+  );
   // The history belongs to the bubble that was showing when it was opened, so any new
   // bubble closes it and old messages never stay on screen.
   const [historyFor, setHistoryFor] = useState<number | null>(null);

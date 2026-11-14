@@ -9,7 +9,9 @@
     "quarantine": "Quarantaine",
     "cloud": "Cloud",
     "photos": "Foto's",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "history": "Geschiedenis",
+    "optimise": "Optimaliseren"
   },
   "top": {
     "scan": "Scannen",
@@ -24,7 +26,9 @@
     "ready": "Klaar om te scannen",
     "drive": "{{drive}} · {{size}}",
     "systemDrive": "systeemschijf",
-    "matrix": "Matrix"
+    "matrix": "Matrix",
+    "growth": "Groei",
+    "growthHint": "Kleur de kaart naar groei in de afgelopen week in plaats van naar soort"
   },
   "category": {
     "media": "Foto's & video's",
@@ -97,7 +101,10 @@
       "diskCleanup": "Open Schijfopruiming",
       "apps": "Open Geïnstalleerde apps",
       "systemProtection": "Open Systeembeveiliging",
-      "recycleBin": "Open de Prullenbak"
+      "recycleBin": "Open de Prullenbak",
+      "taskManager": "Open Taakbeheer",
+      "windowsUpdate": "Open Windows Update",
+      "disks": "Open Instellingen › Schijven"
     },
     "appUninstall": "Verwijderen via Steam",
     "adminRead": "Lees met adminrechten",
@@ -186,7 +193,8 @@
       "almostCertainlyIdentical": "Vrijwel zeker identiek",
       "verySimilar": "Heel vergelijkbaar",
       "sameMoment": "Binnen enkele seconden genomen",
-      "sameSource": "Zelfde bron en maand"
+      "sameSource": "Zelfde bron en maand",
+      "likelyIdentical": "Waarschijnlijk hetzelfde: zelfde grootte, type en datum of naam"
     },
     "keeper": "Voorgestelde keeper",
     "reason": {
@@ -201,7 +209,12 @@
     "previous": "Vorige groep",
     "keys": "Pijltjes verplaatsen · Spatie selecteert · Enter verplaatst · N volgende groep",
     "noThumb": "geen voorbeeld",
-    "selected": "{{count}} geselecteerd"
+    "selected": "{{count}} geselecteerd",
+    "progress": "Miniaturen opzoeken: {{done}} van {{total}}. Er wordt niets gedownload.",
+    "start": "Unhoard groepeert duplicaten, reeksen, chatmedia en schermafbeeldingen op naam, grootte en datum. Foto's die alleen online staan, blijven online.",
+    "all": "Alles",
+    "more": "Toon er nog {{count}}",
+    "cloudNote": "Deze bestanden staan in de cloud. Unhoard verplaatst geen cloudbestanden; verwijder een kopie in OneDrive of Verkenner."
   },
   "settings": {
     "title": "Instellingen",
@@ -226,7 +239,34 @@
     "adminRead": "Beschermde mappen lezen",
     "adminAsk": "Vragen",
     "adminAlways": "Altijd",
-    "adminNever": "Nooit"
+    "adminNever": "Nooit",
+    "insightsTitle": "Achtergrondinzichten",
+    "insightsText": "Eén keer per dag, als de pc niets doet, meet Unhoard hoe groot je grootste mappen zijn, zodat Geschiedenis kan laten zien wat er groeide. Het blijft op deze pc, leest nooit de inhoud van bestanden en gebruikt hooguit 20 MB.",
+    "insights": "Dagelijkse meting",
+    "on": "Aan",
+    "off": "Uit",
+    "clearHistory": "Wis de geschiedenis",
+    "historyCleared": "De geschiedenis is gewist.",
+    "chatTitle": "Chatten met Lumen",
+    "chatText": "Stel vragen over je opslag. Een lokaal AI-model antwoordt via Ollama op deze pc; er gaat niets naar internet. Lumen ziet namen en groottes uit de scan, nooit de inhoud van bestanden.",
+    "chat": "Chat met een lokaal model",
+    "chatModel": "Model",
+    "recommendedModel": "Aanbevolen voor deze pc",
+    "recommended": "aanbevolen",
+    "loadingModels": "Ollama wordt naar zijn modellen gevraagd…",
+    "hints": {
+      "language": "De taal van de hele app.",
+      "mapStyle": "Hoe het overzicht je schijf tekent.",
+      "adminRead": "Systeemmappen lezen met beheerdersrechten.",
+      "motion": "Bewegende cellen, of een stilstaande kaart.",
+      "measure": "Echt gebruikte ruimte, of de bestandsgrootte.",
+      "companion": "Hoe vaak Lumen iets zegt.",
+      "insights": "Meet dagelijks wat groeide, voor Geschiedenis.",
+      "clearHistory": "Verwijdert alle bewaarde metingen.",
+      "chat": "Stel vragen; beantwoord op deze pc.",
+      "chatModel": "Het AI-model dat antwoordt.",
+      "firstRun": "Toont het welkomstscherm opnieuw."
+    }
   },
   "firstRun": {
     "title": "Waar is je ruimte gebleven?",
@@ -352,10 +392,14 @@
       ],
       "adminReadDone": [
         "Ik heb {{count}} beschermde mappen met adminrechten gelezen: {{size}} is niet langer verborgen."
+      ],
+      "growthFound": [
+        "{{name}} is kortgeleden {{size}} gegroeid. Geschiedenis laat zien wat er groeide en wanneer."
       ]
     },
     "adminYes": "Ja, met adminrechten",
-    "adminNo": "Nu niet"
+    "adminNo": "Nu niet",
+    "openHistory": "Open Geschiedenis"
   },
   "knownLocations": {
     "adobe-media-cache": {
@@ -2525,12 +2569,18 @@
       "steamGames": "Steam-spellen",
       "steamLeftovers": "Restanten van verwijderde spellen",
       "programs": "Geïnstalleerde programma's",
-      "large": "Grote bestanden"
+      "large": "Grote bestanden",
+      "leftover": "Restanten van verwijderde apps"
     },
     "count_one": "{{count}} item",
     "count_other": "{{count}} items",
     "moveAll_one": "Zet {{count}} in quarantaine",
-    "moveAll_other": "Zet alle {{count}} in quarantaine"
+    "moveAll_other": "Zet alle {{count}} in quarantaine",
+    "selected": "{{count}} gekozen · {{size}}",
+    "moveSelected": "Bekijk de verplaatsing naar quarantaine",
+    "clearSelection": "Wis keuze",
+    "select": "Kies {{name}}",
+    "selectHint": "Vink items aan in elk risiconiveau en verplaats ze in één keer; je ziet altijd eerst het voorbeeld."
   },
   "explain": {
     "file": "“{{name}}” is {{type}}.",
@@ -2785,6 +2835,784 @@
         "a": "een systeem- of driverbestand",
         "about": "Windows of een apparaatdriver gebruikt het."
       }
+    },
+    "leftover": {
+      "goneApp": "Waarschijnlijk achtergelaten door “{{name}}”, een programma dat niet meer op deze pc staat; het draaide voor het laatst op {{date}}.",
+      "unclaimed": "Geen geïnstalleerd programma hoort bij deze map, en er veranderde {{days}} dagen niets in."
+    }
+  },
+  "growth": {
+    "growHigh": "1 GB of meer gegroeid",
+    "grow": "Gegroeid",
+    "same": "Ongeveer gelijk",
+    "shrink": "Gekrompen",
+    "nodata": "Geen geschiedenis"
+  },
+  "history": {
+    "title": "Geschiedenis",
+    "lead": "Hoe vol je schijf was door de tijd, en wat er groeide. Elke scan en de dagelijkse meting voegen een punt toe.",
+    "loading": "De geschiedenis wordt gelezen…",
+    "timeline": "Gebruikte ruimte door de tijd",
+    "fewPoints": "Er is nog niet genoeg geschiedenis. Elke scan voegt een punt toe, en de dagelijkse meting doet dat één keer per dag.",
+    "point": "{{date}} · {{kind}} · {{used}} gebruikt · {{free}} vrij · {{hidden}} verborgen",
+    "legend": "Wijs een punt aan voor de datum en de cijfers. Gevulde punten zijn je eigen scans, open punten dagelijkse metingen.",
+    "kind": {
+      "scan": "je scan",
+      "daily": "dagelijkse meting"
+    },
+    "grew": "Wat groeide of kromp",
+    "period": "Periode",
+    "periods": {
+      "1": "Dag",
+      "7": "Week",
+      "30": "Maand",
+      "90": "3 maanden"
+    },
+    "range": "Van {{from}} tot {{to}}",
+    "nothingGrew": "Niets groeide of kromp meer dan 100 MB in deze periode.",
+    "axisUsed": "Gebruikte ruimte",
+    "axisDate": "Datum"
+  },
+  "optimise": {
+    "title": "Optimaliseren",
+    "lead": "Een eerlijke check-up: wat Windows meet, waar het getal vandaan komt en wat je kunt doen. Geen score, en geen snelheidsbeloftes.",
+    "again": "Opnieuw meten",
+    "measuring": "Bezig met meten…",
+    "updatesLoading": "Windows Update wordt gevraagd; dat kan een halve minuut duren…",
+    "groups": {
+      "performance": "Systeemprestaties",
+      "storage": "Schijfgezondheid",
+      "startup": "Opstart-apps",
+      "space": "Vrije ruimte",
+      "health": "Gezondheid van Windows",
+      "config": "Systeemconfiguratie"
+    },
+    "state": {
+      "ok": "In orde",
+      "look": "Even bekijken",
+      "action": "Actie mogelijk"
+    },
+    "source": {
+      "memoryStatus": "Zoals Windows het meet (geheugenstatus).",
+      "processList": "Eén seconde gemeten uit de proceslijst van Windows.",
+      "storageManagement": "Zoals Windows het toont in Instellingen › Schijven.",
+      "startupApproved": "Uit de opstartlijst van Windows, zoals Taakbeheer hem toont.",
+      "volume": "Zoals Windows de schijf meldt.",
+      "windowsUpdate": "Zoals Windows Update het meldt.",
+      "explainOnly": "Unhoard legt dit uit; Windows voert de controle uit.",
+      "memoryManagement": "Uit de geheugeninstellingen van Windows.",
+      "powerMode": "Uit de energie-instellingen van Windows."
+    },
+    "findings": {
+      "memory": {
+        "title": "Geheugen: {{load}}% in gebruik",
+        "text": "{{available}} van {{total}} is vrij. Programma's hebben {{commit}} gereserveerd van de {{commitLimit}} die Windows kan uitdelen (geheugen plus wisselbestand).",
+        "next": "Sluit programma's die je niet gebruikt, of kijk in Taakbeheer welke het meest gebruiken. Geheugen “vrijmaken” met een tool helpt niet: Windows gebruikt vrij geheugen als cache."
+      },
+      "process": {
+        "title": "{{name}}",
+        "text": "Gebruikt nu {{cpu}}% van de processor en {{memory}} geheugen.",
+        "next": ""
+      },
+      "disk": {
+        "title": "{{name}} ({{media}})",
+        "text": "Windows meldt als gezondheid: {{health}}. Capaciteit {{size}}, in {{partitions}} partities.",
+        "next": "Open Instellingen › Schijven voor slijtage, temperatuur en waarschuwingen, en maak een back-up als Windows een probleem meldt."
+      },
+      "startup": {
+        "title": "{{name}}",
+        "text": "Start als je je aanmeldt: {{command}}",
+        "next": "Zet hem uit als je hem niet meteen nodig hebt; je kunt hem altijd weer aanzetten.",
+        "missing": "Het programmabestand bestaat niet meer, dus deze vermelding doet niets. Unhoard verwijdert hem nooit; Taakbeheer toont hem ook."
+      },
+      "freeSpace": {
+        "title": "{{free}} vrij van {{total}}",
+        "text": "Windows heeft ruimte nodig voor updates, tijdelijke bestanden en zijn geheugencache.",
+        "next": "Onder 20 GB kunnen grote Windows-updates mislukken. Suggesties laat zien wat je veilig kunt opruimen."
+      },
+      "updates": {
+        "title": "Windows Update: {{pending}} wachten",
+        "text": "{{pending}} updates wachten op installatie; {{failed}} mislukten in de afgelopen 30 dagen.",
+        "next": "Open Windows Update om ze te installeren. Blijft een update mislukken, dan zegt de foutcode daar waarom."
+      },
+      "systemFiles": {
+        "title": "Systeembestanden",
+        "text": "Doet Windows vreemd, dan kan het zijn eigen bestanden controleren en herstellen. Voer deze na elkaar uit in Terminal (Admin): DISM /Online /Cleanup-Image /RestoreHealth en daarna sfc /scannow.",
+        "next": ""
+      },
+      "pageFile": {
+        "title": "Wisselbestand: {{on}}",
+        "text": "Met het wisselbestand zet Windows geheugen dat het weinig gebruikt op de schijf.",
+        "next": "Het wisselbestand staat uit. Zet het weer aan (Systeem › Info › Geavanceerde systeeminstellingen › Prestaties › Virtueel geheugen): zonder kunnen programma's crashen als het geheugen opraakt."
+      },
+      "power": {
+        "title": "Energiestand: {{mode}}",
+        "text": "Beste prestaties gebruikt meer energie, beste energie-efficiëntie is trager. Gebalanceerd past bij de meeste mensen.",
+        "next": ""
+      },
+      "partition": {
+        "title": "{{kindName}}",
+        "text": "{{kindText}}",
+        "next": ""
+      }
+    },
+    "turnOff": "Uitzetten",
+    "turnOn": "Aanzetten",
+    "undo": "Ongedaan maken",
+    "openSuggestions": "Open Suggesties",
+    "openTaskManager": "Open Taakbeheer",
+    "openWindowsUpdate": "Open Windows Update",
+    "openDisks": "Open Instellingen › Schijven",
+    "startupOn": "{{name}} start weer als je je aanmeldt.",
+    "startupOff": "{{name}} start niet meer als je je aanmeldt. Ongedaan maken zet hem precies terug zoals hij was.",
+    "startupErrors": {
+      "needsAdmin": "Deze vermelding geldt voor iedereen op deze pc; omzetten vraagt adminrechten. Dat kan in Taakbeheer › Opstart-apps.",
+      "notFound": "Deze vermelding is verdwenen; meet opnieuw.",
+      "failed": "Windows accepteerde de wijziging niet."
+    },
+    "previewTitle": "Een opstart-app omzetten",
+    "previewOn": "{{name}} start weer als je je aanmeldt.",
+    "previewOff": "{{name}} start niet meer als je je aanmeldt. Het programma blijft geïnstalleerd en je kunt het zelf nog openen.",
+    "previewHow": "Unhoard verandert alleen de schakelaar die Taakbeheer gebruikt, schrijft het in het activiteitenlogboek en kan het terugdraaien.",
+    "cancel": "Annuleren",
+    "mythsTitle": "Wat Optimaliseren nooit doet",
+    "myths": "Geen register opschonen, geen geheugen “vrijmaken”, geen services of wisselbestand uitzetten, geen snelheidsbeloftes. Die trucs maken een pc niet sneller en kunnen dingen kapotmaken.",
+    "words": {
+      "health": {
+        "Healthy": "gezond",
+        "Warning": "een waarschuwing",
+        "Unhealthy": "ongezond",
+        "Unknown": "onbekend"
+      },
+      "mode": {
+        "bestEfficiency": "beste energie-efficiëntie",
+        "balanced": "gebalanceerd",
+        "bestPerformance": "beste prestaties"
+      },
+      "on": {
+        "true": "aan",
+        "false": "uit"
+      }
+    },
+    "partition": {
+      "kind": {
+        "efi": {
+          "name": "EFI-systeempartitie",
+          "text": "Bevat de opstartlader die Windows start. Klein en nodig; laat hem staan."
+        },
+        "reserved": {
+          "name": "Microsoft-gereserveerde partitie",
+          "text": "Lege ruimte die Windows bewaart voor schijfbeheer. Er staan geen bestanden op."
+        },
+        "recovery": {
+          "name": "Herstelpartitie",
+          "text": "Bevat de Windows-herstelomgeving, die Windows repareert of terugzet als het niet start."
+        },
+        "data": {
+          "name": "Gegevenspartitie",
+          "text": "Bevat Windows, je programma's en je bestanden."
+        },
+        "other": {
+          "name": "Partitie",
+          "text": "Een partitie die Windows niet benoemt; een ander besturingssysteem of hulpprogramma kan hem gebruiken."
+        }
+      },
+      "drive": "Station {{letter}}:",
+      "size": "{{size}}",
+      "free": "{{free}} vrij"
+    },
+    "unknownProcess": "Unhoard kent dit programma niet. De naam in Taakbeheer zegt meer.",
+    "lastMeasured": "Gemeten om {{time}}."
+  },
+  "chat": {
+    "ask": "Vraag Lumen",
+    "title": "Vraag Lumen",
+    "close": "Sluit de chat",
+    "off": "De chat staat uit. Hij draait op een lokaal AI-model via Ollama, op deze pc; er gaat niets naar internet. Zet hem aan in Instellingen.",
+    "toSettings": "Open Instellingen",
+    "errors": {
+      "notRunning": "Ollama draait niet. Instellingen laat zien hoe je het installeert of start.",
+      "refused": "Ollama nam de vraag niet aan. Is het model {{model}} geïnstalleerd?",
+      "badReply": "Het antwoord van Ollama was niet te lezen. Probeer het opnieuw.",
+      "notAllowed": "Dat adres is niet toegestaan.",
+      "off": "De chat staat uit; zet hem aan in Instellingen."
+    },
+    "missingModel": "Het model {{model}} is nog niet geïnstalleerd. Download het met één klik in Instellingen.",
+    "hello": "Vraag me iets over je opslag, bijvoorbeeld: “Waarom is mijn schijf vol?”, “Wat is er deze week gegroeid?” of “Welke spellen heb ik een jaar niet gespeeld?”",
+    "looking": "Ik kijk naar {{tool}}…",
+    "tools": {
+      "overview": "het overzicht",
+      "children": "een map",
+      "explain": "een item",
+      "suggestions": "de suggesties",
+      "growth": "de geschiedenis",
+      "search": "de scan",
+      "apps": "je programma's"
+    },
+    "placeholder": "Stel een vraag…",
+    "stop": "Stop",
+    "send": "Verstuur",
+    "privacy": "Draait op {{model}} via Ollama op deze pc. Lumen ziet namen en groottes, nooit de inhoud van bestanden.",
+    "setup": {
+      "whatIsOllama": "De chat van Lumen draait op Ollama: een gratis programma dat AI-modellen op je eigen pc draait. Er gaat niets naar internet en je hebt geen account nodig.",
+      "notInstalled": "Ollama staat nog niet op deze pc.",
+      "installSteps": "Download Ollama voor Windows, voer het installatieprogramma uit, kom hier terug en druk op Opnieuw kijken.",
+      "download": "Download Ollama",
+      "notRunning": "Ollama is geïnstalleerd maar draait niet.",
+      "start": "Start Ollama",
+      "again": "Opnieuw kijken",
+      "checking": "Ollama zoeken…",
+      "machine": "Deze pc heeft {{ram}} geheugen en {{vram}} videogeheugen.",
+      "machineNoVram": "Deze pc heeft {{ram}} geheugen.",
+      "advice": "Unhoard raadt {{model}} aan (ongeveer {{size}} downloaden).",
+      "fit": {
+        "fast": "Het past in de videokaart, dus antwoorden komen snel.",
+        "slow": "Het draait op de processor, dus een antwoord duurt even.",
+        "tooSmall": "Deze pc heeft weinig geheugen: de chat wordt traag en minder betrouwbaar."
+      },
+      "noModel": "Ollama draait, maar het aangeraden model is nog niet geïnstalleerd.",
+      "pull": "Download {{model}}",
+      "pullNote": "Ollama downloadt het model uit zijn bibliotheek op internet, alleen nu je klikt.",
+      "pulling": "{{model}} downloaden: {{done}} van {{total}}",
+      "pullingStep": "{{model}} downloaden: {{status}}",
+      "pulled": "{{model}} is geïnstalleerd. Vraag Lumen iets!",
+      "pullFailed": "De download is niet afgerond. Controleer de internetverbinding en probeer het opnieuw.",
+      "ready": "Ollama draait en de chat is klaar.",
+      "toSettings": "Chat instellen"
+    }
+  },
+  "processes": {
+    "system": {
+      "name": "System",
+      "what": "De kern van Windows: stuurprogramma's en basistaken draaien hier. Het draait altijd."
+    },
+    "systemIdle": {
+      "name": "System Idle Process",
+      "what": "Geen programma: het laat zien hoeveel van de processor niets doet."
+    },
+    "memoryCompression": {
+      "name": "Memory Compression",
+      "what": "Windows bewaart hier weinig gebruikt geheugen gecomprimeerd, zodat er meer in het geheugen past. Hoog gebruik is normaal."
+    },
+    "registry": {
+      "name": "Registry",
+      "what": "Houdt het Windows-register in het geheugen: de instellingen van Windows en je programma's."
+    },
+    "svchost": {
+      "name": "Service Host",
+      "what": "Draait Windows-services zoals netwerk, updates en geluid. Windows start er veel van; dat is normaal."
+    },
+    "explorer": {
+      "name": "Windows Explorer",
+      "what": "Het bureaublad, de taakbalk, het Startmenu en je mapvensters."
+    },
+    "dwm": {
+      "name": "Desktop Window Manager",
+      "what": "Tekent elk venster en effect op het scherm. Het gebruikt de videokaart."
+    },
+    "csrss": {
+      "name": "Client Server Runtime",
+      "what": "Een kernonderdeel van Windows dat vensters en processen beheert. Windows werkt niet zonder."
+    },
+    "lsass": {
+      "name": "Local Security Authority",
+      "what": "Controleert aanmeldingen en wachtwoorden en bewaakt het beveiligingsbeleid."
+    },
+    "services": {
+      "name": "Services",
+      "what": "Start en stopt de Windows-services op de achtergrond."
+    },
+    "smss": {
+      "name": "Session Manager",
+      "what": "Zet je Windows-sessie op als de pc start."
+    },
+    "wininit": {
+      "name": "Windows Start-Up",
+      "what": "Start de kernservices van Windows bij het opstarten."
+    },
+    "winlogon": {
+      "name": "Windows Logon",
+      "what": "Regelt aan- en afmelden en het vergrendelscherm."
+    },
+    "fontdrvhost": {
+      "name": "Font Driver Host",
+      "what": "Tekent lettertypen in een afgeschermd proces."
+    },
+    "sihost": {
+      "name": "Shell Infrastructure Host",
+      "what": "Draait delen van de Windows-interface, zoals het Startmenu en meldingen."
+    },
+    "taskhostw": {
+      "name": "Task Host",
+      "what": "Draait achtergrondtaken van Windows die in systeembestanden zitten."
+    },
+    "runtimeBroker": {
+      "name": "Runtime Broker",
+      "what": "Controleert of apps uit de Store alleen gebruiken waarvoor ze toestemming hebben."
+    },
+    "searchHost": {
+      "name": "Windows Search",
+      "what": "Het zoekvak van de taakbalk en het Startmenu."
+    },
+    "searchIndexer": {
+      "name": "Search Indexer",
+      "what": "Bouwt de index die zoeken naar bestanden snel maakt. Het is druk nadat veel bestanden veranderden."
+    },
+    "startMenu": {
+      "name": "Start Menu",
+      "what": "Toont het Startmenu."
+    },
+    "shellExperience": {
+      "name": "Windows Shell Experience",
+      "what": "Tekent de klok, de agenda, meldingen en snelle instellingen."
+    },
+    "textInput": {
+      "name": "Text Input",
+      "what": "Het schermtoetsenbord, het emojipaneel en invoertalen."
+    },
+    "widgets": {
+      "name": "Widgets",
+      "what": "Het nieuws- en weerpaneel van de taakbalk."
+    },
+    "spoolsv": {
+      "name": "Print Spooler",
+      "what": "Zet printopdrachten in de wachtrij en stuurt ze naar de printer."
+    },
+    "audiodg": {
+      "name": "Audio Device Graph",
+      "what": "Mengt en verwerkt al het geluid dat Windows afspeelt."
+    },
+    "dllhost": {
+      "name": "COM Surrogate",
+      "what": "Draait kleine hulponderdelen voor andere programma's, bijvoorbeeld miniaturen maken."
+    },
+    "conhost": {
+      "name": "Console Host",
+      "what": "Het venster achter opdrachtregelprogramma's."
+    },
+    "wmiPrvSE": {
+      "name": "WMI Provider Host",
+      "what": "Laat programma's Windows vragen naar hardware en instellingen. Druk als een hulpprogramma veel opvraagt."
+    },
+    "trustedInstaller": {
+      "name": "Windows Modules Installer",
+      "what": "Installeert Windows-updates en optionele onderdelen. Druk tijdens en na updates."
+    },
+    "wuauclt": {
+      "name": "Windows Update",
+      "what": "Zoekt, downloadt en plant Windows-updates."
+    },
+    "compatTelemetry": {
+      "name": "Compatibility Telemetry",
+      "what": "Verzamelt diagnostische gegevens over programmacompatibiliteit voor Microsoft. Draait af en toe."
+    },
+    "securityHealth": {
+      "name": "Windows Security",
+      "what": "De app Windows-beveiliging en het pictogram in de taakbalk."
+    },
+    "defender": {
+      "name": "Microsoft Defender Antivirus",
+      "what": "Scant bestanden op malware zodra ze worden geopend. Druk als veel bestanden veranderen, bijvoorbeeld tijdens een scan of installatie."
+    },
+    "smartscreen": {
+      "name": "SmartScreen",
+      "what": "Controleert downloads en apps tegen een lijst met bekende dreigingen."
+    },
+    "taskmgr": {
+      "name": "Task Manager",
+      "what": "Toont draaiende programma's en wat ze gebruiken."
+    },
+    "systemSettings": {
+      "name": "Settings",
+      "what": "De app Instellingen van Windows."
+    },
+    "lockApp": {
+      "name": "Lock Screen",
+      "what": "Toont het vergrendelscherm."
+    },
+    "phoneLink": {
+      "name": "Phone Link",
+      "what": "Verbindt je telefoon met de pc voor berichten, gesprekken en foto's."
+    },
+    "gameBar": {
+      "name": "Xbox Game Bar",
+      "what": "De overlay voor opnemen en chatten tijdens het gamen."
+    },
+    "msiexec": {
+      "name": "Windows Installer",
+      "what": "Installeert, herstelt of verwijdert een programma."
+    },
+    "vmmem": {
+      "name": "Virtual machine memory",
+      "what": "Het geheugen en de processor van een virtuele machine: WSL, Docker of Hyper-V."
+    },
+    "wsl": {
+      "name": "Windows Subsystem for Linux",
+      "what": "Draait Linux binnen Windows."
+    },
+    "crossDevice": {
+      "name": "Cross Device Service",
+      "what": "Deelt activiteit tussen je pc en je telefoon."
+    },
+    "copilot": {
+      "name": "Microsoft Copilot",
+      "what": "De AI-assistent van Microsoft."
+    },
+    "webview2": {
+      "name": "Edge WebView2",
+      "what": "Toont webinhoud binnen andere apps, zoals Teams, Outlook en widgets. Elke app start er zelf een."
+    },
+    "chrome": {
+      "name": "Google Chrome",
+      "what": "De browser Chrome. Het draait een proces per tabblad en extensie, dus het staat er vaak."
+    },
+    "edge": {
+      "name": "Microsoft Edge",
+      "what": "De browser Edge. Het draait een proces per tabblad en extensie."
+    },
+    "firefox": {
+      "name": "Mozilla Firefox",
+      "what": "De browser Firefox. Het draait meerdere processen voor tabbladen en extensies."
+    },
+    "brave": {
+      "name": "Brave",
+      "what": "De browser Brave. Het draait een proces per tabblad en extensie."
+    },
+    "opera": {
+      "name": "Opera",
+      "what": "De browser Opera."
+    },
+    "vivaldi": {
+      "name": "Vivaldi",
+      "what": "De browser Vivaldi."
+    },
+    "onedrive": {
+      "name": "OneDrive",
+      "what": "Houdt je OneDrive-map gelijk met de cloud. Druk tijdens uploaden of downloaden."
+    },
+    "dropbox": {
+      "name": "Dropbox",
+      "what": "Houdt je Dropbox-map gelijk met de cloud."
+    },
+    "googleDrive": {
+      "name": "Google Drive",
+      "what": "Houdt je Google Drive-bestanden gelijk met de cloud."
+    },
+    "icloud": {
+      "name": "iCloud",
+      "what": "Synchroniseert iCloud Drive en iCloud-foto's met deze pc."
+    },
+    "synologyDrive": {
+      "name": "Synology Drive",
+      "what": "Synchroniseert mappen met een Synology-NAS."
+    },
+    "word": {
+      "name": "Microsoft Word",
+      "what": "De tekstverwerker van Microsoft 365."
+    },
+    "excel": {
+      "name": "Microsoft Excel",
+      "what": "Het spreadsheetprogramma van Microsoft 365."
+    },
+    "powerpoint": {
+      "name": "Microsoft PowerPoint",
+      "what": "Het presentatieprogramma van Microsoft 365."
+    },
+    "outlook": {
+      "name": "Microsoft Outlook",
+      "what": "E-mail en agenda."
+    },
+    "onenote": {
+      "name": "Microsoft OneNote",
+      "what": "De notitie-app van Microsoft 365."
+    },
+    "officeC2R": {
+      "name": "Microsoft Office Click-to-Run",
+      "what": "Houdt Microsoft 365-apps actueel en laat ze snel starten."
+    },
+    "teams": {
+      "name": "Microsoft Teams",
+      "what": "Chat, gesprekken en vergaderingen."
+    },
+    "acrobat": {
+      "name": "Adobe Acrobat",
+      "what": "Opent en bewerkt pdf-bestanden."
+    },
+    "adobeCC": {
+      "name": "Adobe Creative Cloud",
+      "what": "Beheert, werkt bij en synchroniseert Adobe-apps op de achtergrond."
+    },
+    "photoshop": {
+      "name": "Adobe Photoshop",
+      "what": "Foto- en beeldbewerking. Grote afbeeldingen vragen veel geheugen."
+    },
+    "notion": {
+      "name": "Notion",
+      "what": "Notities, documenten en databases."
+    },
+    "obsidian": {
+      "name": "Obsidian",
+      "what": "Een notitie-app die je notities als bestanden op deze pc bewaart."
+    },
+    "notepad": {
+      "name": "Notepad",
+      "what": "De eenvoudige teksteditor van Windows."
+    },
+    "claude": {
+      "name": "Claude",
+      "what": "De desktop-app van Claude, een AI-assistent."
+    },
+    "chatgpt": {
+      "name": "ChatGPT",
+      "what": "De desktop-app van ChatGPT, een AI-assistent."
+    },
+    "discord": {
+      "name": "Discord",
+      "what": "Chat, spraak en video voor communities en games."
+    },
+    "slack": {
+      "name": "Slack",
+      "what": "Chat voor teams."
+    },
+    "zoom": {
+      "name": "Zoom",
+      "what": "Videovergaderingen."
+    },
+    "whatsapp": {
+      "name": "WhatsApp",
+      "what": "De desktop-app van WhatsApp."
+    },
+    "telegram": {
+      "name": "Telegram",
+      "what": "De desktop-app van Telegram."
+    },
+    "signal": {
+      "name": "Signal",
+      "what": "De desktop-app van Signal."
+    },
+    "skype": {
+      "name": "Skype",
+      "what": "Bellen en chatten."
+    },
+    "spotify": {
+      "name": "Spotify",
+      "what": "Muziek streamen."
+    },
+    "vlc": {
+      "name": "VLC media player",
+      "what": "Speelt video- en audiobestanden af."
+    },
+    "obs": {
+      "name": "OBS Studio",
+      "what": "Neemt je scherm op en streamt het. Opnemen vraagt veel processor- of videokaartkracht."
+    },
+    "itunes": {
+      "name": "Apple Music and devices",
+      "what": "De muziek-app van Apple en de service die met een iPhone of iPad praat."
+    },
+    "photos": {
+      "name": "Microsoft Photos",
+      "what": "De Windows-app om foto's te bekijken en te bewerken."
+    },
+    "steam": {
+      "name": "Steam",
+      "what": "De gamewinkel en launcher Steam."
+    },
+    "steamHelper": {
+      "name": "Steam web helper",
+      "what": "Tekent de winkel, bibliotheek en chat van Steam. Steam draait er meerdere."
+    },
+    "epic": {
+      "name": "Epic Games Launcher",
+      "what": "De gamewinkel en launcher van Epic."
+    },
+    "battleNet": {
+      "name": "Battle.net",
+      "what": "De game-launcher van Blizzard en de update-agent."
+    },
+    "eaApp": {
+      "name": "EA app",
+      "what": "De game-launcher van Electronic Arts."
+    },
+    "ubisoft": {
+      "name": "Ubisoft Connect",
+      "what": "De game-launcher van Ubisoft."
+    },
+    "gog": {
+      "name": "GOG Galaxy",
+      "what": "De game-launcher van GOG."
+    },
+    "riot": {
+      "name": "Riot Client",
+      "what": "De launcher van Riot Games en de anti-cheatservice."
+    },
+    "xboxApp": {
+      "name": "Xbox",
+      "what": "De Xbox-app en de services die de games installeren en draaien."
+    },
+    "minecraft": {
+      "name": "Minecraft or a Java program",
+      "what": "Minecraft, of een ander programma dat in Java is geschreven."
+    },
+    "nvidia": {
+      "name": "NVIDIA software",
+      "what": "De stuurprogrammaservices en app van een NVIDIA-videokaart: instellingen, overlay en updates."
+    },
+    "amd": {
+      "name": "AMD software",
+      "what": "De stuurprogrammaservices en app van een AMD-videokaart of -processor."
+    },
+    "intelGraphics": {
+      "name": "Intel software",
+      "what": "Stuurprogrammaservices van Intel-graphics of de Intel-chipset."
+    },
+    "realtek": {
+      "name": "Realtek Audio",
+      "what": "De stuurprogrammaservice van de geluidskaart."
+    },
+    "lenovoVantage": {
+      "name": "Lenovo Vantage",
+      "what": "Het hulpprogramma van Lenovo voor updates, garantie en hardware-instellingen."
+    },
+    "dellSupport": {
+      "name": "Dell SupportAssist",
+      "what": "Het hulpprogramma van Dell voor updates en hardwarecontroles."
+    },
+    "hpSupport": {
+      "name": "HP Support Assistant",
+      "what": "Het hulpprogramma van HP voor updates en hardwarecontroles."
+    },
+    "logitech": {
+      "name": "Logitech software",
+      "what": "Instellingen voor een muis, toetsenbord of headset van Logitech."
+    },
+    "razer": {
+      "name": "Razer Synapse",
+      "what": "Instellingen voor apparaten van Razer."
+    },
+    "corsair": {
+      "name": "Corsair iCUE",
+      "what": "Instellingen en verlichting voor apparaten van Corsair."
+    },
+    "malwarebytes": {
+      "name": "Malwarebytes",
+      "what": "Een malwarescanner."
+    },
+    "avast": {
+      "name": "Avast or AVG Antivirus",
+      "what": "Een antivirusprogramma dat bestanden scant zodra ze worden geopend."
+    },
+    "norton": {
+      "name": "Norton",
+      "what": "Een antivirus- en beveiligingsprogramma."
+    },
+    "mcafee": {
+      "name": "McAfee",
+      "what": "Een antivirus- en beveiligingsprogramma."
+    },
+    "bitdefender": {
+      "name": "Bitdefender",
+      "what": "Een antivirus- en beveiligingsprogramma."
+    },
+    "kaspersky": {
+      "name": "Kaspersky",
+      "what": "Een antivirus- en beveiligingsprogramma."
+    },
+    "onePassword": {
+      "name": "1Password",
+      "what": "Een wachtwoordmanager."
+    },
+    "bitwarden": {
+      "name": "Bitwarden",
+      "what": "Een wachtwoordmanager."
+    },
+    "nordvpn": {
+      "name": "NordVPN",
+      "what": "Een VPN die je internetverkeer via een andere server leidt."
+    },
+    "vscode": {
+      "name": "Visual Studio Code",
+      "what": "Een code-editor. Het draait aparte processen voor vensters, extensies en taalhulpmiddelen."
+    },
+    "cursor": {
+      "name": "Cursor",
+      "what": "Een code-editor met ingebouwde AI."
+    },
+    "visualStudio": {
+      "name": "Visual Studio",
+      "what": "De ontwikkelomgeving van Microsoft en de hulpprocessen voor bouwen en analyseren."
+    },
+    "jetbrains": {
+      "name": "JetBrains IDE or Android Studio",
+      "what": "Een ontwikkelomgeving. Het indexeren van een project vraagt veel processor en geheugen."
+    },
+    "node": {
+      "name": "Node.js",
+      "what": "Draait JavaScript-programma's: ontwikkelservers, bouwhulpmiddelen of een deel van een desktop-app."
+    },
+    "python": {
+      "name": "Python",
+      "what": "Draait een Python-programma of -script."
+    },
+    "java": {
+      "name": "Java",
+      "what": "Draait een programma dat in Java is geschreven."
+    },
+    "dotnet": {
+      "name": ".NET",
+      "what": "Draait een .NET-programma of een build."
+    },
+    "git": {
+      "name": "Git",
+      "what": "Versiebeheer voor code, en de Bash-shell die erbij hoort."
+    },
+    "docker": {
+      "name": "Docker Desktop",
+      "what": "Draait containers. Het geheugengebruik zie je vooral bij de virtuele machine."
+    },
+    "ollama": {
+      "name": "Ollama",
+      "what": "Draait AI-modellen op deze pc. Een geladen model neemt meerdere gigabytes geheugen of videogeheugen."
+    },
+    "rust": {
+      "name": "Compiler",
+      "what": "Bouwt een programma uit broncode. Bouwen gebruikt een tijdje alle processorkernen."
+    },
+    "powershell": {
+      "name": "PowerShell",
+      "what": "De opdrachtshell van Windows; een venster dat je opende of een script op de achtergrond."
+    },
+    "cmd": {
+      "name": "Command Prompt",
+      "what": "De klassieke opdrachtregel van Windows; een venster dat je opende of een script."
+    },
+    "terminal": {
+      "name": "Windows Terminal",
+      "what": "Het venster voor opdrachtregelshells."
+    },
+    "sqlServer": {
+      "name": "Database server",
+      "what": "Een database die op deze pc draait, meestal voor ontwikkeling."
+    },
+    "sevenZip": {
+      "name": "Archive tool",
+      "what": "Pakt ZIP-, 7z- en RAR-bestanden in en uit."
+    },
+    "powerToys": {
+      "name": "Microsoft PowerToys",
+      "what": "Extra hulpmiddelen voor Windows, zoals vensterindelingen en een snelstarter."
+    },
+    "googleUpdate": {
+      "name": "Google Updater",
+      "what": "Houdt Chrome en andere Google-programma's actueel."
+    },
+    "edgeUpdate": {
+      "name": "Microsoft Edge Update",
+      "what": "Houdt Edge en WebView2 actueel."
+    },
+    "unhoard": {
+      "name": "Unhoard",
+      "what": "Deze app. Een scan gebruikt even de processor."
     }
   }
 }

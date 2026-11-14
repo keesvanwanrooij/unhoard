@@ -37,6 +37,19 @@
     "allow-ollama-models",
     "allow-docker-usage",
     "allow-app-uninstall",
-    "allow-open-app"
+    "allow-open-app",
+    "allow-history-timeline",
+    "allow-history-growth",
+    "allow-history-clear",
+    "allow-optimise-check",
+    "allow-startup-preview",
+    "allow-startup-set",
+    "allow-startup-undo",
+    "allow-optimise-updates",
+    "allow-chat-models",
+    "allow-chat-send",
+    "allow-chat-stop",
+    "allow-chat-setup",
+    "allow-chat-pull"
   ]
 }

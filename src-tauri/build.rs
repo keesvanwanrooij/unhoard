@@ -32,6 +32,19 @@ const COMMANDS: &[&str] = &[
     "docker_usage",
     "app_uninstall",
     "open_app",
+    "history_timeline",
+    "history_growth",
+    "history_clear",
+    "optimise_check",
+    "optimise_updates",
+    "startup_preview",
+    "startup_set",
+    "startup_undo",
+    "chat_models",
+    "chat_send",
+    "chat_stop",
+    "chat_setup",
+    "chat_pull",
 ];
 
 fn main() {

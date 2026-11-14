@@ -191,6 +191,148 @@ pub fn media_index(tree: &Tree, ctx: &ScanContext) -> Vec<MediaItem> {
     out
 }
 
+/// Cloud files smaller than this match by size too easily to call them copies.
+const COPY_MIN_BYTES: u64 = 16 * 1024;
+
+/// A file name without its extension and without a copy suffix (`name (1)`, `name - Copy`,
+/// `name_copy`, `name - kopie`), in lower case.
+fn copy_stem(name: &str) -> String {
+    let (stem, _) = split_ext(name);
+    let mut s = stem.to_lowercase();
+    loop {
+        let t = s.trim_end();
+        let cut = [" - copy", "_copy", " copy", " - kopie", "_kopie", " kopie"]
+            .iter()
+            .find_map(|x| t.strip_suffix(x))
+            .or_else(|| {
+                let inner = t.strip_suffix(')')?;
+                let (head, digits) = inner.rsplit_once('(')?;
+                (!digits.is_empty() && digits.chars().all(|c| c.is_ascii_digit())).then_some(head)
+            });
+        match cut {
+            Some(rest) => s = rest.to_string(),
+            None => return t.to_string(),
+        }
+    }
+}
+
+/// Copies in the cloud, found without a thumbnail: files of the same size and type that
+/// also share their last-write time or their name (a copy suffix aside). The content is not
+/// compared, so the match is likely, not proven.
+pub fn cloud_copies(media: &[MediaItem]) -> Vec<Group> {
+    let mut same: BTreeMap<(u64, &str), Vec<usize>> = BTreeMap::new();
+    for (i, m) in media.iter().enumerate() {
+        if (m.in_sync_root || m.cloud_only) && m.size >= COPY_MIN_BYTES {
+            same.entry((m.size, m.ext.as_str())).or_default().push(i);
+        }
+    }
+    let mut out = vec![];
+    for items in same.into_values().filter(|v| v.len() > 1) {
+        let mut by_date: HashMap<i64, usize> = HashMap::new();
+        let mut by_name: HashMap<String, usize> = HashMap::new();
+        // Each item joins the set of the first item with its date or its name.
+        let mut set: Vec<usize> = (0..items.len()).collect();
+        fn find(p: &mut [usize], mut x: usize) -> usize {
+            while p[x] != x {
+                p[x] = p[p[x]];
+                x = p[x];
+            }
+            x
+        }
+        for (k, &i) in items.iter().enumerate() {
+            let m = &media[i];
+            // An unknown date (before 1970) matches nothing.
+            let first_date = if m.modified > 0 {
+                *by_date.entry(m.modified).or_insert(k)
+            } else {
+                k
+            };
+            let first_name = *by_name.entry(copy_stem(&m.name)).or_insert(k);
+            for other in [first_date, first_name] {
+                let (a, b) = (find(&mut set, k), find(&mut set, other));
+                set[a] = b;
+            }
+        }
+        let mut sets: BTreeMap<usize, Vec<usize>> = BTreeMap::new();
+        for (k, &i) in items.iter().enumerate() {
+            let r = find(&mut set, k);
+            sets.entry(r).or_default().push(i);
+        }
+        out.extend(sets.into_values().filter(|v| v.len() > 1).map(|v| {
+            group(
+                GroupKind::ExactDuplicates,
+                Certainty::LikelyIdentical,
+                v,
+                String::new(),
+            )
+        }));
+    }
+    out
+}
+
+/// Which items are worth asking the platform about (a thumbnail and media properties).
+///
+/// A large cloud library has tens of thousands of photos, and a thumbnail lookup for each
+/// takes many minutes. Only an item that can end up in a group that needs features is asked:
+/// - a member of a burst (the best shot is chosen by sharpness)
+/// - a video that shares its size with another video
+/// - a cloud file that shares its size and type with another one and is not already matched
+///   by [`cloud_copies`], when there are at most `cloud_limit` of them
+/// - every local picture, when there are at most `local_limit` of them (near duplicates)
+pub fn feature_candidates(
+    media: &[MediaItem],
+    local_limit: usize,
+    cloud_limit: usize,
+) -> Vec<bool> {
+    let mut wanted = vec![false; media.len()];
+    let cloud = |m: &MediaItem| m.in_sync_root || m.cloud_only;
+    for g in bursts(media) {
+        for i in g.items {
+            wanted[i] = true;
+        }
+    }
+    let mut videos: HashMap<u64, Vec<usize>> = HashMap::new();
+    let mut same: HashMap<(u64, &str), Vec<usize>> = HashMap::new();
+    for (i, m) in media.iter().enumerate().filter(|(_, m)| m.size > 0) {
+        if m.parsed.video {
+            videos.entry(m.size).or_default().push(i);
+        }
+        if cloud(m) {
+            same.entry((m.size, m.ext.as_str())).or_default().push(i);
+        }
+    }
+    for i in videos.into_values().filter(|v| v.len() > 1).flatten() {
+        wanted[i] = true;
+    }
+    let mut matched = vec![false; media.len()];
+    for i in cloud_copies(media).into_iter().flat_map(|g| g.items) {
+        matched[i] = true;
+    }
+    let open: Vec<usize> = same
+        .into_values()
+        .filter(|v| v.len() > 1)
+        .flatten()
+        .filter(|i| !matched[*i])
+        .collect();
+    if open.len() <= cloud_limit {
+        for i in open {
+            wanted[i] = true;
+        }
+    }
+    let local: Vec<usize> = media
+        .iter()
+        .enumerate()
+        .filter(|(_, m)| !cloud(m) && !m.parsed.video)
+        .map(|(i, _)| i)
+        .collect();
+    if local.len() <= local_limit {
+        for i in local {
+            wanted[i] = true;
+        }
+    }
+    wanted
+}
+
 /// What the platform could learn about an item without downloading it.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -229,6 +371,8 @@ pub enum Certainty {
     Identical,
     /// Same size, type and thumbnail, without reading the content.
     AlmostCertainlyIdentical,
+    /// Same size and type, and the same date or name; the content is not compared.
+    LikelyIdentical,
     /// Thumbnails nearly the same.
     VerySimilar,
     /// Same source within seconds.

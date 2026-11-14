@@ -106,6 +106,14 @@ written, for example on a full disk, the move does not start.
 The app rebuilds its list of batches from the manifests at every start, so the manifests
 are the only source of truth.
 
+### Choosing several items
+
+Suggestions has a checkbox for each item that can move to the quarantine and for each
+group, across all risk tiers. Nothing is ticked at the start (S1). A bar shows the number
+and size chosen; its button opens the same preview as a single move, so the steps below
+apply to all of them at once. A rescan or a move drops chosen items that are no longer
+offered.
+
 ### A move, step by step
 
 1. **Preview (dry run).** You see the items, the total size, the destination, and skipped

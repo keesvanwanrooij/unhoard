@@ -1,15 +1,16 @@
 // Suggestions: every recognised item and every large unrecognised file, by tier and size.
 // Items of the same kind form one expandable group with one preview for all of them
 // (AC4.13). Nothing is pre-selected; each move starts with its preview (S1).
-import { useEffect, useState, type JSX } from "react";
+import { startTransition, useEffect, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api } from "../api/ipc";
 import type { Action, MovePlan, Suggestion, Tier } from "../api/types";
 import { MovePreview, actionLabel } from "../components/Preview";
-import { explainShort } from "../explain";
+import { explainShort, leftoverText } from "../explain";
 import { fmtBytes } from "../format";
+import { useProgressive } from "../progressive";
 import { useApp } from "../store";
 
 const TIERS: Tier[] = ["safe", "likelySafe", "review", "keep"];
@@ -20,6 +21,7 @@ export function groupKey(s: Suggestion): string {
   if (d.steam) return d.steam.kind === "game" ? "steam:game" : "steam:leftover";
   if (d.ruleId) return `rule:${d.ruleId}`;
   if (d.program) return "program";
+  if (d.leftover) return "leftover";
   return "large";
 }
 
@@ -41,14 +43,59 @@ export function groupSuggestions(items: Suggestion[]): { key: string; items: Sug
     .sort((a, b) => b.total - a.total);
 }
 
+/** How much of `ids` is in the selection. */
+export function selectionState(selected: Set<number>, ids: number[]): "none" | "some" | "all" {
+  const n = ids.filter((id) => selected.has(id)).length;
+  return n === 0 ? "none" : n === ids.length ? "all" : "some";
+}
+
+/** Selects all of `ids`, or none of them when all already are. */
+export function toggleAll(selected: Set<number>, ids: number[]): Set<number> {
+  const next = new Set(selected);
+  if (selectionState(selected, ids) === "all") for (const id of ids) next.delete(id);
+  else for (const id of ids) next.add(id);
+  return next;
+}
+
+/** The selection without items that are no longer offered (moved, or gone after a rescan). */
+export function keepOffered(selected: Set<number>, offered: number[]): Set<number> {
+  const keep = new Set(offered);
+  return new Set([...selected].filter((id) => keep.has(id)));
+}
+
+/** True when the suggestion can be moved to the quarantine. */
+function movable(s: Suggestion): boolean {
+  return s.description.actions.some((a) => a.type === "quarantine");
+}
+
+/** A checkbox that also shows a partly selected group. */
+function Check({ state, label, onChange }: { state: "none" | "some" | "all"; label: string; onChange: () => void }): JSX.Element {
+  return (
+    <input
+      type="checkbox"
+      className="pick"
+      aria-label={label}
+      checked={state === "all"}
+      ref={(el) => {
+        if (el) el.indeterminate = state === "some";
+      }}
+      onChange={onChange}
+    />
+  );
+}
+
 /** The Suggestions screen. */
 export function Suggestions(): JSX.Element {
   const { t } = useTranslation();
   const { lang, scan, treeVersion, say, sayError, treeChanged } = useApp(useShallow((s) => ({ lang: s.lang, scan: s.scan, treeVersion: s.treeVersion, say: s.say, sayError: s.sayError, treeChanged: s.treeChanged })));
   const [items, setItems] = useState<Suggestion[] | null>(null);
+  // One tier more per frame, so opening the screen never lays out every row at once (P11).
+  const tiersShown = useProgressive(TIERS.length, items);
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<{ key: string; ids: number[]; plan: MovePlan } | null>(null);
   const [busy, setBusy] = useState(false);
+  // Nothing is selected at the start (S1); each tick is a user click.
+  const [selected, setSelected] = useState<Set<number>>(new Set());
   const done = scan?.done ?? false;
 
   useEffect(() => {
@@ -57,7 +104,12 @@ export function Suggestions(): JSX.Element {
     api
       .suggestions(2000)
       .then(([, list]) => {
-        if (alive) setItems(list);
+        // Loaded data renders as an interruptible update, so opening the screen never blocks
+        // input with one long task (P1, P11).
+        if (alive) startTransition(() => {
+          setItems(list);
+          setSelected((sel) => keepOffered(sel, list.filter(movable).map((x) => x.node.id)));
+        });
       })
       .catch(() => {
         if (alive) setItems([]);
@@ -108,6 +160,7 @@ export function Suggestions(): JSX.Element {
             .quarantineMove(generation, preview.ids)
             .then(() => {
               setPreview(null);
+              setSelected(new Set());
               say({ type: "explanation", text: t("companion.script.quarantineMoved.0") });
               treeChanged();
             })
@@ -133,6 +186,7 @@ export function Suggestions(): JSX.Element {
     if (d.steam?.kind === "leftover") return t("facts.steamLeftover");
     if (d.ruleId) return t(`knownLocations.${d.ruleId}.action`);
     if (d.program) return t("facts.programAction");
+    if (d.leftover) return leftoverText(d.leftover, t, lang);
     return explainShort({ ...s.node, ruleId: null, explain: d.explain }, t);
   };
   const groupTitle = (key: string, first: Suggestion): string => {
@@ -141,11 +195,18 @@ export function Suggestions(): JSX.Element {
     if (key === "steam:leftover") return t("suggestions.groups.steamLeftovers");
     if (key === "program") return t("suggestions.groups.programs");
     if (key === "large") return t("suggestions.groups.large");
+    if (key === "leftover") return t("suggestions.groups.leftover");
     return title(first);
   };
 
+  const pick = (ids: number[]): void => {
+    setSelected((sel) => toggleAll(sel, ids));
+  };
   const row = (s: Suggestion): JSX.Element => (
     <tr key={s.node.id}>
+      <td className="pick-cell">
+        {movable(s) ? <Check state={selected.has(s.node.id) ? "all" : "none"} label={t("suggestions.select", { name: title(s) })} onChange={() => { pick([s.node.id]); }} /> : null}
+      </td>
       <td>
         <div>{title(s)}</div>
         <div className="path">{s.path}</div>
@@ -177,8 +238,9 @@ export function Suggestions(): JSX.Element {
     <div className="page">
       <header>
         <h1>{t("nav.suggestions")}</h1>
+        <span className="note">{t("suggestions.selectHint")}</span>
       </header>
-      {TIERS.map((tier) => {
+      {TIERS.slice(0, tiersShown).map((tier) => {
         const list = items.filter((s) => s.tier === tier);
         if (list.length === 0) return null;
         const total = list.reduce((s, x) => s + x.node.onDisk, 0);
@@ -198,6 +260,17 @@ export function Suggestions(): JSX.Element {
                   const movable = g.items.filter((s) => s.description.actions.some((a) => a.type === "quarantine")).map((s) => s.node.id);
                   return [
                     <tr key={groupId} className="group-row">
+                      <td className="pick-cell">
+                        {movable.length > 0 ? (
+                          <Check
+                            state={selectionState(selected, movable)}
+                            label={t("suggestions.select", { name: groupTitle(g.key, first) })}
+                            onChange={() => {
+                              pick(movable);
+                            }}
+                          />
+                        ) : null}
+                      </td>
                       <td>
                         <button
                           className="group-toggle"
@@ -241,6 +314,29 @@ export function Suggestions(): JSX.Element {
           </section>
         );
       })}
+      {selected.size > 0 ? (
+        <div className="select-bar panel" role="region" aria-label={t("suggestions.moveSelected")}>
+          <b>{t("suggestions.selected", { count: selected.size, size: fmtBytes(items.filter((x) => selected.has(x.node.id)).reduce((n, x) => n + x.node.onDisk, 0), lang) })}</b>
+          <button
+            className="btn small primary"
+            onClick={() => {
+              showPreview("selection", [...selected]);
+            }}
+          >
+            {t("suggestions.moveSelected")}
+          </button>
+          <button
+            className="btn small"
+            onClick={() => {
+              setSelected(new Set());
+              setPreview(null);
+            }}
+          >
+            {t("suggestions.clearSelection")}
+          </button>
+          {previewSheet("selection")}
+        </div>
+      ) : null}
     </div>
   );
 }

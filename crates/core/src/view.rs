@@ -12,6 +12,7 @@ use crate::classify::{LARGE_MIN_BYTES, describe};
 use crate::cloud::{PinState, pin_state};
 use crate::explain::{Explain, explain};
 use crate::knowledge::{LastUse, SteamInfo};
+use crate::leftovers::{leftover_of, leftover_parents};
 use crate::rules::Tier;
 use crate::scan::ScanContext;
 use crate::tree::{Category, FLAG_HARD_LINK_DUP, FLAG_UNSCANNED, NodeId, NodeKind, Others, Tree};
@@ -193,6 +194,25 @@ pub fn suggestions(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<Suggesti
                 .filter(big),
         )
         .collect();
+    // Leftovers of uninstalled apps: folders directly in AppData and ProgramData.
+    for parent in leftover_parents(&ctx.roots) {
+        let Some(pid) = tree.find(&parent) else {
+            continue;
+        };
+        for child in tree.children(pid) {
+            let claimed = tree
+                .get(child)
+                .and_then(|n| n.rule)
+                .and_then(|r| ctx.rules.get(r));
+            if claimed.is_some_and(|r| !r.define) || !big(&child) {
+                continue;
+            }
+            let keep = claimed.is_some_and(|r| r.opinion == Some(Tier::Keep));
+            if leftover_of(tree, child, &ctx.knowledge, &ctx.roots, ctx.now, keep).is_some() {
+                picked.push(child);
+            }
+        }
+    }
     // Size on disk decides: an online-only file or an empty cache frees nothing here.
     let primary: HashSet<NodeId> = picked.iter().copied().collect();
     let inside = |id: NodeId, set: &HashSet<NodeId>| {

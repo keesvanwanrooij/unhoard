@@ -5,6 +5,7 @@
 //! come from an allowlist. Heavy work runs on blocking worker threads so the window stays
 //! responsive.
 
+use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -16,16 +17,20 @@ use unhoard_core::adapters::ollama::OllamaModel;
 use unhoard_core::cloud::FreeUpPlan;
 use unhoard_core::fs::FsError;
 use unhoard_core::hidden::{HiddenKind, hidden_kind};
+use unhoard_core::optimise::{Finding, OptimiseData, StartupScope, findings};
 use unhoard_core::quarantine::{ItemResult, Manifest, MovePlan, MoveReport};
 use unhoard_core::rules::WindowsTool;
 use unhoard_core::view::{MatrixPoint, Suggestion};
+use unhoard_platform::ollama::ChatError;
 use unhoard_platform::reveal::{HelperSession, RevealError, RevealedFolder, start_helper};
 use unhoard_platform::tools::ToolError;
-use unhoard_platform::{knowledge, media, system, tools};
+use unhoard_platform::{knowledge, media, optimise, system, tools};
+
+use crate::chat;
 
 use crate::service::{
-    CloudRoot, CmdError, Details, Measured, MeasuredSummary, PhotoState, QuarantineState, Service,
-    ViewResponse,
+    CloudRoot, CmdError, Details, GrowthView, Measured, MeasuredSummary, PhotoState,
+    QuarantineState, Service, TimelinePoint, ViewResponse,
 };
 
 /// The shared service.
@@ -124,6 +129,12 @@ pub struct Settings {
     pub admin_read: String,
     /// The first-run welcome was shown.
     pub first_run_done: bool,
+    /// Background insights: the daily measurement for storage history (on by default).
+    pub insights: bool,
+    /// The AI chat through Ollama on this PC (off by default; when off, no connection).
+    pub chat: bool,
+    /// The chat model the user picked, or `None` for the recommended one.
+    pub chat_model: Option<String>,
 }
 
 impl Default for Settings {
@@ -136,6 +147,9 @@ impl Default for Settings {
             companion: "normal".into(),
             admin_read: "ask".into(),
             first_run_done: false,
+            insights: true,
+            chat: false,
+            chat_model: None,
         }
     }
 }
@@ -150,7 +164,16 @@ impl Settings {
             && ["onDisk", "logical"].contains(&self.measure.as_str())
             && ["normal", "quiet"].contains(&self.companion.as_str())
             && ["ask", "always", "never"].contains(&self.admin_read.as_str())
+            && self.chat_model.as_deref().is_none_or(valid_model)
     }
+}
+
+/// A model name as Ollama writes them: letters, digits and `.:_-/`, at most 200 long.
+fn valid_model(m: &str) -> bool {
+    !m.is_empty()
+        && m.len() <= 200
+        && m.chars()
+            .all(|c| c.is_ascii_alphanumeric() || ".:_-/".contains(c))
 }
 
 fn settings_path() -> Option<std::path::PathBuf> {
@@ -188,7 +211,280 @@ pub fn settings_set(settings: Settings) -> Result<(), CmdError> {
     let bytes = serde_json::to_vec_pretty(&settings).map_err(|_| CmdError::InvalidArgument {
         what: "settings".into(),
     })?;
-    std::fs::write(p, bytes).map_err(io)
+    let insights = settings.insights;
+    std::fs::write(p, bytes).map_err(io)?;
+    // The daily measurement's task follows the switch at once, off the UI thread.
+    std::thread::spawn(move || {
+        if insights {
+            unhoard_platform::schedule::install();
+        } else {
+            unhoard_platform::schedule::remove();
+        }
+    });
+    Ok(())
+}
+
+/// The startup switches made this session, so each can be undone by its index; the old
+/// values never come back from the webview.
+#[derive(Default)]
+pub struct OptimiseState(Mutex<Vec<optimise::StartupChange>>);
+
+/// Runs the check-up and returns its findings, except Windows Update (about a second of
+/// CPU sampling).
+#[tauri::command]
+pub async fn optimise_check(svc: Svc<'_>) -> Result<Vec<Finding>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let (free, total) = svc.system_space();
+        let data = optimise::gather(&svc.context().roots, free, total);
+        Ok(findings(&data))
+    })
+    .await
+}
+
+/// The Windows Update finding on its own: its search can take half a minute.
+#[tauri::command]
+pub async fn optimise_updates() -> Result<Vec<Finding>, CmdError> {
+    blocking(|| {
+        let now = unhoard_core::fs::FileSystem::now(&unhoard_platform::WindowsFs);
+        let data = OptimiseData {
+            updates: optimise::updates(now),
+            ..OptimiseData::default()
+        };
+        Ok(findings(&data)
+            .into_iter()
+            .filter(|f| f.id == "updates")
+            .collect())
+    })
+    .await
+}
+
+/// What switching a startup entry would change (a dry run), or the reason it cannot.
+#[tauri::command]
+pub async fn startup_preview(
+    svc: Svc<'_>,
+    scope: StartupScope,
+    name: String,
+    enabled: bool,
+) -> Result<Result<optimise::StartupChange, optimise::StartupError>, CmdError> {
+    check_name(&name)?;
+    let svc = svc.inner().clone();
+    blocking(move || {
+        Ok(optimise::startup_set(
+            &svc.context().roots,
+            scope,
+            &name,
+            enabled,
+            0,
+            true,
+        ))
+    })
+    .await
+}
+
+/// Switches a startup entry of the current user on or off (High: one registry value, as
+/// Task Manager writes it). Returns the index to undo it with.
+#[tauri::command]
+pub async fn startup_set(
+    svc: Svc<'_>,
+    state: State<'_, Arc<OptimiseState>>,
+    scope: StartupScope,
+    name: String,
+    enabled: bool,
+) -> Result<Result<usize, optimise::StartupError>, CmdError> {
+    check_name(&name)?;
+    let (svc, state) = (svc.inner().clone(), state.inner().clone());
+    blocking(move || {
+        let now = unhoard_core::fs::FileSystem::now(&unhoard_platform::WindowsFs);
+        let filetime = unhoard_core::time::unix_to_filetime(now);
+        let result =
+            optimise::startup_set(&svc.context().roots, scope, &name, enabled, filetime, false);
+        let op = if enabled {
+            "startupEnable"
+        } else {
+            "startupDisable"
+        };
+        svc.audit_startup(op, &name, result.is_ok());
+        Ok(result.map(|change| {
+            let mut changes = state
+                .0
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            changes.push(change);
+            changes.len() - 1
+        }))
+    })
+    .await
+}
+
+/// Undoes a startup switch made this session: writes back the exact old value.
+#[tauri::command]
+pub async fn startup_undo(
+    svc: Svc<'_>,
+    state: State<'_, Arc<OptimiseState>>,
+    index: usize,
+) -> Result<Result<(), optimise::StartupError>, CmdError> {
+    let (svc, state) = (svc.inner().clone(), state.inner().clone());
+    blocking(move || {
+        let change = state
+            .0
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .get(index)
+            .cloned()
+            .ok_or(CmdError::InvalidArgument {
+                what: "index".into(),
+            })?;
+        let result = optimise::startup_undo(&change);
+        svc.audit_startup("startupUndo", &change.name, result.is_ok());
+        Ok(result)
+    })
+    .await
+}
+
+/// A startup entry name from the webview: plain text of a sane length.
+fn check_name(name: &str) -> Result<(), CmdError> {
+    // Registry value names may hold backslashes; they are never used as a path.
+    if name.is_empty() || name.len() > 260 || name.contains('\0') {
+        return Err(CmdError::InvalidArgument {
+            what: "name".into(),
+        });
+    }
+    Ok(())
+}
+
+/// Stops the answer being written.
+#[derive(Default)]
+pub struct ChatState(AtomicBool);
+
+/// The models Ollama has installed, with the recommended one marked. Opens a connection
+/// only when the chat is switched on (AC8.6).
+#[tauri::command]
+pub async fn chat_models() -> Result<Result<Vec<chat::ModelInfo>, ChatError>, CmdError> {
+    blocking(|| {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::models())
+    })
+    .await
+}
+
+/// Answers the last message of `messages`; the answer arrives as `chat-event` events.
+#[tauri::command]
+pub async fn chat_send(
+    app: AppHandle,
+    svc: Svc<'_>,
+    state: State<'_, Arc<ChatState>>,
+    messages: Vec<chat::Message>,
+    lang: String,
+) -> Result<Result<(), ChatError>, CmdError> {
+    if messages.is_empty() || messages.len() > 200 || !["en", "nl"].contains(&lang.as_str()) {
+        return Err(CmdError::InvalidArgument {
+            what: "messages".into(),
+        });
+    }
+    let (svc, state) = (svc.inner().clone(), state.inner().clone());
+    blocking(move || {
+        let settings = settings_get();
+        if !settings.chat {
+            return Ok(Err(ChatError::Off));
+        }
+        let model = settings
+            .chat_model
+            .unwrap_or_else(|| chat::RECOMMENDED.to_string());
+        state.0.store(false, Ordering::SeqCst);
+        let emit = |e: chat::ChatEvent| {
+            let _ui_may_be_closed = app.emit("chat-event", e);
+        };
+        Ok(chat::converse(
+            &svc, &model, &messages, &lang, &emit, &state.0,
+        ))
+    })
+    .await
+}
+
+/// Ollama's state, the installed models and the model advice for this PC. Opens a connection
+/// only when the chat is switched on (AC8.6).
+#[tauri::command]
+pub async fn chat_setup(svc: Svc<'_>) -> Result<Result<chat::ChatSetup, ChatError>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::setup(&svc.context().roots))
+    })
+    .await
+}
+
+/// Asks Ollama to download one of the recommended models; progress arrives as `chat-pull`
+/// events. Only on the user's click, and only with the chat switched on.
+#[tauri::command]
+pub async fn chat_pull(app: AppHandle, model: String) -> Result<Result<bool, ChatError>, CmdError> {
+    if !unhoard_core::chat::may_pull(&model) {
+        return Err(CmdError::InvalidArgument {
+            what: "model".into(),
+        });
+    }
+    blocking(move || {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::pull(&model, &|p| {
+            let _ui_may_be_closed = app.emit("chat-pull", p);
+        }))
+    })
+    .await
+}
+
+/// Stops the answer being written; Ollama keeps running.
+#[tauri::command]
+pub fn chat_stop(state: State<'_, Arc<ChatState>>) {
+    state.0.store(true, Ordering::SeqCst);
+}
+
+/// The storage-history timeline of a fixed drive (`C:`).
+#[tauri::command]
+pub async fn history_timeline(svc: Svc<'_>, drive: String) -> Result<Vec<TimelinePoint>, CmdError> {
+    let root = drive_root(&drive)?;
+    let svc = svc.inner().clone();
+    blocking(move || Ok(svc.history_timeline(&root))).await
+}
+
+/// What grew on a fixed drive over the last `days` days (1, 7, 30 or 90).
+#[tauri::command]
+pub async fn history_growth(
+    svc: Svc<'_>,
+    drive: String,
+    days: u32,
+) -> Result<GrowthView, CmdError> {
+    if ![1, 7, 30, 90].contains(&days) {
+        return Err(CmdError::InvalidArgument {
+            what: "days".into(),
+        });
+    }
+    let root = drive_root(&drive)?;
+    let svc = svc.inner().clone();
+    blocking(move || Ok(svc.history_growth(&root, days))).await
+}
+
+/// Deletes the storage history (Settings › Background insights › Clear).
+#[tauri::command]
+pub async fn history_clear(svc: Svc<'_>) -> Result<(), CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || svc.history_clear().map_err(io)).await
+}
+
+/// `C:\` for `C:` when it is one of this PC's fixed drives.
+fn drive_root(drive: &str) -> Result<String, CmdError> {
+    let drive = drive.trim_end_matches('\\').to_uppercase();
+    if !system::fixed_drives().contains(&drive) {
+        return Err(CmdError::InvalidArgument {
+            what: "drive".into(),
+        });
+    }
+    Ok(format!("{drive}\\"))
 }
 
 /// Live scan progress, sent as the `scan-progress` event.
@@ -626,11 +922,17 @@ pub fn app_uninstall(svc: Svc<'_>, generation: u64, id: u32) -> Result<(), CmdEr
     tools::steam_uninstall(app_id).map_err(io)
 }
 
-/// Analyses photos and videos of the current scan.
+/// Analyses photos and videos of the current scan; `photos-progress` events carry how many
+/// thumbnails are done, as `[done, total]`.
 #[tauri::command]
-pub async fn photos_analyze(svc: Svc<'_>) -> Result<PhotoState, CmdError> {
+pub async fn photos_analyze(app: AppHandle, svc: Svc<'_>) -> Result<PhotoState, CmdError> {
     let svc = svc.inner().clone();
-    blocking(move || svc.photos()).await
+    blocking(move || {
+        svc.photos(&|done, total| {
+            let _ui_may_be_closed = app.emit("photos-progress", (done, total));
+        })
+    })
+    .await
 }
 
 /// A photo thumbnail for the review grid.

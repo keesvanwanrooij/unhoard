@@ -52,7 +52,7 @@ options and trade-offs, before they are built.
 | English and Dutch; the language follows Windows with an English fallback, switchable | The maintainer's audience starts in the Netherlands; English reaches everyone else |
 | **Optimise** is an honest check-up in Next: no score, measured findings, few reversible actions | "PC optimisers" are a category full of false promises; honesty is the advantage |
 | Optimise **background insights are on by default**, switchable, local only | Growth over time is valuable only if it is measured from the start; the first run says it is on and how to turn it off |
-| Background-insight **limits are the smaller of twice the expected need and what an average PC can spare**: 0.3% of one core per day, 6 MB, 2 years | A background feature that slows the PC gets uninstalled; 2 years allows year-on-year comparison. The build measures the real numbers and applies the same rule |
+| Background-insight **limits are the smaller of twice the expected need and what an average PC can spare**: 250 CPU-seconds per daily run (0.29% of one core), 20 MB, 2 years, set from measurements on a 1 TB drive with 2.8 million files | A background feature that slows the PC gets uninstalled; 2 years allows year-on-year comparison. The build measures the real numbers and applies the same rule |
 | A small CLI in the MVP (`unhoard scan <path> --json`) | Power users and scripts; it also tests the core without the UI |
 
 ## Cleanup and safety
@@ -76,6 +76,7 @@ options and trade-offs, before they are built.
 | Quarantine on another drive is in Next | Same-drive renames are the safe base; cross-volume copy and verify needs its own tests |
 | Reading protected folders: a setting (Ask, Always, Never), one question when a scan starts, and a per-folder button | Complete numbers when the user wants them, without a UAC prompt they did not expect; the main app still never runs elevated |
 | Items read with admin rights never offer a move | The app itself has no rights there; a move would fail or need elevation, which only the read-only helper has |
+| Suggestions has checkboxes over all tiers plus one action bar | Kees wanted to clean several kinds at once; nothing is ticked at the start and the bar opens the same preview, so S1 holds |
 
 ## Known locations
 
@@ -120,6 +121,8 @@ options and trade-offs, before they are built.
 | The review grid starts with nothing selected; "select all but the keeper" is one action | S1, and still fast |
 | The best-shot suggestion uses sharpness, then resolution, then size, and says thumbnails limit accuracy | Useful without overclaiming |
 | Video: exact duplicates in the MVP; similar videos (ffmpeg) in Next | ffmpeg is a large dependency that needs its own review |
+| Cloud copies match on size, type and date or name, without a thumbnail | Thumbnails of online-only photos are rarely cached and each lookup costs about ten milliseconds; the analysis of a cloud library with tens of thousands of photos did not finish, while size, type and date or name find copies in seconds and are labelled "likely the same" |
+| Thumbnails only for candidates (bursts, same-size cloud files up to 2,000, local pictures up to 5,000) | The analysis of a large cloud library went from not finishing to about two minutes, and the groups that need no thumbnail still cover chat media, screenshots and bursts |
 
 ## Measures and units
 
@@ -135,12 +138,33 @@ options and trade-offs, before they are built.
 
 | Decision | Reason |
 |---|---|
-| **The MVP makes no network calls at all** (S8) | The strongest privacy promise is one that is easy to verify |
+| **Unhoard makes no connection to another computer** (S8); the only connection is to Ollama on `127.0.0.1:11434` while the chat is on | The strongest privacy promise is one that is easy to verify; a local model keeps it, because nothing leaves the PC |
+| The insights phase builds storage history, leftovers, Optimise and the AI chat in one round, plus the remaining speed budgets; the first public release follows it | The maintainer's choice; the four features share the background insights, the explanations and the companion |
+| The daily measurement runs as a scheduled task for the current user (`unhoard-app.exe --measure`), plus a measurement at app start when the last one is older than a day | A measurement "in the background" must also happen while the app is closed; a per-user task needs no admin and no resident process, and is removed when insights are turned off |
+| Storage history keeps snapshots of up to 1,000 of the largest folders, three levels deep, plus rule matches; growth is attributed to the deepest folder holding 80% of it | Enough to answer "what grew" without storing file names; the 80% rule names the real cause (`RdClientAutoTrace`) instead of its parent (`Temp`) |
+| No tray icon and no notifications outside the app in this phase | The maintainer's choice; Lumen tells about fast growth the next time the app opens |
+| Leftovers have two levels: a gone program from the program history (Likely safe), or a top-level AppData or ProgramData folder no installed program claims and unchanged for 180 days (Review) | High precision where Windows' own records prove the program is gone, and a careful net for the rest |
+| The AI chat uses Ollama on this PC; Unhoard recommends a model but downloads nothing | People who run local models often already have Ollama; reusing it means no second copy of multi-gigabyte models and far less code than embedding llama.cpp |
+| The Ollama client is a small loopback-only HTTP/1.1 client over `std::net::TcpStream`, not an HTTP library | It can reach only `127.0.0.1:11434` by construction, and the build keeps "no HTTP client in the dependency tree" (T-S8) |
+| Chat tools are read-only and return metadata; links in replies only select | A model can be misled by a file name; with no tool that changes anything, the worst case is a wrong answer, and every move still needs its preview and a click (S1) |
+| Optimise does not show Task Manager's startup impact | It has no public API; Unhoard shows only what it can source |
+| Wear and temperature of disks are not read; the disk finding opens Settings › Disks | They need admin rights; Windows shows them there, and the read-only helper stays a folder reader only |
+| The chat recommends `qwen3:8b` | In a test on a PC with Ollama (2026-11-13), it called the overview tool and answered in good Dutch; llama3.1 8B also did but slower; qwen2.5-coder 7B and aya-expanse 8B wrote the tool call as text instead of calling it |
+| The model advice follows memory and graphics memory, with `qwen3:4b` for smaller PCs | A model needs about its download size plus 1 GB; `qwen3:8b` fits an 8 GB graphics card, `qwen3:4b` is the same family and fits 8 GB of memory, so the advice works on most home PCs |
+| "Download" asks Ollama to pull the recommended model, and only that model | Kees chose one click over a command to copy; Ollama does the download from its own library, so Unhoard still opens no connection beyond 127.0.0.1, and an allowlist keeps the UI from pulling anything else |
+| Without Ollama, Settings explains it and opens its download page on a click | A missing program is a next step, not an error; the address is fixed in Rust |
+| The Windows Update search runs as its own command | It can take half a minute; the other findings must not wait for it |
+| The map draws its glow and soft label shadows only at rest; while it moves, cells are flat and labels get a thin outline | A blur is the most expensive canvas operation; at rest it gives the premium look, during a zoom or morph it made frames of 50 to 140 ms on the reference PC (P10, P11) |
+| The map renderer runs in a Web Worker with an OffscreenCanvas; the page mirrors the drawn outlines for hit tests | Relaxing and drawing were the last long tasks on the input thread (P11); in a worker they cannot delay a click, and hit tests stay instant from the mirrored outlines |
+| A navigation click paints the pressed tab first; the new screen renders as a deferred update, and the hidden overview keeps its layout (`content-visibility: hidden`) | P1 asks for a visible response within 50 ms and P2 gives the screen 100 ms; rendering and laying out the whole screen in the click's own frame pushed P1 over budget on slower PCs |
+| The UI font's weights are warmed at idle after start | The first layout in a new weight of the system font cost 60 to 90 ms on the first visit to Suggestions and Optimise (P1, P11) |
+| A hidden overview keeps the map's last size, and the list and details follow a zoom as a deferred update | Re-laying out the map after every screen switch made ten long frames; the map answers the click first and the side panels never hold it up (P11) |
 | The opt-in update check is in Next | Keeps the MVP fully offline |
 | **No telemetry, ever** | Trust; a disk tool sees the whole PC |
 | Exports and CLI output replace the profile path with `%USERPROFILE%` (S9) | Shared output does not leak the user name |
 | Cloud AI only after explicit consent; the local model is the default | Privacy first |
 | Contact for the Code of Conduct and security reports goes **through GitHub only** (private vulnerability reporting and the maintainer's profile) | No personal email address in the repository |
+| WebView2 starts without component downloads, background networking or an HTTP cache, and Unhoard removes those folders at start | Its profile grew to about 110 MB with browser components (DRM, filter lists, speech) and a cache a local-only app never uses, and those downloads broke the zero-network promise; it now stays at about 15 MB |
 
 ## Engineering
 
@@ -164,6 +188,10 @@ options and trade-offs, before they are built.
 | **Performance budgets P1–P14** are hard limits: a visible response within 50 ms, a screen switch painted within 100 ms, 60 fps, no UI-thread task over 50 ms ([Performance](25-performance.md)) | They follow the perception limits for "instant" (100 ms) and "smooth" (16.7 ms per frame); a premium, animated app that lags feels worse than a plain one |
 | Performance is checked by benchmarks and scripted interactions against a committed baseline; CI fails above a budget or at more than 20% slower, locally a warning shows at 10% | A slowdown is caught in the change that causes it, while the developer still has the context; 20% absorbs the noise of shared CI runners |
 | UI timings are measured in Chromium with a fake core at 4× CPU throttling | Repeatable on CI; the throttling approximates a mid-range PC, and a manual check confirms it in the real app before a release |
+| Pages are a column of at most 960 px next to the navigation; the photo review uses the full width | On a wide screen sizes and buttons sat far from their names, so the eye and the mouse travelled across the screen |
+| Optimise keeps its last check-up while the app runs | Measuring takes seconds (CPU sampling, WMI), and opening the screen should show results at once; "Check again" measures anew |
+| Every setting has a hint of a few words under its name | Kees asked for it: a setting's name alone did not say what it does |
+| Known processes live in `data/known-processes.toml`, with texts in the language files | Like the known locations: data with tests that every entry has both languages and no executable is listed twice |
 
 ## Docs
 
