@@ -216,7 +216,7 @@ export interface DockerUsage {
 }
 
 export type ToolError = { kind: "notInstalled" | "notRunning" | "timedOut" | "failed" };
-export type AppName = "dockerDesktop" | "ollama" | "steam";
+export type AppName = "dockerDesktop" | "ollama" | "steam" | "ollamaDownload";
 export type OpenAppResult = { Ok: null } | { Err: ToolError };
 export type DockerResult = { Ok: DockerUsage[] } | { Err: ToolError };
 
@@ -369,7 +369,7 @@ export interface MediaItem {
 }
 
 export type GroupKind = "exactDuplicates" | "nearDuplicates" | "burst" | "chatMedia" | "screenshots";
-export type Certainty = "identical" | "almostCertainlyIdentical" | "verySimilar" | "sameMoment" | "sameSource";
+export type Certainty = "identical" | "almostCertainlyIdentical" | "likelyIdentical" | "verySimilar" | "sameMoment" | "sameSource";
 export type KeeperReason = "sharpest" | "highestResolution" | "largestFile";
 
 export interface Group {
@@ -483,6 +483,32 @@ export interface StartupChange {
 
 export type StartupError = "needsAdmin" | "notFound" | "failed";
 export type ChatError = "notRunning" | "refused" | "badReply" | "notAllowed" | "off";
+
+/** Where Ollama stands on this PC. */
+export type OllamaState = "notInstalled" | "notRunning" | "running";
+
+/** The model Unhoard recommends for this PC. */
+export interface Recommendation {
+  model: string;
+  fit: "fast" | "slow" | "tooSmall";
+  download: number;
+}
+
+/** What Settings needs to set up the chat. */
+export interface ChatSetup {
+  ollama: OllamaState;
+  models: ModelInfo[];
+  recommendation: Recommendation;
+  ram: number | null;
+  vram: number | null;
+}
+
+/** Download progress of a model. */
+export interface PullProgress {
+  status: string;
+  completed: number | null;
+  total: number | null;
+}
 
 export interface ModelInfo {
   name: string;

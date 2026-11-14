@@ -386,6 +386,16 @@ export function App(): JSX.Element {
             {t(`nav.${s}`)}
           </button>
         ))}
+        {/* The chat is reachable from every screen, not only next to Lumen on the map. */}
+        <button
+          className="nav-chat"
+          onClick={() => {
+            const app = useApp.getState();
+            app.setChatOpen(!app.chatOpen);
+          }}
+        >
+          {t("chat.ask")}
+        </button>
         <div className="nav-foot">{t("settings.privacy")}</div>
       </nav>
       <header className="top">

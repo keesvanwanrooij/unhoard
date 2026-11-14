@@ -86,6 +86,103 @@ pub fn models() -> Result<Vec<ModelInfo>, ChatError> {
         .unwrap_or_default())
 }
 
+/// Where Ollama stands on this PC.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum OllamaState {
+    /// Not in its default install folder and not answering.
+    NotInstalled,
+    /// Installed but not answering: the app is not running.
+    NotRunning,
+    /// Answering on its local address.
+    Running,
+}
+
+/// What the Settings screen needs to set up the chat.
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChatSetup {
+    /// Where Ollama stands.
+    pub ollama: OllamaState,
+    /// The installed models (empty unless Ollama runs).
+    pub models: Vec<ModelInfo>,
+    /// The model Unhoard recommends for this PC.
+    pub recommendation: unhoard_core::chat::Recommendation,
+    /// Physical memory, when known.
+    pub ram: Option<u64>,
+    /// The largest graphics card's own memory, when known.
+    pub vram: Option<u64>,
+}
+
+/// Ollama's state, the installed models and the model advice for this PC.
+pub fn setup(roots: &unhoard_core::roots::Roots) -> Result<ChatSetup, ChatError> {
+    let (ram, vram) = unhoard_platform::optimise::machine_memory();
+    let recommendation = unhoard_core::chat::recommend_model(ram.unwrap_or(0), vram);
+    let (ollama, models) = match models() {
+        Ok(m) => (OllamaState::Running, m),
+        Err(ChatError::NotRunning) if unhoard_platform::tools::ollama_installed(roots) => {
+            (OllamaState::NotRunning, vec![])
+        }
+        Err(ChatError::NotRunning) => (OllamaState::NotInstalled, vec![]),
+        Err(e) => return Err(e),
+    };
+    Ok(ChatSetup {
+        ollama,
+        models,
+        recommendation,
+        ram,
+        vram,
+    })
+}
+
+/// Download progress of a model, as Ollama reports it.
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PullProgress {
+    /// Ollama's status line, for example `pulling manifest` or `success`.
+    pub status: String,
+    /// Bytes done of the current part, when known.
+    pub completed: Option<u64>,
+    /// Bytes of the current part, when known.
+    pub total: Option<u64>,
+}
+
+/// Asks Ollama to download `model`, one of the models Unhoard recommends, and reports its
+/// progress through `emit`. True when Ollama reported success.
+pub fn pull(model: &str, emit: &dyn Fn(PullProgress)) -> Result<bool, ChatError> {
+    if !unhoard_core::chat::may_pull(model) {
+        return Err(ChatError::NotAllowed);
+    }
+    let mut ok = false;
+    let mut failed = false;
+    ollama::pull_stream(model, &mut |line| {
+        let Ok(v) = serde_json::from_str::<Value>(line) else {
+            return true;
+        };
+        if v["error"].is_string() {
+            failed = true;
+            return false;
+        }
+        let status: String = v["status"]
+            .as_str()
+            .unwrap_or("")
+            .chars()
+            .take(120)
+            .collect();
+        ok = ok || status == "success";
+        emit(PullProgress {
+            status,
+            completed: v["completed"].as_u64(),
+            total: v["total"].as_u64(),
+        });
+        true
+    })?;
+    if failed {
+        return Err(ChatError::Refused);
+    }
+    Ok(ok)
+}
+
 /// The UI texts in both languages, for rule titles and explanations the model reads.
 fn locale(lang: &str) -> &'static Value {
     static EN: OnceLock<Value> = OnceLock::new();

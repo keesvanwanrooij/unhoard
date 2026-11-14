@@ -48,6 +48,8 @@
     "allow-optimise-updates",
     "allow-chat-models",
     "allow-chat-send",
-    "allow-chat-stop"
+    "allow-chat-stop",
+    "allow-chat-setup",
+    "allow-chat-pull"
   ]
 }

@@ -13,6 +13,66 @@ const MAX_TEXT: usize = 1024;
 /// The most bytes a tool result may hand the model.
 pub const MAX_RESULT: usize = 16 * 1024;
 
+/// How well a recommended model runs on this PC.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum Fit {
+    /// It fits in the graphics card's memory: answers come quickly.
+    Fast,
+    /// It runs from main memory on the processor: answers take a while.
+    Slow,
+    /// Even the small model barely fits; the chat will be slow and less reliable.
+    TooSmall,
+}
+
+/// The model Unhoard recommends for a PC, with how well it runs and its download size.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Recommendation {
+    /// The Ollama model name.
+    pub model: &'static str,
+    /// How well it runs.
+    pub fit: Fit,
+    /// Its download size in bytes, as Ollama lists it.
+    pub download: u64,
+}
+
+/// The models Unhoard recommends and may ask Ollama to download, with about their download
+/// size (Ollama reports the exact size once the download starts).
+/// `qwen3:8b` was tested for Dutch and tool calls; `qwen3:4b` is the same family for PCs
+/// with less memory ([Decisions]).
+pub const MODELS: [(&str, u64); 2] = [("qwen3:8b", 5_225_388_164), ("qwen3:4b", 2_497_293_918)];
+
+/// The model to recommend for `ram` bytes of memory and, when known, `vram` bytes of
+/// graphics memory. A model needs about its download size plus 1 GB to run. The limits sit
+/// just under the nominal sizes, because Windows reports a little less than is fitted (an
+/// 8 GB card as 7.9 GB, 16 GB of memory as 15.8 GB).
+pub fn recommend_model(ram: u64, vram: Option<u64>) -> Recommendation {
+    const GB: u64 = 1 << 30;
+    let vram = vram.unwrap_or(0);
+    let pick = |i: usize, fit: Fit| Recommendation {
+        model: MODELS[i].0,
+        fit,
+        download: MODELS[i].1,
+    };
+    if vram >= 7 * GB {
+        pick(0, Fit::Fast)
+    } else if vram >= 4 * GB && ram < 15 * GB {
+        pick(1, Fit::Fast)
+    } else if ram >= 15 * GB {
+        pick(0, Fit::Slow)
+    } else if ram >= 7 * GB {
+        pick(1, Fit::Slow)
+    } else {
+        pick(1, Fit::TooSmall)
+    }
+}
+
+/// True for a model Unhoard may ask Ollama to download: only the ones it recommends.
+pub fn may_pull(model: &str) -> bool {
+    MODELS.iter().any(|(m, _)| *m == model)
+}
+
 /// A validated tool call.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "tool")]
@@ -189,6 +249,42 @@ that has an id, link it as [name](unhoard:item/ID); a suggestion group as \
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const GB: u64 = 1 << 30;
+
+    #[test]
+    fn f8_the_recommended_model_follows_memory_and_video_memory() {
+        // A gaming PC: plenty of memory and a graphics card with 8 GB.
+        let r = recommend_model(32 * GB, Some(8 * GB));
+        assert_eq!((r.model, r.fit), ("qwen3:8b", Fit::Fast));
+        // 16 GB of memory and no usable graphics memory: the 8B model runs, slowly.
+        let r = recommend_model(16 * GB, None);
+        assert_eq!((r.model, r.fit), ("qwen3:8b", Fit::Slow));
+        // 8 GB of memory: the smaller model.
+        let r = recommend_model(8 * GB, Some(2 * GB));
+        assert_eq!((r.model, r.fit), ("qwen3:4b", Fit::Slow));
+        // Less: the smaller model, and a warning that it will be slow and weak.
+        let r = recommend_model(4 * GB, None);
+        assert_eq!((r.model, r.fit), ("qwen3:4b", Fit::TooSmall));
+        // How Windows reports a 32 GB PC with an 8 GB card.
+        let r = recommend_model(31 * GB + GB / 2, Some(7 * GB + 900 * (GB >> 10)));
+        assert_eq!((r.model, r.fit), ("qwen3:8b", Fit::Fast));
+        // How Windows reports 16 GB of memory.
+        let r = recommend_model(15 * GB + 800 * (GB >> 10), None);
+        assert_eq!((r.model, r.fit), ("qwen3:8b", Fit::Slow));
+        // A graphics card with 6 GB holds the 4B model fully.
+        let r = recommend_model(12 * GB, Some(6 * GB));
+        assert_eq!((r.model, r.fit), ("qwen3:4b", Fit::Fast));
+    }
+
+    #[test]
+    fn f8_only_recommended_models_can_be_downloaded() {
+        assert!(may_pull("qwen3:8b"));
+        assert!(may_pull("qwen3:4b"));
+        assert!(!may_pull("qwen3:8b; rm"));
+        assert!(!may_pull("someone/model"));
+        assert!(!may_pull(""));
+    }
 
     #[test]
     fn f8_t8_5_unknown_tools_and_bad_arguments_are_errors_for_the_model() {

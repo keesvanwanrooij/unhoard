@@ -7,6 +7,8 @@ import type {
   AdminReadResult,
   AdminStartResult,
   ChatError,
+  ChatSetup,
+  PullProgress,
   ChatEvent,
   ChatMessage,
   Finding,
@@ -98,6 +100,8 @@ export const api = {
     invoke("startup_set", { scope, name, enabled }),
   startupUndo: (index: number): Promise<Result<null, StartupError>> => invoke("startup_undo", { index }),
   chatModels: (): Promise<Result<ModelInfo[], ChatError>> => invoke("chat_models"),
+  chatSetup: (): Promise<Result<ChatSetup, ChatError>> => invoke("chat_setup"),
+  chatPull: (model: string): Promise<Result<boolean, ChatError>> => invoke("chat_pull", { model }),
   chatSend: (messages: ChatMessage[], lang: string): Promise<Result<null, ChatError>> => invoke("chat_send", { messages, lang }),
   chatStop: (): Promise<void> => invoke("chat_stop"),
 };
@@ -113,6 +117,20 @@ export function onChatEvent(f: (e: ChatEvent) => void): Promise<UnlistenFn> {
 export function onScanProgress(f: (s: ScanStatus) => void): Promise<UnlistenFn> {
   return listen<ScanStatus>("scan-progress", (e) => {
     f(e.payload);
+  });
+}
+
+/** Download progress of a chat model. */
+export function onChatPull(f: (p: PullProgress) => void): Promise<UnlistenFn> {
+  return listen<PullProgress>("chat-pull", (e) => {
+    f(e.payload);
+  });
+}
+
+/** Progress of the photo analysis: thumbnails done and to do. */
+export function onPhotosProgress(f: (done: number, total: number) => void): Promise<UnlistenFn> {
+  return listen<[number, number]>("photos-progress", (e) => {
+    f(e.payload[0], e.payload[1]);
   });
 }
 

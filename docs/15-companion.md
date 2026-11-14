@@ -104,14 +104,30 @@ the internet.
 ### Switching it on
 
 - The chat is **off by default**. Settings › Lumen › "Chat with a local model" turns it on.
-- When switched on, Unhoard looks for Ollama at `http://127.0.0.1:11434` (only that
-  address; a remote host is never used). Without Ollama, Lumen explains what it is and
-  links to its download page in the browser; Unhoard downloads nothing itself.
-- Unhoard lists the installed models and **recommends `qwen3:8b`**, which handled Dutch and
-  tool calls best in the test during the build ([Decisions](24-decisions.md)).
-  When the recommended model is missing, Lumen shows the `ollama pull <model>` command to
-  copy, and "Open Ollama".
+- When switched on, Settings looks for Ollama at `http://127.0.0.1:11434` (only that
+  address; a remote host is never used). There is no error, only the next step:
+  - **Not installed:** Settings explains what Ollama is and opens its Windows download page
+    in the browser on a click (`https://ollama.com/download/windows`, a fixed address).
+  - **Installed but not running:** a button starts the Ollama app.
+- **Model advice for this PC:** from the physical memory and the graphics card's own memory
+  (the driver's `HardwareInformation.qwMemorySize`), Unhoard recommends a model and says
+  how it will run:
+  | This PC | Model | How it runs |
+  |---|---|---|
+  | Graphics memory of 7 GB or more | `qwen3:8b` | fast, on the graphics card |
+  | Graphics memory of 4 GB or more and memory under 15 GB | `qwen3:4b` | fast, on the graphics card |
+  | Memory of 15 GB or more | `qwen3:8b` | slower, on the processor |
+  | Memory of 7 GB or more | `qwen3:4b` | slower, on the processor |
+  | Less | `qwen3:4b` | slow and less reliable; said so |
+
+  The limits sit just under the nominal sizes, because Windows reports a little less than
+  is fitted. `qwen3:8b` handled Dutch and tool calls best in the test during the build;
+  `qwen3:4b` is the same family ([Decisions](24-decisions.md)).
+- **Download on a click:** when the recommended model is missing, "Download" asks Ollama to
+  pull it (`POST /api/pull`) and shows the progress. Only the two recommended models can be
+  pulled this way; Ollama downloads them from its own library.
 - The user may pick any installed model; a model that cannot call tools gets a warning.
+- The chat panel points to Settings when Ollama or the model is missing.
 
 ### What the model sees
 
@@ -137,7 +153,7 @@ the history and the library:
 
 ### The conversation
 
-- A chat panel opens from the "Ask Lumen" button under Lumen on the overview. Replies
+- A chat panel opens from the "Ask Lumen" button in the navigation, on every screen. Replies
   stream in, and while the model calls a tool the panel says what Lumen is looking at.
 - The system prompt says who Lumen is, that it answers in the user's language, that it
   only knows what the tools return, and that it never claims something is safe to delete

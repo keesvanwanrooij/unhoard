@@ -144,6 +144,11 @@ pub fn gather(roots: &Roots, system_free: Option<u64>, system_total: Option<u64>
     }
 }
 
+/// Physical memory and the largest graphics card's own memory, for the chat model advice.
+pub fn machine_memory() -> (Option<u64>, Option<u64>) {
+    (checkup::memory().map(|m| m.total), registry::video_memory())
+}
+
 /// Pending updates and recent failures from the Windows Update Agent. Its search can take
 /// half a minute, so it runs on its own and the screen shows the rest first.
 pub fn updates(now: i64) -> Option<unhoard_core::optimise::Updates> {

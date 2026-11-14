@@ -76,6 +76,7 @@ options and trade-offs, before they are built.
 | Quarantine on another drive is in Next | Same-drive renames are the safe base; cross-volume copy and verify needs its own tests |
 | Reading protected folders: a setting (Ask, Always, Never), one question when a scan starts, and a per-folder button | Complete numbers when the user wants them, without a UAC prompt they did not expect; the main app still never runs elevated |
 | Items read with admin rights never offer a move | The app itself has no rights there; a move would fail or need elevation, which only the read-only helper has |
+| Suggestions has checkboxes over all tiers plus one action bar | Kees wanted to clean several kinds at once; nothing is ticked at the start and the bar opens the same preview, so S1 holds |
 
 ## Known locations
 
@@ -120,6 +121,8 @@ options and trade-offs, before they are built.
 | The review grid starts with nothing selected; "select all but the keeper" is one action | S1, and still fast |
 | The best-shot suggestion uses sharpness, then resolution, then size, and says thumbnails limit accuracy | Useful without overclaiming |
 | Video: exact duplicates in the MVP; similar videos (ffmpeg) in Next | ffmpeg is a large dependency that needs its own review |
+| Cloud copies match on size, type and date or name, without a thumbnail | Thumbnails of online-only photos are rarely cached and each lookup costs about ten milliseconds; the analysis of a cloud library with tens of thousands of photos did not finish, while size, type and date or name find copies in seconds and are labelled "likely the same" |
+| Thumbnails only for candidates (bursts, same-size cloud files up to 2,000, local pictures up to 5,000) | The analysis of a large cloud library went from not finishing to about two minutes, and the groups that need no thumbnail still cover chat media, screenshots and bursts |
 
 ## Measures and units
 
@@ -147,6 +150,9 @@ options and trade-offs, before they are built.
 | Optimise does not show Task Manager's startup impact | It has no public API; Unhoard shows only what it can source |
 | Wear and temperature of disks are not read; the disk finding opens Settings › Disks | They need admin rights; Windows shows them there, and the read-only helper stays a folder reader only |
 | The chat recommends `qwen3:8b` | In a test on a PC with Ollama (2026-11-13), it called the overview tool and answered in good Dutch; llama3.1 8B also did but slower; qwen2.5-coder 7B and aya-expanse 8B wrote the tool call as text instead of calling it |
+| The model advice follows memory and graphics memory, with `qwen3:4b` for smaller PCs | A model needs about its download size plus 1 GB; `qwen3:8b` fits an 8 GB graphics card, `qwen3:4b` is the same family and fits 8 GB of memory, so the advice works on most home PCs |
+| "Download" asks Ollama to pull the recommended model, and only that model | Kees chose one click over a command to copy; Ollama does the download from its own library, so Unhoard still opens no connection beyond 127.0.0.1, and an allowlist keeps the UI from pulling anything else |
+| Without Ollama, Settings explains it and opens its download page on a click | A missing program is a next step, not an error; the address is fixed in Rust |
 | The Windows Update search runs as its own command | It can take half a minute; the other findings must not wait for it |
 | The map draws its glow and soft label shadows only at rest; while it moves, cells are flat and labels get a thin outline | A blur is the most expensive canvas operation; at rest it gives the premium look, during a zoom or morph it made frames of 50 to 140 ms on the reference PC (P10, P11) |
 | The map renderer runs in a Web Worker with an OffscreenCanvas; the page mirrors the drawn outlines for hit tests | Relaxing and drawing were the last long tasks on the input thread (P11); in a worker they cannot delay a click, and hit tests stay instant from the mirrored outlines |
@@ -181,6 +187,10 @@ options and trade-offs, before they are built.
 | **Performance budgets P1–P14** are hard limits: a visible response within 50 ms, a screen switch painted within 100 ms, 60 fps, no UI-thread task over 50 ms ([Performance](25-performance.md)) | They follow the perception limits for "instant" (100 ms) and "smooth" (16.7 ms per frame); a premium, animated app that lags feels worse than a plain one |
 | Performance is checked by benchmarks and scripted interactions against a committed baseline; CI fails above a budget or at more than 20% slower, locally a warning shows at 10% | A slowdown is caught in the change that causes it, while the developer still has the context; 20% absorbs the noise of shared CI runners |
 | UI timings are measured in Chromium with a fake core at 4× CPU throttling | Repeatable on CI; the throttling approximates a mid-range PC, and a manual check confirms it in the real app before a release |
+| Pages are a column of at most 960 px next to the navigation; the photo review uses the full width | On a wide screen sizes and buttons sat far from their names, so the eye and the mouse travelled across the screen |
+| Optimise keeps its last check-up while the app runs | Measuring takes seconds (CPU sampling, WMI), and opening the screen should show results at once; "Check again" measures anew |
+| Every setting has a hint of a few words under its name | Kees asked for it: a setting's name alone did not say what it does |
+| Known processes live in `data/known-processes.toml`, with texts in the language files | Like the known locations: data with tests that every entry has both languages and no executable is listed twice |
 
 ## Docs
 

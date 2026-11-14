@@ -19,32 +19,71 @@ export function fmtDelta(delta: number, lang: "en" | "nl"): string {
   return `${delta < 0 ? "−" : "+"}${fmtBytes(Math.abs(delta), lang)}`;
 }
 
-/** The timeline: used space per snapshot, as a line with a point per snapshot. */
+/** About `n` round values from `lo` to `hi` for axis ticks: steps of 1, 2 or 5 times a power
+ * of ten. */
+export function niceTicks(lo: number, hi: number, n: number): number[] {
+  if (!(hi > lo) || n < 1) return [lo];
+  const raw = (hi - lo) / n;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = ([1, 2, 5, 10].map((m) => m * mag).find((x) => x >= raw) ?? 10 * mag);
+  const out: number[] = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(v);
+  return out;
+}
+
+/** The timeline: used space per snapshot, as a line with a point per snapshot, on a grid with
+ * a labelled size axis and date axis. */
 function Timeline({ points }: { points: TimelinePoint[] }): JSX.Element {
   const { t } = useTranslation();
   const lang = useApp((s) => s.lang);
   const [hover, setHover] = useState<TimelinePoint | null>(null);
   const known = points.filter((p) => p.totals.used !== null);
   const W = 720;
-  const H = 180;
-  const pad = 28;
+  const H = 240;
+  const left = 78;
+  const right = 16;
+  const top = 14;
+  const bottom = 34;
   if (known.length < 2) return <p className="note">{t("history.fewPoints")}</p>;
   const t0 = known[0]?.at ?? 0;
   const t1 = known[known.length - 1]?.at ?? 1;
   const used = known.map((p) => p.totals.used ?? 0);
-  const lo = Math.min(...used) * 0.98;
-  const hi = Math.max(...used) * 1.02 || 1;
-  const x = (at: number): number => pad + ((at - t0) / Math.max(1, t1 - t0)) * (W - 2 * pad);
-  const y = (v: number): number => H - pad - ((v - lo) / Math.max(1, hi - lo)) * (H - 2 * pad);
+  const GB = 1024 ** 3;
+  // The size axis in whole gigabytes, with some room above and below the line.
+  const spread = Math.max(Math.max(...used) - Math.min(...used), GB);
+  const yTicks = niceTicks((Math.min(...used) - spread * 0.15) / GB, (Math.max(...used) + spread * 0.15) / GB, 4).map((g) => g * GB);
+  const lo = Math.min(yTicks[0] ?? 0, ...used);
+  const hi = Math.max(yTicks[yTicks.length - 1] ?? 1, ...used);
+  const x = (at: number): number => left + ((at - t0) / Math.max(1, t1 - t0)) * (W - left - right);
+  const y = (v: number): number => H - bottom - ((v - lo) / Math.max(1, hi - lo)) * (H - top - bottom);
+  const days = (t1 - t0) / 86_400;
+  const xTicks = niceTicks(t0, t1, 5).filter((v) => v >= t0 && v <= t1);
+  const dateText = (at: number): string =>
+    new Date(at * 1000).toLocaleDateString(lang, days < 2 ? { hour: "2-digit", minute: "2-digit" } : { day: "numeric", month: "short" });
   const d = known.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.at).toFixed(1)},${y(p.totals.used ?? 0).toFixed(1)}`).join(" ");
   return (
     <div className="timeline">
       <svg viewBox={`0 0 ${String(W)} ${String(H)}`} role="img" aria-label={t("history.timeline")}>
-        <text x={pad} y={14} className="axis-label">
-          {fmtBytes(hi, lang)}
-        </text>
-        <text x={pad} y={H - 6} className="axis-label">
-          {fmtBytes(lo, lang)}
+        {yTicks.map((v) => (
+          <g key={`y${String(v)}`}>
+            <line className="grid" x1={left} x2={W - right} y1={y(v)} y2={y(v)} />
+            <text className="axis-label" x={left - 8} y={y(v) + 4} textAnchor="end">
+              {fmtBytes(v, lang)}
+            </text>
+          </g>
+        ))}
+        {xTicks.map((v) => (
+          <g key={`x${String(v)}`}>
+            <line className="tick" x1={x(v)} x2={x(v)} y1={H - bottom} y2={H - bottom + 5} />
+            <text className="axis-label" x={x(v)} y={H - bottom + 18} textAnchor="middle">
+              {dateText(v)}
+            </text>
+          </g>
+        ))}
+        <line className="axis" x1={left} x2={left} y1={top} y2={H - bottom} />
+        <line className="axis" x1={left} x2={W - right} y1={H - bottom} y2={H - bottom} />
+        <text className="axis-title" x={12} y={(top + H - bottom) / 2} transform={`rotate(-90 12 ${String((top + H - bottom) / 2)})`} textAnchor="middle">
+          {t("history.axisUsed")}
         </text>
         <path d={d} className="line" />
         {known.map((p) => (

@@ -72,6 +72,8 @@ when it adds an asset, a boundary or a threat.
 |---|---|
 | T15. Data leaves the PC (A5) | No connection to another computer; no HTTP client in the build; the Ollama client connects only to 127.0.0.1:11434 and only while the chat is on; no telemetry, ever (S8, T-S8, T-8.3) |
 | T32. A file name tricks the chat model into harmful advice (prompt injection) (B2, A1) | Tools are read-only and the chat can only select items; every move needs its preview and a click (S1); answers about safety must quote the tier and reason from the tools |
+| T37. The UI asks Ollama to download an arbitrary model (B1) | `chat_pull` accepts only the two recommended model names, checked in Rust before and inside the command; it runs only with the chat switched on and on a click |
+| T38. The download link opens something other than Ollama's page (B1) | The address is a constant in Rust; the UI passes only the name `ollamaDownload` |
 | T33. Another local program poses as Ollama on port 11434 (B7) | It receives only questions and metadata the user chose to send; replies are shown as text and links that only select; nothing from a reply is executed |
 | T34. The history file reveals folder names to another account (A5, B7) | It lives in the user's own `%LOCALAPPDATA%`, which other standard accounts cannot read; it holds no names below the largest folders |
 | T35. The scheduled task is changed to run something else (B7) | It is created for the current user and points to Unhoard's own executable with a fixed argument; any program of the same user could already run code, so the task adds no new privilege; turning insights off removes it |

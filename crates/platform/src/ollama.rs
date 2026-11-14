@@ -138,7 +138,21 @@ pub fn tags() -> Result<String, ChatError> {
 /// `POST /api/chat` with a streamed reply: `on_line` gets each JSON line and returns false
 /// to stop reading (the user pressed stop).
 pub fn chat_stream(body: &[u8], on_line: &mut dyn FnMut(&str) -> bool) -> Result<(), ChatError> {
-    let (mut r, chunked) = request("POST", "/api/chat", body)?;
+    stream("/api/chat", body, on_line)
+}
+
+/// `POST /api/pull`: Ollama downloads `model` from its library and streams its progress as
+/// JSON lines (`status`, `total`, `completed`). `on_line` returns false to stop listening;
+/// Ollama then finishes or resumes the download on its own.
+pub fn pull_stream(model: &str, on_line: &mut dyn FnMut(&str) -> bool) -> Result<(), ChatError> {
+    let body = serde_json::to_vec(&serde_json::json!({"model": model, "stream": true}))
+        .map_err(|_| ChatError::BadReply)?;
+    stream("/api/pull", &body, on_line)
+}
+
+/// A request whose reply is one JSON object per line.
+fn stream(path: &str, body: &[u8], on_line: &mut dyn FnMut(&str) -> bool) -> Result<(), ChatError> {
+    let (mut r, chunked) = request("POST", path, body)?;
     let mut pending: Vec<u8> = vec![];
     let mut emit = |bytes: &[u8], pending: &mut Vec<u8>| -> Result<bool, ChatError> {
         pending.extend_from_slice(bytes);

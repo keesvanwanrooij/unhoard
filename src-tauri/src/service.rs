@@ -25,8 +25,9 @@ use unhoard_core::history::{
 };
 use unhoard_core::knowledge::{Knowledge, SteamInfo};
 use unhoard_core::photos::{
-    Features, Group, MediaItem, bursts, by_month, cloud_duplicates, exact_duplicates_local,
-    media_index, near_duplicates, suggest_keepers, video_duplicates,
+    Features, Group, MediaItem, bursts, by_month, cloud_copies, cloud_duplicates,
+    exact_duplicates_local, feature_candidates, media_index, near_duplicates, suggest_keepers,
+    video_duplicates,
 };
 use unhoard_core::quarantine::{
     self, Batch, DriveSpace, ItemResult, ItemStatus, Manifest, MovePlan, MoveReport, Outcome,
@@ -103,6 +104,16 @@ pub struct Session {
     /// How long it took, once done.
     pub duration_ms: Arc<AtomicU64>,
 }
+
+/// Local pictures all get a thumbnail for near-duplicate matching up to this many; a larger
+/// local library is matched on the groups that need no thumbnail.
+const LOCAL_FEATURE_LIMIT: usize = 5_000;
+/// Cloud files of the same size that only a thumbnail can tell apart are asked up to this
+/// many; a thumbnail of an online-only file is rarely in the cache, and each lookup takes
+/// about ten milliseconds.
+const CLOUD_FEATURE_LIMIT: usize = 2_000;
+/// The photo analysis reports its progress once per this many items.
+const PHOTO_PROGRESS_EVERY: usize = 50;
 
 fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
     match m.lock() {
@@ -952,8 +963,10 @@ impl Service {
         Ok((results, plan.bytes_to_free, still_local))
     }
 
-    /// Analyses the photos and videos of the current scan.
-    pub fn photos(&self) -> Result<PhotoState, CmdError> {
+    /// Analyses the photos and videos of the current scan. Thumbnails and media properties
+    /// are asked only for items that can be in a group that needs them, and `progress`
+    /// hears how many of those are done.
+    pub fn photos(&self, progress: &(dyn Fn(usize, usize) + Sync)) -> Result<PhotoState, CmdError> {
         let s = self.current()?;
         if !s.done.load(Ordering::SeqCst) {
             return Err(CmdError::Busy);
@@ -962,18 +975,45 @@ impl Service {
             let tree = lock(&s.tree);
             media_index(&tree, &self.context())
         };
+        let wanted = feature_candidates(&media, LOCAL_FEATURE_LIMIT, CLOUD_FEATURE_LIMIT);
+        let total = wanted.iter().filter(|w| **w).count();
+        let done = std::sync::atomic::AtomicUsize::new(0);
+        progress(0, total);
         let features: Vec<Features> = {
             use rayon::prelude::*;
             media
                 .par_iter()
-                .map(|m| {
-                    self.media
-                        .features(&m.path, m.parsed.video, m.in_sync_root || m.cloud_only)
+                .zip(wanted.par_iter())
+                .map(|(m, wanted)| {
+                    if !*wanted {
+                        return Features::default();
+                    }
+                    let f = self.media.features(
+                        &m.path,
+                        m.parsed.video,
+                        m.in_sync_root || m.cloud_only,
+                    );
+                    let n = done.fetch_add(1, Ordering::Relaxed) + 1;
+                    if n.is_multiple_of(PHOTO_PROGRESS_EVERY) || n == total {
+                        progress(n, total);
+                    }
+                    f
                 })
                 .collect()
         };
         let mut groups = exact_duplicates_local(&*self.fs, &media);
         groups.extend(cloud_duplicates(&media, &features));
+        // A copy found by size, type and date or name is listed once: not again when its
+        // thumbnails already proved it.
+        let copies: Vec<_> = cloud_copies(&media)
+            .into_iter()
+            .filter(|c| {
+                !groups
+                    .iter()
+                    .any(|g| c.items.iter().all(|i| g.items.contains(i)))
+            })
+            .collect();
+        groups.extend(copies);
         groups.extend(video_duplicates(&media, &features));
         let near = near_duplicates(&media, &features, &groups);
         groups.extend(near);

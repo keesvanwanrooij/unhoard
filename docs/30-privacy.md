@@ -43,6 +43,9 @@ them, and quarantine folders always stay, so an uninstall never deletes your fil
 - The model sees file and folder names, sizes and explanations from the scan through
   tools, never file contents.
 - The conversation is kept in memory only.
+- Two things reach the internet, each only on a click in Settings: the Ollama download page
+  opens in your browser, and Ollama itself downloads a recommended model from its library.
+  Unhoard sends nothing in either case.
 
 ## Exports and the CLI
 

@@ -90,6 +90,70 @@ pub struct Disk {
     pub media: String,
     /// `Healthy`, `Warning`, `Unhealthy` or `Unknown`, as Windows reports it.
     pub health: String,
+    /// Its capacity, when Windows reported it.
+    pub size: Option<u64>,
+    /// Its partitions, in disk order.
+    pub partitions: Vec<Partition>,
+}
+
+/// What a partition is for.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum PartitionKind {
+    /// The EFI system partition: the boot loader.
+    Efi,
+    /// The Microsoft reserved partition: empty space Windows keeps for itself.
+    Reserved,
+    /// The recovery partition: the Windows Recovery Environment.
+    Recovery,
+    /// A partition with your files, usually with a drive letter.
+    Data,
+    /// Anything else.
+    #[default]
+    Other,
+}
+
+/// A partition of a disk.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Partition {
+    /// Its number on the disk.
+    pub number: u32,
+    /// Its drive letter, without the colon.
+    pub letter: Option<String>,
+    /// What it is for.
+    pub kind: PartitionKind,
+    /// Its size.
+    pub size: u64,
+    /// The file system of its volume, for example `NTFS` or `FAT32`.
+    pub file_system: Option<String>,
+    /// The volume's label.
+    pub label: Option<String>,
+    /// Free space on its volume.
+    pub free: Option<u64>,
+}
+
+/// The kind of a partition from its GPT type GUID or, on an MBR disk, its type byte.
+pub fn partition_kind(gpt_type: Option<&str>, mbr_type: Option<u16>) -> PartitionKind {
+    if let Some(g) = gpt_type {
+        return match g
+            .trim_matches(|c| c == '{' || c == '}')
+            .to_ascii_lowercase()
+            .as_str()
+        {
+            "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" => PartitionKind::Efi,
+            "e3c9e316-0b5c-4db8-817d-f92df00215ae" => PartitionKind::Reserved,
+            "de94bba4-06d1-4d40-a16a-bfd50179d6ac" => PartitionKind::Recovery,
+            "ebd0a0a2-b9e5-4433-87c0-68b6b72699c7" => PartitionKind::Data,
+            _ => PartitionKind::Other,
+        };
+    }
+    match mbr_type {
+        Some(0x01 | 0x04 | 0x06 | 0x07 | 0x0B | 0x0C | 0x0E) => PartitionKind::Data,
+        Some(0x27) => PartitionKind::Recovery,
+        Some(0xEF) => PartitionKind::Efi,
+        _ => PartitionKind::Other,
+    }
 }
 
 /// Where a startup entry lives.
@@ -195,6 +259,22 @@ fn finding(
     }
 }
 
+/// The values with only those Windows reported; a missing one is left out, never empty.
+fn some_values(values: Vec<(&str, Option<String>)>) -> Vec<(&str, String)> {
+    values
+        .into_iter()
+        .filter_map(|(k, v)| v.map(|v| (k, v)))
+        .collect()
+}
+
+/// The values plus `known`, the ID of the known program `exe` runs, when there is one.
+fn known_value<'a>(exe: &str, mut values: Vec<(&'a str, String)>) -> Vec<(&'a str, String)> {
+    if let Some(p) = crate::processes::known(exe) {
+        values.push(("known", p.id.clone()));
+    }
+    values
+}
+
 /// The findings of a check-up, in group order.
 pub fn findings(d: &OptimiseData) -> Vec<Finding> {
     let mut out = vec![];
@@ -228,11 +308,14 @@ pub fn findings(d: &OptimiseData) -> Vec<Finding> {
             &format!("process:{i}"),
             Group::Performance,
             State::Ok,
-            vec![
-                ("name", p.name.clone()),
-                ("cpu", format!("{:.0}", p.cpu_percent)),
-                ("memory", p.memory.to_string()),
-            ],
+            known_value(
+                &p.name,
+                vec![
+                    ("name", p.name.clone()),
+                    ("cpu", format!("{:.0}", p.cpu_percent)),
+                    ("memory", p.memory.to_string()),
+                ],
+            ),
             "processList",
         ));
     }
@@ -246,13 +329,37 @@ pub fn findings(d: &OptimiseData) -> Vec<Finding> {
             &format!("disk:{}", disk.name),
             Group::Storage,
             state,
-            vec![
-                ("name", disk.name.clone()),
-                ("media", disk.media.clone()),
-                ("health", disk.health.clone()),
-            ],
+            some_values(vec![
+                ("name", Some(disk.name.clone())),
+                ("media", Some(disk.media.clone())),
+                ("health", Some(disk.health.clone())),
+                ("size", disk.size.map(|s| s.to_string())),
+                ("partitions", Some(disk.partitions.len().to_string())),
+            ]),
             "storageManagement",
         ));
+        for part in &disk.partitions {
+            let kind = serde_json::to_value(part.kind)
+                .ok()
+                .and_then(|v| v.as_str().map(str::to_string))
+                .unwrap_or_else(|| "other".into());
+            out.push(finding(
+                &format!("partition:{}:{}", disk.name, part.number),
+                Group::Storage,
+                State::Ok,
+                some_values(vec![
+                    ("disk", Some(disk.name.clone())),
+                    ("number", Some(part.number.to_string())),
+                    ("kind", Some(kind)),
+                    ("size", Some(part.size.to_string())),
+                    ("letter", part.letter.clone()),
+                    ("fileSystem", part.file_system.clone()),
+                    ("label", part.label.clone()),
+                    ("free", part.free.map(|f| f.to_string())),
+                ]),
+                "storageManagement",
+            ));
+        }
     }
     for e in &d.startup {
         let state = if !e.file_exists {
@@ -266,13 +373,16 @@ pub fn findings(d: &OptimiseData) -> Vec<Finding> {
             &format!("startup:{:?}:{}", e.scope, e.name),
             Group::Startup,
             state,
-            vec![
-                ("name", e.name.clone()),
-                ("command", e.command.clone()),
-                ("enabled", e.enabled.to_string()),
-                ("missing", (!e.file_exists).to_string()),
-                ("publisher", e.publisher.clone().unwrap_or_default()),
-            ],
+            known_value(
+                e.file.as_deref().unwrap_or(&e.name),
+                vec![
+                    ("name", e.name.clone()),
+                    ("command", e.command.clone()),
+                    ("enabled", e.enabled.to_string()),
+                    ("missing", (!e.file_exists).to_string()),
+                    ("publisher", e.publisher.clone().unwrap_or_default()),
+                ],
+            ),
             "startupApproved",
         ));
     }

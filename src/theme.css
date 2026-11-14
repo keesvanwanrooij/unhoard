@@ -203,6 +203,12 @@ select {
   fill: none;
   stroke-width: 1.6;
 }
+/* The chat button sits apart from the screens, under them. */
+.nav .nav-chat {
+  margin-top: 10px;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
 .nav button:hover {
   background: var(--hover);
   color: var(--text);
@@ -903,11 +909,21 @@ select {
 /* Sections keep their full height and the page scrolls, so they never overlap. */
 .page > * {
   flex: none;
+  /* A readable column next to the navigation: the eye and the mouse never travel across a
+   * wide screen to find a size or a button. The photo review uses the full width. */
+  max-width: 960px;
+}
+.page.wide > * {
+  max-width: none;
 }
 .page > header {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+.page > header .btn {
+  white-space: nowrap;
+  flex: none;
 }
 .page > header h1 {
   font: 700 24px var(--display);
@@ -955,8 +971,24 @@ select {
   border-bottom: 1px solid var(--line);
 }
 .field > span {
-  width: 180px;
+  width: 240px;
+  flex: none;
   color: var(--text-2);
+}
+.chat-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+/* The short explanation under a setting's name. */
+.field > span small,
+small.hint {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-3, var(--text-2));
+  opacity: 0.8;
 }
 
 .photos {
@@ -975,6 +1007,26 @@ select {
   text-align: left;
   padding: 8px;
   border-radius: var(--r-sm);
+}
+.groups .seg.wrap {
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.groups .seg.wrap button {
+  width: auto;
+}
+.groups .more {
+  color: var(--accent);
+  text-align: center;
+}
+.photo-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.photo-progress progress {
+  width: 240px;
+  accent-color: var(--accent);
 }
 .groups button[aria-selected="true"] {
   background: var(--active);
@@ -1146,6 +1198,31 @@ select {
   flex-direction: column;
   gap: 10px;
 }
+/* Multi-select in Suggestions: a checkbox per item and group, and a bar that stays in view. */
+.pick-cell {
+  width: 28px;
+}
+input.pick {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.select-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+}
+.select-bar .sheet {
+  flex-basis: 100%;
+}
 .row-head {
   display: flex;
   justify-content: space-between;
@@ -1276,7 +1353,21 @@ select {
 .timeline svg {
   width: 100%;
   height: auto;
-  max-height: 220px;
+  max-height: 280px;
+}
+.timeline .grid {
+  stroke: var(--line);
+  stroke-dasharray: 3 4;
+}
+.timeline .axis,
+.timeline .tick {
+  stroke: var(--muted);
+}
+.timeline .axis-title {
+  fill: var(--muted);
+  font: 600 11px var(--display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .timeline .line {
   fill: none;
@@ -1328,12 +1419,34 @@ select {
 }
 .finding {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   gap: 12px;
   align-items: start;
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
+}
+/* The name with its buttons right next to it, not at the far edge. */
+.finding-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.finding-head .btns {
+  display: inline-flex;
+  gap: 6px;
+}
+/* A partition sits under its disk. */
+.finding.sub {
+  margin-left: 28px;
+  padding: 6px 10px;
+  border-style: dashed;
+}
+.chip.part {
+  min-width: 22px;
+  text-align: center;
+  color: var(--text-2);
 }
 .finding .source {
   font-size: 11px;
@@ -1349,13 +1462,6 @@ select {
 }
 
 /* The chat with Lumen. */
-.ask-lumen {
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
 .chat {
   position: fixed;
   right: 20px;

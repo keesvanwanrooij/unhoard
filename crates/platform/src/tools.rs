@@ -46,6 +46,24 @@ pub enum App {
     Ollama,
     /// Steam's library.
     Steam,
+    /// Ollama's download page in the browser (a fixed address).
+    OllamaDownload,
+}
+
+/// The Ollama app's file in its default per-user install folder.
+fn ollama_app(roots: &Roots) -> Option<String> {
+    existing(
+        roots
+            .var("LOCALAPPDATA")
+            .map(|l| path_of(l, &["Programs", "Ollama", "ollama app.exe"]))
+            .into_iter()
+            .collect(),
+    )
+}
+
+/// True when the Ollama app is installed in its default folder.
+pub fn ollama_installed(roots: &Roots) -> bool {
+    ollama_app(roots).is_some()
 }
 
 fn path_of(base: &str, parts: &[&str]) -> String {
@@ -86,7 +104,8 @@ fn docker_exe(roots: &Roots) -> Option<String> {
     )
 }
 
-/// Opens an app from its fixed install folder, or Steam through its own link.
+/// Opens an app from its fixed install folder, Steam through its own link, or Ollama's
+/// download page in the browser.
 pub fn open_app(app: App, roots: &Roots) -> Result<(), ToolError> {
     let target = match app {
         App::DockerDesktop => existing(
@@ -95,14 +114,9 @@ pub fn open_app(app: App, roots: &Roots) -> Result<(), ToolError> {
                 .map(|r| join(r, "Docker Desktop.exe"))
                 .collect(),
         ),
-        App::Ollama => existing(
-            roots
-                .var("LOCALAPPDATA")
-                .map(|l| path_of(l, &["Programs", "Ollama", "ollama app.exe"]))
-                .into_iter()
-                .collect(),
-        ),
+        App::Ollama => ollama_app(roots),
         App::Steam => Some("steam://open/games".to_string()),
+        App::OllamaDownload => Some("https://ollama.com/download/windows".to_string()),
     }
     .ok_or(ToolError::NotInstalled)?;
     crate::win::elevate::shell_open(&target).map_err(|_| ToolError::Failed)

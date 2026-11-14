@@ -8,8 +8,8 @@ use windows::Win32::Foundation::{ERROR_NO_MORE_ITEMS, ERROR_SUCCESS};
 use windows::Win32::System::Registry::{
     HKEY, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ, REG_BINARY, REG_EXPAND_SZ, REG_SZ,
     REG_VALUE_TYPE, RRF_RT_REG_BINARY, RRF_RT_REG_DWORD, RRF_RT_REG_EXPAND_SZ, RRF_RT_REG_MULTI_SZ,
-    RRF_RT_REG_SZ, RegCloseKey, RegDeleteKeyValueW, RegEnumKeyExW, RegEnumValueW, RegGetValueW,
-    RegOpenKeyExW, RegSetKeyValueW,
+    RRF_RT_REG_QWORD, RRF_RT_REG_SZ, RegCloseKey, RegDeleteKeyValueW, RegEnumKeyExW, RegEnumValueW,
+    RegGetValueW, RegOpenKeyExW, RegSetKeyValueW,
 };
 use windows::core::PWSTR;
 
@@ -444,6 +444,43 @@ pub(crate) fn set_user_approved(base: &str, list: &str, name: &str, value: Optio
             r == ERROR_SUCCESS || r.0 == 2
         }
     }
+}
+
+/// Reads a QWORD value; `None` if it does not exist.
+fn qword_value(root: HKEY, subkey: &str, name: &str) -> Option<u64> {
+    let (k, n) = (Wide::new(subkey), Wide::new(name));
+    let mut value = 0u64;
+    let mut len = size_of::<u64>() as u32;
+    // SAFETY: `value` is writable for `len` bytes; both strings are NUL-terminated.
+    let r = unsafe {
+        RegGetValueW(
+            root,
+            k.pcwstr(),
+            n.pcwstr(),
+            RRF_RT_REG_QWORD,
+            None,
+            Some((&raw mut value).cast()),
+            Some(&mut len),
+        )
+    };
+    (r == ERROR_SUCCESS).then_some(value)
+}
+
+/// The dedicated memory of the largest graphics card, as its driver registers it.
+pub(crate) fn video_memory() -> Option<u64> {
+    const DISPLAY: &str =
+        r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}";
+    subkeys(HKEY_LOCAL_MACHINE, DISPLAY)
+        .iter()
+        .filter(|k| k.len() == 4 && k.chars().all(|c| c.is_ascii_digit()))
+        .filter_map(|k| {
+            qword_value(
+                HKEY_LOCAL_MACHINE,
+                &format!(r"{DISPLAY}\{k}"),
+                "HardwareInformation.qwMemorySize",
+            )
+        })
+        .max()
 }
 
 /// Whether a page file is configured.

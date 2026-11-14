@@ -20,6 +20,7 @@ pub mod knowledge;
 pub mod leftovers;
 pub mod optimise;
 pub mod photos;
+pub mod processes;
 pub mod protect;
 pub mod quarantine;
 pub mod report;

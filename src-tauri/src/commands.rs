@@ -404,6 +404,40 @@ pub async fn chat_send(
     .await
 }
 
+/// Ollama's state, the installed models and the model advice for this PC. Opens a connection
+/// only when the chat is switched on (AC8.6).
+#[tauri::command]
+pub async fn chat_setup(svc: Svc<'_>) -> Result<Result<chat::ChatSetup, ChatError>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::setup(&svc.context().roots))
+    })
+    .await
+}
+
+/// Asks Ollama to download one of the recommended models; progress arrives as `chat-pull`
+/// events. Only on the user's click, and only with the chat switched on.
+#[tauri::command]
+pub async fn chat_pull(app: AppHandle, model: String) -> Result<Result<bool, ChatError>, CmdError> {
+    if !unhoard_core::chat::may_pull(&model) {
+        return Err(CmdError::InvalidArgument {
+            what: "model".into(),
+        });
+    }
+    blocking(move || {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::pull(&model, &|p| {
+            let _ui_may_be_closed = app.emit("chat-pull", p);
+        }))
+    })
+    .await
+}
+
 /// Stops the answer being written; Ollama keeps running.
 #[tauri::command]
 pub fn chat_stop(state: State<'_, Arc<ChatState>>) {
@@ -888,11 +922,17 @@ pub fn app_uninstall(svc: Svc<'_>, generation: u64, id: u32) -> Result<(), CmdEr
     tools::steam_uninstall(app_id).map_err(io)
 }
 
-/// Analyses photos and videos of the current scan.
+/// Analyses photos and videos of the current scan; `photos-progress` events carry how many
+/// thumbnails are done, as `[done, total]`.
 #[tauri::command]
-pub async fn photos_analyze(svc: Svc<'_>) -> Result<PhotoState, CmdError> {
+pub async fn photos_analyze(app: AppHandle, svc: Svc<'_>) -> Result<PhotoState, CmdError> {
     let svc = svc.inner().clone();
-    blocking(move || svc.photos()).await
+    blocking(move || {
+        svc.photos(&|done, total| {
+            let _ui_may_be_closed = app.emit("photos-progress", (done, total));
+        })
+    })
+    .await
 }
 
 /// A photo thumbnail for the review grid.

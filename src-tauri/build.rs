@@ -43,6 +43,8 @@ const COMMANDS: &[&str] = &[
     "chat_models",
     "chat_send",
     "chat_stop",
+    "chat_setup",
+    "chat_pull",
 ];
 
 fn main() {

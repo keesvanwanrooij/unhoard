@@ -77,8 +77,8 @@ function savePosition(p: Position): void {
 /** The companion with its current bubble. Drag the orb to move it; click it for history. */
 export function Companion(): JSX.Element {
   const { t } = useTranslation();
-  const { queue, dismiss, expire, bubbleVersion, chatOpen, setChatOpen } = useApp(
-    useShallow((s) => ({ queue: s.queue, dismiss: s.dismiss, expire: s.expire, bubbleVersion: s.bubbleVersion, chatOpen: s.chatOpen, setChatOpen: s.setChatOpen })),
+  const { queue, dismiss, expire, bubbleVersion } = useApp(
+    useShallow((s) => ({ queue: s.queue, dismiss: s.dismiss, expire: s.expire, bubbleVersion: s.bubbleVersion })),
   );
   // The history belongs to the bubble that was showing when it was opened, so any new
   // bubble closes it and old messages never stay on screen.
@@ -180,14 +180,6 @@ export function Companion(): JSX.Element {
           ) : null}
         </div>
       </div>
-      <button
-        className="btn small ask-lumen"
-        onClick={() => {
-          setChatOpen(!chatOpen);
-        }}
-      >
-        {t("chat.ask")}
-      </button>
       <button
         className="char"
         onClick={onClick}

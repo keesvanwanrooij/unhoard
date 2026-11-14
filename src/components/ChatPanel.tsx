@@ -145,10 +145,17 @@ export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
       ) : (
         <>
           {problem ? <p className="note warn">{t(`chat.errors.${problem}`, { model })}</p> : null}
-          {missing && !problem ? (
-            <p className="note">
-              {t("chat.missingModel", { model })} <code>{t("chat.pullCommand", { model })}</code>
-            </p>
+          {missing && !problem ? <p className="note">{t("chat.missingModel", { model })}</p> : null}
+          {problem === "notRunning" || problem === "refused" || (missing && !problem) ? (
+            <button
+              className="btn small"
+              style={{ alignSelf: "flex-start" }}
+              onClick={() => {
+                setScreen("settings");
+              }}
+            >
+              {t("chat.setup.toSettings")}
+            </button>
           ) : null}
           <div className="chat-log" aria-live="polite">
             {messages.length === 0 ? <p className="note">{t("chat.hello")}</p> : null}

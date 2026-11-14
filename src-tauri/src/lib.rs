@@ -177,6 +177,8 @@ pub fn run() -> anyhow::Result<()> {
             commands::chat_models,
             commands::chat_send,
             commands::chat_stop,
+            commands::chat_setup,
+            commands::chat_pull,
         ])
         .run(tauri::generate_context!())?;
     Ok(())

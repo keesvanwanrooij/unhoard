@@ -27,15 +27,29 @@ It is never a button that promises a faster PC. Optimise is part of the insights
 
 ## The six groups
 
+The screen measures on its first visit and keeps that check-up while the app runs; it
+says when it measured, and "Check again" measures anew.
+
 ### 1. System performance
 
 - A snapshot of the top 5 consumers of CPU, memory and disk.
+- **What each process is:** `data/known-processes.toml` names about 130 common Windows
+  processes and popular programs (browsers, Office, chat, launchers, drivers, security,
+  developer tools) by executable name, with a sentence in English and Dutch under
+  `processes.<id>`. A process Unhoard does not know says so. The same library names the
+  program behind a startup entry.
 - Memory pressure and page-file use.
 - An explanation, plus a button that opens Task Manager. Unhoard never ends a process
   itself.
 
 ### 2. Storage performance
 
+- **Partitions per disk:** under each physical disk its partitions, in disk order, as
+  Settings › Disks shows them: the EFI system partition, the Microsoft reserved
+  partition, data partitions with their drive letter, and the recovery partition. Each has
+  its size, file system, label and free space where Windows reports them, and one sentence
+  on what it is for. The kind comes from the GPT type GUID (or the MBR type byte); the file
+  system from `MSFT_Volume`, matched by drive letter or volume path.
 - Disk health as Windows reports it: wear, temperature and warnings, as in Settings ›
   Disks. The source is the Storage Management API (`MSFT_PhysicalDisk` and
   `MSFT_StorageReliabilityCounter`) (verify which counters work without admin).

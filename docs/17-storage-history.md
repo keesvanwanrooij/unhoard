@@ -80,7 +80,8 @@ moment).
 A screen of its own in the navigation (EN "History", NL "Geschiedenis"):
 
 - **Timeline:** used space of the drive over time, with a point per snapshot; scans you
-  ran and daily measurements look different. Hovering a point shows the date and the
+  ran and daily measurements look different. A labelled size axis with round steps and
+  dashed grid lines, and a date axis (times of day when the range is under two days). Hovering a point shows the date and the
   used, free and hidden space.
 - **Period switch:** day, week, month, three months.
 - **What grew:** the largest growers in the chosen period, each with its size then and

@@ -12,9 +12,9 @@ use std::collections::BTreeMap;
 use unhoard_core::fake::{FakeFs, FileOpts};
 use unhoard_core::fs::FileSystem;
 use unhoard_core::photos::{
-    Certainty, Features, Gray, GroupKind, Source, best_shot, bursts, by_month, cloud_duplicates,
-    dhash, exact_duplicates_local, hamming, laplacian_variance, media_index, near_duplicates,
-    parse_name, video_duplicates,
+    Certainty, Features, Gray, GroupKind, Source, best_shot, bursts, by_month, cloud_copies,
+    cloud_duplicates, dhash, exact_duplicates_local, feature_candidates, hamming,
+    laplacian_variance, media_index, near_duplicates, parse_name, video_duplicates,
 };
 use unhoard_core::roots::Roots;
 use unhoard_core::rules::Rules;
@@ -360,4 +360,195 @@ fn f7_video_duplicates_match_on_size_duration_and_resolution() {
     let groups = video_duplicates(&media, &features);
     assert_eq!(groups.len(), 1);
     assert_eq!(groups[0].items.len(), 2);
+}
+
+/// The FILETIME of 1970-01-01, where Unix time starts.
+const UNIX_EPOCH: u64 = 116_444_736_000_000_000;
+
+/// A cloud placeholder whose last-write time is `modified` (100 ns units) after 1970.
+fn placeholder(fs: &FakeFs, path: &str, size: u64, modified: u64) {
+    let modified = UNIX_EPOCH + modified;
+    fs.add_file_with(
+        path,
+        FileOpts {
+            logical: Some(size),
+            on_disk: Some(0),
+            attributes: unhoard_core::fs::ATTR_RECALL_ON_DATA_ACCESS,
+            in_sync: true,
+            modified,
+            ..FileOpts::default()
+        },
+    );
+}
+
+#[test]
+fn f7_cloud_copies_match_on_size_type_and_date_or_name_without_a_thumbnail() {
+    let fs = FakeFs::new();
+    fs.create_dir_all(r"C:\Users\u\OneDrive\A").unwrap();
+    fs.create_dir_all(r"C:\Users\u\OneDrive\B").unwrap();
+    let day = 10_000_000u64 * 86_400;
+    // The same photo in two folders: same size, type and date.
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\A\P1010001.jpg",
+        3_000_000,
+        500 * day,
+    );
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\B\holiday.jpg",
+        3_000_000,
+        500 * day,
+    );
+    // A copy with a copy suffix and another date: same size, type and name.
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\A\DSC_0042.jpg",
+        4_100_000,
+        600 * day,
+    );
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\B\DSC_0042 (1).jpg",
+        4_100_000,
+        700 * day,
+    );
+    // Same size by chance: another name and date, so no match.
+    placeholder(&fs, r"C:\Users\u\OneDrive\A\cat.jpg", 5_000_000, 800 * day);
+    placeholder(&fs, r"C:\Users\u\OneDrive\B\dog.jpg", 5_000_000, 900 * day);
+    // Tiny files match too easily by size and are left out.
+    placeholder(&fs, r"C:\Users\u\OneDrive\A\icon.png", 900, 500 * day);
+    placeholder(&fs, r"C:\Users\u\OneDrive\B\icon.png", 900, 500 * day);
+    let c = ctx(&fs);
+    let (t, _) = scan(&fs, r"C:\Users\u", &c, &ScanControl::default()).unwrap();
+    let media = media_index(&t, &c);
+    let groups = cloud_copies(&media);
+    let mut sets: Vec<Vec<&str>> = groups
+        .iter()
+        .map(|g| {
+            let mut n: Vec<&str> = g.items.iter().map(|&i| media[i].name.as_str()).collect();
+            n.sort_unstable();
+            n
+        })
+        .collect();
+    sets.sort();
+    assert_eq!(
+        sets,
+        [
+            vec!["DSC_0042 (1).jpg", "DSC_0042.jpg"],
+            vec!["P1010001.jpg", "holiday.jpg"]
+        ]
+    );
+    assert!(
+        groups
+            .iter()
+            .all(|g| g.certainty == Certainty::LikelyIdentical
+                && g.kind == GroupKind::ExactDuplicates)
+    );
+}
+
+#[test]
+fn f7_features_are_asked_only_for_photos_that_can_be_in_a_group() {
+    let fs = FakeFs::new();
+    fs.create_dir_all(r"C:\Users\u\OneDrive\Pictures").unwrap();
+    let day = 10_000_000u64 * 86_400;
+    // Same size and type, but neither name nor date agree: only a thumbnail can tell.
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\x.jpg",
+        3_000_000,
+        100 * day,
+    );
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\y.jpg",
+        3_000_000,
+        200 * day,
+    );
+    // Already matched by size, type and date: no thumbnail needed.
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\m.jpg",
+        6_000_000,
+        300 * day,
+    );
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\n.jpg",
+        6_000_000,
+        300 * day,
+    );
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\alone.jpg",
+        4_000_000,
+        400 * day,
+    );
+    // A burst: its members are compared for the best shot.
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\20190704_101500.jpg",
+        2_000_001,
+        1,
+    );
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\20190704_101501.jpg",
+        2_000_002,
+        2,
+    );
+    // Chat media grouped by month needs no thumbnail.
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\IMG-20200101-WA0001.jpg",
+        90_001,
+        3,
+    );
+    placeholder(
+        &fs,
+        r"C:\Users\u\OneDrive\Pictures\IMG-20200102-WA0002.jpg",
+        90_002,
+        4,
+    );
+    let c = ctx(&fs);
+    let (t, _) = scan(&fs, r"C:\Users\u", &c, &ScanControl::default()).unwrap();
+    let media = media_index(&t, &c);
+    let names = |wanted: Vec<bool>| {
+        let mut n: Vec<String> = media
+            .iter()
+            .zip(&wanted)
+            .filter(|(_, w)| **w)
+            .map(|(m, _)| m.name.clone())
+            .collect();
+        n.sort_unstable();
+        n
+    };
+    assert_eq!(
+        names(feature_candidates(&media, 0, 10)),
+        [
+            "20190704_101500.jpg",
+            "20190704_101501.jpg",
+            "x.jpg",
+            "y.jpg"
+        ]
+    );
+    // Above the cloud limit only the burst is asked.
+    assert_eq!(
+        names(feature_candidates(&media, 0, 1)),
+        ["20190704_101500.jpg", "20190704_101501.jpg"]
+    );
+}
+
+#[test]
+fn f7_local_photos_all_get_features_up_to_the_limit() {
+    let fs = FakeFs::new();
+    fs.create_dir_all(r"C:\Users\u\Pictures").unwrap();
+    for i in 0..4 {
+        fs.add_file(&format!(r"C:\Users\u\Pictures\p{i}.jpg"), 1000 + i);
+    }
+    let c = ctx(&fs);
+    let (t, _) = scan(&fs, r"C:\Users\u", &c, &ScanControl::default()).unwrap();
+    let media = media_index(&t, &c);
+    assert!(feature_candidates(&media, 10, 0).iter().all(|w| *w));
+    assert!(feature_candidates(&media, 3, 0).iter().all(|w| !*w));
 }

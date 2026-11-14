@@ -13,7 +13,7 @@ import { useApp } from "../store";
 
 const GROUPS: FindingGroup[] = ["performance", "storage", "startup", "space", "health", "config"];
 /** Values that are sizes in bytes, shown as sizes. */
-const SIZES = new Set(["total", "available", "commit", "commitLimit", "memory", "free"]);
+const SIZES = new Set(["total", "available", "commit", "commitLimit", "memory", "free", "size"]);
 
 /** The kind of a finding, from its ID (`disk:Name` is a `disk`). */
 function kindOf(id: string): string {
@@ -37,14 +37,19 @@ function params(f: Finding, lang: "en" | "nl", t: (k: string) => string): Record
   );
 }
 
+/** The last check-up, kept while the app runs: opening the screen again shows it at once
+ * instead of measuring for seconds; "Check again" measures anew. */
+let lastCheck: { findings: Finding[]; updates: Finding[]; at: number } | null = null;
+
 /** The Optimise screen. */
 export function Optimise(): JSX.Element {
   const { t } = useTranslation();
   const { lang, say, sayError, setScreen } = useApp(useShallow((s) => ({ lang: s.lang, say: s.say, sayError: s.sayError, setScreen: s.setScreen })));
-  const [findings, setFindings] = useState<Finding[] | null>(null);
+  const [findings, setFindings] = useState<Finding[] | null>(lastCheck?.findings ?? null);
+  const [at, setAt] = useState<number | null>(lastCheck?.at ?? null);
   // One group more per frame, so opening the screen never lays out every finding at once (P11).
   const groupsShown = useProgressive(GROUPS.length, findings);
-  const [updates, setUpdates] = useState<Finding[] | "loading">("loading");
+  const [updates, setUpdates] = useState<Finding[] | "loading">(lastCheck?.updates ?? "loading");
   const [preview, setPreview] = useState<{ finding: Finding; change: StartupChange } | null>(null);
   const [undo, setUndo] = useState<Map<string, number>>(new Map());
 
@@ -54,8 +59,11 @@ export function Optimise(): JSX.Element {
       // Loaded data renders as an interruptible update, so opening the screen never blocks
       // input with one long task (P1, P11).
       .then((f) => {
+        const now = Date.now();
+        lastCheck = { findings: f, updates: lastCheck?.updates ?? [], at: now };
         startTransition(() => {
           setFindings(f);
+          setAt(now);
         });
       })
       .catch((e: unknown) => {
@@ -65,6 +73,7 @@ export function Optimise(): JSX.Element {
     api
       .optimiseUpdates()
       .then((u) => {
+        if (lastCheck) lastCheck.updates = u;
         startTransition(() => {
           setUpdates(u);
         });
@@ -73,7 +82,10 @@ export function Optimise(): JSX.Element {
         setUpdates([]);
       });
   }, [sayError, t]);
-  useEffect(fetchAll, [fetchAll]);
+  // Measure only on the first visit; later visits show the last check-up.
+  useEffect(() => {
+    if (!lastCheck) fetchAll();
+  }, [fetchAll]);
   const load = (): void => {
     setFindings(null);
     setUpdates("loading");
@@ -136,83 +148,124 @@ export function Optimise(): JSX.Element {
     const kind = kindOf(f.id);
     const p = params(f, lang, t);
     const enabled = p["enabled"] === "true";
+    const known = p["known"];
+    if (kind === "partition") {
+      const k = p["kind"] ?? "other";
+      const facts = [
+        p["letter"] ? t("optimise.partition.drive", { letter: p["letter"] }) : null,
+        p["label"] ?? null,
+        p["fileSystem"] ?? null,
+        p["size"] ?? null,
+        p["free"] ? t("optimise.partition.free", { free: p["free"] }) : null,
+      ].filter((x): x is string => x !== null);
+      return (
+        <li key={f.id} className="finding sub">
+          <span className="chip part">{p["number"]}</span>
+          <div>
+            <div className="finding-head">
+              <b>{t(`optimise.partition.kind.${k}.name`)}</b>
+              <span className="note">{facts.join(" · ")}</span>
+            </div>
+            <p className="note">{t(`optimise.partition.kind.${k}.text`)}</p>
+          </div>
+        </li>
+      );
+    }
+    const title =
+      kind === "process" && known ? `${t(`processes.${known}.name`)} (${p["name"] ?? ""})` : t(`optimise.findings.${kind}.title`, p);
+    const buttons: JSX.Element[] = [];
+    if (kind === "startup" && f.state === "action")
+      buttons.push(
+        <button
+          key="toggle"
+          className="btn small"
+          onClick={() => {
+            ask(f, !enabled);
+          }}
+        >
+          {enabled ? t("optimise.turnOff") : t("optimise.turnOn")}
+        </button>,
+      );
+    if (undo.has(f.id))
+      buttons.push(
+        <button
+          key="undo"
+          className="btn small"
+          onClick={() => {
+            revert(f);
+          }}
+        >
+          {t("optimise.undo")}
+        </button>,
+      );
+    if (kind === "freeSpace" && f.state !== "ok")
+      buttons.push(
+        <button
+          key="suggestions"
+          className="btn small"
+          onClick={() => {
+            setScreen("suggestions");
+          }}
+        >
+          {t("optimise.openSuggestions")}
+        </button>,
+      );
+    if (kind === "memory")
+      buttons.push(
+        <button
+          key="tm"
+          className="btn small"
+          onClick={() => {
+            api.openTool("taskManager").catch((e: unknown) => {
+              sayError(e, t);
+            });
+          }}
+        >
+          {t("optimise.openTaskManager")}
+        </button>,
+      );
+    if (kind === "disk")
+      buttons.push(
+        <button
+          key="disks"
+          className="btn small"
+          onClick={() => {
+            api.openTool("disks").catch((e: unknown) => {
+              sayError(e, t);
+            });
+          }}
+        >
+          {t("optimise.openDisks")}
+        </button>,
+      );
+    if (kind === "updates" && f.state !== "ok")
+      buttons.push(
+        <button
+          key="wu"
+          className="btn small"
+          onClick={() => {
+            api.openTool("windowsUpdate").catch((e: unknown) => {
+              sayError(e, t);
+            });
+          }}
+        >
+          {t("optimise.openWindowsUpdate")}
+        </button>,
+      );
     return (
       <li key={f.id} className={`finding ${f.state}`}>
         <span className={`chip state-${f.state}`}>{t(`optimise.state.${f.state}`)}</span>
         <div>
-          <b>{t(`optimise.findings.${kind}.title`, p)}</b>
-          <p className="info">{t(`optimise.findings.${kind}.text`, p)}</p>
+          <div className="finding-head">
+            <b>{title}</b>
+            {buttons.length > 0 ? <span className="btns">{buttons}</span> : null}
+          </div>
+          {kind === "process" ? <p className="info">{known ? t(`processes.${known}.what`) : t("optimise.unknownProcess")}</p> : null}
+          {kind === "startup" && known ? <p className="info">{t(`processes.${known}.what`)}</p> : null}
+          <p className={kind === "process" ? "note" : "info"}>{t(`optimise.findings.${kind}.text`, p)}</p>
           {kind === "startup" && p["missing"] === "true" ? <p className="note">{t("optimise.findings.startup.missing")}</p> : null}
           {f.state !== "ok" ? <p className="note">{t(`optimise.findings.${kind}.next`, p)}</p> : null}
           <p className="note source">{t(`optimise.source.${f.source}`)}</p>
-        </div>
-        <div className="btns">
-          {kind === "startup" && f.state === "action" ? (
-            <button
-              className="btn small"
-              onClick={() => {
-                ask(f, !enabled);
-              }}
-            >
-              {enabled ? t("optimise.turnOff") : t("optimise.turnOn")}
-            </button>
-          ) : null}
-          {undo.has(f.id) ? (
-            <button
-              className="btn small"
-              onClick={() => {
-                revert(f);
-              }}
-            >
-              {t("optimise.undo")}
-            </button>
-          ) : null}
-          {kind === "freeSpace" && f.state !== "ok" ? (
-            <button
-              className="btn small"
-              onClick={() => {
-                setScreen("suggestions");
-              }}
-            >
-              {t("optimise.openSuggestions")}
-            </button>
-          ) : null}
-          {kind === "process" || kind === "memory" ? (
-            <button
-              className="btn small"
-              onClick={() => {
-                api.openTool("taskManager").catch((e: unknown) => {
-                  sayError(e, t);
-                });
-              }}
-            >
-              {t("optimise.openTaskManager")}
-            </button>
-          ) : null}
-          {kind === "disk" ? (
-            <button
-              className="btn small"
-              onClick={() => {
-                api.openTool("disks").catch((e: unknown) => {
-                  sayError(e, t);
-                });
-              }}
-            >
-              {t("optimise.openDisks")}
-            </button>
-          ) : null}
-          {kind === "updates" && f.state !== "ok" ? (
-            <button
-              className="btn small"
-              onClick={() => {
-                api.openTool("windowsUpdate").catch((e: unknown) => {
-                  sayError(e, t);
-                });
-              }}
-            >
-              {t("optimise.openWindowsUpdate")}
-            </button>
-          ) : null}
         </div>
       </li>
     );
@@ -226,6 +279,7 @@ export function Optimise(): JSX.Element {
         <button className="btn small" onClick={load}>
           {t("optimise.again")}
         </button>
+        {at !== null && findings !== null ? <span className="note">{t("optimise.lastMeasured", { time: new Date(at).toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" }) })}</span> : null}
       </header>
       {findings === null ? <p className="note">{t("optimise.measuring")}</p> : null}
       {GROUPS.slice(0, groupsShown).map((g) => {

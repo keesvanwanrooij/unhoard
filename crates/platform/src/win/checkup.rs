@@ -22,12 +22,12 @@ use windows::Win32::System::Variant::{
     VARIANT, VariantClear, VariantToStringAlloc, VariantToUInt32,
 };
 use windows::Win32::System::Wmi::{
-    IWbemClassObject, IWbemLocator, WBEM_FLAG_FORWARD_ONLY, WBEM_FLAG_RETURN_IMMEDIATELY,
-    WBEM_INFINITE, WbemLocator,
+    IWbemClassObject, IWbemLocator, IWbemServices, WBEM_FLAG_FORWARD_ONLY,
+    WBEM_FLAG_RETURN_IMMEDIATELY, WBEM_INFINITE, WbemLocator,
 };
 use windows::core::{BSTR, w};
 
-use unhoard_core::optimise::{Disk, Memory, ProcessUse, Updates};
+use unhoard_core::optimise::{Disk, Memory, Partition, ProcessUse, Updates, partition_kind};
 
 use super::from_wide;
 
@@ -194,7 +194,56 @@ fn wmi_text(obj: &IWbemClassObject, name: windows::core::PCWSTR) -> Option<Strin
     s.filter(|t| !t.is_empty())
 }
 
-/// The physical disks and their health, from the Storage Management API.
+/// The rows of a WQL query, at most `max`.
+fn wmi_rows(services: &IWbemServices, query: &str, max: usize) -> Vec<IWbemClassObject> {
+    // SAFETY: a fixed query string; the enumerator is read below.
+    let Ok(rows) = (unsafe {
+        services.ExecQuery(
+            &BSTR::from("WQL"),
+            &BSTR::from(query),
+            WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+            None,
+        )
+    }) else {
+        return vec![];
+    };
+    let mut out = vec![];
+    while out.len() < max {
+        let mut row = [None];
+        let mut got = 0u32;
+        // SAFETY: one slot and a valid count pointer.
+        let _hr = unsafe { rows.Next(WBEM_INFINITE, &mut row, &mut got) };
+        match row[0].take().filter(|_| got == 1) {
+            Some(obj) => out.push(obj),
+            None => break,
+        }
+    }
+    out
+}
+
+/// A 64-bit property: WMI hands `uint64` over as text.
+fn wmi_u64(obj: &IWbemClassObject, name: windows::core::PCWSTR) -> Option<u64> {
+    wmi_text(obj, name)?.trim().parse().ok()
+}
+
+/// A drive letter property (a UTF-16 unit, 0 when there is none).
+fn wmi_letter(obj: &IWbemClassObject, name: windows::core::PCWSTR) -> Option<String> {
+    let n = wmi_u32(obj, name)?;
+    char::from_u32(n)
+        .filter(char::is_ascii_alphabetic)
+        .map(|c| c.to_ascii_uppercase().to_string())
+}
+
+/// A volume: its path, drive letter, file system, label and free space.
+type Volume = (
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<u64>,
+);
+
+/// The physical disks with their health and partitions, from the Storage Management API.
 pub(crate) fn disks() -> Vec<Disk> {
     com();
     let run = || -> windows::core::Result<Vec<Disk>> {
@@ -226,24 +275,35 @@ pub(crate) fn disks() -> Vec<Disk> {
                 EOAC_NONE,
             )?
         };
-        // SAFETY: a fixed query; the enumerator is read below.
-        let rows = unsafe {
-            services.ExecQuery(
-                &BSTR::from("WQL"),
-                &BSTR::from("SELECT FriendlyName, MediaType, HealthStatus FROM MSFT_PhysicalDisk"),
-                WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
-                None,
-            )?
-        };
+        // Volumes by their path (`\?\Volume{…}\`) and by drive letter, so a partition
+        // without a letter (EFI, recovery) still finds its file system.
+        let volumes: Vec<Volume> = wmi_rows(
+            &services,
+            "SELECT Path, DriveLetter, FileSystem, FileSystemLabel, SizeRemaining FROM MSFT_Volume",
+            256,
+        )
+        .iter()
+        .map(|v| {
+            (
+                wmi_text(v, w!("Path")).map(|p| p.to_ascii_lowercase()),
+                wmi_letter(v, w!("DriveLetter")),
+                wmi_text(v, w!("FileSystem")),
+                wmi_text(v, w!("FileSystemLabel")),
+                wmi_u64(v, w!("SizeRemaining")),
+            )
+        })
+        .collect();
+        let partitions = wmi_rows(
+            &services,
+            "SELECT DiskNumber, PartitionNumber, DriveLetter, Size, GptType, MbrType, AccessPaths FROM MSFT_Partition",
+            512,
+        );
         let mut out = vec![];
-        loop {
-            let mut row = [None];
-            let mut got = 0u32;
-            // SAFETY: one slot and a valid count pointer.
-            let _hr = unsafe { rows.Next(WBEM_INFINITE, &mut row, &mut got) };
-            let Some(obj) = row[0].take().filter(|_| got == 1) else {
-                break;
-            };
+        for obj in wmi_rows(
+            &services,
+            "SELECT DeviceId, FriendlyName, MediaType, HealthStatus, Size FROM MSFT_PhysicalDisk",
+            32,
+        ) {
             let media = match wmi_u32(&obj, w!("MediaType")) {
                 Some(3) => "HDD",
                 Some(4) => "SSD",
@@ -256,14 +316,44 @@ pub(crate) fn disks() -> Vec<Disk> {
                 Some(2) => "Unhealthy",
                 _ => "Unknown",
             };
+            let number = wmi_text(&obj, w!("DeviceId")).and_then(|d| d.trim().parse::<u32>().ok());
+            let mut parts: Vec<Partition> = partitions
+                .iter()
+                .filter(|p| number.is_some() && wmi_u32(p, w!("DiskNumber")) == number)
+                .map(|p| {
+                    let letter = wmi_letter(p, w!("DriveLetter"));
+                    let paths = wmi_text(p, w!("AccessPaths"))
+                        .unwrap_or_default()
+                        .to_ascii_lowercase();
+                    let volume = volumes.iter().find(|v| {
+                        (letter.is_some() && v.1 == letter)
+                            || v.0
+                                .as_ref()
+                                .is_some_and(|path| paths.contains(path.as_str()))
+                    });
+                    let mbr = wmi_u32(p, w!("MbrType"))
+                        .and_then(|t| u16::try_from(t).ok())
+                        .filter(|t| *t != 0);
+                    let gpt = wmi_text(p, w!("GptType"));
+                    Partition {
+                        number: wmi_u32(p, w!("PartitionNumber")).unwrap_or(0),
+                        kind: partition_kind(gpt.as_deref(), mbr),
+                        size: wmi_u64(p, w!("Size")).unwrap_or(0),
+                        file_system: volume.and_then(|v| v.2.clone()).filter(|f| !f.is_empty()),
+                        label: volume.and_then(|v| v.3.clone()).filter(|l| !l.is_empty()),
+                        free: volume.and_then(|v| v.4),
+                        letter,
+                    }
+                })
+                .collect();
+            parts.sort_by_key(|p| p.number);
             out.push(Disk {
                 name: wmi_text(&obj, w!("FriendlyName")).unwrap_or_else(|| "Disk".into()),
                 media: media.into(),
                 health: health.into(),
+                size: wmi_u64(&obj, w!("Size")),
+                partitions: parts,
             });
-            if out.len() >= 32 {
-                break;
-            }
         }
         Ok(out)
     };
