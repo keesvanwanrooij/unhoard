@@ -1,17 +1,17 @@
 {
-  "core.rescan10k": 3.46,
+  "core.rescan10k": 3.52,
   "core.rulematch200": 0.05,
   "core.viewquery": 0.01,
   "core.viewquerydeep": 0.11,
-  "layout.group.300": 0.0,
+  "layout.group.300": 0.01,
   "layout.group.50": 0.0,
-  "layout.morphFrame.300": 0.35,
+  "layout.morphFrame.300": 0.54,
   "layout.morphFrame.50": 0.15,
-  "layout.relaxStep.300": 6.83,
+  "layout.relaxStep.300": 8.66,
   "layout.relaxStep.50": 0.33,
   "layout.treemap.300": 0.27,
-  "layout.treemap.50": 0.12,
-  "ui.frameTime": 1.5,
+  "layout.treemap.50": 0.15,
+  "ui.frameTime": 1.6,
   "ui.inputResponse": 46.3,
   "ui.longestTask": 0,
   "ui.longestTask.morph": 0,
@@ -24,5 +24,5 @@
   "ui.screenSwitchPaint": 25.5,
   "ui.search": 34.2,
   "ui.zoomResponse": 36.0,
-  "ui.zoomSettle": 544.8
+  "ui.zoomSettle": 547.4
 }
