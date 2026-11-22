@@ -30,7 +30,7 @@ npm ci
 | Command | What it does |
 |---|---|
 | `npm run tauri dev` | Runs the app with hot reload |
-| `npm run tauri build` | Builds the installer and the portable exe |
+| `npm run installer` | Builds the installer and the portable exe, with the CLI (`unhoard.exe`) next to the app (`src-tauri/tauri.installer.conf.json`) |
 | `cargo run -p unhoard-cli -- scan <path> --json` | Runs the CLI |
 | `npx vite --mode fake` | Runs the UI in a browser against a fake core that generates a tree, so no disk is read; `?entries=200000` sets the tree size |
 
