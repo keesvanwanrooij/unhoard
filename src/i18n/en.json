@@ -109,7 +109,8 @@
     "appUninstall": "Uninstall in Steam",
     "adminRead": "Read with admin rights",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "deleteNow": "Delete now"
   },
   "preview": {
     "title": "Preview: nothing has changed yet",
@@ -130,7 +131,9 @@
       "insideSelection": "already part of a selected folder",
       "unavailable": "could not be read",
       "notInSync": "not uploaded yet",
-      "notInSyncRoot": "not in a cloud folder"
+      "notInSyncRoot": "not in a cloud folder",
+      "notSafe": "not a cache that comes back; use the quarantine",
+      "cloud": "in a cloud folder; never deleted here"
     },
     "done": "{{moved}} moved, {{failed}} failed."
   },
@@ -172,7 +175,10 @@
     "freeUp": "Free up space",
     "tested": "Tested with OneDrive personal.",
     "notTested": "Detected, not tested.",
-    "freed": "{{size}} is now online-only."
+    "freed": "{{size}} is now online-only.",
+    "progress": "Making files online-only: {{done}} of {{total}}",
+    "foldersNote_one": "{{count}} folder also stops keeping new files on this PC.",
+    "foldersNote_other": "{{count}} folders also stop keeping new files on this PC."
   },
   "photos": {
     "title": "Photos & videos",
@@ -2480,7 +2486,8 @@
     "steamLeftover": "A leftover of an uninstalled Steam game: Steam no longer knows this folder.",
     "steamGameAction": "Uninstall it in Steam, so Steam stays consistent.",
     "programAction": "Uninstall it through Settings › Apps.",
-    "elevated": "Read with admin rights. Unhoard cannot move it, because the app itself has no rights here."
+    "elevated": "Read with admin rights. Unhoard cannot move it, because the app itself has no rights here.",
+    "duplicateModel": "The same AI model as {{model}} in Ollama: a second full copy. Keep it only if a script uses this Hugging Face copy."
   },
   "adapters": {
     "ollama": {
@@ -2562,7 +2569,10 @@
         "title": "Other protected folders",
         "explain": "Folders apps or Windows protect. Unhoard explains them but never moves them."
       }
-    }
+    },
+    "beforeReveal": "Folders the scan could not read, by kind. \"Reveal\" measures them, after one administrator prompt.",
+    "notMeasured_one": "{{count}} folder, not measured yet",
+    "notMeasured_other": "{{count}} folders, not measured yet"
   },
   "suggestions": {
     "groups": {
@@ -2570,7 +2580,8 @@
       "steamLeftovers": "Leftovers of uninstalled games",
       "programs": "Installed programs",
       "large": "Large files",
-      "leftover": "Leftovers of removed apps"
+      "leftover": "Leftovers of removed apps",
+      "duplicateModels": "AI models kept twice"
     },
     "count_one": "{{count}} item",
     "count_other": "{{count}} items",
@@ -3026,7 +3037,7 @@
   },
   "chat": {
     "ask": "Ask Lumen",
-    "title": "Ask Lumen",
+    "title": "Lumen",
     "close": "Close the chat",
     "off": "The chat is off. It runs on a local AI model through Ollama, on this PC; nothing goes to the internet. Switch it on in Settings.",
     "toSettings": "Open Settings",
@@ -3079,7 +3090,8 @@
       "pullFailed": "The download did not finish. Check the internet connection and try again.",
       "ready": "Ollama runs and the chat is ready.",
       "toSettings": "Set up the chat"
-    }
+    },
+    "tip": "Tip"
   },
   "processes": {
     "system": {
@@ -3614,5 +3626,50 @@
       "name": "Unhoard",
       "what": "This app. A scan uses the processor for a short while."
     }
+  },
+  "deleteNow": {
+    "title": "Preview: delete for good",
+    "items_one": "{{count}} item · {{size}} comes free at once",
+    "items_other": "{{count}} items · {{size}} comes free at once",
+    "final": "These are caches their program makes again when it needs them. They do not go to the quarantine and cannot be restored.",
+    "confirm": "Delete for good",
+    "done": "{{size}} deleted; {{failed}} left alone.",
+    "selected": "Delete the safe ones now"
+  },
+  "recycle": {
+    "title": "Recycle Bin",
+    "lead": "What you deleted yourself. It still takes space until the Recycle Bin is emptied.",
+    "summary_one": "{{count}} item · {{size}}",
+    "summary_other": "{{count}} items · {{size}}",
+    "empty": "The Recycle Bin is empty.",
+    "deleted": "deleted {{date}}",
+    "more": "and {{count}} more",
+    "emptyButton": "Empty the Recycle Bin",
+    "confirmTitle": "Empty the Recycle Bin for good?",
+    "confirmText": "All {{count}} items ({{size}}) are deleted for good, through Windows. They cannot be restored.",
+    "confirm": "Empty for good",
+    "done": "The Recycle Bin is empty: {{size}} came free."
+  },
+  "docker": {
+    "disk": {
+      "measure": "Measure Docker's disk",
+      "measuring": "Measuring… (Docker must run)",
+      "size": "Docker's disk takes {{size}} on this PC; {{used}} of it is in use.",
+      "sizeOnly": "Docker's disk takes {{size}} on this PC. Start Docker Desktop to see how much is in use.",
+      "worth": "Compacting gives about {{gain}} back. Your images, containers and volumes stay.",
+      "fine": "The disk is not much larger than its data; compacting is not worth it.",
+      "compact": "Compact Docker's disk",
+      "confirmTitle": "Compact Docker's disk?",
+      "confirmText": "Unhoard stops Docker Desktop and WSL, compacts the disk with Windows' diskpart and starts Docker again. Windows asks once for administrator rights. Running containers stop for a few minutes.",
+      "confirm": "Compact",
+      "busy": "Compacting… Docker restarts when it is done.",
+      "done": "Docker's disk is compacted: {{size}} came free.",
+      "declined": "Nothing changed: the administrator prompt was declined.",
+      "failed": "Compacting did not work. Docker Desktop was started again."
+    }
+  },
+  "cloudGrowth": {
+    "bubble": "{{folder}} got {{size}} of local copies this week. Free up space to keep them only online?",
+    "action": "Free up space"
   }
 }

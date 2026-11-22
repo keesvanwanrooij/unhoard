@@ -78,7 +78,7 @@ case, and a protected path is refused with a reason (AC5.12).
 ### Batches
 
 Every confirmed move is one batch: a folder named after its date and its purge date, for
-example `2026-10-31 · purged after 2026-11-30`. It holds:
+example `2026-10-31 - purged after 2026-11-30`. It holds:
 
 - the moved items under their own names (with a numbered suffix if two names collide)
 - `batch.unhoard-manifest.json`, the manifest
@@ -151,6 +151,31 @@ is deleted for good.
 - A link inside the quarantine that points outside it is removed as a link. Its target is
   never touched (T-5.6).
 - After the purge, Unhoard re-measures free space before reporting it (S10).
+
+### Delete now
+
+A cache that its program makes again needs no way back. Items whose known-location rule has
+tier **Safe** (shader caches, package-manager caches, Temp items a day old and similar),
+outside sync roots, offer **Delete now** next to the quarantine (S6):
+
+1. **Preview:** the items, the size that comes free at once, and what is left out with the
+   reason ("not a cache that comes back", "in a cloud folder"). It says the delete cannot
+   be undone. The preview writes nothing.
+2. You confirm.
+3. Each item is opened without following links, its identity is checked against the
+   preview, and it is deleted; a mismatch leaves it alone.
+4. The activity log gets one line per item, with the rule and never the path.
+
+The selection bar in Suggestions offers the same for all ticked items; anything not tier
+Safe is skipped with its reason.
+
+### The Recycle Bin
+
+Suggestions shows the current user's Recycle Bin when it holds anything: each item's
+original name, folder, size and deletion date, read from Windows' `$I` info files (the
+deleted data itself is never opened). **Empty the Recycle Bin** asks once more, then empties
+it through Windows (`SHEmptyRecycleBin`) and reports the space that came free, measured
+before and after (S10).
 
 ### Deleting earlier yourself
 

@@ -149,6 +149,10 @@ pub enum SkipReason {
     InsideSelection,
     /// It no longer exists or could not be read.
     Unavailable(FsError),
+    /// "Delete now" takes only items whose rule has tier Safe (S6).
+    NotSafe,
+    /// "Delete now" never deletes in a cloud sync root (S3, S6).
+    Cloud,
 }
 
 /// An item left out of a move, with the reason.
@@ -221,6 +225,8 @@ pub enum Outcome {
         /// True if the original path existed and the item got a `(restored)` name.
         renamed: bool,
     },
+    /// Deleted for good by "Delete now".
+    Deleted,
     /// Failed; nothing happened to this item.
     Failed(FsError),
 }
@@ -416,6 +422,122 @@ pub fn plan_move(fs: &dyn FileSystem, tree: &Tree, ids: &[NodeId], ctx: &ScanCon
     plan
 }
 
+/// An item "Delete now" will remove, as previewed.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlannedDelete {
+    /// The scan node.
+    pub node: NodeId,
+    /// Its path.
+    pub path: String,
+    /// Its identity at preview time; the delete checks it again.
+    pub identity: Identity,
+    /// Its size on disk.
+    pub on_disk: u64,
+    /// The tier Safe rule it matched.
+    pub rule_id: String,
+}
+
+/// The preview of "Delete now".
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeletePlan {
+    /// What will be deleted.
+    pub items: Vec<PlannedDelete>,
+    /// What is left out, with the reason.
+    pub skipped: Vec<Skipped>,
+    /// Size on disk that will come free.
+    pub total_on_disk: u64,
+}
+
+/// The report of "Delete now".
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteReport {
+    /// One result per planned item.
+    pub results: Vec<ItemResult>,
+    /// Size on disk of what was deleted.
+    pub deleted_on_disk: u64,
+}
+
+/// Previews "Delete now": the move checks (protected paths, links, changes since the scan),
+/// plus a rule with tier Safe and no sync root (S6). Reads identities only; writes nothing.
+pub fn plan_delete(
+    fs: &dyn FileSystem,
+    tree: &Tree,
+    ids: &[NodeId],
+    ctx: &ScanContext,
+) -> DeletePlan {
+    let moves = plan_move(fs, tree, ids, ctx);
+    let mut plan = DeletePlan {
+        skipped: moves.skipped,
+        ..DeletePlan::default()
+    };
+    for m in moves.moves {
+        let safe = m
+            .rule_id
+            .as_ref()
+            .and_then(|r| ctx.rules.index_of(r).and_then(|i| ctx.rules.get(i)))
+            .filter(|r| r.tier == Tier::Safe && !r.define);
+        let reason = if m.cloud {
+            SkipReason::Cloud
+        } else if let Some(rule) = safe {
+            plan.total_on_disk += m.on_disk;
+            plan.items.push(PlannedDelete {
+                node: m.node,
+                path: m.path,
+                identity: m.identity,
+                on_disk: m.on_disk,
+                rule_id: rule.id.clone(),
+            });
+            continue;
+        } else {
+            SkipReason::NotSafe
+        };
+        plan.skipped.push(Skipped {
+            path: m.path,
+            reason,
+        });
+    }
+    plan
+}
+
+/// Carries out a previewed "Delete now": each item is opened without following links,
+/// checked against its previewed identity and deleted through the platform; a mismatch or
+/// failure leaves that item alone. Every item gets an audit-log line, without its path.
+pub fn execute_delete(
+    fs: &dyn FileSystem,
+    plan: &DeletePlan,
+    audit_log: &str,
+    now: i64,
+) -> DeleteReport {
+    let mut report = DeleteReport::default();
+    for (n, item) in plan.items.iter().enumerate() {
+        let result = fs.delete_verified(&item.path, &item.identity);
+        audit(
+            fs,
+            audit_log,
+            now,
+            "delete",
+            "now",
+            &format!("{}:{}", item.rule_id, n),
+            &result,
+        );
+        let outcome = match result {
+            Ok(()) => {
+                report.deleted_on_disk += item.on_disk;
+                Outcome::Deleted
+            }
+            Err(e) => Outcome::Failed(e),
+        };
+        report.results.push(ItemResult {
+            path: item.path.clone(),
+            outcome,
+        });
+    }
+    report
+}
+
 /// A name that does not exist in `dir` yet: `name`, `name (2).ext`, `name (3).ext`, …
 fn free_name(fs: &dyn FileSystem, dir: &str, name: &str, taken: &[String]) -> String {
     let (stem, ext) = split_ext(name);
@@ -481,7 +603,7 @@ pub fn execute_move(
             }
         }
         let base = format!(
-            "{} \u{b7} purged after {}",
+            "{} - purged after {}",
             fmt_date(now),
             fmt_date(now + RETENTION_DAYS * DAY)
         );

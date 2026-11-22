@@ -247,3 +247,29 @@ pub fn scan_report(
         items,
     }
 }
+
+/// The change in size on disk of every path two `scan --json` reports both measured,
+/// largest change first. Paths only one report has are left out, so a different `--depth`
+/// or `--top` shows no false growth; unchanged paths are left out too.
+pub fn diff_reports(old: &serde_json::Value, new: &serde_json::Value) -> Vec<(String, i64)> {
+    fn flat(items: &serde_json::Value, out: &mut std::collections::HashMap<String, i64>) {
+        for it in items.as_array().into_iter().flatten() {
+            if let (Some(p), Some(b)) = (it["path"].as_str(), it["onDiskBytes"].as_i64()) {
+                out.insert(p.to_string(), b);
+            }
+            flat(&it["children"], out);
+        }
+    }
+    let (mut a, mut b) = (Default::default(), Default::default());
+    flat(&old["items"], &mut a);
+    flat(&new["items"], &mut b);
+    let mut out: Vec<(String, i64)> = b
+        .into_iter()
+        .filter_map(|(p, after)| {
+            let before = *a.get(&p)?;
+            (after != before).then_some((p, after - before))
+        })
+        .collect();
+    out.sort_by_key(|(p, d)| (std::cmp::Reverse(d.unsigned_abs()), p.clone()));
+    out
+}

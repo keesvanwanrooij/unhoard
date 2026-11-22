@@ -25,6 +25,7 @@ function item(id: number, onDisk: number, d: Partial<Description>): Suggestion {
       elevated: false,
       lastUse: null,
       leftover: null,
+      duplicateOf: null,
       ...d,
     },
   };

@@ -45,6 +45,14 @@ const COMMANDS: &[&str] = &[
     "chat_stop",
     "chat_setup",
     "chat_pull",
+    "delete_preview",
+    "delete_now",
+    "recycle_bin",
+    "recycle_bin_empty",
+    "docker_disk",
+    "docker_compact",
+    "cloud_growth_alert",
+    "hidden_parts",
 ];
 
 fn main() {

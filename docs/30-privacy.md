@@ -74,6 +74,9 @@ start.
 
 ## Elevation
 
+Compacting Docker's disk runs Windows' `diskpart` with administrator rights after a click
+and a UAC prompt. It touches only Docker's own disk file and reads nothing in it.
+
 - The main app never runs as administrator (S7).
 - "Reveal hidden space" and "Read protected folders" start a separate helper after a
   UAC prompt. The helper only reads folder listings, sends the results back to the app,

@@ -109,7 +109,8 @@
     "appUninstall": "Verwijderen via Steam",
     "adminRead": "Lees met adminrechten",
     "copy": "Kopieer",
-    "copied": "Gekopieerd"
+    "copied": "Gekopieerd",
+    "deleteNow": "Nu verwijderen"
   },
   "preview": {
     "title": "Voorbeeld: er is nog niets veranderd",
@@ -130,7 +131,9 @@
       "insideSelection": "zit al in een gekozen map",
       "unavailable": "kon niet gelezen worden",
       "notInSync": "nog niet geüpload",
-      "notInSyncRoot": "niet in een cloudmap"
+      "notInSyncRoot": "niet in een cloudmap",
+      "notSafe": "geen cache die terugkomt; gebruik de quarantaine",
+      "cloud": "in een cloudmap; wordt hier nooit verwijderd"
     },
     "done": "{{moved}} verplaatst, {{failed}} mislukt."
   },
@@ -172,7 +175,10 @@
     "freeUp": "Ruimte vrijmaken",
     "tested": "Getest met OneDrive persoonlijk.",
     "notTested": "Gevonden, niet getest.",
-    "freed": "{{size}} staat nu alleen online."
+    "freed": "{{size}} staat nu alleen online.",
+    "progress": "Bestanden alleen online maken: {{done}} van {{total}}",
+    "foldersNote_one": "{{count}} map bewaart ook nieuwe bestanden niet meer op deze pc.",
+    "foldersNote_other": "{{count}} mappen bewaren ook nieuwe bestanden niet meer op deze pc."
   },
   "photos": {
     "title": "Foto's & video's",
@@ -2480,7 +2486,8 @@
     "steamLeftover": "Een restant van een verwijderd Steam-spel: Steam kent deze map niet meer.",
     "steamGameAction": "Verwijder het via Steam, zodat Steam blijft kloppen.",
     "programAction": "Verwijder het via Instellingen › Apps.",
-    "elevated": "Gelezen met adminrechten. Unhoard kan het niet verplaatsen, want de app zelf heeft hier geen rechten."
+    "elevated": "Gelezen met adminrechten. Unhoard kan het niet verplaatsen, want de app zelf heeft hier geen rechten.",
+    "duplicateModel": "Hetzelfde AI-model als {{model}} in Ollama: een tweede volledige kopie. Bewaar het alleen als een script deze Hugging Face-kopie gebruikt."
   },
   "adapters": {
     "ollama": {
@@ -2562,7 +2569,10 @@
         "title": "Overige beschermde mappen",
         "explain": "Mappen die apps of Windows afschermen. Unhoard legt ze uit, maar verplaatst ze nooit."
       }
-    }
+    },
+    "beforeReveal": "Mappen die de scan niet kon lezen, per soort. \"Onthul\" meet ze, na één vraag om beheerdersrechten.",
+    "notMeasured_one": "{{count}} map, nog niet gemeten",
+    "notMeasured_other": "{{count}} mappen, nog niet gemeten"
   },
   "suggestions": {
     "groups": {
@@ -2570,7 +2580,8 @@
       "steamLeftovers": "Restanten van verwijderde spellen",
       "programs": "Geïnstalleerde programma's",
       "large": "Grote bestanden",
-      "leftover": "Restanten van verwijderde apps"
+      "leftover": "Restanten van verwijderde apps",
+      "duplicateModels": "Dubbel bewaarde AI-modellen"
     },
     "count_one": "{{count}} item",
     "count_other": "{{count}} items",
@@ -3026,7 +3037,7 @@
   },
   "chat": {
     "ask": "Vraag Lumen",
-    "title": "Vraag Lumen",
+    "title": "Lumen",
     "close": "Sluit de chat",
     "off": "De chat staat uit. Hij draait op een lokaal AI-model via Ollama, op deze pc; er gaat niets naar internet. Zet hem aan in Instellingen.",
     "toSettings": "Open Instellingen",
@@ -3079,7 +3090,8 @@
       "pullFailed": "De download is niet afgerond. Controleer de internetverbinding en probeer het opnieuw.",
       "ready": "Ollama draait en de chat is klaar.",
       "toSettings": "Chat instellen"
-    }
+    },
+    "tip": "Tip"
   },
   "processes": {
     "system": {
@@ -3614,5 +3626,50 @@
       "name": "Unhoard",
       "what": "Deze app. Een scan gebruikt even de processor."
     }
+  },
+  "deleteNow": {
+    "title": "Voorbeeld: definitief verwijderen",
+    "items_one": "{{count}} item · {{size}} komt meteen vrij",
+    "items_other": "{{count}} items · {{size}} komt meteen vrij",
+    "final": "Dit zijn caches die hun programma opnieuw maakt als het ze nodig heeft. Ze gaan niet naar de quarantaine en zijn niet terug te zetten.",
+    "confirm": "Definitief verwijderen",
+    "done": "{{size}} verwijderd; {{failed}} overgeslagen.",
+    "selected": "Verwijder de veilige nu"
+  },
+  "recycle": {
+    "title": "Prullenbak",
+    "lead": "Wat je zelf verwijderde. Het neemt ruimte in tot de Prullenbak geleegd is.",
+    "summary_one": "{{count}} item · {{size}}",
+    "summary_other": "{{count}} items · {{size}}",
+    "empty": "De Prullenbak is leeg.",
+    "deleted": "verwijderd {{date}}",
+    "more": "en nog {{count}}",
+    "emptyButton": "Leeg de Prullenbak",
+    "confirmTitle": "De Prullenbak definitief legen?",
+    "confirmText": "Alle {{count}} items ({{size}}) worden definitief verwijderd, via Windows. Ze zijn niet terug te zetten.",
+    "confirm": "Definitief legen",
+    "done": "De Prullenbak is leeg: {{size}} kwam vrij."
+  },
+  "docker": {
+    "disk": {
+      "measure": "Meet de schijf van Docker",
+      "measuring": "Meten… (Docker moet draaien)",
+      "size": "De schijf van Docker neemt {{size}} in op deze pc; {{used}} daarvan is in gebruik.",
+      "sizeOnly": "De schijf van Docker neemt {{size}} in op deze pc. Start Docker Desktop om te zien hoeveel in gebruik is.",
+      "worth": "Comprimeren geeft ongeveer {{gain}} terug. Je images, containers en volumes blijven.",
+      "fine": "De schijf is niet veel groter dan wat erin staat; comprimeren is het niet waard.",
+      "compact": "Comprimeer de schijf van Docker",
+      "confirmTitle": "De schijf van Docker comprimeren?",
+      "confirmText": "Unhoard stopt Docker Desktop en WSL, comprimeert de schijf met diskpart van Windows en start Docker weer. Windows vraagt één keer om beheerdersrechten. Draaiende containers liggen een paar minuten stil.",
+      "confirm": "Comprimeer",
+      "busy": "Comprimeren… Docker start weer als het klaar is.",
+      "done": "De schijf van Docker is gecomprimeerd: {{size}} kwam vrij.",
+      "declined": "Er is niets veranderd: de vraag om beheerdersrechten werd geweigerd.",
+      "failed": "Comprimeren lukte niet. Docker Desktop is weer gestart."
+    }
+  },
+  "cloudGrowth": {
+    "bubble": "{{folder}} kreeg deze week {{size}} aan lokale kopieën. Ruimte vrijmaken zodat ze alleen online staan?",
+    "action": "Ruimte vrijmaken"
   }
 }

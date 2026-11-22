@@ -40,6 +40,13 @@ a copy of any existing one:
   really free (S10).
 - Dutch uses the informal "je".
 
+## Lumen's panel
+
+Everything Lumen says lives in one panel, opened by clicking Lumen or "Ask Lumen" in the
+navigation. A new tip shows briefly as a bubble at the orb and then stays in the panel with
+its buttons, between the chat messages in the order they came. With the chat off, the panel
+still shows the tips and says how to switch the chat on.
+
 ## Bubbles
 
 | Type | Use | Example |

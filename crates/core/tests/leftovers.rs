@@ -105,6 +105,7 @@ fn f4_gone_apps_are_likely_safe_unclaimed_old_folders_review_and_the_rest_nothin
                 source: UseSource::Started,
             }],
             steam: vec![],
+            ollama_models: vec![],
         },
     };
     let (t, _) = scan(&fs, r"C:\", &ctx, &ScanControl::default()).unwrap();

@@ -72,6 +72,8 @@ when it adds an asset, a boundary or a threat.
 |---|---|
 | T15. Data leaves the PC (A5) | No connection to another computer; no HTTP client in the build; the Ollama client connects only to 127.0.0.1:11434 and only while the chat is on; no telemetry, ever (S8, T-S8, T-8.3) |
 | T32. A file name tricks the chat model into harmful advice (prompt injection) (B2, A1) | Tools are read-only and the chat can only select items; every move needs its preview and a click (S1); answers about safety must quote the tier and reason from the tools |
+| T39. "Delete now" removes something that is not a regenerating cache (A1, B1) | Only items whose rule has tier Safe, outside sync roots; Rust re-plans from scan IDs and re-checks identity per item before deleting; the preview names what is left out and why (S6) |
+| T40. The elevated `diskpart` run is pointed at another disk (A1, B7) | The script is built in Rust for a `.vhdx` directly below `%LOCALAPPDATA%\Docker\wsl` only, with no quotes, line breaks or `..`; it attaches the disk read-only and only compacts it; the script file lives in the app's own folder and is removed after (S7) |
 | T37. The UI asks Ollama to download an arbitrary model (B1) | `chat_pull` accepts only the two recommended model names, checked in Rust before and inside the command; it runs only with the chat switched on and on a click |
 | T38. The download link opens something other than Ollama's page (B1) | The address is a constant in Rust; the UI passes only the name `ollamaDownload` |
 | T33. Another local program poses as Ollama on port 11434 (B7) | It receives only questions and metadata the user chose to send; replies are shown as text and links that only select; nothing from a reply is executed |

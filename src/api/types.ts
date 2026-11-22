@@ -7,6 +7,7 @@ export type PinState = "onlineOnly" | "locallyAvailable" | "alwaysKeep";
 export type WindowsTool = "storageSettings" | "storageSense" | "diskCleanup" | "apps" | "systemProtection" | "recycleBin" | "taskManager" | "windowsUpdate" | "disks";
 export type Action =
   | { type: "quarantine" }
+  | { type: "deleteNow" }
   | { type: "freeUpSpace" }
   | { type: "windowsTool"; tool: WindowsTool }
   | { type: "uninstaller" }
@@ -162,6 +163,8 @@ export interface Description {
   elevated: boolean;
   lastUse: LastUse | null;
   leftover: Leftover | null;
+  /** The Ollama model this Hugging Face cache folder is a second copy of. */
+  duplicateOf: string | null;
 }
 
 export type UseSource = "played" | "started" | "changed";
@@ -215,7 +218,46 @@ export interface DockerUsage {
   reclaimable: number;
 }
 
-export type ToolError = { kind: "notInstalled" | "notRunning" | "timedOut" | "failed" };
+export type ToolError = { kind: "notInstalled" | "notRunning" | "timedOut" | "declined" | "failed" };
+
+/** The preview of "Delete now". */
+export interface DeletePlan {
+  items: { node: number; path: string; onDisk: number; ruleId: string }[];
+  skipped: { path: string; reason: SkipReason }[];
+  totalOnDisk: number;
+}
+
+/** The report of "Delete now". */
+export interface DeleteReport {
+  results: { path: string; outcome: Outcome }[];
+  deletedOnDisk: number;
+}
+
+/** One item in the Recycle Bin. */
+export interface RecycledItem {
+  original: string;
+  size: number;
+  deletedAt: number;
+}
+
+/** The current user's Recycle Bin. */
+export interface RecycleBin {
+  items: RecycledItem[];
+  count: number;
+  total: number;
+}
+
+/** Docker's data disk, measured on a click. */
+export interface DockerDiskOut {
+  disk: { path: string; size: number; used: number | null };
+  worthCompacting: boolean;
+}
+
+/** A folder the scan could not read, with its kind. */
+export interface HiddenPart {
+  path: string;
+  kind: HiddenKind;
+}
 export type AppName = "dockerDesktop" | "ollama" | "steam" | "ollamaDownload";
 export type OpenAppResult = { Ok: null } | { Err: ToolError };
 export type DockerResult = { Ok: DockerUsage[] } | { Err: ToolError };
@@ -253,7 +295,7 @@ export interface Suggestion {
 
 export type SkipReason =
   | { kind: "protected"; detail: ProtectReason }
-  | { kind: "changed" | "link" | "unsupportedName" | "insideSelection" }
+  | { kind: "changed" | "link" | "unsupportedName" | "insideSelection" | "notSafe" | "cloud" }
   | { kind: "unavailable"; detail: FsError };
 
 export interface MovePlan {
@@ -267,6 +309,7 @@ export interface MovePlan {
 export type Outcome =
   | { outcome: "moved"; to: string }
   | { outcome: "restored"; to: string; renamed: boolean }
+  | { outcome: "deleted" }
   | ({ outcome: "failed" } & FsError);
 
 export interface ItemResult {
@@ -328,6 +371,7 @@ export type FreeUpSkip = { kind: "notInSync" | "notInSyncRoot" } | { kind: "unav
 
 export interface FreeUpPlan {
   files: [number, string][];
+  folders: string[];
   bytesToFree: number;
   skipped: [string, FreeUpSkip][];
 }

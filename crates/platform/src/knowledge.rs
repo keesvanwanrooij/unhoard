@@ -37,6 +37,7 @@ pub fn gather(roots: &Roots) -> Knowledge {
         activity,
         gone,
         steam: steam_libraries(),
+        ollama_models: ollama_models(roots).into_iter().map(|m| m.name).collect(),
     }
 }
 

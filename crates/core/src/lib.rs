@@ -23,6 +23,7 @@ pub mod photos;
 pub mod processes;
 pub mod protect;
 pub mod quarantine;
+pub mod recycle;
 pub mod report;
 pub mod roots;
 pub mod rules;

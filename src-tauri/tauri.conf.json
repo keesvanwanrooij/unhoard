@@ -6,7 +6,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeBuildCommand": "npm run build && cargo build --release -p unhoard-cli"
   },
   "app": {
     "withGlobalTauri": false,
@@ -29,6 +29,7 @@
   },
   "bundle": {
     "active": true,
+    "resources": { "../target/release/unhoard.exe": "unhoard.exe" },
     "targets": ["nsis"],
     "publisher": "Kees van Wanrooij",
     "copyright": "Copyright (C) 2026 Kees van Wanrooij. GPL-3.0-or-later.",

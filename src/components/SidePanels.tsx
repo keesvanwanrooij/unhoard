@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api, errorKey } from "../api/ipc";
-import type { Action, Details, HiddenKind, MovePlan, Outcome, RevealedView, ViewResponse, WindowsTool } from "../api/types";
+import type { Action, Details, HiddenKind, HiddenPart, MovePlan, Outcome, RevealedView, ViewResponse, WindowsTool } from "../api/types";
 import { fmtBytes, fmtInt, fmtShare } from "../format";
 import { explainShort, explainText, leftoverText } from "../explain";
 import { useApp } from "../store";
@@ -106,6 +106,7 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
   const [loaded, setLoaded] = useState<{ key: string; details: Details; now: number } | null>(null);
   const [planFor, setPlanFor] = useState<{ key: string; plan: MovePlan } | null>(null);
   const [revealed, setRevealed] = useState<RevealedView[] | null>(null);
+  const [parts, setParts] = useState<{ generation: number; list: HiddenPart[] } | null>(null);
   const [busy, setBusy] = useState(false);
   /** The selection the companion last explained, so a refresh does not repeat it. */
   const announced = useRef<string | null>(null);
@@ -145,7 +146,26 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
     };
   }, [generation, id, selected, say, t, refresh]);
 
+  useEffect(() => {
+    if (id !== -1 || generation === undefined || !scan?.done) return;
+    let alive = true;
+    api
+      .hiddenParts(generation)
+      .then((list) => {
+        if (alive) setParts({ generation, list });
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [id, generation, scan?.done]);
+
   if (id === -1 && resp?.hiddenBytes !== null && resp?.hiddenBytes !== undefined) {
+    // Before "Reveal": the unreadable folders by kind, without sizes.
+    const unmeasured =
+      revealed === null && parts !== null && parts.generation === generation
+        ? KINDS.map((kind) => ({ kind, count: parts.list.filter((p) => p.kind === kind).length })).filter((g) => g.count > 0)
+        : [];
     const groups = KINDS.map((kind) => {
       const all = (revealed ?? []).filter((r) => r.kind === kind);
       // The largest folders first; the many tiny ones are summed into one line.
@@ -177,6 +197,16 @@ export function DetailsPanel({ resp }: { resp: ViewResponse | null }): JSX.Eleme
           </div>
         </div>
         <p className="info">{t("companion.script.hiddenSpace.0", { size: fmtBytes(resp.hiddenBytes, lang) })}</p>
+        {unmeasured.length > 0 ? <p className="note">{t("hidden.beforeReveal")}</p> : null}
+        {unmeasured.map((g) => (
+          <div key={g.kind} className="hidden-group">
+            <div className="row-head">
+              <b>{t(`hidden.kinds.${g.kind}.title`)}</b>
+              <span className="note">{t("hidden.notMeasured", { count: g.count })}</span>
+            </div>
+            <p className="note">{t(`hidden.kinds.${g.kind}.explain`)}</p>
+          </div>
+        ))}
         {groups.map((g) => {
           const tool = KIND_TOOL[g.kind];
           return (

@@ -182,7 +182,8 @@ pub fn suggestions(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<Suggesti
                     .rule
                     .and_then(|r| ctx.rules.get(r))
                     .is_some_and(|r| !r.define)
-                    || (n.kind == NodeKind::File && n.on_disk >= LARGE_MIN_BYTES))
+                    || (n.kind == NodeKind::File && n.on_disk >= LARGE_MIN_BYTES)
+                    || (n.kind == NodeKind::Folder && ctx.knowledge.ollama_twin(&n.name).is_some()))
         })
         .map(|(id, _)| id)
         .filter(big)
@@ -225,7 +226,13 @@ pub fn suggestions(tree: &Tree, ctx: &ScanContext, limit: usize) -> Vec<Suggesti
         }
         false
     };
-    picked.retain(|&id| !inside(id, &primary));
+    // A second copy of an Ollama model stays visible inside a suggested cache folder: it is
+    // the part worth removing.
+    let twin = |id: NodeId| {
+        tree.get(id)
+            .is_some_and(|n| ctx.knowledge.ollama_twin(&n.name).is_some())
+    };
+    picked.retain(|&id| !inside(id, &primary) || twin(id));
     // A program folder counts only when no other suggestion lies inside or around it.
     let programs: Vec<NodeId> = ctx
         .knowledge

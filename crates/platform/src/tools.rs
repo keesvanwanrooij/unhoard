@@ -32,6 +32,8 @@ pub enum ToolError {
     NotRunning,
     /// The tool took longer than the time limit and was stopped.
     TimedOut,
+    /// The user declined the UAC prompt; nothing changed.
+    Declined,
     /// The tool could not be started.
     Failed,
 }
@@ -122,11 +124,11 @@ pub fn open_app(app: App, roots: &Roots) -> Result<(), ToolError> {
     crate::win::elevate::shell_open(&target).map_err(|_| ToolError::Failed)
 }
 
-/// Runs `docker system df` as JSON lines and returns its output.
-pub fn docker_system_df(roots: &Roots) -> Result<String, ToolError> {
-    let exe = docker_exe(roots).ok_or(ToolError::NotInstalled)?;
+/// Runs `exe` with fixed `args`, no shell and no window, for at most `limit`, and returns
+/// at most [`MAX_OUTPUT`] of its standard output.
+fn run(exe: &str, args: &[&str], limit: Duration) -> Result<String, ToolError> {
     let mut child = Command::new(exe)
-        .args(["system", "df", "--format", "{{json .}}"])
+        .args(args)
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
@@ -143,9 +145,7 @@ pub fn docker_system_df(roots: &Roots) -> Result<String, ToolError> {
     let status = loop {
         match child.try_wait() {
             Ok(Some(status)) => break status,
-            Ok(None) if start.elapsed() < TIME_LIMIT => {
-                std::thread::sleep(Duration::from_millis(50))
-            }
+            Ok(None) if start.elapsed() < limit => std::thread::sleep(Duration::from_millis(50)),
             Ok(None) => {
                 let _killed = child.kill();
                 let _reaped = child.wait();
@@ -160,6 +160,121 @@ pub fn docker_system_df(roots: &Roots) -> Result<String, ToolError> {
     } else {
         Err(ToolError::NotRunning)
     }
+}
+
+/// Runs `docker system df` as JSON lines and returns its output.
+pub fn docker_system_df(roots: &Roots) -> Result<String, ToolError> {
+    let exe = docker_exe(roots).ok_or(ToolError::NotInstalled)?;
+    run(
+        &exe,
+        &["system", "df", "--format", "{{json .}}"],
+        TIME_LIMIT,
+    )
+}
+
+/// Docker's own `wsl` folder, below which its virtual disks live.
+pub fn docker_wsl_dir(roots: &Roots) -> Option<String> {
+    roots
+        .var("LOCALAPPDATA")
+        .map(|l| path_of(l, &["Docker", "wsl"]))
+}
+
+/// Docker's data disk: where it is, what it takes on disk and what is in use inside it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DockerDisk {
+    /// The `.vhdx` file.
+    pub path: String,
+    /// Its size on disk.
+    pub size: u64,
+    /// The bytes in use inside, when Docker runs and could tell.
+    pub used: Option<u64>,
+}
+
+/// `wsl.exe` in the Windows folder.
+fn wsl_exe(roots: &Roots) -> Option<String> {
+    existing(
+        roots
+            .var("WINDIR")
+            .map(|w| path_of(w, &["System32", "wsl.exe"]))
+            .into_iter()
+            .collect(),
+    )
+}
+
+/// Docker's data disk, measured. Runs `df` inside Docker's own WSL distribution, so call it
+/// only on a click.
+pub fn docker_disk(roots: &Roots) -> Option<DockerDisk> {
+    let dir = docker_wsl_dir(roots)?;
+    let path = existing(vec![
+        path_of(&dir, &["disk", "docker_data.vhdx"]),
+        path_of(&dir, &["data", "ext4.vhdx"]),
+    ])?;
+    let size = std::fs::metadata(&path).ok()?.len();
+    let used = wsl_exe(roots).and_then(|wsl| {
+        run(
+            &wsl,
+            &[
+                "-d",
+                "docker-desktop",
+                "-u",
+                "root",
+                "-e",
+                "df",
+                "-B1",
+                "/mnt/docker-desktop-disk",
+            ],
+            TIME_LIMIT,
+        )
+        .ok()
+        .and_then(|out| unhoard_core::adapters::docker::parse_df_used(&out))
+    });
+    Some(DockerDisk { path, size, used })
+}
+
+/// Compacts Docker's data disk: stops Docker Desktop, shuts WSL down, runs `diskpart` with a
+/// fixed script through one UAC prompt, and starts Docker Desktop again. The script is
+/// written to `work_dir` (the app's own folder) and removed after. Returns the bytes freed.
+/// Only Docker's own `.vhdx` below its `wsl` folder is accepted (S7).
+pub fn compact_docker_disk(roots: &Roots, work_dir: &str) -> Result<u64, ToolError> {
+    let disk = docker_disk(roots).ok_or(ToolError::NotInstalled)?;
+    let dir = docker_wsl_dir(roots).ok_or(ToolError::NotInstalled)?;
+    let script = unhoard_core::adapters::docker::compact_script(&disk.path, &dir)
+        .ok_or(ToolError::Failed)?;
+    let docker = docker_exe(roots).ok_or(ToolError::NotInstalled)?;
+    let wsl = wsl_exe(roots).ok_or(ToolError::NotInstalled)?;
+    let diskpart = existing(
+        roots
+            .var("WINDIR")
+            .map(|w| path_of(w, &["System32", "diskpart.exe"]))
+            .into_iter()
+            .collect(),
+    )
+    .ok_or(ToolError::NotInstalled)?;
+    let script_path = join(work_dir, "compact-docker-disk.txt");
+    std::fs::write(&script_path, script).map_err(|_| ToolError::Failed)?;
+    // Docker Desktop may already be stopped; then this fails and the work goes on.
+    let _stopped = run(&docker, &["desktop", "stop"], Duration::from_secs(120));
+    let result = run(&wsl, &["--shutdown"], Duration::from_secs(60)).and_then(|_| {
+        match crate::win::elevate::run_elevated(&diskpart, &format!("/s \"{script_path}\"")) {
+            Ok(Some(p)) => {
+                if p.wait(30 * 60 * 1000) {
+                    Ok(())
+                } else {
+                    Err(ToolError::TimedOut)
+                }
+            }
+            Ok(None) => Err(ToolError::Declined),
+            Err(_) => Err(ToolError::Failed),
+        }
+    });
+    let _removed = std::fs::remove_file(&script_path);
+    let _started = run(&docker, &["desktop", "start"], Duration::from_secs(180));
+    result?;
+    let after = std::fs::metadata(&disk.path)
+        .map(|m| m.len())
+        .unwrap_or(disk.size);
+    Ok(disk.size.saturating_sub(after))
 }
 
 /// Opens Steam's own uninstall dialog for a game. Steam asks the user to confirm.

@@ -606,6 +606,162 @@ pub async fn quarantine_move(
     blocking(move || svc.quarantine_move(generation, &ids)).await
 }
 
+/// Previews "Delete now": only tier Safe items outside sync roots (S6).
+#[tauri::command]
+pub async fn delete_preview(
+    svc: Svc<'_>,
+    generation: u64,
+    ids: Vec<u32>,
+) -> Result<unhoard_core::quarantine::DeletePlan, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || svc.delete_preview(generation, &ids)).await
+}
+
+/// Deletes tier Safe items for good after the user confirmed the preview.
+#[tauri::command]
+pub async fn delete_now(
+    svc: Svc<'_>,
+    generation: u64,
+    ids: Vec<u32>,
+) -> Result<unhoard_core::quarantine::DeleteReport, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || svc.delete_now(generation, &ids)).await
+}
+
+/// The current user's Recycle Bin: its items with their original paths, largest first.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecycleBin {
+    /// The largest items, at most 500.
+    items: Vec<unhoard_core::recycle::RecycledItem>,
+    /// All items.
+    count: usize,
+    /// Their total size.
+    total: u64,
+}
+
+/// Lists the Recycle Bin from its info files; the deleted data itself is never opened.
+#[tauri::command]
+pub async fn recycle_bin() -> Result<RecycleBin, CmdError> {
+    blocking(|| {
+        let mut items = system::recycle_bin_items(20_000);
+        items.sort_by_key(|i| std::cmp::Reverse(i.size));
+        let count = items.len();
+        let total = items.iter().map(|i| i.size).sum();
+        items.truncate(500);
+        Ok(RecycleBin {
+            items,
+            count,
+            total,
+        })
+    })
+    .await
+}
+
+/// Empties the Recycle Bin through Windows after the user confirmed the list (S6), and
+/// returns the space that came free on the fixed drives, measured before and after (S10).
+#[tauri::command]
+pub async fn recycle_bin_empty(svc: Svc<'_>) -> Result<u64, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let free = || -> u64 {
+            system::fixed_drives()
+                .iter()
+                .filter_map(|d| {
+                    unhoard_core::fs::FileSystem::volume(
+                        &unhoard_platform::WindowsFs,
+                        &format!("{d}\\"),
+                    )
+                    .ok()
+                })
+                .map(|v| v.free_bytes)
+                .sum()
+        };
+        let before = free();
+        let result = system::empty_recycle_bin();
+        svc.audit_startup("recycleBin.empty", "all", result.is_ok());
+        result.map_err(CmdError::from)?;
+        Ok(free().saturating_sub(before))
+    })
+    .await
+}
+
+/// Docker's data disk measured on a click: its size on disk and the bytes in use inside,
+/// and whether compacting it is worth it.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DockerDiskOut {
+    disk: tools::DockerDisk,
+    worth_compacting: bool,
+}
+
+/// Measures Docker's data disk (on a click; runs `df` inside Docker's WSL distribution).
+#[tauri::command]
+pub async fn docker_disk(svc: Svc<'_>) -> Result<Option<DockerDiskOut>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        Ok(
+            tools::docker_disk(&svc.context().roots).map(|disk| DockerDiskOut {
+                worth_compacting: disk.used.is_some_and(|u| {
+                    unhoard_core::adapters::docker::worth_compacting(disk.size, u)
+                }),
+                disk,
+            }),
+        )
+    })
+    .await
+}
+
+/// Compacts Docker's data disk after the user confirmed: stops Docker, one UAC prompt for
+/// `diskpart`, starts Docker again (S7). Returns the bytes freed.
+#[tauri::command]
+pub async fn docker_compact(svc: Svc<'_>) -> Result<Result<u64, ToolError>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let roots = &svc.context().roots;
+        let work = roots
+            .var("LOCALAPPDATA")
+            .map(|l| unhoard_core::roots::join(l, "Unhoard"))
+            .ok_or(CmdError::InvalidArgument {
+                what: "LOCALAPPDATA".into(),
+            })?;
+        let result = tools::compact_docker_disk(roots, &work);
+        svc.audit_startup("docker.compact", "docker_data", result.is_ok());
+        Ok(result)
+    })
+    .await
+}
+
+/// Folders in a cloud sync root whose local copies grew by 5 GB or more in the last week,
+/// from the storage history; the companion offers "free up space" for them at start.
+#[tauri::command]
+pub async fn cloud_growth_alert(svc: Svc<'_>) -> Result<Vec<(String, i64)>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let roots = svc.context().roots.clone();
+        let mut out = vec![];
+        for drive in system::fixed_drives() {
+            let root = format!("{drive}\\");
+            if !roots
+                .sync_roots
+                .iter()
+                .any(|s| unhoard_core::roots::is_within(s, &root))
+            {
+                continue;
+            }
+            let items: Vec<(String, i64)> = svc
+                .history_growth(&root, 7)
+                .items
+                .into_iter()
+                .map(|i| (i.path, i.delta))
+                .collect();
+            out.extend(unhoard_core::history::cloud_growth(&items, &roots, 5 << 30));
+        }
+        Ok(out)
+    })
+    .await
+}
+
 /// The Quarantine view.
 #[tauri::command]
 pub async fn quarantine_state(svc: Svc<'_>) -> Result<QuarantineState, CmdError> {
@@ -686,13 +842,17 @@ pub struct FreeUpResult {
 /// Frees up space (pin state only) and re-measures.
 #[tauri::command]
 pub async fn free_up_apply(
+    app: AppHandle,
     svc: Svc<'_>,
     generation: u64,
     ids: Vec<u32>,
 ) -> Result<FreeUpResult, CmdError> {
     let svc = svc.inner().clone();
     blocking(move || {
-        let (results, requested, still) = svc.free_up_apply(generation, &ids)?;
+        let (results, requested, still) =
+            svc.free_up_apply(generation, &ids, &mut |done, total| {
+                let _ui_may_be_closed = app.emit("free-up-progress", (done, total));
+            })?;
         let failed = results
             .into_iter()
             .filter_map(|(p, r)| r.err().map(|e| (p, e)))
@@ -855,6 +1015,34 @@ pub struct RevealedView {
     #[serde(flatten)]
     folder: RevealedFolder,
     kind: HiddenKind,
+}
+
+/// A folder the scan could not read, with its kind: what hidden space is made of before
+/// "Reveal" measures it.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HiddenPart {
+    path: String,
+    kind: HiddenKind,
+}
+
+/// The folders the current scan could not read, each with its kind (no sizes: only the
+/// elevated helper can measure them).
+#[tauri::command]
+pub async fn hidden_parts(svc: Svc<'_>, generation: u64) -> Result<Vec<HiddenPart>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let roots = svc.context().roots.clone();
+        Ok(svc
+            .unscanned_paths(generation, None)?
+            .into_iter()
+            .map(|path| HiddenPart {
+                kind: hidden_kind(&path, &roots),
+                path,
+            })
+            .collect())
+    })
+    .await
 }
 
 /// The priority matrix of the current scan.

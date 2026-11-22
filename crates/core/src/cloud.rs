@@ -92,6 +92,9 @@ pub enum FreeUpSkip {
 pub struct FreeUpPlan {
     /// Files that will become online-only.
     pub files: Vec<(NodeId, String)>,
+    /// Folders in a sync root that lose "always keep on this device", so files that arrive
+    /// later stay online-only too.
+    pub folders: Vec<String>,
     /// Size on disk they take now.
     pub bytes_to_free: u64,
     /// Files left out, with the reason.
@@ -111,7 +114,12 @@ pub fn plan_free_up(
         let Some(n) = tree.get(id) else { continue };
         let path = tree.path(id);
         match n.kind {
-            NodeKind::Folder => stack.extend(tree.children(id)),
+            NodeKind::Folder => {
+                if ctx.roots.sync_root_of(&path).is_some() {
+                    plan.folders.push(path);
+                }
+                stack.extend(tree.children(id));
+            }
             NodeKind::Link => {}
             NodeKind::File => {
                 if ctx.roots.sync_root_of(&path).is_none() {
@@ -135,12 +143,26 @@ pub fn plan_free_up(
     plan
 }
 
-/// Makes the planned files online-only by changing their pin state. Returns a result per
-/// file; the space is reported only after [`remeasure`] (S10).
-pub fn apply_free_up(fs: &dyn FileSystem, plan: &FreeUpPlan) -> Vec<(String, Result<(), FsError>)> {
-    plan.files
+/// Makes the planned folders and files online-only by changing their pin state, folders
+/// first. `progress` hears how many of them are done. Returns a result per item; the space
+/// is reported only after [`remeasure`] (S10).
+pub fn apply_free_up(
+    fs: &dyn FileSystem,
+    plan: &FreeUpPlan,
+    progress: &mut dyn FnMut(usize, usize),
+) -> Vec<(String, Result<(), FsError>)> {
+    let total = plan.folders.len() + plan.files.len();
+    plan.folders
         .iter()
-        .map(|(_, p)| (p.clone(), fs.set_unpinned(p)))
+        .chain(plan.files.iter().map(|(_, p)| p))
+        .enumerate()
+        .map(|(i, p)| {
+            let r = fs.set_unpinned(p);
+            if (i + 1) % 100 == 0 || i + 1 == total {
+                progress(i + 1, total);
+            }
+            (p.clone(), r)
+        })
         .collect()
 }
 

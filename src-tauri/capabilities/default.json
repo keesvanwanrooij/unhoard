@@ -50,6 +50,14 @@
     "allow-chat-send",
     "allow-chat-stop",
     "allow-chat-setup",
-    "allow-chat-pull"
+    "allow-chat-pull",
+    "allow-delete-preview",
+    "allow-delete-now",
+    "allow-recycle-bin",
+    "allow-recycle-bin-empty",
+    "allow-docker-disk",
+    "allow-docker-compact",
+    "allow-cloud-growth-alert",
+    "allow-hidden-parts"
   ]
 }

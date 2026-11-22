@@ -240,3 +240,24 @@ fn f17_a_stored_snapshot_is_compact_and_reads_back_the_same() {
     let lone = snap(NOW, &[(r"C:\a\b\c", 1)]);
     assert_eq!(parse(&to_line(&lone)).0, vec![lone]);
 }
+
+#[test]
+fn f17_fast_growth_of_local_cloud_copies_is_found_once_per_folder() {
+    use unhoard_core::history::cloud_growth;
+    const GB: i64 = 1 << 30;
+    let roots = Roots::new(BTreeMap::new(), None, vec![r"C:\Users\u\OneDrive".into()]);
+    let items = vec![
+        (r"C:\Users\u\OneDrive".to_string(), 20 * GB),
+        (r"C:\Users\u\OneDrive\Opslag\Werk".to_string(), 19 * GB),
+        (r"C:\Users\u\OneDrive\Photos".to_string(), GB),
+        (r"C:\Users\u\Downloads".to_string(), 30 * GB),
+        (r"C:\Users\u\OneDrive\Old".to_string(), -8 * GB),
+    ];
+    let found = cloud_growth(&items, &roots, 5 * GB);
+    // The deepest folder that grew enough is the one to free; its parent is not repeated.
+    assert_eq!(
+        found,
+        vec![(r"C:\Users\u\OneDrive\Opslag\Werk".to_string(), 19 * GB)]
+    );
+    assert!(cloud_growth(&items, &roots, 25 * GB).is_empty());
+}

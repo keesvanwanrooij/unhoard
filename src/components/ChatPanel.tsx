@@ -1,12 +1,15 @@
-// The AI chat with Lumen (F8): a panel next to the companion. Answers stream in from a local
-// model through Ollama; links in an answer select items or open suggestion groups, never
-// more. When the chat is off, the panel says how to switch it on.
+// Lumen's panel (F8): everything Lumen said and the chat, in one timeline. Each tip shows
+// briefly as a bubble at the orb and stays here, with its buttons. Answers stream in from a
+// local model through Ollama; links in an answer select items or open suggestion groups,
+// never more. When the chat is off, the tips still show and the panel says how to switch
+// the chat on.
 import { memo, useEffect, useRef, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api, onChatEvent } from "../api/ipc";
 import type { ChatError, ChatMessage, ModelInfo } from "../api/types";
+import type { Bubble } from "../companion/queue";
 import { useApp } from "../store";
 
 /** One piece of an answer: text, or a link to an item or a suggestion group. */
@@ -30,14 +33,30 @@ export function parseAnswer(answer: string): Part[] {
   return out;
 }
 
-/** The chat panel. */
+/** A chat message with the moment it was written, so it sorts between Lumen's tips. */
+type Line = ChatMessage & { at: number };
+
+/** One entry of the timeline: a tip of Lumen's, or a chat message. */
+type Entry = { kind: "tip"; at: number; bubble: Bubble } | { kind: "msg"; at: number; line: Line; index: number };
+
+/** Lumen's panel. */
 // Memoised: it reads its state from the store, so a re-render of the app passes it by.
 export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
   const { t } = useTranslation();
-  const { open, setOpen, lang, settings, setScreen, select, setFocus } = useApp(
-    useShallow((s) => ({ open: s.chatOpen, setOpen: s.setChatOpen, lang: s.lang, settings: s.settings, setScreen: s.setScreen, select: s.select, setFocus: s.setFocus })),
+  const { open, setOpen, lang, settings, setScreen, select, setFocus, queue, bubbleVersion } = useApp(
+    useShallow((s) => ({
+      open: s.chatOpen,
+      setOpen: s.setChatOpen,
+      lang: s.lang,
+      settings: s.settings,
+      setScreen: s.setScreen,
+      select: s.select,
+      setFocus: s.setFocus,
+      queue: s.queue,
+      bubbleVersion: s.bubbleVersion,
+    })),
   );
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<Line[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [tool, setTool] = useState<string | null>(null);
@@ -66,8 +85,8 @@ export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
         setTool(null);
         setMessages((m) => {
           const last = m[m.length - 1];
-          if (last?.role === "assistant") return [...m.slice(0, -1), { role: "assistant", content: last.content + e.text }];
-          return [...m, { role: "assistant", content: e.text }];
+          if (last?.role === "assistant") return [...m.slice(0, -1), { ...last, content: last.content + e.text }];
+          return [...m, { role: "assistant", content: e.text, at: Date.now() }];
         });
       } else if (e.kind === "tool") setTool(e.name);
       else setTool(null);
@@ -81,7 +100,7 @@ export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [messages, tool]);
+  }, [messages, tool, bubbleVersion, open]);
 
   if (!open) return null;
   const model = settings.chatModel ?? models?.find((m) => m.recommended)?.name ?? "qwen3:8b";
@@ -90,13 +109,16 @@ export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
   const send = (): void => {
     const text = draft.trim();
     if (!text || busy) return;
-    const next: ChatMessage[] = [...messages, { role: "user", content: text }];
+    const next: Line[] = [...messages, { role: "user", content: text, at: Date.now() }];
     setMessages(next);
     setDraft("");
     setBusy(true);
     setProblem(null);
     api
-      .chatSend(next, lang)
+      .chatSend(
+        next.map((m) => ({ role: m.role, content: m.content })),
+        lang,
+      )
       .then((r) => {
         if ("Err" in r) setProblem(r.Err);
       })
@@ -108,6 +130,12 @@ export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
         setTool(null);
       });
   };
+  // Every tip Lumen said, without progress updates, then the chat, in the order they came.
+  const tips = [...queue.history, ...(queue.current && queue.current.type !== "progress" ? [queue.current] : [])].slice(-30);
+  const timeline: Entry[] = [
+    ...tips.map((b): Entry => ({ kind: "tip", at: b.at, bubble: b })),
+    ...messages.map((line, index): Entry => ({ kind: "msg", at: line.at, line, index })),
+  ].sort((a, b) => a.at - b.at);
   const follow = (p: Part): void => {
     if ("item" in p) {
       setFocus(0);
@@ -130,9 +158,64 @@ export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
           ×
         </button>
       </div>
+      {settings.chat && problem ? <p className="note warn">{t(`chat.errors.${problem}`, { model })}</p> : null}
+      {settings.chat && missing && !problem ? <p className="note">{t("chat.missingModel", { model })}</p> : null}
+      {settings.chat && (problem === "notRunning" || problem === "refused" || (missing && !problem)) ? (
+        <button
+          className="btn small"
+          style={{ alignSelf: "flex-start" }}
+          onClick={() => {
+            setScreen("settings");
+          }}
+        >
+          {t("chat.setup.toSettings")}
+        </button>
+      ) : null}
+      <div className="chat-log" aria-live="polite">
+        {timeline.length === 0 ? <p className="note">{t("chat.hello")}</p> : null}
+        {timeline.map((e) =>
+          e.kind === "tip" ? (
+            <div key={`tip-${String(e.bubble.id)}`} className={`msg assistant tip ${e.bubble.type}`}>
+              <div className="kind">{t(`companion.types.${e.bubble.type}`)}</div>
+              <div>{e.bubble.text}</div>
+              {e.bubble.actions ? (
+                <div className="btns">
+                  {e.bubble.actions.map((a) => (
+                    <button key={a.label} className="btn small" onClick={a.run}>
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <div key={`msg-${String(e.index)}`} className={`msg ${e.line.role}`}>
+              {e.line.role === "assistant"
+                ? parseAnswer(e.line.content).map((p, j) =>
+                    "item" in p || "group" in p ? (
+                      <button
+                        key={j}
+                        className="link"
+                        onClick={() => {
+                          follow(p);
+                        }}
+                      >
+                        {p.text}
+                      </button>
+                    ) : (
+                      <span key={j}>{p.text}</span>
+                    ),
+                  )
+                : e.line.content}
+            </div>
+          ),
+        )}
+        {tool ? <p className="note">{t("chat.looking", { tool: t(`chat.tools.${tool}`, { defaultValue: tool }) })}</p> : null}
+        <div ref={endRef} />
+      </div>
       {!settings.chat ? (
         <div className="chat-off">
-          <p className="info">{t("chat.off")}</p>
+          <p className="note">{t("chat.off")}</p>
           <button
             className="btn small"
             onClick={() => {
@@ -144,45 +227,6 @@ export const ChatPanel = memo(function ChatPanel(): JSX.Element | null {
         </div>
       ) : (
         <>
-          {problem ? <p className="note warn">{t(`chat.errors.${problem}`, { model })}</p> : null}
-          {missing && !problem ? <p className="note">{t("chat.missingModel", { model })}</p> : null}
-          {problem === "notRunning" || problem === "refused" || (missing && !problem) ? (
-            <button
-              className="btn small"
-              style={{ alignSelf: "flex-start" }}
-              onClick={() => {
-                setScreen("settings");
-              }}
-            >
-              {t("chat.setup.toSettings")}
-            </button>
-          ) : null}
-          <div className="chat-log" aria-live="polite">
-            {messages.length === 0 ? <p className="note">{t("chat.hello")}</p> : null}
-            {messages.map((m, i) => (
-              <div key={i} className={`msg ${m.role}`}>
-                {m.role === "assistant"
-                  ? parseAnswer(m.content).map((p, j) =>
-                      "item" in p || "group" in p ? (
-                        <button
-                          key={j}
-                          className="link"
-                          onClick={() => {
-                            follow(p);
-                          }}
-                        >
-                          {p.text}
-                        </button>
-                      ) : (
-                        <span key={j}>{p.text}</span>
-                      ),
-                    )
-                  : m.content}
-              </div>
-            ))}
-            {tool ? <p className="note">{t("chat.looking", { tool: t(`chat.tools.${tool}`, { defaultValue: tool }) })}</p> : null}
-            <div ref={endRef} />
-          </div>
           <form
             className="chat-input"
             onSubmit={(e) => {

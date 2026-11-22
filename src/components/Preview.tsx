@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
-import type { Action, MovePlan, SkipReason } from "../api/types";
+import type { Action, DeletePlan, MovePlan, SkipReason } from "../api/types";
 import { fmtBytes } from "../format";
 import { useApp } from "../store";
 
@@ -49,6 +49,39 @@ export function MovePreview({ plan, busy, onConfirm, onCancel }: { plan: MovePla
       <div className="btns">
         <button className="btn primary" disabled={busy || plan.moves.length === 0} onClick={onConfirm}>
           {t("preview.confirm")}
+        </button>
+        <button className="btn" disabled={busy} onClick={onCancel}>
+          {t("preview.cancel")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** The preview sheet of "Delete now": only tier Safe caches, deleted for good. */
+export function DeletePreview({ plan, busy, onConfirm, onCancel }: { plan: DeletePlan; busy: boolean; onConfirm: () => void; onCancel: () => void }): JSX.Element {
+  const { t } = useTranslation();
+  const { lang } = useApp(useShallow((s) => ({ lang: s.lang })));
+  return (
+    <div className="sheet danger" role="group" aria-label={t("deleteNow.title")}>
+      <b>{t("deleteNow.title")}</b>
+      <div>{t("deleteNow.items", { count: plan.items.length, size: fmtBytes(plan.totalOnDisk, lang) })}</div>
+      <div className="note">{t("deleteNow.final")}</div>
+      {plan.skipped.length > 0 ? (
+        <>
+          <div>{t("preview.skipped")}</div>
+          <ul>
+            {plan.skipped.slice(0, 20).map((s) => (
+              <li key={s.path}>
+                <code>{s.path}</code> · {reasonText(s.reason, t)}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+      <div className="btns">
+        <button className="btn primary" disabled={busy || plan.items.length === 0} onClick={onConfirm}>
+          {t("deleteNow.confirm")}
         </button>
         <button className="btn" disabled={busy} onClick={onCancel}>
           {t("preview.cancel")}

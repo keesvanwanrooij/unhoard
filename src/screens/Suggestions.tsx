@@ -6,8 +6,9 @@ import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api } from "../api/ipc";
-import type { Action, MovePlan, Suggestion, Tier } from "../api/types";
-import { MovePreview, actionLabel } from "../components/Preview";
+import type { Action, DeletePlan, MovePlan, Suggestion, Tier } from "../api/types";
+import { DeletePreview, MovePreview, actionLabel } from "../components/Preview";
+import { RecycleBinPanel } from "../components/RecycleBinPanel";
 import { explainShort, leftoverText } from "../explain";
 import { fmtBytes } from "../format";
 import { useProgressive } from "../progressive";
@@ -19,6 +20,7 @@ const TIERS: Tier[] = ["safe", "likelySafe", "review", "keep"];
 export function groupKey(s: Suggestion): string {
   const d = s.description;
   if (d.steam) return d.steam.kind === "game" ? "steam:game" : "steam:leftover";
+  if (d.duplicateOf) return "duplicate";
   if (d.ruleId) return `rule:${d.ruleId}`;
   if (d.program) return "program";
   if (d.leftover) return "leftover";
@@ -93,6 +95,7 @@ export function Suggestions(): JSX.Element {
   const tiersShown = useProgressive(TIERS.length, items);
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<{ key: string; ids: number[]; plan: MovePlan } | null>(null);
+  const [deletion, setDeletion] = useState<{ key: string; ids: number[]; plan: DeletePlan } | null>(null);
   const [busy, setBusy] = useState(false);
   // Nothing is selected at the start (S1); each tick is a user click.
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -134,11 +137,24 @@ export function Suggestions(): JSX.Element {
       });
   };
 
+  const showDelete = (key: string, ids: number[]): void => {
+    setPreview(null);
+    api
+      .deletePreview(generation, ids)
+      .then((plan) => {
+        setDeletion({ key, ids, plan });
+      })
+      .catch((e: unknown) => {
+        sayError(e, t);
+      });
+  };
+
   const run = (s: Suggestion, a: Action): void => {
     const fail = (e: unknown): void => {
       sayError(e, t);
     };
     if (a.type === "quarantine") showPreview(`item:${String(s.node.id)}`, [s.node.id]);
+    else if (a.type === "deleteNow") showDelete(`item:${String(s.node.id)}`, [s.node.id]);
     else if (a.type === "showInExplorer") api.showInExplorer(generation, s.node.id).catch(fail);
     else if (a.type === "windowsTool") api.openTool(a.tool).catch(fail);
     else if (a.type === "uninstaller") api.openTool("apps").catch(fail);
@@ -146,8 +162,38 @@ export function Suggestions(): JSX.Element {
     else if (a.type === "freeUpSpace") useApp.getState().setScreen("cloud");
   };
 
+  const deleteSheet = (key: string): JSX.Element | null =>
+    deletion?.key === key ? (
+      <DeletePreview
+        plan={deletion.plan}
+        busy={busy}
+        onCancel={() => {
+          setDeletion(null);
+        }}
+        onConfirm={() => {
+          setBusy(true);
+          api
+            .deleteNow(generation, deletion.ids)
+            .then((r) => {
+              setDeletion(null);
+              setSelected(new Set());
+              const failed = r.results.filter((x) => x.outcome.outcome === "failed").length;
+              say({ type: "explanation", text: t("deleteNow.done", { size: fmtBytes(r.deletedOnDisk, lang), failed }) });
+              treeChanged();
+            })
+            .catch((e: unknown) => {
+              sayError(e, t);
+            })
+            .finally(() => {
+              setBusy(false);
+            });
+        }}
+      />
+    ) : null;
+
   const previewSheet = (key: string): JSX.Element | null =>
-    preview?.key === key ? (
+    deleteSheet(key) ??
+    (preview?.key === key ? (
       <MovePreview
         plan={preview.plan}
         busy={busy}
@@ -172,7 +218,7 @@ export function Suggestions(): JSX.Element {
             });
         }}
       />
-    ) : null;
+    ) : null);
 
   const title = (s: Suggestion): string => {
     const d = s.description;
@@ -186,6 +232,7 @@ export function Suggestions(): JSX.Element {
     if (d.steam?.kind === "leftover") return t("facts.steamLeftover");
     if (d.ruleId) return t(`knownLocations.${d.ruleId}.action`);
     if (d.program) return t("facts.programAction");
+    if (d.duplicateOf) return t("facts.duplicateModel", { model: d.duplicateOf });
     if (d.leftover) return leftoverText(d.leftover, t, lang);
     return explainShort({ ...s.node, ruleId: null, explain: d.explain }, t);
   };
@@ -196,6 +243,7 @@ export function Suggestions(): JSX.Element {
     if (key === "program") return t("suggestions.groups.programs");
     if (key === "large") return t("suggestions.groups.large");
     if (key === "leftover") return t("suggestions.groups.leftover");
+    if (key === "duplicate") return t("suggestions.groups.duplicateModels");
     return title(first);
   };
 
@@ -240,6 +288,7 @@ export function Suggestions(): JSX.Element {
         <h1>{t("nav.suggestions")}</h1>
         <span className="note">{t("suggestions.selectHint")}</span>
       </header>
+      <RecycleBinPanel />
       {TIERS.slice(0, tiersShown).map((tier) => {
         const list = items.filter((s) => s.tier === tier);
         if (list.length === 0) return null;
@@ -320,6 +369,7 @@ export function Suggestions(): JSX.Element {
           <button
             className="btn small primary"
             onClick={() => {
+              setDeletion(null);
               showPreview("selection", [...selected]);
             }}
           >
@@ -328,8 +378,17 @@ export function Suggestions(): JSX.Element {
           <button
             className="btn small"
             onClick={() => {
+              showDelete("selection", [...selected]);
+            }}
+          >
+            {t("deleteNow.selected")}
+          </button>
+          <button
+            className="btn small"
+            onClick={() => {
               setSelected(new Set());
               setPreview(null);
+              setDeletion(null);
             }}
           >
             {t("suggestions.clearSelection")}

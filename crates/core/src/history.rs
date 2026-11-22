@@ -379,3 +379,25 @@ pub fn deltas(old: &Snapshot, new: &Snapshot) -> Vec<(String, i64)> {
         })
         .collect()
 }
+
+/// Folders inside a cloud sync root whose local copies grew by at least `min` bytes, from
+/// `(path, growth)` pairs. Of a folder and its subfolders only the deepest that grew enough
+/// is kept: that is the one to make online-only.
+pub fn cloud_growth(
+    items: &[(String, i64)],
+    roots: &crate::roots::Roots,
+    min: i64,
+) -> Vec<(String, i64)> {
+    let grew: Vec<&(String, i64)> = items
+        .iter()
+        .filter(|(p, d)| *d >= min && roots.sync_root_of(p).is_some())
+        .collect();
+    grew.iter()
+        .filter(|(p, _)| {
+            !grew
+                .iter()
+                .any(|(other, _)| other != p && crate::roots::is_within(other, p))
+        })
+        .map(|x| (*x).clone())
+        .collect()
+}

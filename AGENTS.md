@@ -133,9 +133,11 @@ dehydrates, or writes outside the app's own data folder.
    exactly what would happen: the items, total size, destination, and skipped items with
    a reason. A test proves that a dry run writes nothing (the temp tree is identical
    before and after).
-3. **Permanent deletion happens only in the 30-day purge.** It works only inside the
-   quarantine root, and only on items whose manifest entry still matches (S1, S6). Users
-   delete earlier themselves in Explorer; the app has no delete-now button.
+3. **Permanent deletion is limited (S6).** The 30-day purge works only inside the
+   quarantine root, on items whose manifest entry still matches. "Delete now" works only
+   on items whose rule has tier Safe, outside sync roots, after a preview, with an
+   identity check per item and an audit-log line. Emptying the Recycle Bin goes through
+   Windows' own function. Everything else goes through the quarantine.
 4. **Write-ahead manifest (S5).**
    - Before a move starts, write and flush its manifest entry: original path, file ID,
      size, timestamps, operation ID and time.

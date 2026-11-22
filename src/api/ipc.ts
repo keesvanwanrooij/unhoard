@@ -6,41 +6,47 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type {
   AdminReadResult,
   AdminStartResult,
+  AppInfo,
+  AppName,
   ChatError,
-  ChatSetup,
-  PullProgress,
   ChatEvent,
   ChatMessage,
-  Finding,
-  GrowthView,
-  ModelInfo,
-  Result,
-  StartupChange,
-  StartupError,
-  StartupScope,
-  TimelinePoint,
-  AppName,
-  AppInfo,
+  ChatSetup,
   CloudRoot,
   CmdError,
+  DeletePlan,
+  DeleteReport,
   Details,
+  DockerDiskOut,
   DockerResult,
+  Finding,
   FreeUpPlan,
   FreeUpResult,
+  GrowthView,
+  HiddenPart,
   ItemResult,
   MatrixPoint,
+  ModelInfo,
   MovePlan,
   MoveReport,
   OllamaModel,
   OpenAppResult,
   PhotoState,
+  PullProgress,
   PurgeReport,
   QuarantineState,
+  RecycleBin,
+  Result,
   RevealResult,
   ScanStatus,
   Settings,
+  StartupChange,
+  StartupError,
+  StartupScope,
   Suggestion,
   ThumbOut,
+  TimelinePoint,
+  ToolError,
   ViewResponse,
   WindowsTool,
 } from "./types";
@@ -77,6 +83,14 @@ export const api = {
   openTool: (tool: WindowsTool): Promise<void> => invoke("open_tool", { tool }),
   freeUpPreview: (generation: number, ids: number[]): Promise<FreeUpPlan> => invoke("free_up_preview", { generation, ids }),
   freeUpApply: (generation: number, ids: number[]): Promise<FreeUpResult> => invoke("free_up_apply", { generation, ids }),
+  deletePreview: (generation: number, ids: number[]): Promise<DeletePlan> => invoke("delete_preview", { generation, ids }),
+  deleteNow: (generation: number, ids: number[]): Promise<DeleteReport> => invoke("delete_now", { generation, ids }),
+  recycleBin: (): Promise<RecycleBin> => invoke("recycle_bin"),
+  recycleBinEmpty: (): Promise<number> => invoke("recycle_bin_empty"),
+  dockerDisk: (): Promise<DockerDiskOut | null> => invoke("docker_disk"),
+  dockerCompact: (): Promise<{ Ok: number } | { Err: ToolError }> => invoke("docker_compact"),
+  cloudGrowthAlert: (): Promise<[string, number][]> => invoke("cloud_growth_alert"),
+  hiddenParts: (generation: number): Promise<HiddenPart[]> => invoke("hidden_parts", { generation }),
   revealHidden: (generation: number): Promise<RevealResult> => invoke("reveal_hidden", { generation }),
   photosAnalyze: (): Promise<PhotoState> => invoke("photos_analyze"),
   photoThumbnail: (generation: number, index: number, side: number): Promise<ThumbOut> =>
@@ -124,6 +138,13 @@ export function onScanProgress(f: (s: ScanStatus) => void): Promise<UnlistenFn> 
 export function onChatPull(f: (p: PullProgress) => void): Promise<UnlistenFn> {
   return listen<PullProgress>("chat-pull", (e) => {
     f(e.payload);
+  });
+}
+
+/** Progress of "free up space": folders and files done and to do. */
+export function onFreeUpProgress(f: (done: number, total: number) => void): Promise<UnlistenFn> {
+  return listen<[number, number]>("free-up-progress", (e) => {
+    f(e.payload[0], e.payload[1]);
   });
 }
 

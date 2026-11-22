@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-docker-disk"
+description = "Enables the docker_disk command without any pre-configured scope."
+commands.allow = ["docker_disk"]
+
+[[permission]]
+identifier = "deny-docker-disk"
+description = "Denies the docker_disk command without any pre-configured scope."
+commands.deny = ["docker_disk"]

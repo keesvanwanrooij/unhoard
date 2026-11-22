@@ -69,6 +69,42 @@ pub fn model_name(relative: &str) -> Option<String> {
     })
 }
 
+/// The repository name in a Hugging Face cache folder (`models--Org--Name` gives `Name`).
+pub fn hf_repo(folder: &str) -> Option<&str> {
+    let rest = folder.strip_prefix("models--")?;
+    rest.rsplit("--").next().filter(|n| !n.is_empty())
+}
+
+/// A model name reduced to letters and digits, without a quantisation or precision suffix
+/// (`-q4_K_M`, `-fp16`, `-bf16`, `-gguf`) and without the tag `latest`.
+fn model_key(name: &str) -> String {
+    let base = name.rsplit('/').next().unwrap_or(name).to_lowercase();
+    let base = base.strip_suffix(":latest").unwrap_or(&base).to_string();
+    let mut cut = base.len();
+    for marker in [
+        "-q", "_q", "-fp16", "-fp32", "-bf16", "-gguf", "-awq", "-gptq",
+    ] {
+        if let Some(i) = base.find(marker) {
+            // `-q` only starts a suffix when a digit follows (`-q4_K_M`, not `-qwen`).
+            let after = base[i + marker.len()..].chars().next();
+            if !marker.ends_with('q') || after.is_some_and(|c| c.is_ascii_digit()) {
+                cut = cut.min(i);
+            }
+        }
+    }
+    base[..cut]
+        .chars()
+        .filter(char::is_ascii_alphanumeric)
+        .collect()
+}
+
+/// True when a Hugging Face repository and an Ollama model are the same model: equal once
+/// case, punctuation and quantisation suffixes are removed.
+pub fn same_model(hf_repo: &str, ollama_name: &str) -> bool {
+    let (a, b) = (model_key(hf_repo), model_key(ollama_name));
+    !a.is_empty() && a == b
+}
+
 /// The blob file name for a digest, or `None` unless it is `sha256:` and 64 hex digits.
 fn blob_name(digest: &str) -> Option<String> {
     let hex = digest.strip_prefix("sha256:")?;

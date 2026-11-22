@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-docker-compact"
+description = "Enables the docker_compact command without any pre-configured scope."
+commands.allow = ["docker_compact"]
+
+[[permission]]
+identifier = "deny-docker-compact"
+description = "Denies the docker_compact command without any pre-configured scope."
+commands.deny = ["docker_compact"]

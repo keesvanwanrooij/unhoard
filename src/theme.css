@@ -1198,6 +1198,33 @@ small.hint {
   flex-direction: column;
   gap: 10px;
 }
+/* A sheet whose confirm deletes for good. */
+.sheet.danger {
+  border-color: var(--t-review);
+}
+.recycle-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.recycle-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
+}
+.recycle-list .nm,
+.recycle-list .note {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recycle-list .sz {
+  font: 12px var(--mono);
+}
 /* Multi-select in Suggestions: a checkbox per item and group, and a bar that stays in view. */
 .pick-cell {
   width: 28px;
@@ -1490,6 +1517,20 @@ input.pick {
 .chat .msg.user {
   align-self: flex-end;
   background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+/* A tip of Lumen's in its panel: the bubble it was, kept. */
+.chat .msg.tip .kind {
+  font: 600 10px var(--display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.chat .msg.tip.warning .kind {
+  color: var(--t-review);
+}
+.chat .msg.tip .btns {
+  margin-top: 6px;
 }
 .chat .msg.assistant {
   align-self: flex-start;

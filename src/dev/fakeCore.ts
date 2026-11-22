@@ -184,7 +184,11 @@ function buildSuggestions(): unknown[] {
         description: {
           ruleId: k.ruleId,
           tier: k.tier,
-          actions: steamGame ? [{ type: "appUninstall" }, { type: "showInExplorer" }] : [{ type: "quarantine" }, { type: "showInExplorer" }],
+          actions: steamGame
+            ? [{ type: "appUninstall" }, { type: "showInExplorer" }]
+            : k.tier === "safe"
+              ? [{ type: "deleteNow" }, { type: "quarantine" }, { type: "showInExplorer" }]
+              : [{ type: "quarantine" }, { type: "showInExplorer" }],
           large: k.ruleId === null && k.steam === null,
           definition: false,
           explain: fakeExplain(n),
@@ -387,6 +391,38 @@ export function installFakeCore(): void {
           const total = moves.reduce((n, m) => n + m.onDisk, 0);
           return { moves, skipped: [], totalLogical: total, totalOnDisk: total, destinations: ["C:\\Unhoard Quarantine"] };
         }
+        case "delete_preview": {
+          const ids = (a["ids"] as number[] | undefined) ?? [];
+          const items = ids.map((id) => ({ node: id, path: `C:/fake/cache-${String(id)}`, onDisk: nodes[id]?.size ?? 0, ruleId: "npm-cache" }));
+          return { items, skipped: [], totalOnDisk: items.reduce((n, i) => n + i.onDisk, 0) };
+        }
+        case "delete_now": {
+          const ids = (a["ids"] as number[] | undefined) ?? [];
+          return { results: ids.map((id) => ({ path: `C:/fake/cache-${String(id)}`, outcome: { outcome: "deleted" } })), deletedOnDisk: ids.reduce((n, id) => n + (nodes[id]?.size ?? 0), 0) };
+        }
+        case "recycle_bin":
+          return {
+            items: [
+              { original: "C:/Users/you/Downloads/model.safetensors", size: 11.5 * GB, deletedAt: Date.now() / 1000 - 3 * 86400 },
+              { original: "C:/Users/you/Downloads/setup.zip", size: 0.06 * GB, deletedAt: Date.now() / 1000 - 9 * 86400 },
+            ],
+            count: 2,
+            total: 11.56 * GB,
+          };
+        case "recycle_bin_empty":
+          return 11.56 * GB;
+        case "docker_disk":
+          return { disk: { path: "C:/fake/docker_data.vhdx", size: 29 * GB, used: 7.5 * GB }, worthCompacting: true };
+        case "docker_compact":
+          return new Promise((resolve) => setTimeout(() => { resolve({ Ok: 19.3 * GB }); }, 1500));
+        case "cloud_growth_alert":
+          return [["C:/Users/you/OneDrive/Storage/Work", 19 * GB]];
+        case "hidden_parts":
+          return [
+            { path: "C:/System Volume Information", kind: "restorePoints" },
+            { path: "C:/Program Files/WindowsApps", kind: "storeApps" },
+            { path: "C:/Users/Other", kind: "otherAccounts" },
+          ];
         case "chat_setup":
           return {
             Ok: {

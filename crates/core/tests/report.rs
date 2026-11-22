@@ -97,3 +97,29 @@ fn f10_report_matches_the_contract_and_never_shows_the_profile() {
         assert!(v.get(key).is_some(), "missing {key}");
     }
 }
+
+#[test]
+fn f10_diff_compares_only_paths_both_scans_measured() {
+    use unhoard_core::report::diff_reports;
+    let old = serde_json::json!({"items": [
+        {"path": "C:/a", "onDiskBytes": 100, "children": [
+            {"path": "C:/a/x", "onDiskBytes": 60, "children": []}
+        ]},
+        {"path": "C:/gone", "onDiskBytes": 50, "children": []}
+    ]});
+    // The new scan went one level deeper and found a new folder.
+    let new = serde_json::json!({"items": [
+        {"path": "C:/a", "onDiskBytes": 400, "children": [
+            {"path": "C:/a/x", "onDiskBytes": 60, "children": [
+                {"path": "C:/a/x/deep", "onDiskBytes": 60, "children": []}
+            ]}
+        ]},
+        {"path": "C:/new", "onDiskBytes": 70, "children": []}
+    ]});
+    let d = diff_reports(&old, &new);
+    assert_eq!(
+        d,
+        vec![("C:/a".to_string(), 300)],
+        "unchanged and one-sided paths are left out"
+    );
+}

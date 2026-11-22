@@ -188,6 +188,14 @@ pub fn run() -> anyhow::Result<()> {
             commands::chat_stop,
             commands::chat_setup,
             commands::chat_pull,
+            commands::delete_preview,
+            commands::delete_now,
+            commands::recycle_bin,
+            commands::recycle_bin_empty,
+            commands::docker_disk,
+            commands::docker_compact,
+            commands::cloud_growth_alert,
+            commands::hidden_parts,
         ])
         .run(context)?;
     Ok(())

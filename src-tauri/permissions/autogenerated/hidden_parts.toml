@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-hidden-parts"
+description = "Enables the hidden_parts command without any pre-configured scope."
+commands.allow = ["hidden_parts"]
+
+[[permission]]
+identifier = "deny-hidden-parts"
+description = "Denies the hidden_parts command without any pre-configured scope."
+commands.deny = ["hidden_parts"]

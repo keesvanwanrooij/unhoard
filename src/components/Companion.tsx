@@ -74,20 +74,16 @@ function savePosition(p: Position): void {
   }
 }
 
-/** The companion with its current bubble. Drag the orb to move it; click it for history. */
+/** The companion with its current bubble. Drag the orb to move it; click it for its panel. */
 export function Companion(): JSX.Element {
   const { t } = useTranslation();
   const { queue, dismiss, expire, bubbleVersion } = useApp(
     useShallow((s) => ({ queue: s.queue, dismiss: s.dismiss, expire: s.expire, bubbleVersion: s.bubbleVersion })),
   );
-  // The history belongs to the bubble that was showing when it was opened, so any new
-  // bubble closes it and old messages never stay on screen.
-  const [historyFor, setHistoryFor] = useState<number | null>(null);
   const [pos, setPos] = useState<Position>(loadPosition);
   const drag = useRef<{ x: number; y: number; moved: boolean; box: DOMRect } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const current = queue.current;
-  const showHistory = historyFor === (current?.id ?? 0);
 
   useEffect(() => {
     if (!current) return;
@@ -129,10 +125,14 @@ export function Companion(): JSX.Element {
     if (drag.current?.moved) savePosition(pos);
   };
   const onClick = (): void => {
-    // A drag ends with a click event too; only a press without movement opens the history.
+    // A drag ends with a click event too; only a press without movement opens Lumen's
+    // panel, where every earlier tip and the chat live.
     const moved = drag.current?.moved ?? false;
     drag.current = null;
-    if (!moved) setHistoryFor(showHistory ? null : (current?.id ?? 0));
+    if (!moved) {
+      const app = useApp.getState();
+      app.setChatOpen(!app.chatOpen);
+    }
   };
 
   // The bubble opens towards the middle of the stage, so it never leaves the screen.
@@ -141,17 +141,6 @@ export function Companion(): JSX.Element {
   return (
     <div ref={rootRef} className={`companion${current ? " talking" : ""}${pos ? " placed" : ""}${side}`} style={style}>
       <div className="cmp-pop">
-        {showHistory && queue.history.length > 0 ? (
-          <div className="history-list">
-            <div className="kind">{t("companion.earlier")}</div>
-            {queue.history
-              .slice(-20)
-              .reverse()
-              .map((b) => (
-                <div key={b.id}>{b.text}</div>
-              ))}
-          </div>
-        ) : null}
         <div role="status" aria-live="polite">
           {current ? (
             <div className={`bubble ${current.type}`}>

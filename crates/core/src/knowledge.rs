@@ -113,6 +113,19 @@ pub struct Knowledge {
     pub gone: Vec<Activity>,
     /// Steam libraries.
     pub steam: Vec<SteamLibrary>,
+    /// The names of the models Ollama has installed (`qwen3:8b`).
+    pub ollama_models: Vec<String>,
+}
+
+impl Knowledge {
+    /// The Ollama model that a Hugging Face cache folder is a second copy of, if any.
+    pub fn ollama_twin(&self, folder: &str) -> Option<&str> {
+        let repo = crate::adapters::ollama::hf_repo(folder)?;
+        self.ollama_models
+            .iter()
+            .find(|m| crate::adapters::ollama::same_model(repo, m))
+            .map(String::as_str)
+    }
 }
 
 /// Lower case with backslashes and no trailing separator, the form paths compare in.

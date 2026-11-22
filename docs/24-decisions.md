@@ -77,6 +77,15 @@ options and trade-offs, before they are built.
 | Reading protected folders: a setting (Ask, Always, Never), one question when a scan starts, and a per-folder button | Complete numbers when the user wants them, without a UAC prompt they did not expect; the main app still never runs elevated |
 | Items read with admin rights never offer a move | The app itself has no rights there; a move would fail or need elevation, which only the read-only helper has |
 | Suggestions has checkboxes over all tiers plus one action bar | Kees wanted to clean several kinds at once; nothing is ticked at the start and the bar opens the same preview, so S1 holds |
+| "Delete now" for tier Safe items and "Empty" for the Recycle Bin, next to the quarantine | A quarantine on the same drive frees nothing for 30 days, while caches that their program makes again need no way back; a real cleanup on the reference PC needed both. Everything not tier Safe keeps going through the quarantine (S6) |
+| The Recycle Bin shows original names, folders and dates from its `$I` files, and empties through `SHEmptyRecycleBin` | Its `$R` names say nothing, and Windows' own item list reported a wrong size above 4 GB |
+| Docker's virtual disk is compacted with `diskpart` after stopping Docker and WSL, with one UAC prompt (S7) | Docker's disk kept 29 GB for 7.5 GB of data; compacting gave 20 GB back on the reference PC and keeps every image and volume; it is the only elevated write and runs a fixed script on a verified path |
+| A model kept both in the Hugging Face cache and in Ollama is a suggestion | The same model in two runtimes is a whole copy (15 GB on the reference PC); names match once case, punctuation and quantisation suffixes are removed |
+| Lumen, its tips and the chat are one panel that grows out of Lumen; a new tip shows briefly as a bubble and stays in the panel | Kees chose one place for everything Lumen says, so a tip can be read and answered later |
+| Fast OneDrive growth is told by Lumen when the app opens, not by a Windows notification | No background process or notification outside the app; the daily measurement already knows the growth |
+| "Free up space" also unpins the chosen folders and shows progress | Files that arrive later then stay online-only too, and the user sees OneDrive remove the local copies |
+| The CLI ships with the installer, with `suggestions --json` and `diff` | The cleanup on the reference PC needed both; agents and power users can script them |
+| Quarantine batch folders are named `<date> - purged after <date>` | The middle dot showed as "?" in consoles |
 
 ## Known locations
 

@@ -56,6 +56,8 @@ pub struct Description {
     pub elevated: bool,
     /// When the item was last used, and the source of that date.
     pub last_use: Option<LastUse>,
+    /// The Ollama model this Hugging Face cache folder is a second copy of.
+    pub duplicate_of: Option<String>,
 }
 
 /// The kind of content of a file, from its extension.
@@ -115,6 +117,9 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
     let leftover = (steam.is_none() && rule.is_none() && program.is_none())
         .then(|| leftover_of(tree, id, &ctx.knowledge, &ctx.roots, ctx.now, keep))
         .flatten();
+    let twin = (node.kind == NodeKind::Folder)
+        .then(|| ctx.knowledge.ollama_twin(&node.name))
+        .flatten();
     let mut actions = match (&steam, rule, &program) {
         (Some(SteamInfo::Game { .. }), ..) => {
             // An installed game goes through Steam, so Steam stays consistent.
@@ -137,6 +142,11 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
         (None, None, Some(_)) => {
             d.tier = Some(Tier::Review);
             vec![Action::Uninstaller, Action::ShowInExplorer]
+        }
+        (None, None, None) if twin.is_some() => {
+            d.tier = Some(Tier::Review);
+            d.duplicate_of = twin.map(str::to_string);
+            vec![Action::Quarantine, Action::ShowInExplorer]
         }
         (None, None, None) if leftover.is_some() => {
             d.tier = Some(match leftover {
@@ -171,6 +181,11 @@ pub fn describe(tree: &Tree, id: NodeId, ctx: &ScanContext) -> Description {
     }
     if actions.contains(&Action::Quarantine) {
         d.quarantine_root = ctx.roots.quarantine_root_for(&path);
+        // A cache its program makes again needs no way back (S6).
+        if !cloud && rule.is_some_and(|r| r.tier == Tier::Safe && !r.define) && d.leftover.is_none()
+        {
+            actions.insert(0, Action::DeleteNow);
+        }
     }
     d.actions = actions;
     d

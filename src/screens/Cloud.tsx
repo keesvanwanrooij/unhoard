@@ -4,7 +4,7 @@ import { useEffect, useState, type JSX } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
-import { api } from "../api/ipc";
+import { api, onFreeUpProgress } from "../api/ipc";
 import type { CloudRoot, FreeUpPlan } from "../api/types";
 import { fmtBytes, fmtInt } from "../format";
 import { useApp } from "../store";
@@ -16,7 +16,19 @@ export function Cloud(): JSX.Element {
   const [roots, setRoots] = useState<CloudRoot[] | null>(null);
   const [plan, setPlan] = useState<{ id: number; plan: FreeUpPlan } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<[number, number] | null>(null);
   const generation = scan?.done ? scan.generation : undefined;
+
+  useEffect(() => {
+    const off = onFreeUpProgress((done, total) => {
+      setProgress([done, total]);
+    });
+    return () => {
+      off.then((f) => {
+        f();
+      }).catch(() => undefined);
+    };
+  }, []);
 
   useEffect(() => {
     if (generation === undefined) return;
@@ -79,6 +91,13 @@ export function Cloud(): JSX.Element {
                     </div>
                   ) : null}
                   <div className="note">{t("preview.freeNote")}</div>
+                  {plan.plan.folders.length > 0 ? <div className="note">{t("cloud.foldersNote", { count: plan.plan.folders.length })}</div> : null}
+                  {busy && progress ? (
+                    <div className="photo-progress">
+                      <progress value={progress[0]} max={progress[1]} />
+                      <span className="note">{t("cloud.progress", { done: fmtInt(progress[0], lang), total: fmtInt(progress[1], lang) })}</span>
+                    </div>
+                  ) : null}
                   <div className="btns">
                     <button
                       className="btn primary"
@@ -86,6 +105,7 @@ export function Cloud(): JSX.Element {
                       onClick={() => {
                         const id = plan.id;
                         setBusy(true);
+                        setProgress(null);
                         api
                           .freeUpApply(generation, [id])
                           .then((res) => {

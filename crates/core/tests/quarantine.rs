@@ -214,7 +214,11 @@ fn f5_move_and_restore_round_trip_keeps_name_and_attributes() {
     assert!(!fs.has(r"C:\Users\u\Downloads\big.iso"));
     let mut b = batches(&fs);
     assert_eq!(b.len(), 1);
-    assert!(b[0].dir.contains("purged after"));
+    assert!(b[0].dir.contains(" - purged after "), "{}", b[0].dir);
+    assert!(
+        b[0].dir.is_ascii(),
+        "batch names stay readable in any console"
+    );
     assert!(fs.has(&unhoard_core::roots::join(
         &b[0].dir,
         "READ ME - where these came from.txt"

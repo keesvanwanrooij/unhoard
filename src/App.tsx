@@ -365,6 +365,34 @@ export function App(): JSX.Element {
     };
   }, []);
 
+  // Fast growth of local cloud copies, from the daily measurement: Lumen says it once at start.
+  useEffect(() => {
+    api
+      .cloudGrowthAlert()
+      .then((list) => {
+        const first = list[0];
+        if (!first) return;
+        const [path, delta] = first;
+        const app = useApp.getState();
+        app.say({
+          type: "tip",
+          key: "cloudGrowth",
+          text: t("cloudGrowth.bubble", { folder: path.split("\\").pop() ?? path, size: fmtBytes(delta, app.lang) }),
+          actions: [
+            {
+              label: t("cloudGrowth.action"),
+              run: () => {
+                useApp.getState().setScreen("cloud");
+              },
+            },
+          ],
+        });
+      })
+      .catch(() => undefined);
+    // Once per start.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const shown = useDeferredValue(screen);
 
   return (

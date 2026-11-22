@@ -30,9 +30,10 @@ use unhoard_core::photos::{
     video_duplicates,
 };
 use unhoard_core::quarantine::{
-    self, Batch, DriveSpace, ItemResult, ItemStatus, Manifest, MovePlan, MoveReport, Outcome,
-    PurgeReport, Warning, drive_space, execute_move, execute_purge, load_batches, plan_move,
-    reconcile, record_warning, refresh, restore, warnings_due,
+    self, Batch, DeletePlan, DeleteReport, DriveSpace, ItemResult, ItemStatus, Manifest, MovePlan,
+    MoveReport, Outcome, PurgeReport, Warning, drive_space, execute_delete, execute_move,
+    execute_purge, load_batches, plan_delete, plan_move, reconcile, record_warning, refresh,
+    restore, warnings_due,
 };
 use unhoard_core::roots::{Roots, drive_of};
 use unhoard_core::scan::{ScanContext, ScanControl, scan_into};
@@ -825,6 +826,34 @@ impl Service {
         Ok(report)
     }
 
+    /// Previews "Delete now" for items of the current scan (S6).
+    pub fn delete_preview(&self, generation: u64, ids: &[u32]) -> Result<DeletePlan, CmdError> {
+        let (s, ids) = self.resolve(generation, ids)?;
+        let tree = lock(&s.tree);
+        Ok(plan_delete(&*self.fs, &tree, &ids, &self.context()))
+    }
+
+    /// Deletes tier Safe items for good. Re-plans (and so re-verifies) before acting, and
+    /// removes the deleted items from the tree.
+    pub fn delete_now(&self, generation: u64, ids: &[u32]) -> Result<DeleteReport, CmdError> {
+        let (s, ids) = self.resolve(generation, ids)?;
+        if !s.done.load(Ordering::SeqCst) {
+            return Err(CmdError::Busy);
+        }
+        let plan = {
+            let tree = lock(&s.tree);
+            plan_delete(&*self.fs, &tree, &ids, &self.context())
+        };
+        let report = execute_delete(&*self.fs, &plan, &self.audit_log, self.fs.now());
+        let mut tree = lock(&s.tree);
+        for (item, r) in plan.items.iter().zip(report.results.iter()) {
+            if matches!(r.outcome, Outcome::Deleted) {
+                tree.detach(item.node);
+            }
+        }
+        Ok(report)
+    }
+
     fn load(&self) -> Vec<Batch> {
         load_batches(&*self.fs, &self.quarantine_roots)
     }
@@ -951,13 +980,15 @@ impl Service {
     }
 
     /// Frees up space (pin state only) and reports what is still on this PC afterwards.
+    /// `progress` hears how many folders and files are done.
     pub fn free_up_apply(
         &self,
         generation: u64,
         ids: &[u32],
+        progress: &mut dyn FnMut(usize, usize),
     ) -> Result<(PinResults, u64, u64), CmdError> {
         let plan = self.free_up_preview(generation, ids)?;
-        let results = apply_free_up(&*self.fs, &plan);
+        let results = apply_free_up(&*self.fs, &plan, progress);
         let paths: Vec<String> = plan.files.iter().map(|f| f.1.clone()).collect();
         let still_local = remeasure(&*self.fs, &paths);
         Ok((results, plan.bytes_to_free, still_local))
