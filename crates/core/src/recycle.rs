@@ -43,8 +43,10 @@ pub fn parse_info(bytes: &[u8]) -> Option<RecycledItem> {
     };
     let raw = bytes.get(start..start + units * 2)?;
     let wide: Vec<u16> = raw
-        .chunks_exact(2)
-        .map(|c| u16::from_le_bytes([c[0], c[1]]))
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|c| u16::from_le_bytes(*c))
         .take_while(|u| *u != 0)
         .collect();
     let original = String::from_utf16(&wide).ok()?;
