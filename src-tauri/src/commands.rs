@@ -5,6 +5,7 @@
 //! come from an allowlist. Heavy work runs on blocking worker threads so the window stays
 //! responsive.
 
+use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -16,16 +17,20 @@ use unhoard_core::adapters::ollama::OllamaModel;
 use unhoard_core::cloud::FreeUpPlan;
 use unhoard_core::fs::FsError;
 use unhoard_core::hidden::{HiddenKind, hidden_kind};
+use unhoard_core::optimise::{Finding, OptimiseData, StartupScope, findings};
 use unhoard_core::quarantine::{ItemResult, Manifest, MovePlan, MoveReport};
 use unhoard_core::rules::WindowsTool;
 use unhoard_core::view::{MatrixPoint, Suggestion};
+use unhoard_platform::ollama::ChatError;
 use unhoard_platform::reveal::{HelperSession, RevealError, RevealedFolder, start_helper};
 use unhoard_platform::tools::ToolError;
-use unhoard_platform::{knowledge, media, system, tools};
+use unhoard_platform::{knowledge, media, optimise, system, tools};
+
+use crate::chat;
 
 use crate::service::{
-    CloudRoot, CmdError, Details, Measured, MeasuredSummary, PhotoState, QuarantineState, Service,
-    ViewResponse,
+    CloudRoot, CmdError, Details, GrowthView, Measured, MeasuredSummary, PhotoState,
+    QuarantineState, Service, TimelinePoint, ViewResponse,
 };
 
 /// The shared service.
@@ -124,6 +129,12 @@ pub struct Settings {
     pub admin_read: String,
     /// The first-run welcome was shown.
     pub first_run_done: bool,
+    /// Background insights: the daily measurement for storage history (on by default).
+    pub insights: bool,
+    /// The AI chat through Ollama on this PC (off by default; when off, no connection).
+    pub chat: bool,
+    /// The chat model the user picked, or `None` for the recommended one.
+    pub chat_model: Option<String>,
 }
 
 impl Default for Settings {
@@ -136,6 +147,9 @@ impl Default for Settings {
             companion: "normal".into(),
             admin_read: "ask".into(),
             first_run_done: false,
+            insights: true,
+            chat: false,
+            chat_model: None,
         }
     }
 }
@@ -150,7 +164,16 @@ impl Settings {
             && ["onDisk", "logical"].contains(&self.measure.as_str())
             && ["normal", "quiet"].contains(&self.companion.as_str())
             && ["ask", "always", "never"].contains(&self.admin_read.as_str())
+            && self.chat_model.as_deref().is_none_or(valid_model)
     }
+}
+
+/// A model name as Ollama writes them: letters, digits and `.:_-/`, at most 200 long.
+fn valid_model(m: &str) -> bool {
+    !m.is_empty()
+        && m.len() <= 200
+        && m.chars()
+            .all(|c| c.is_ascii_alphanumeric() || ".:_-/".contains(c))
 }
 
 fn settings_path() -> Option<std::path::PathBuf> {
@@ -188,7 +211,280 @@ pub fn settings_set(settings: Settings) -> Result<(), CmdError> {
     let bytes = serde_json::to_vec_pretty(&settings).map_err(|_| CmdError::InvalidArgument {
         what: "settings".into(),
     })?;
-    std::fs::write(p, bytes).map_err(io)
+    let insights = settings.insights;
+    std::fs::write(p, bytes).map_err(io)?;
+    // The daily measurement's task follows the switch at once, off the UI thread.
+    std::thread::spawn(move || {
+        if insights {
+            unhoard_platform::schedule::install();
+        } else {
+            unhoard_platform::schedule::remove();
+        }
+    });
+    Ok(())
+}
+
+/// The startup switches made this session, so each can be undone by its index; the old
+/// values never come back from the webview.
+#[derive(Default)]
+pub struct OptimiseState(Mutex<Vec<optimise::StartupChange>>);
+
+/// Runs the check-up and returns its findings, except Windows Update (about a second of
+/// CPU sampling).
+#[tauri::command]
+pub async fn optimise_check(svc: Svc<'_>) -> Result<Vec<Finding>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let (free, total) = svc.system_space();
+        let data = optimise::gather(&svc.context().roots, free, total);
+        Ok(findings(&data))
+    })
+    .await
+}
+
+/// The Windows Update finding on its own: its search can take half a minute.
+#[tauri::command]
+pub async fn optimise_updates() -> Result<Vec<Finding>, CmdError> {
+    blocking(|| {
+        let now = unhoard_core::fs::FileSystem::now(&unhoard_platform::WindowsFs);
+        let data = OptimiseData {
+            updates: optimise::updates(now),
+            ..OptimiseData::default()
+        };
+        Ok(findings(&data)
+            .into_iter()
+            .filter(|f| f.id == "updates")
+            .collect())
+    })
+    .await
+}
+
+/// What switching a startup entry would change (a dry run), or the reason it cannot.
+#[tauri::command]
+pub async fn startup_preview(
+    svc: Svc<'_>,
+    scope: StartupScope,
+    name: String,
+    enabled: bool,
+) -> Result<Result<optimise::StartupChange, optimise::StartupError>, CmdError> {
+    check_name(&name)?;
+    let svc = svc.inner().clone();
+    blocking(move || {
+        Ok(optimise::startup_set(
+            &svc.context().roots,
+            scope,
+            &name,
+            enabled,
+            0,
+            true,
+        ))
+    })
+    .await
+}
+
+/// Switches a startup entry of the current user on or off (High: one registry value, as
+/// Task Manager writes it). Returns the index to undo it with.
+#[tauri::command]
+pub async fn startup_set(
+    svc: Svc<'_>,
+    state: State<'_, Arc<OptimiseState>>,
+    scope: StartupScope,
+    name: String,
+    enabled: bool,
+) -> Result<Result<usize, optimise::StartupError>, CmdError> {
+    check_name(&name)?;
+    let (svc, state) = (svc.inner().clone(), state.inner().clone());
+    blocking(move || {
+        let now = unhoard_core::fs::FileSystem::now(&unhoard_platform::WindowsFs);
+        let filetime = unhoard_core::time::unix_to_filetime(now);
+        let result =
+            optimise::startup_set(&svc.context().roots, scope, &name, enabled, filetime, false);
+        let op = if enabled {
+            "startupEnable"
+        } else {
+            "startupDisable"
+        };
+        svc.audit_startup(op, &name, result.is_ok());
+        Ok(result.map(|change| {
+            let mut changes = state
+                .0
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            changes.push(change);
+            changes.len() - 1
+        }))
+    })
+    .await
+}
+
+/// Undoes a startup switch made this session: writes back the exact old value.
+#[tauri::command]
+pub async fn startup_undo(
+    svc: Svc<'_>,
+    state: State<'_, Arc<OptimiseState>>,
+    index: usize,
+) -> Result<Result<(), optimise::StartupError>, CmdError> {
+    let (svc, state) = (svc.inner().clone(), state.inner().clone());
+    blocking(move || {
+        let change = state
+            .0
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .get(index)
+            .cloned()
+            .ok_or(CmdError::InvalidArgument {
+                what: "index".into(),
+            })?;
+        let result = optimise::startup_undo(&change);
+        svc.audit_startup("startupUndo", &change.name, result.is_ok());
+        Ok(result)
+    })
+    .await
+}
+
+/// A startup entry name from the webview: plain text of a sane length.
+fn check_name(name: &str) -> Result<(), CmdError> {
+    // Registry value names may hold backslashes; they are never used as a path.
+    if name.is_empty() || name.len() > 260 || name.contains('\0') {
+        return Err(CmdError::InvalidArgument {
+            what: "name".into(),
+        });
+    }
+    Ok(())
+}
+
+/// Stops the answer being written.
+#[derive(Default)]
+pub struct ChatState(AtomicBool);
+
+/// The models Ollama has installed, with the recommended one marked. Opens a connection
+/// only when the chat is switched on (AC8.6).
+#[tauri::command]
+pub async fn chat_models() -> Result<Result<Vec<chat::ModelInfo>, ChatError>, CmdError> {
+    blocking(|| {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::models())
+    })
+    .await
+}
+
+/// Answers the last message of `messages`; the answer arrives as `chat-event` events.
+#[tauri::command]
+pub async fn chat_send(
+    app: AppHandle,
+    svc: Svc<'_>,
+    state: State<'_, Arc<ChatState>>,
+    messages: Vec<chat::Message>,
+    lang: String,
+) -> Result<Result<(), ChatError>, CmdError> {
+    if messages.is_empty() || messages.len() > 200 || !["en", "nl"].contains(&lang.as_str()) {
+        return Err(CmdError::InvalidArgument {
+            what: "messages".into(),
+        });
+    }
+    let (svc, state) = (svc.inner().clone(), state.inner().clone());
+    blocking(move || {
+        let settings = settings_get();
+        if !settings.chat {
+            return Ok(Err(ChatError::Off));
+        }
+        let model = settings
+            .chat_model
+            .unwrap_or_else(|| chat::RECOMMENDED.to_string());
+        state.0.store(false, Ordering::SeqCst);
+        let emit = |e: chat::ChatEvent| {
+            let _ui_may_be_closed = app.emit("chat-event", e);
+        };
+        Ok(chat::converse(
+            &svc, &model, &messages, &lang, &emit, &state.0,
+        ))
+    })
+    .await
+}
+
+/// Ollama's state, the installed models and the model advice for this PC. Opens a connection
+/// only when the chat is switched on (AC8.6).
+#[tauri::command]
+pub async fn chat_setup(svc: Svc<'_>) -> Result<Result<chat::ChatSetup, ChatError>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::setup(&svc.context().roots))
+    })
+    .await
+}
+
+/// Asks Ollama to download one of the recommended models; progress arrives as `chat-pull`
+/// events. Only on the user's click, and only with the chat switched on.
+#[tauri::command]
+pub async fn chat_pull(app: AppHandle, model: String) -> Result<Result<bool, ChatError>, CmdError> {
+    if !unhoard_core::chat::may_pull(&model) {
+        return Err(CmdError::InvalidArgument {
+            what: "model".into(),
+        });
+    }
+    blocking(move || {
+        if !settings_get().chat {
+            return Ok(Err(ChatError::Off));
+        }
+        Ok(chat::pull(&model, &|p| {
+            let _ui_may_be_closed = app.emit("chat-pull", p);
+        }))
+    })
+    .await
+}
+
+/// Stops the answer being written; Ollama keeps running.
+#[tauri::command]
+pub fn chat_stop(state: State<'_, Arc<ChatState>>) {
+    state.0.store(true, Ordering::SeqCst);
+}
+
+/// The storage-history timeline of a fixed drive (`C:`).
+#[tauri::command]
+pub async fn history_timeline(svc: Svc<'_>, drive: String) -> Result<Vec<TimelinePoint>, CmdError> {
+    let root = drive_root(&drive)?;
+    let svc = svc.inner().clone();
+    blocking(move || Ok(svc.history_timeline(&root))).await
+}
+
+/// What grew on a fixed drive over the last `days` days (1, 7, 30 or 90).
+#[tauri::command]
+pub async fn history_growth(
+    svc: Svc<'_>,
+    drive: String,
+    days: u32,
+) -> Result<GrowthView, CmdError> {
+    if ![1, 7, 30, 90].contains(&days) {
+        return Err(CmdError::InvalidArgument {
+            what: "days".into(),
+        });
+    }
+    let root = drive_root(&drive)?;
+    let svc = svc.inner().clone();
+    blocking(move || Ok(svc.history_growth(&root, days))).await
+}
+
+/// Deletes the storage history (Settings › Background insights › Clear).
+#[tauri::command]
+pub async fn history_clear(svc: Svc<'_>) -> Result<(), CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || svc.history_clear().map_err(io)).await
+}
+
+/// `C:\` for `C:` when it is one of this PC's fixed drives.
+fn drive_root(drive: &str) -> Result<String, CmdError> {
+    let drive = drive.trim_end_matches('\\').to_uppercase();
+    if !system::fixed_drives().contains(&drive) {
+        return Err(CmdError::InvalidArgument {
+            what: "drive".into(),
+        });
+    }
+    Ok(format!("{drive}\\"))
 }
 
 /// Live scan progress, sent as the `scan-progress` event.
@@ -310,6 +606,162 @@ pub async fn quarantine_move(
     blocking(move || svc.quarantine_move(generation, &ids)).await
 }
 
+/// Previews "Delete now": only tier Safe items outside sync roots (S6).
+#[tauri::command]
+pub async fn delete_preview(
+    svc: Svc<'_>,
+    generation: u64,
+    ids: Vec<u32>,
+) -> Result<unhoard_core::quarantine::DeletePlan, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || svc.delete_preview(generation, &ids)).await
+}
+
+/// Deletes tier Safe items for good after the user confirmed the preview.
+#[tauri::command]
+pub async fn delete_now(
+    svc: Svc<'_>,
+    generation: u64,
+    ids: Vec<u32>,
+) -> Result<unhoard_core::quarantine::DeleteReport, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || svc.delete_now(generation, &ids)).await
+}
+
+/// The current user's Recycle Bin: its items with their original paths, largest first.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecycleBin {
+    /// The largest items, at most 500.
+    items: Vec<unhoard_core::recycle::RecycledItem>,
+    /// All items.
+    count: usize,
+    /// Their total size.
+    total: u64,
+}
+
+/// Lists the Recycle Bin from its info files; the deleted data itself is never opened.
+#[tauri::command]
+pub async fn recycle_bin() -> Result<RecycleBin, CmdError> {
+    blocking(|| {
+        let mut items = system::recycle_bin_items(20_000);
+        items.sort_by_key(|i| std::cmp::Reverse(i.size));
+        let count = items.len();
+        let total = items.iter().map(|i| i.size).sum();
+        items.truncate(500);
+        Ok(RecycleBin {
+            items,
+            count,
+            total,
+        })
+    })
+    .await
+}
+
+/// Empties the Recycle Bin through Windows after the user confirmed the list (S6), and
+/// returns the space that came free on the fixed drives, measured before and after (S10).
+#[tauri::command]
+pub async fn recycle_bin_empty(svc: Svc<'_>) -> Result<u64, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let free = || -> u64 {
+            system::fixed_drives()
+                .iter()
+                .filter_map(|d| {
+                    unhoard_core::fs::FileSystem::volume(
+                        &unhoard_platform::WindowsFs,
+                        &format!("{d}\\"),
+                    )
+                    .ok()
+                })
+                .map(|v| v.free_bytes)
+                .sum()
+        };
+        let before = free();
+        let result = system::empty_recycle_bin();
+        svc.audit_startup("recycleBin.empty", "all", result.is_ok());
+        result.map_err(CmdError::from)?;
+        Ok(free().saturating_sub(before))
+    })
+    .await
+}
+
+/// Docker's data disk measured on a click: its size on disk and the bytes in use inside,
+/// and whether compacting it is worth it.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DockerDiskOut {
+    disk: tools::DockerDisk,
+    worth_compacting: bool,
+}
+
+/// Measures Docker's data disk (on a click; runs `df` inside Docker's WSL distribution).
+#[tauri::command]
+pub async fn docker_disk(svc: Svc<'_>) -> Result<Option<DockerDiskOut>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        Ok(
+            tools::docker_disk(&svc.context().roots).map(|disk| DockerDiskOut {
+                worth_compacting: disk.used.is_some_and(|u| {
+                    unhoard_core::adapters::docker::worth_compacting(disk.size, u)
+                }),
+                disk,
+            }),
+        )
+    })
+    .await
+}
+
+/// Compacts Docker's data disk after the user confirmed: stops Docker, one UAC prompt for
+/// `diskpart`, starts Docker again (S7). Returns the bytes freed.
+#[tauri::command]
+pub async fn docker_compact(svc: Svc<'_>) -> Result<Result<u64, ToolError>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let roots = &svc.context().roots;
+        let work = roots
+            .var("LOCALAPPDATA")
+            .map(|l| unhoard_core::roots::join(l, "Unhoard"))
+            .ok_or(CmdError::InvalidArgument {
+                what: "LOCALAPPDATA".into(),
+            })?;
+        let result = tools::compact_docker_disk(roots, &work);
+        svc.audit_startup("docker.compact", "docker_data", result.is_ok());
+        Ok(result)
+    })
+    .await
+}
+
+/// Folders in a cloud sync root whose local copies grew by 5 GB or more in the last week,
+/// from the storage history; the companion offers "free up space" for them at start.
+#[tauri::command]
+pub async fn cloud_growth_alert(svc: Svc<'_>) -> Result<Vec<(String, i64)>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let roots = svc.context().roots.clone();
+        let mut out = vec![];
+        for drive in system::fixed_drives() {
+            let root = format!("{drive}\\");
+            if !roots
+                .sync_roots
+                .iter()
+                .any(|s| unhoard_core::roots::is_within(s, &root))
+            {
+                continue;
+            }
+            let items: Vec<(String, i64)> = svc
+                .history_growth(&root, 7)
+                .items
+                .into_iter()
+                .map(|i| (i.path, i.delta))
+                .collect();
+            out.extend(unhoard_core::history::cloud_growth(&items, &roots, 5 << 30));
+        }
+        Ok(out)
+    })
+    .await
+}
+
 /// The Quarantine view.
 #[tauri::command]
 pub async fn quarantine_state(svc: Svc<'_>) -> Result<QuarantineState, CmdError> {
@@ -390,13 +842,17 @@ pub struct FreeUpResult {
 /// Frees up space (pin state only) and re-measures.
 #[tauri::command]
 pub async fn free_up_apply(
+    app: AppHandle,
     svc: Svc<'_>,
     generation: u64,
     ids: Vec<u32>,
 ) -> Result<FreeUpResult, CmdError> {
     let svc = svc.inner().clone();
     blocking(move || {
-        let (results, requested, still) = svc.free_up_apply(generation, &ids)?;
+        let (results, requested, still) =
+            svc.free_up_apply(generation, &ids, &mut |done, total| {
+                let _ui_may_be_closed = app.emit("free-up-progress", (done, total));
+            })?;
         let failed = results
             .into_iter()
             .filter_map(|(p, r)| r.err().map(|e| (p, e)))
@@ -561,6 +1017,34 @@ pub struct RevealedView {
     kind: HiddenKind,
 }
 
+/// A folder the scan could not read, with its kind: what hidden space is made of before
+/// "Reveal" measures it.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HiddenPart {
+    path: String,
+    kind: HiddenKind,
+}
+
+/// The folders the current scan could not read, each with its kind (no sizes: only the
+/// elevated helper can measure them).
+#[tauri::command]
+pub async fn hidden_parts(svc: Svc<'_>, generation: u64) -> Result<Vec<HiddenPart>, CmdError> {
+    let svc = svc.inner().clone();
+    blocking(move || {
+        let roots = svc.context().roots.clone();
+        Ok(svc
+            .unscanned_paths(generation, None)?
+            .into_iter()
+            .map(|path| HiddenPart {
+                kind: hidden_kind(&path, &roots),
+                path,
+            })
+            .collect())
+    })
+    .await
+}
+
 /// The priority matrix of the current scan.
 #[tauri::command]
 pub async fn matrix(svc: Svc<'_>, limit: u16) -> Result<(u64, Vec<MatrixPoint>), CmdError> {
@@ -626,11 +1110,17 @@ pub fn app_uninstall(svc: Svc<'_>, generation: u64, id: u32) -> Result<(), CmdEr
     tools::steam_uninstall(app_id).map_err(io)
 }
 
-/// Analyses photos and videos of the current scan.
+/// Analyses photos and videos of the current scan; `photos-progress` events carry how many
+/// thumbnails are done, as `[done, total]`.
 #[tauri::command]
-pub async fn photos_analyze(svc: Svc<'_>) -> Result<PhotoState, CmdError> {
+pub async fn photos_analyze(app: AppHandle, svc: Svc<'_>) -> Result<PhotoState, CmdError> {
     let svc = svc.inner().clone();
-    blocking(move || svc.photos()).await
+    blocking(move || {
+        svc.photos(&|done, total| {
+            let _ui_may_be_closed = app.emit("photos-progress", (done, total));
+        })
+    })
+    .await
 }
 
 /// A photo thumbnail for the review grid.

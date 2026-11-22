@@ -1,0 +1,10 @@
+{
+  "build": {
+    "beforeBuildCommand": "npm run build && cargo build --release -p unhoard-cli"
+  },
+  "bundle": {
+    "resources": {
+      "../target/release/unhoard.exe": "unhoard.exe"
+    }
+  }
+}

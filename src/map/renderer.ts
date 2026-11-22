@@ -5,14 +5,16 @@
 // redraws on interaction, so nothing moves while the user reads it. The cells are soft: a
 // cell can be dragged, also during a scan, its neighbours flow out of the way, and every
 // cell that moves stretches and wobbles back like slime before the map rests again.
-// Transitions (zoom, map
-// style) morph each cell from its previous outline; the "calm" setting and reduced motion
-// shorten them. Colours come from CSS variables, so the light and dark themes both work.
+// Transitions (zoom, map style) morph each cell from its previous outline; the "calm"
+// setting and reduced motion shorten them.
+//
+// The renderer needs no page: it draws on a canvas or an OffscreenCanvas, gets its colours
+// as a theme and reports what it drew through events. So it runs in a Web Worker
+// (mapWorker.ts), off the thread that handles input (P11); MapView is its face on the page.
 import { bbox, centroid, ease, inset, inside, lerpPoly, perimeter, rectPoly, area, stretch, type Poly, type Point } from "./geometry";
 import type { Spot } from "./navigate";
 import { makeLevel, relax, rescale, type Level, type Site } from "./powerLayout";
 import { squarify } from "./treemap";
-import { mark, measureSince } from "../perf/marks";
 
 /** One cell to draw. */
 export interface Cell {
@@ -33,12 +35,34 @@ export interface Cell {
   sub?: { id: string; value: number; category: string }[];
 }
 
-/** What the renderer reports back. */
-export interface RendererEvents {
-  hover: (cell: Cell | null, x: number, y: number) => void;
+/** A drawn cell's outline, by cell ID. */
+export interface DrawnCell {
+  id: string;
+  poly: Poly;
 }
 
-interface Theme {
+/** What the page needs to answer the pointer and start zooms without asking the renderer:
+ * the outlines drawn in the last frame, the second-level outlines and the stage outline. */
+export interface DrawnState {
+  drawn: DrawnCell[];
+  subs: [string, [string, Poly][]][];
+  stage: Poly;
+}
+
+/** What the renderer reports back. */
+export interface RendererEvents {
+  /** After a frame that changed what is drawn. */
+  drawn: (state: DrawnState) => void;
+  /** How long a frame took to draw, in milliseconds. */
+  frame: (ms: number) => void;
+  /** A performance measure from the mark `start` to `at`, the moment it happened as
+   * milliseconds since the epoch, so the page can place it on its own clock even when the
+   * renderer runs in a worker (docs/25-performance.md). */
+  measure: (name: string, start: string, at: number) => void;
+}
+
+/** The colours the renderer draws with, read from the page's CSS variables. */
+export interface Theme {
   colors: Record<string, string>;
   label: string;
   sub: string;
@@ -51,23 +75,24 @@ interface Theme {
   overlay: string;
 }
 
-function readTheme(): Theme {
-  const s = getComputedStyle(document.documentElement);
-  const v = (n: string, d: string): string => s.getPropertyValue(n).trim() || d;
-  const cats = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other"];
-  return {
-    colors: Object.fromEntries(cats.map((c) => [c, v(`--c-${c}`, "#4f8fa8")])),
-    label: v("--map-label", "#fff"),
-    sub: v("--map-sub", "rgba(255,255,255,.7)"),
-    glow: Number(v("--map-glow", "12")),
-    fillInner: Number(v("--map-fill-inner", "0.6")),
-    fillOuter: Number(v("--map-fill-outer", "0.2")),
-    hatch: v("--map-hatch", "rgba(255,255,255,.2)"),
-    hidden: v("--map-hidden", "#0b1a26"),
-    select: v("--map-select", "#fff"),
-    overlay: v("--map-overlay", "#5fe7ff"),
-  };
-}
+/** Now, in milliseconds since the epoch: the same moment on the page's clock and a worker's. */
+const epochNow = (): number => performance.timeOrigin + performance.now();
+
+/** A 2D context on a canvas or an OffscreenCanvas. */
+type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+
+/** The next animation frame; in a worker without `requestAnimationFrame`, about 60 a second. */
+const nextFrame: (cb: (t: number) => void) => number =
+  typeof requestAnimationFrame === "function"
+    ? (cb) => requestAnimationFrame(cb)
+    : (cb) =>
+        setTimeout(() => {
+          cb(performance.now());
+        }, 16) as unknown as number;
+const cancelFrame = (id: number): void => {
+  if (typeof cancelAnimationFrame === "function") cancelAnimationFrame(id);
+  else clearTimeout(id);
+};
 
 function hexRgb(h: string): [number, number, number] {
   const m = /^#([0-9a-f]{6})$/i.exec(h);
@@ -75,13 +100,23 @@ function hexRgb(h: string): [number, number, number] {
   const n = parseInt(m[1], 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
+/** Colour strings by colour, lightening and alpha: every cell asks for the same few each
+ * frame, so each string is built once (P10, P11). */
+const colours = new Map<string, string>();
+
 function rgba(h: string, a: number): string {
-  const [r, g, b] = hexRgb(h);
-  return `rgba(${r},${g},${b},${a})`;
+  return lighten(h, 0, a);
 }
 function lighten(h: string, f: number, a: number): string {
-  const [r, g, b] = hexRgb(h);
-  return `rgba(${Math.round(r + (255 - r) * f)},${Math.round(g + (255 - g) * f)},${Math.round(b + (255 - b) * f)},${a})`;
+  const key = `${h}|${String(f)}|${String(a)}`;
+  let c = colours.get(key);
+  if (c === undefined) {
+    const [r, g, b] = hexRgb(h);
+    c = `rgba(${Math.round(r + (255 - r) * f)},${Math.round(g + (255 - g) * f)},${Math.round(b + (255 - b) * f)},${a})`;
+    if (colours.size > 4096) colours.clear();
+    colours.set(key, c);
+  }
+  return c;
 }
 
 const GAP = 3.5;
@@ -112,7 +147,7 @@ interface Jelly {
 
 /** The canvas renderer of the stage. */
 export class Renderer {
-  private ctx: CanvasRenderingContext2D;
+  private ctx: Ctx;
   private W = 0;
   private H = 0;
   private stagePoly: Poly = rectPoly(0, 0, 1, 1);
@@ -130,7 +165,6 @@ export class Renderer {
   private selected: string | null = null;
   private highlighted: string | null = null;
   private query = "";
-  private theme: Theme;
   private hatch: CanvasPattern | null = null;
   private trans: { from: Map<string, Poly>; start: number; dur: number; last: string | null } | null = null;
   private raf = 0;
@@ -149,34 +183,35 @@ export class Renderer {
   /** True while this frame treats the map as soft. */
   private softNow = false;
   private jelly = new Map<string, Jelly>();
+  /** True while this frame draws a map at rest: no relaxation, morph, drag or scan. */
+  private still = true;
 
   constructor(
-    private canvas: HTMLCanvasElement,
+    private canvas: HTMLCanvasElement | OffscreenCanvas,
     private events: RendererEvents,
+    private theme: Theme,
   ) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("canvas 2d unavailable");
     this.ctx = ctx;
-    this.theme = readTheme();
     this.makeHatch();
-    this.raf = requestAnimationFrame(this.frame);
+    this.raf = nextFrame(this.frame);
   }
 
   /** Stops the animation loop. */
   destroy(): void {
-    cancelAnimationFrame(this.raf);
+    cancelFrame(this.raf);
   }
 
-  /** Re-reads the theme colours (after a light or dark switch). */
-  refreshTheme(): void {
-    this.theme = readTheme();
+  /** New theme colours (after a light or dark switch). */
+  setTheme(theme: Theme): void {
+    this.theme = theme;
     this.makeHatch();
     this.dirty = true;
   }
 
   private makeHatch(): void {
-    const c = document.createElement("canvas");
-    c.width = c.height = 10;
+    const c = new OffscreenCanvas(10, 10);
     const g = c.getContext("2d");
     if (!g) return;
     g.strokeStyle = this.theme.hatch;
@@ -192,15 +227,16 @@ export class Renderer {
     this.hatch = this.ctx.createPattern(c, "repeat");
   }
 
-  /** Sets the canvas size in CSS pixels. */
-  resize(w: number, h: number): void {
-    const dpr = window.devicePixelRatio || 1;
-    this.W = Math.max(100, w);
-    this.H = Math.max(100, h);
+  /** Sets the canvas size in CSS pixels, at `dpr` device pixels per CSS pixel. */
+  resize(w: number, h: number, dpr: number): void {
+    const W = Math.max(100, w);
+    const H = Math.max(100, h);
+    // The same size again changes nothing, so the settled layout stays settled.
+    if (W === this.W && H === this.H && this.canvas.width === Math.round(W * dpr)) return;
+    this.W = W;
+    this.H = H;
     this.canvas.width = Math.round(this.W * dpr);
     this.canvas.height = Math.round(this.H * dpr);
-    this.canvas.style.width = `${this.W}px`;
-    this.canvas.style.height = `${this.H}px`;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const poly = rectPoly(12, 8, this.W - 24, this.H - 16);
     this.levels.forEach((l) => {
@@ -227,15 +263,20 @@ export class Renderer {
   }
 
   /** Animation and state flags. */
-  setFlags(f: { living: boolean; scanning: boolean; selected: string | null; query: string; active: boolean }): void {
+  setFlags(f: { living: boolean; scanning: boolean; selected: string | null; query: string; active: boolean; reduced: boolean }): void {
     this.active = f.active;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    this.living = f.living && !reduced;
+    const reduced = f.reduced;
+    const query = f.query.toLowerCase();
+    const living = f.living && !reduced;
+    // Showing the map again needs no redraw: the canvas keeps its picture while hidden, and
+    // anything that changed meanwhile has marked it dirty already (P1).
+    const changed = living !== this.living || f.scanning !== this.scanning || f.selected !== this.selected || query !== this.query;
+    this.living = living;
     this.squishy = !reduced;
     this.scanning = f.scanning;
     this.selected = f.selected;
-    this.query = f.query.toLowerCase();
-    this.dirty = true;
+    this.query = query;
+    if (changed) this.dirty = true;
   }
 
   /** Switches between the cell map and the treemap with a morph. */
@@ -244,7 +285,6 @@ export class Renderer {
     const from = new Map(this.drawn.map((d) => [d.cell.id, d.poly]));
     this.mode = mode;
     this.trans = { from, start: performance.now(), dur: this.living ? 520 : 180, last: null };
-    mark("unhoard:morph-start");
   }
 
   /** The second-level outlines of a cell, used as the start of a zoom-in. */
@@ -262,7 +302,6 @@ export class Renderer {
   /** Starts a zoom: cells morph from `from` (cells not in it grow from their centre). */
   zoom(from: Map<string, Poly>, last: string | null): void {
     this.expanding = null;
-    mark("unhoard:zoom-start");
     this.trans = { from, start: performance.now(), dur: this.living ? 520 : 180, last };
   }
 
@@ -380,15 +419,22 @@ export class Renderer {
   }
 
   private frame = (now: number): void => {
-    this.raf = requestAnimationFrame(this.frame);
+    this.raf = nextFrame(this.frame);
     if (!this.active) return;
     const animating = this.scanning || this.trans !== null || this.expanding !== null || this.held !== null || this.soft > 0;
     if (!animating && !this.dirty) return;
     const started = performance.now();
     this.dirty = false;
     this.draw(now);
-    this.frameTimes.push(performance.now() - started);
+    const ms = performance.now() - started;
+    this.frameTimes.push(ms);
     if (this.frameTimes.length > 240) this.frameTimes.shift();
+    this.events.frame(ms);
+    this.events.drawn({
+      drawn: this.drawn.map((d) => ({ id: d.cell.id, poly: d.poly })),
+      subs: [...this.subPolys].map(([id, m]) => [id, [...m]]),
+      stage: this.stagePoly,
+    });
   };
 
   private draw(now: number): void {
@@ -422,24 +468,28 @@ export class Renderer {
     } else if (!level.settled && !skip) {
       // While a scan streams in, one step per frame lets cells glide to their new size
       // instead of jumping at every update.
-      const n = this.scanning ? 1 : level.steps < WARM_STEPS ? 3 : 1;
+      // During a morph the frame already redraws every cell, so the warm-up waits for it.
+      const n = this.scanning || this.trans !== null ? 1 : level.steps < WARM_STEPS ? 3 : 1;
       relax(level, entries, n);
       level.steps += n;
       if (!this.scanning && level.steps >= SETTLE_STEPS) level.settled = true;
     }
     if (this.scanning) level.settled = false;
     this.dirty = this.dirty || !level.settled;
+    this.still = level.settled && !this.scanning && this.trans === null && !this.softNow && this.expanding === null;
     const rects = this.mode === "treemap" ? this.treemapRects(entries) : null;
     let tr: number | null = null;
     if (this.trans) {
       const k = (now - this.trans.start) / this.trans.dur;
       if (k >= 1) {
         this.trans = null;
-        measureSince("unhoard:zoom-settle", "unhoard:zoom-start");
+        // One more frame draws the map at rest, with its glow.
+        this.dirty = true;
+        this.events.measure("unhoard:zoom-settle", "unhoard:zoom-start", epochNow());
       } else {
         tr = ease(Math.max(0, k));
-        measureSince("unhoard:zoom-response", "unhoard:zoom-click");
-        measureSince("unhoard:morph-response", "unhoard:morph-start");
+        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click", epochNow());
+        this.events.measure("unhoard:morph-response", "unhoard:morph-start", epochNow());
       }
     }
     const byId = new Map(this.cells.map((c) => [c.id, c]));
@@ -473,8 +523,11 @@ export class Renderer {
       if (this.expanding) {
         const k = Math.min(1, (now - this.expanding.start) / 300);
         this.drawCell(lerpPoly(this.expanding.poly, this.stagePoly, ease(k) * 0.35), this.expanding.cell, "morph", 0, 0.9);
-        measureSince("unhoard:zoom-response", "unhoard:zoom-click");
-        if (k >= 1) this.expanding = null;
+        this.events.measure("unhoard:zoom-response", "unhoard:zoom-click", epochNow());
+        if (k >= 1) {
+          this.expanding = null;
+          this.dirty = true;
+        }
       }
     } else {
       this.drawn = [];
@@ -501,7 +554,8 @@ export class Renderer {
         this.newSubs++;
         l = makeLevel(container, `sub${d.cell.id}`);
         this.subLevels.set(d.cell.id, l);
-        relax(l, entries, 6);
+        // A short start; the per-frame steps below finish the layout.
+        relax(l, entries, 2);
       }
       l.poly = container;
       // Inside a soft map the container changes every frame, so its cells follow.
@@ -587,8 +641,9 @@ export class Renderer {
         ctx.fillStyle = this.hatch;
         ctx.fill();
       }
-    } else if (depth > 0) {
-      // Second-level cells are many and small: a flat fill keeps frames cheap.
+    } else if (depth > 0 || kind === "morph") {
+      // Second-level cells are many and small, and a morph redraws every cell each frame:
+      // a flat fill keeps those frames cheap (P10, P11).
       ctx.fillStyle = rgba(col, (th.fillInner + th.fillOuter) / 2);
       ctx.fill();
     } else {
@@ -601,7 +656,9 @@ export class Renderer {
     }
     ctx.lineWidth = sel ? 2.4 : hov ? 2 : depth ? 0.9 : 1.3;
     ctx.strokeStyle = sel ? th.select : hov ? lighten(col, 0.6, 1) : rgba(col, 0.95);
-    if (depth === 0 && th.glow > 0 && (hov || sel || this.cells.length <= 60)) {
+    // A glow is a blur, the most expensive thing on a canvas: only a map at rest gets it,
+    // never a frame that moves (P10, P11).
+    if (depth === 0 && th.glow > 0 && this.still && (hov || sel || this.cells.length <= 60)) {
       ctx.shadowColor = rgba(col, hov || sel ? 0.95 : 0.6);
       ctx.shadowBlur = hov || sel ? th.glow * 1.8 : th.glow * 0.6;
     }
@@ -621,8 +678,12 @@ export class Renderer {
     ctx.globalAlpha = this.query !== "" && !cell.name.toLowerCase().includes(this.query) ? 0.3 : 1;
     ctx.fillStyle = this.theme.label;
     ctx.font = "700 14px Rajdhani, 'Segoe UI', sans-serif";
-    ctx.shadowColor = "rgba(0,0,0,.45)";
-    ctx.shadowBlur = 6;
+    // A blurred text shadow is slow; at rest it gives the soft look, while moving a thin dark
+    // outline keeps the label readable for a fraction of the cost.
+    if (this.still) {
+      ctx.shadowColor = "rgba(0,0,0,.45)";
+      ctx.shadowBlur = 6;
+    }
     let x: number;
     let y: number;
     let maxW: number;
@@ -639,7 +700,16 @@ export class Renderer {
     }
     let name = cell.name;
     while (name.length > 3 && ctx.measureText(name).width > maxW) name = `${name.slice(0, -2)}…`;
-    if (ctx.measureText(name).width <= maxW) ctx.fillText(name, x, this.mode === "treemap" ? y : y - 2);
+    if (ctx.measureText(name).width <= maxW) {
+      const ty = this.mode === "treemap" ? y : y - 2;
+      if (!this.still) {
+        ctx.strokeStyle = "rgba(0,0,0,.45)";
+        ctx.lineWidth = 3;
+        ctx.lineJoin = "round";
+        ctx.strokeText(name, x, ty);
+      }
+      ctx.fillText(name, x, ty);
+    }
     if (rIn > 30) {
       ctx.font = "400 11px 'JetBrains Mono', Consolas, monospace";
       ctx.fillStyle = this.theme.sub;

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-recycle-bin-empty"
+description = "Enables the recycle_bin_empty command without any pre-configured scope."
+commands.allow = ["recycle_bin_empty"]
+
+[[permission]]
+identifier = "deny-recycle-bin-empty"
+description = "Denies the recycle_bin_empty command without any pre-configured scope."
+commands.deny = ["recycle_bin_empty"]

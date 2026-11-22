@@ -49,8 +49,15 @@ as `attrib -p +u`.
 3. **Action:** only the pin state changes: clear `PINNED` and set `UNPINNED`, through
    `CfSetPinState` on a handle opened for attributes only, or through
    `SetFileAttributesW`.
-4. **Re-measure:** after the provider frees the data, Unhoard re-reads the allocation size
+4. **Folders too:** every chosen folder inside the sync root loses "always keep on this
+   device" as well, so files that arrive later stay online-only.
+5. **Progress:** a bar counts folders and files while the pin states change; a large
+   folder holds tens of thousands. Hidden files (for example `.git` folders) are included.
+6. **Re-measure:** after the provider frees the data, Unhoard re-reads the allocation size
    and reports what was really freed (S10).
+
+When the daily measurement sees a folder in a sync root take 5 GB or more of local copies
+in a week, Lumen says so the next time the app opens, with **Free up space** as its button.
 
 ## The hydration guard
 

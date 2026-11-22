@@ -30,6 +30,7 @@ export const TRIGGERS = [
   "cloudIntro",
   "adminAsk",
   "adminReadDone",
+  "growthFound",
   "error",
 ] as const;
 

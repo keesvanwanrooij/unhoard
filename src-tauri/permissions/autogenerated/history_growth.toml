@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-history-growth"
+description = "Enables the history_growth command without any pre-configured scope."
+commands.allow = ["history_growth"]
+
+[[permission]]
+identifier = "deny-history-growth"
+description = "Denies the history_growth command without any pre-configured scope."
+commands.deny = ["history_growth"]

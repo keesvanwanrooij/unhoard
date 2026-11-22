@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-startup-preview"
+description = "Enables the startup_preview command without any pre-configured scope."
+commands.allow = ["startup_preview"]
+
+[[permission]]
+identifier = "deny-startup-preview"
+description = "Denies the startup_preview command without any pre-configured scope."
+commands.deny = ["startup_preview"]

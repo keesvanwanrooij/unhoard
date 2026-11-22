@@ -33,7 +33,48 @@ pub fn quarantine_roots(roots: &Roots) -> Vec<String> {
         .collect()
 }
 
-/// The bytes in the Recycle Bin of a drive.
+/// The items in the current user's Recycle Bin on every fixed drive, read from their
+/// `$I` info files (at most `limit`). The data files are never opened.
+pub fn recycle_bin_items(limit: usize) -> Vec<unhoard_core::recycle::RecycledItem> {
+    let Ok(sid) = security::current_user_sid() else {
+        return vec![];
+    };
+    let mut out = vec![];
+    for drive in fixed_drives() {
+        let root = format!("{}\\", drive.trim_end_matches('\\'));
+        let dir = join(&join(&root, "$Recycle.Bin"), &sid);
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        for e in entries.flatten() {
+            let name = e.file_name().to_string_lossy().to_string();
+            if !name.starts_with("$I") {
+                continue;
+            }
+            // An info file is a few hundred bytes; anything larger is not one.
+            let Ok(meta) = e.metadata() else { continue };
+            if meta.len() > 70_000 {
+                continue;
+            }
+            if let Ok(bytes) = std::fs::read(e.path())
+                && let Some(item) = unhoard_core::recycle::parse_info(&bytes)
+            {
+                out.push(item);
+            }
+            if out.len() >= limit {
+                return out;
+            }
+        }
+    }
+    out
+}
+
+/// Empties the Recycle Bin of every drive for the current user, through Windows.
+pub fn empty_recycle_bin() -> Result<(), unhoard_core::fs::FsError> {
+    shell::empty_recycle_bin()
+}
+
+/// The bytes in the Recycle Bin of a drive (`C:`).
 pub fn recycle_bin_bytes(drive: &str) -> Option<u64> {
     shell::recycle_bin_bytes(drive)
 }
@@ -67,6 +108,9 @@ pub fn open_tool(tool: WindowsTool) -> std::io::Result<()> {
         WindowsTool::Apps => ("explorer.exe", "ms-settings:appsfeatures"),
         WindowsTool::DiskCleanup => ("cleanmgr.exe", ""),
         WindowsTool::RecycleBin => ("explorer.exe", "shell:RecycleBinFolder"),
+        WindowsTool::TaskManager => ("taskmgr.exe", ""),
+        WindowsTool::WindowsUpdate => ("explorer.exe", "ms-settings:windowsupdate"),
+        WindowsTool::Disks => ("explorer.exe", "ms-settings:disksandvolumes"),
         WindowsTool::SystemProtection => {
             // System Protection needs admin rights; only the shell can raise the UAC prompt.
             let windows = std::env::var("SystemRoot").map_err(|_| std::io::ErrorKind::NotFound)?;

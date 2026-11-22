@@ -53,6 +53,15 @@ kind = "file"
 category = "system"
 tier = "keep"
 action = "explainOnly"
+
+[[rule]]
+id = "huggingface-cache"
+parent = "D:\\cache"
+name = "huggingface"
+kind = "dir"
+category = "developer"
+tier = "review"
+action = "explainOnly"
 "#;
 
 fn ctx(knowledge: Knowledge) -> ScanContext {
@@ -413,4 +422,99 @@ fn f3_s7_folders_read_with_admin_fill_the_tree_and_never_offer_a_move() {
     let d = describe(&t, id, &ctx);
     assert!(d.elevated);
     assert!(!d.actions.contains(&Action::Quarantine));
+}
+
+#[test]
+fn docker_disk_compaction_is_offered_and_scripted_only_for_dockers_own_disk() {
+    use unhoard_core::adapters::docker::{compact_script, parse_df_used, worth_compacting};
+    const GB: u64 = 1 << 30;
+    assert!(worth_compacting(29 * GB, 7 * GB));
+    assert!(!worth_compacting(10 * GB, 7 * GB));
+    let df = "Filesystem     1B-blocks       Used   Available Use% Mounted on\n/dev/sdd  1081101176832 8053063680 1018033000000   1% /mnt/docker-desktop-disk\n";
+    assert_eq!(parse_df_used(df), Some(8_053_063_680));
+    assert_eq!(parse_df_used("garbage"), None);
+    let dir = r"C:\Users\u\AppData\Local\Docker\wsl";
+    let ok = compact_script(
+        r"C:\Users\u\AppData\Local\Docker\wsl\disk\docker_data.vhdx",
+        dir,
+    )
+    .unwrap();
+    assert!(ok.contains("attach vdisk readonly") && ok.contains("compact vdisk"));
+    for bad in [
+        r"C:\Windows\System32\config\SYSTEM",
+        r"C:\Users\u\AppData\Local\Docker\wsl\..\..\other.vhdx",
+        r"C:\Users\u\AppData\Local\Docker\wslx\disk.vhdx",
+    ] {
+        assert_eq!(compact_script(bad, dir), None, "{bad}");
+    }
+    assert_eq!(
+        compact_script(
+            "C:\\Users\\u\\AppData\\Local\\Docker\\wsl\\x.vhdx\"\r\nclean",
+            dir
+        ),
+        None,
+        "no script injection"
+    );
+}
+
+#[test]
+fn f4_a_model_kept_in_hugging_face_and_in_ollama_is_a_duplicate() {
+    use unhoard_core::adapters::ollama::{hf_repo, same_model};
+    assert_eq!(
+        hf_repo("models--CohereLabs--aya-expanse-8b"),
+        Some("aya-expanse-8b")
+    );
+    assert_eq!(hf_repo("datasets--x--y"), None);
+    assert!(same_model("aya-expanse-8b", "aya-expanse:8b"));
+    assert!(same_model("Qwen3-8B", "qwen3:8b"));
+    assert!(same_model(
+        "Llama-3.1-8B-Instruct",
+        "llama3.1:8b-instruct-q4_K_M"
+    ));
+    assert!(
+        !same_model("Qwen3-8B", "qwen3:4b"),
+        "another size is another model"
+    );
+    assert!(!same_model("aya-expanse-8b", "qwen3:8b"));
+    assert!(!same_model("whisper-large-v3", "llama3.1:latest"));
+
+    let fs = FakeFs::new();
+    let hub = r"D:\cache\huggingface\hub";
+    fs.create_dir_all(&format!(r"{hub}\models--CohereLabs--aya-expanse-8b\blobs"))
+        .unwrap();
+    fs.create_dir_all(&format!(r"{hub}\models--other--tiny-model\blobs"))
+        .unwrap();
+    file(
+        &fs,
+        &format!(r"{hub}\models--CohereLabs--aya-expanse-8b\blobs\a"),
+        900 * MIB,
+        5,
+    );
+    file(
+        &fs,
+        &format!(r"{hub}\models--other--tiny-model\blobs\b"),
+        900 * MIB,
+        5,
+    );
+    let ctx = ctx(Knowledge {
+        ollama_models: vec!["aya-expanse:8b".into(), "qwen3:8b".into()],
+        ..Knowledge::default()
+    });
+    let (t, _) = scan(&fs, r"D:\cache", &ctx, &ScanControl::default()).unwrap();
+    let dup = t
+        .find(&format!(r"{hub}\models--CohereLabs--aya-expanse-8b"))
+        .unwrap();
+    let other = t
+        .find(&format!(r"{hub}\models--other--tiny-model"))
+        .unwrap();
+    let d = describe(&t, dup, &ctx);
+    assert_eq!(d.duplicate_of.as_deref(), Some("aya-expanse:8b"));
+    assert_eq!(d.tier, Some(Tier::Review));
+    assert!(d.actions.contains(&Action::Quarantine));
+    assert_eq!(describe(&t, other, &ctx).duplicate_of, None);
+    let picked: Vec<_> = suggestions(&t, &ctx, 100)
+        .iter()
+        .map(|s| s.node.id)
+        .collect();
+    assert!(picked.contains(&dup) && !picked.contains(&other));
 }

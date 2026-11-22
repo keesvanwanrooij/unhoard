@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-recycle-bin"
+description = "Enables the recycle_bin command without any pre-configured scope."
+commands.allow = ["recycle_bin"]
+
+[[permission]]
+identifier = "deny-recycle-bin"
+description = "Denies the recycle_bin command without any pre-configured scope."
+commands.deny = ["recycle_bin"]

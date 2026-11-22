@@ -17,9 +17,10 @@ export interface BubbleInput {
   actions?: { label: string; run: () => void }[];
 }
 
-/** A bubble with its sequence number. */
+/** A bubble with its sequence number and when it was said (ms since the epoch). */
 export interface Bubble extends BubbleInput {
   id: number;
+  at: number;
 }
 
 /** Higher shows first. */
@@ -49,14 +50,14 @@ export class BubbleQueue {
     if (input.key !== undefined && this.muted.has(input.key)) return;
     const cur = this.current;
     if (cur && ((input.key !== undefined && cur.key === input.key) || (cur.type === input.type && cur.text === input.text))) {
-      this.current = { ...input, id: cur.id };
+      this.current = { ...input, id: cur.id, at: Date.now() };
       return;
     }
     // Older waiting bubbles of the same topic, text or (non-warning) type are stale now.
     this.waiting = this.waiting.filter(
       (w) => !((input.key !== undefined && w.key === input.key) || w.text === input.text || (w.type === input.type && w.type !== "warning")),
     );
-    const b: Bubble = { ...input, id: this.next++ };
+    const b: Bubble = { ...input, id: this.next++, at: Date.now() };
     if (showsNow(b, cur)) {
       if (cur) this.retire(cur);
       this.current = b;

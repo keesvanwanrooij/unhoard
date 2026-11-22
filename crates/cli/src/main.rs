@@ -1,6 +1,7 @@
 //! The `unhoard` command-line tool (F10): scans a folder or drive and prints the largest
-//! items as a table or as JSON. It only reads: it never writes to disk and never opens a
-//! network connection. Paths in the user's profile are printed as `%USERPROFILE%`.
+//! items, the suggestions or the difference between two saved scans, as a table or as JSON.
+//! It only reads: it never writes to disk and never opens a network connection. Paths in the
+//! user's profile are printed as `%USERPROFILE%`.
 #![forbid(unsafe_code)]
 
 use std::io::{IsTerminal, Write};
@@ -45,6 +46,30 @@ enum Command {
         #[arg(long)]
         logical: bool,
     },
+    /// Scan a folder or drive and list what can be cleaned up, with tier and reason.
+    Suggestions {
+        /// The folder or drive to scan.
+        path: String,
+        /// Print JSON instead of a table.
+        #[arg(long)]
+        json: bool,
+        /// The most suggestions listed.
+        #[arg(long, default_value_t = 50, value_parser = clap::value_parser!(u16).range(1..=2000))]
+        limit: u16,
+    },
+    /// Compare two saved `scan --json` reports: what grew or shrank.
+    Diff {
+        /// The older report.
+        old: String,
+        /// The newer report.
+        new: String,
+        /// Print JSON instead of a table.
+        #[arg(long)]
+        json: bool,
+        /// Leave out changes smaller than this many megabytes.
+        #[arg(long, default_value_t = 100)]
+        min_mb: u64,
+    },
 }
 
 fn main() -> ExitCode {
@@ -60,27 +85,114 @@ fn main() -> ExitCode {
 }
 
 fn run(cli: Cli) -> Result<()> {
-    let Command::Scan {
-        path,
-        json,
-        top,
-        depth,
-        logical,
-    } = cli.command;
-    let absolute = std::path::absolute(&path).with_context(|| format!("invalid path {path}"))?;
+    match cli.command {
+        Command::Scan {
+            path,
+            json,
+            top,
+            depth,
+            logical,
+        } => run_scan(&path, json, top, depth, logical),
+        Command::Suggestions { path, json, limit } => run_suggestions(&path, json, limit),
+        Command::Diff {
+            old,
+            new,
+            json,
+            min_mb,
+        } => run_diff(&old, &new, json, min_mb),
+    }
+}
+
+/// Lists the suggestions for a scanned folder or drive, with what Unhoard knows about the
+/// installed programs, Steam and Ollama.
+fn run_suggestions(path: &str, json: bool, limit: u16) -> Result<()> {
+    let (tree, ctx, _, _, _) = scan_path(path, true)?;
+    let profile = ctx.roots.profile().map(str::to_string);
+    let list = unhoard_core::view::suggestions(&tree, &ctx, usize::from(limit));
+    let rows: Vec<serde_json::Value> = list
+        .iter()
+        .map(|s| {
+            serde_json::json!({
+                "path": redact(&s.path, profile.as_deref()),
+                "onDiskBytes": s.node.on_disk,
+                "tier": s.tier,
+                "ruleId": s.description.rule_id,
+                "actions": s.description.actions,
+                "duplicateOf": s.description.duplicate_of,
+            })
+        })
+        .collect();
+    let mut out = std::io::stdout().lock();
+    if json {
+        serde_json::to_writer_pretty(&mut out, &rows).context("writing JSON")?;
+        writeln!(out)?;
+    } else {
+        for (s, row) in list.iter().zip(&rows) {
+            writeln!(
+                out,
+                "{:>10}  {:<11}  {}  [{}]",
+                human(Some(s.node.on_disk)),
+                format!("{:?}", s.tier),
+                row["path"].as_str().unwrap_or(""),
+                s.description.rule_id.as_deref().unwrap_or("-")
+            )?;
+        }
+    }
+    Ok(())
+}
+
+/// Prints what grew or shrank between two saved `scan --json` reports.
+fn run_diff(old: &str, new: &str, json: bool, min_mb: u64) -> Result<()> {
+    let read = |p: &str| -> Result<serde_json::Value> {
+        let text = std::fs::read_to_string(p).with_context(|| format!("cannot read {p}"))?;
+        serde_json::from_str(&text).with_context(|| format!("{p} is not a scan --json report"))
+    };
+    let min = i64::try_from(min_mb.saturating_mul(1 << 20)).unwrap_or(i64::MAX);
+    let changes: Vec<(String, i64)> = unhoard_core::report::diff_reports(&read(old)?, &read(new)?)
+        .into_iter()
+        .filter(|(_, d)| d.abs() >= min)
+        .collect();
+    let mut out = std::io::stdout().lock();
+    if json {
+        let rows: Vec<serde_json::Value> = changes
+            .iter()
+            .map(|(p, d)| serde_json::json!({"path": p, "deltaBytes": d}))
+            .collect();
+        serde_json::to_writer_pretty(&mut out, &rows).context("writing JSON")?;
+        writeln!(out)?;
+    } else {
+        for (p, d) in &changes {
+            let sign = if *d < 0 { "-" } else { "+" };
+            writeln!(out, "{sign}{:>10}  {p}", human(Some(d.unsigned_abs())))?;
+        }
+    }
+    Ok(())
+}
+
+/// Scans `path`, with the knowledge about this PC when `knowledge` is set; returns the
+/// tree, the context, whether the scan was partial, how long it took and the root.
+fn scan_path(
+    path: &str,
+    knowledge: bool,
+) -> Result<(unhoard_core::tree::Tree, ScanContext, bool, u64, String)> {
+    let absolute = std::path::absolute(path).with_context(|| format!("invalid path {path}"))?;
     let root = absolute
         .to_string_lossy()
         .trim_start_matches(r"\\?\")
         .to_string();
     let roots = system_roots();
-    let profile = roots.profile().map(str::to_string);
     let rules =
         Rules::builtin(&roots).context("the known-locations library could not be loaded")?;
+    let knowledge = if knowledge {
+        unhoard_platform::knowledge::gather(&roots)
+    } else {
+        Default::default()
+    };
     let ctx = ScanContext {
         rules,
         roots,
         now: WindowsFs.now(),
-        knowledge: Default::default(),
+        knowledge,
     };
     let control = ScanControl::default();
     let started = Instant::now();
@@ -103,6 +215,19 @@ fn run(cli: Cli) -> Result<()> {
         r
     });
     let (tree, outcome) = result.map_err(|e| anyhow::anyhow!("cannot read {root}: {e}"))?;
+    Ok((
+        tree,
+        ctx,
+        outcome.partial,
+        started.elapsed().as_millis() as u64,
+        root,
+    ))
+}
+
+/// Scans a folder or drive and prints its largest items.
+fn run_scan(path: &str, json: bool, top: u16, depth: u8, logical: bool) -> Result<()> {
+    let (tree, ctx, partial, millis, root) = scan_path(path, false)?;
+    let profile = ctx.roots.profile().map(str::to_string);
     let volume = WindowsFs.volume(&root).ok();
     let opts = ReportOptions {
         top: usize::from(top),
@@ -110,14 +235,7 @@ fn run(cli: Cli) -> Result<()> {
         logical,
         profile,
     };
-    let report = scan_report(
-        &tree,
-        volume.as_ref(),
-        outcome.partial,
-        started.elapsed().as_millis() as u64,
-        &ctx,
-        &opts,
-    );
+    let report = scan_report(&tree, volume.as_ref(), partial, millis, &ctx, &opts);
     let mut out = std::io::stdout().lock();
     if json {
         serde_json::to_writer_pretty(&mut out, &report).context("writing JSON")?;

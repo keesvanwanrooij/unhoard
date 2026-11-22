@@ -6,28 +6,47 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type {
   AdminReadResult,
   AdminStartResult,
-  AppName,
   AppInfo,
+  AppName,
+  ChatError,
+  ChatEvent,
+  ChatMessage,
+  ChatSetup,
   CloudRoot,
   CmdError,
+  DeletePlan,
+  DeleteReport,
   Details,
+  DockerDiskOut,
   DockerResult,
+  Finding,
   FreeUpPlan,
   FreeUpResult,
+  GrowthView,
+  HiddenPart,
   ItemResult,
   MatrixPoint,
+  ModelInfo,
   MovePlan,
   MoveReport,
   OllamaModel,
   OpenAppResult,
   PhotoState,
+  PullProgress,
   PurgeReport,
   QuarantineState,
+  RecycleBin,
+  Result,
   RevealResult,
   ScanStatus,
   Settings,
+  StartupChange,
+  StartupError,
+  StartupScope,
   Suggestion,
   ThumbOut,
+  TimelinePoint,
+  ToolError,
   ViewResponse,
   WindowsTool,
 } from "./types";
@@ -64,6 +83,14 @@ export const api = {
   openTool: (tool: WindowsTool): Promise<void> => invoke("open_tool", { tool }),
   freeUpPreview: (generation: number, ids: number[]): Promise<FreeUpPlan> => invoke("free_up_preview", { generation, ids }),
   freeUpApply: (generation: number, ids: number[]): Promise<FreeUpResult> => invoke("free_up_apply", { generation, ids }),
+  deletePreview: (generation: number, ids: number[]): Promise<DeletePlan> => invoke("delete_preview", { generation, ids }),
+  deleteNow: (generation: number, ids: number[]): Promise<DeleteReport> => invoke("delete_now", { generation, ids }),
+  recycleBin: (): Promise<RecycleBin> => invoke("recycle_bin"),
+  recycleBinEmpty: (): Promise<number> => invoke("recycle_bin_empty"),
+  dockerDisk: (): Promise<DockerDiskOut | null> => invoke("docker_disk"),
+  dockerCompact: (): Promise<{ Ok: number } | { Err: ToolError }> => invoke("docker_compact"),
+  cloudGrowthAlert: (): Promise<[string, number][]> => invoke("cloud_growth_alert"),
+  hiddenParts: (generation: number): Promise<HiddenPart[]> => invoke("hidden_parts", { generation }),
   revealHidden: (generation: number): Promise<RevealResult> => invoke("reveal_hidden", { generation }),
   photosAnalyze: (): Promise<PhotoState> => invoke("photos_analyze"),
   photoThumbnail: (generation: number, index: number, side: number): Promise<ThumbOut> =>
@@ -76,12 +103,55 @@ export const api = {
   dockerUsage: (): Promise<DockerResult> => invoke("docker_usage"),
   appUninstall: (generation: number, id: number): Promise<void> => invoke("app_uninstall", { generation, id }),
   openApp: (app: AppName): Promise<OpenAppResult> => invoke("open_app", { app }),
+  historyTimeline: (drive: string): Promise<TimelinePoint[]> => invoke("history_timeline", { drive }),
+  historyGrowth: (drive: string, days: number): Promise<GrowthView> => invoke("history_growth", { drive, days }),
+  historyClear: (): Promise<void> => invoke("history_clear"),
+  optimiseCheck: (): Promise<Finding[]> => invoke("optimise_check"),
+  optimiseUpdates: (): Promise<Finding[]> => invoke("optimise_updates"),
+  startupPreview: (scope: StartupScope, name: string, enabled: boolean): Promise<Result<StartupChange, StartupError>> =>
+    invoke("startup_preview", { scope, name, enabled }),
+  startupSet: (scope: StartupScope, name: string, enabled: boolean): Promise<Result<number, StartupError>> =>
+    invoke("startup_set", { scope, name, enabled }),
+  startupUndo: (index: number): Promise<Result<null, StartupError>> => invoke("startup_undo", { index }),
+  chatModels: (): Promise<Result<ModelInfo[], ChatError>> => invoke("chat_models"),
+  chatSetup: (): Promise<Result<ChatSetup, ChatError>> => invoke("chat_setup"),
+  chatPull: (model: string): Promise<Result<boolean, ChatError>> => invoke("chat_pull", { model }),
+  chatSend: (messages: ChatMessage[], lang: string): Promise<Result<null, ChatError>> => invoke("chat_send", { messages, lang }),
+  chatStop: (): Promise<void> => invoke("chat_stop"),
 };
+
+/** The AI chat's answer as it forms. */
+export function onChatEvent(f: (e: ChatEvent) => void): Promise<UnlistenFn> {
+  return listen<ChatEvent>("chat-event", (e) => {
+    f(e.payload);
+  });
+}
 
 /** Live scan progress. */
 export function onScanProgress(f: (s: ScanStatus) => void): Promise<UnlistenFn> {
   return listen<ScanStatus>("scan-progress", (e) => {
     f(e.payload);
+  });
+}
+
+/** Download progress of a chat model. */
+export function onChatPull(f: (p: PullProgress) => void): Promise<UnlistenFn> {
+  return listen<PullProgress>("chat-pull", (e) => {
+    f(e.payload);
+  });
+}
+
+/** Progress of "free up space": folders and files done and to do. */
+export function onFreeUpProgress(f: (done: number, total: number) => void): Promise<UnlistenFn> {
+  return listen<[number, number]>("free-up-progress", (e) => {
+    f(e.payload[0], e.payload[1]);
+  });
+}
+
+/** Progress of the photo analysis: thumbnails done and to do. */
+export function onPhotosProgress(f: (done: number, total: number) => void): Promise<UnlistenFn> {
+  return listen<[number, number]>("photos-progress", (e) => {
+    f(e.payload[0], e.payload[1]);
   });
 }
 

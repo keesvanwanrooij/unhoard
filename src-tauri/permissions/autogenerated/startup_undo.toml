@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-startup-undo"
+description = "Enables the startup_undo command without any pre-configured scope."
+commands.allow = ["startup_undo"]
+
+[[permission]]
+identifier = "deny-startup-undo"
+description = "Denies the startup_undo command without any pre-configured scope."
+commands.deny = ["startup_undo"]

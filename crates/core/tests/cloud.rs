@@ -85,7 +85,7 @@ fn f6_free_up_space_changes_only_the_pin_state_and_remeasures() {
     let plan = plan_free_up(&fs, &t, &[t.find(&format!(r"{SR}\Pictures")).unwrap()], &c);
     assert_eq!(plan.files.len(), 2, "local.jpg and pinned.jpg");
     assert!(plan.bytes_to_free > 0);
-    let results = apply_free_up(&fs, &plan);
+    let results = apply_free_up(&fs, &plan, &mut |_, _| ());
     assert!(results.iter().all(|r| r.1.is_ok()));
     let a = fs
         .attributes(&format!(r"{SR}\Pictures\pinned.jpg"))
@@ -102,6 +102,35 @@ fn f6_free_up_space_changes_only_the_pin_state_and_remeasures() {
         &plan.files.iter().map(|f| f.1.clone()).collect::<Vec<_>>(),
     );
     assert_eq!(still_local, 0);
+}
+
+#[test]
+fn f6_free_up_space_unpins_the_folders_takes_hidden_files_and_reports_progress() {
+    let fs = library();
+    // Git keeps its folders hidden; a hidden file is freed like any other.
+    fs.add_file_with(
+        &format!(r"{SR}\Pictures\.hidden.jpg"),
+        FileOpts {
+            logical: Some(3_000),
+            attributes: 0x2,
+            in_sync: true,
+            ..FileOpts::default()
+        },
+    );
+    let c = ctx(&fs);
+    let (t, _) = scan(&fs, SR, &c, &ScanControl::default()).unwrap();
+    let plan = plan_free_up(&fs, &t, &[t.find(&format!(r"{SR}\Pictures")).unwrap()], &c);
+    assert_eq!(plan.folders, vec![format!(r"{SR}\Pictures")]);
+    assert!(plan.files.iter().any(|f| f.1.ends_with(".hidden.jpg")));
+    let mut seen = vec![];
+    let results = apply_free_up(&fs, &plan, &mut |done, total| seen.push((done, total)));
+    assert!(results.iter().all(|r| r.1.is_ok()));
+    // The folder itself is no longer "always keep", so files that arrive later stay online.
+    let a = fs.attributes(&format!(r"{SR}\Pictures")).unwrap();
+    assert_eq!(a & ATTR_PINNED, 0);
+    assert_ne!(a & ATTR_UNPINNED, 0);
+    let n = plan.files.len() + plan.folders.len();
+    assert_eq!(seen.last(), Some(&(n, n)));
 }
 
 #[test]
@@ -127,7 +156,7 @@ fn s2_no_cloud_operation_opens_a_placeholder_for_its_data() {
     let root = t.find(&format!(r"{SR}\Pictures")).unwrap();
     let _ = summary(&t, root);
     let plan = plan_free_up(&fs, &t, &[root], &c);
-    apply_free_up(&fs, &plan);
+    apply_free_up(&fs, &plan, &mut |_, _| ());
     let _ = unhoard_core::classify::describe(&t, root, &c);
     assert!(
         fs.data_opens().is_empty(),

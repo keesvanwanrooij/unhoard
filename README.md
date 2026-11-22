@@ -182,7 +182,8 @@ The [docs hub](docs/README.md) lists every document by cluster.
 [Cloud storage](docs/13-cloud-storage.md) ·
 [Photo review](docs/14-photo-review.md) ·
 [Companion](docs/15-companion.md) ·
-[Optimise](docs/16-optimise.md)
+[Optimise](docs/16-optimise.md) ·
+[Storage history](docs/17-storage-history.md)
 
 **Engineering:**
 [Architecture](docs/20-architecture.md) ·

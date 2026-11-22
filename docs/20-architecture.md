@@ -46,7 +46,7 @@ crates/
 src-tauri/       Tauri app, capabilities/, helper entry
 src/
   api/           typed command calls and types
-  map/           power-diagram layout, treemap, morph, canvas renderer
+  map/           power-diagram layout, treemap, morph, canvas renderer (in a Web Worker)
   components/    stage, side panels, preview, photo grid, companion
   screens/       suggestions, quarantine, cloud, photos, settings
   companion/     bubble queue and triggers
@@ -189,7 +189,9 @@ index file.
 
 - Tauri capabilities in `src-tauri/capabilities/` grant the window only Unhoard's own
   commands.
-- No HTTP plugin and no HTTP client in the dependency tree (T-S8).
+- No HTTP plugin and no HTTP client in the dependency tree (T-S8). The AI chat talks to
+  Ollama through a small loopback-only client in the platform layer that can connect to
+  `127.0.0.1:11434` and nothing else, and only while the chat is on.
 - A strict Content Security Policy, and no remote content.
 - No `fs` or `shell` plugin scope beyond what a documented feature needs.
 

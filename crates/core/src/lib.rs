@@ -7,6 +7,7 @@
 #![forbid(unsafe_code)]
 
 pub mod adapters;
+pub mod chat;
 pub mod classify;
 pub mod cloud;
 pub mod explain;
@@ -14,10 +15,15 @@ pub mod explain;
 pub mod fake;
 pub mod fs;
 pub mod hidden;
+pub mod history;
 pub mod knowledge;
+pub mod leftovers;
+pub mod optimise;
 pub mod photos;
+pub mod processes;
 pub mod protect;
 pub mod quarantine;
+pub mod recycle;
 pub mod report;
 pub mod roots;
 pub mod rules;

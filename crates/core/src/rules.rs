@@ -66,6 +66,12 @@ pub enum WindowsTool {
     SystemProtection,
     /// The Recycle Bin in Explorer.
     RecycleBin,
+    /// Task Manager.
+    TaskManager,
+    /// Settings › Windows Update.
+    WindowsUpdate,
+    /// Settings › System › Storage › Disks & volumes.
+    Disks,
 }
 
 /// What Unhoard offers to do with an item.
@@ -74,6 +80,8 @@ pub enum WindowsTool {
 pub enum Action {
     /// Move to the quarantine (local, or the cloud quarantine inside a sync root).
     Quarantine,
+    /// Delete for good after a preview; only for tier Safe items outside sync roots (S6).
+    DeleteNow,
     /// Make cloud files online-only.
     FreeUpSpace,
     /// Open a Windows tool that cleans this safely.

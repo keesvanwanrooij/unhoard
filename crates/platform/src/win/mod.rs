@@ -5,9 +5,11 @@
 //! paths and names with trailing dots or spaces work.
 #![allow(unsafe_code)]
 
+pub(crate) mod checkup;
 pub(crate) mod cloud;
 pub(crate) mod elevate;
 pub(crate) mod files;
+pub(crate) mod power;
 pub(crate) mod registry;
 pub(crate) mod security;
 pub(crate) mod shell;

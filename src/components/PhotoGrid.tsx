@@ -85,7 +85,7 @@ export function PhotoGrid({
   };
 
   return (
-    <div className="page" style={{ gap: 10 }}>
+    <div className="page wide" style={{ gap: 10 }}>
       <div className="btns">
         <button
           className="btn"

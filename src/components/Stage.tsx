@@ -10,7 +10,8 @@ import { explainShort } from "../explain";
 import { fmtBytes, fmtInt, fmtShare } from "../format";
 import { groupSmall } from "../map/grouping";
 import { nearestInDirection, type Direction } from "../map/navigate";
-import { Renderer, type Cell } from "../map/renderer";
+import { mapViewFor, releaseMapView, type MapView } from "../map/mapView";
+import type { Cell } from "../map/renderer";
 import { mark } from "../perf/marks";
 import { useApp } from "../store";
 import { Companion } from "./Companion";
@@ -30,6 +31,19 @@ const TOP = 120;
 const ARROWS: Partial<Record<string, Direction>> = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
 /** Category order of the legend. */
 const LEGEND = ["media", "apps", "downloads", "system", "documents", "developer", "cloud", "hidden", "other"] as const;
+/** The colours of the growth view, from strong growth to shrinking. */
+const GROWTH_LEGEND = ["growHigh", "grow", "same", "shrink", "nodata"] as const;
+const GB = 1024 ** 3;
+const MB = 1024 ** 2;
+
+/** The growth colour of a change in bytes over the period, or `nodata`. */
+export function growthClass(delta: number | undefined): (typeof GROWTH_LEGEND)[number] {
+  if (delta === undefined) return "nodata";
+  if (delta >= GB) return "growHigh";
+  if (delta >= 100 * MB) return "grow";
+  if (delta <= -100 * MB) return "shrink";
+  return "same";
+}
 
 /** How often the map and the details reload while a scan runs: often enough to watch the
  * drive fill in, calm enough that the cells glide instead of jump. */
@@ -75,10 +89,30 @@ const DRAG_START = 5;
 /** The stage. */
 export function Stage({ resp, active }: { resp: ViewResponse | null; active: boolean }): JSX.Element {
   const { t } = useTranslation();
-  const { lang, settings, scan, selected, select, setFocus, query, focus, hovered } = useApp(useShallow((s) => ({ lang: s.lang, settings: s.settings, scan: s.scan, selected: s.selected, select: s.select, setFocus: s.setFocus, query: s.query, focus: s.focus, hovered: s.hovered })));
+  const { lang, settings, scan, selected, select, setFocus, query, focus, hovered, growthMap, drive } = useApp(
+    useShallow((s) => ({ lang: s.lang, settings: s.settings, scan: s.scan, selected: s.selected, select: s.select, setFocus: s.setFocus, query: s.query, focus: s.focus, hovered: s.hovered, growthMap: s.growthMap, drive: s.drive })),
+  );
+  // Growth per folder over the last week, for the growth colours.
+  const [loadedDeltas, setDeltas] = useState<Map<string, number> | null>(null);
+  const deltas = growthMap ? loadedDeltas : null;
+  useEffect(() => {
+    if (!growthMap) return;
+    let alive = true;
+    api
+      .historyGrowth(drive, 7)
+      .then((g) => {
+        if (alive) setDeltas(new Map(g.deltas.map(([p, d]) => [p.toLowerCase(), d])));
+      })
+      .catch(() => {
+        if (alive) setDeltas(new Map());
+      });
+    return () => {
+      alive = false;
+    };
+  }, [growthMap, drive, scan?.generation]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
-  const renderer = useRef<Renderer | null>(null);
+  const renderer = useRef<MapView | null>(null);
   const prevFocus = useRef<{ id: number; cell: string } | null>(null);
   const [tip, setTip] = useState<{ cell: Cell; x: number; y: number } | null>(null);
   const press = useRef<{ id: string; x: number; y: number; dragging: boolean } | null>(null);
@@ -93,15 +127,15 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     const canvas = canvasRef.current;
     const box = boxRef.current;
     if (!canvas || !box) return;
-    const r = new Renderer(canvas, {
-      hover: () => undefined,
-    });
+    const r = mapViewFor(canvas);
     renderer.current = r;
     // The performance scenarios read frame times in the fake-core build only.
     if (import.meta.env.MODE === "fake") window.__unhoardFrames = () => r.frameDurations();
     const ro = new ResizeObserver(() => {
       const b = box.getBoundingClientRect();
-      r.resize(b.width, b.height);
+      // A hidden overview measures 0 × 0; keeping the last size means the map does not
+      // lay itself out again when the overview shows again (P11).
+      if (b.width > 0 && b.height > 0) r.resize(b.width, b.height);
     });
     ro.observe(box);
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -112,7 +146,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
     return () => {
       ro.disconnect();
       mq.removeEventListener("change", onTheme);
-      r.destroy();
+      releaseMapView(canvas);
       renderer.current = null;
     };
   }, []);
@@ -158,7 +192,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
           sizeText: fmtBytes(g.value, lang),
           shareText: fmtShare(g.value / total, lang),
           hint: explainShort(n, t),
-          category: n.category,
+          category: deltas ? growthClass(deltas.get(`${v.path.replace(/\\$/, "")}\\${n.name}`.toLowerCase())) : n.category,
           hasChildren: n.hasChildren,
           sub: (subs.get(n.id) ?? []).map((s) => ({ id: `s${s.id}`, value: valueOf(s, logical), category: s.category })).filter((s) => s.value > 0),
         });
@@ -194,7 +228,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
       });
     }
     return out;
-  }, [resp, logical, lang, t, subs]);
+  }, [resp, logical, lang, t, subs, deltas]);
 
   useEffect(() => {
     const r = renderer.current;
@@ -225,6 +259,7 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
       query,
       // The map draws nothing while the matrix shows; it keeps its layout for coming back.
       active: active && !matrix,
+      reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     });
   }, [settings.motion, scanning, selected, query, active, matrix]);
 
@@ -406,10 +441,10 @@ export function Stage({ resp, active }: { resp: ViewResponse | null; active: boo
         {!scan ? <div className="empty-stage">{t("map.empty")}</div> : null}
       </div>
       <div className="legend">
-        {LEGEND.map((c) => (
+        {(deltas ? GROWTH_LEGEND : LEGEND).map((c) => (
           <span key={c}>
             <i style={{ background: `var(--c-${c})` }} />
-            {t(`category.${c}`)}
+            {t(deltas ? `growth.${c}` : `category.${c}`)}
           </span>
         ))}
       </div>

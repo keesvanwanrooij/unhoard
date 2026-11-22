@@ -6,7 +6,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 
 import { api } from "../api/ipc";
-import type { AppName, Details, DockerUsage, MovePlan, OllamaModel, ToolError } from "../api/types";
+import type { AppName, Details, DockerDiskOut, DockerUsage, MovePlan, OllamaModel, ToolError } from "../api/types";
 import { fmtAgo, fmtBytes } from "../format";
 import { useApp } from "../store";
 import { MovePreview } from "./Preview";
@@ -323,7 +323,99 @@ export function DockerPanel(): JSX.Element {
         </li>
         <li>{t("adapters.docker.compact")}</li>
       </ol>
+      <DockerDiskPanel />
       <p className="note">{t("adapters.docker.never")}</p>
+    </div>
+  );
+}
+
+/** Docker's data disk: measured on a click; when it is much larger than its data, compacting
+ * it after a confirmation (Docker stops, one UAC prompt for diskpart, Docker starts). */
+function DockerDiskPanel(): JSX.Element {
+  const { t } = useTranslation();
+  const { lang, say, sayError } = useApp(useShallow((s) => ({ lang: s.lang, say: s.say, sayError: s.sayError })));
+  const [disk, setDisk] = useState<DockerDiskOut | null | "none">(null);
+  const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const measure = (): void => {
+    setBusy(true);
+    api
+      .dockerDisk()
+      .then((d) => {
+        setDisk(d ?? "none");
+      })
+      .catch((e: unknown) => {
+        sayError(e, t);
+      })
+      .finally(() => {
+        setBusy(false);
+      });
+  };
+  const compact = (): void => {
+    setBusy(true);
+    say({ type: "progress", text: t("docker.disk.busy"), key: "docker" });
+    api
+      .dockerCompact()
+      .then((r) => {
+        setConfirming(false);
+        if ("Ok" in r) say({ type: "celebration", text: t("docker.disk.done", { size: fmtBytes(r.Ok, lang) }) });
+        else say({ type: "warning", text: t(r.Err.kind === "declined" ? "docker.disk.declined" : "docker.disk.failed") });
+        setDisk(null);
+      })
+      .catch((e: unknown) => {
+        sayError(e, t);
+      })
+      .finally(() => {
+        setBusy(false);
+        useApp.getState().endTopic("docker");
+      });
+  };
+  if (disk === null || disk === "none")
+    return (
+      <div className="btns">
+        <button className="btn small" disabled={busy || disk === "none"} onClick={measure}>
+          {busy ? t("docker.disk.measuring") : t("docker.disk.measure")}
+        </button>
+      </div>
+    );
+  const { size, used } = disk.disk;
+  return (
+    <div className="docker-disk">
+      <p className="info">
+        {used !== null ? t("docker.disk.size", { size: fmtBytes(size, lang), used: fmtBytes(used, lang) }) : t("docker.disk.sizeOnly", { size: fmtBytes(size, lang) })}{" "}
+        {used !== null ? (disk.worthCompacting ? t("docker.disk.worth", { gain: fmtBytes(Math.max(0, size - used), lang) }) : t("docker.disk.fine")) : null}
+      </p>
+      {disk.worthCompacting ? (
+        confirming ? (
+          <div className="sheet danger" role="group" aria-label={t("docker.disk.confirmTitle")}>
+            <b>{t("docker.disk.confirmTitle")}</b>
+            <div>{t("docker.disk.confirmText")}</div>
+            <div className="btns">
+              <button className="btn primary" disabled={busy} onClick={compact}>
+                {t("docker.disk.confirm")}
+              </button>
+              <button
+                className="btn"
+                disabled={busy}
+                onClick={() => {
+                  setConfirming(false);
+                }}
+              >
+                {t("preview.cancel")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="btn small primary"
+            onClick={() => {
+              setConfirming(true);
+            }}
+          >
+            {t("docker.disk.compact")}
+          </button>
+        )
+      ) : null}
     </div>
   );
 }

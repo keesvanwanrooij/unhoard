@@ -31,6 +31,7 @@ unhoard-platform.workspace = true
 
 [dev-dependencies]
 unhoard-core = { workspace = true, features = ["fake"] }
+tempfile.workspace = true
 
 [lints]
 workspace = true

@@ -19,7 +19,8 @@ use windows::Win32::UI::Shell::PropertiesSystem::{
 };
 use windows::Win32::UI::Shell::{
     FOLDERID_Downloads, IShellItem2, IShellItemImageFactory, KF_FLAG_DEFAULT,
-    SHCreateItemFromParsingName, SHGetKnownFolderPath, SHQUERYRBINFO, SHQueryRecycleBinW,
+    SHCreateItemFromParsingName, SHERB_NOCONFIRMATION, SHERB_NOPROGRESSUI, SHERB_NOSOUND,
+    SHEmptyRecycleBinW, SHGetKnownFolderPath, SHQUERYRBINFO, SHQueryRecycleBinW,
     SIIGBF_INCACHEONLY, SIIGBF_THUMBNAILONLY,
 };
 
@@ -62,6 +63,29 @@ pub(crate) fn recycle_bin_bytes(drive: &str) -> Option<u64> {
     // SAFETY: `root` is NUL-terminated and `info` is a valid SHQUERYRBINFO with cbSize set.
     unsafe { SHQueryRecycleBinW(root.pcwstr(), &mut info) }.ok()?;
     Some(info.i64Size.max(0) as u64)
+}
+
+/// Empties the Recycle Bin of every drive for the current user, through Windows' own
+/// function (no dialog, no progress window, no sound).
+pub(crate) fn empty_recycle_bin() -> Result<(), FsError> {
+    // SAFETY: a null window and a null root (all drives) are documented values.
+    unsafe {
+        SHEmptyRecycleBinW(
+            None,
+            windows::core::PCWSTR::null(),
+            SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND,
+        )
+    }
+    // An empty bin reports E_UNEXPECTED; that is not a failure.
+    .or_else(|e| {
+        if e.code().0 as u32 == 0x8000_FFFF {
+            Ok(())
+        } else {
+            Err(FsError::Other {
+                code: e.code().0 as u32,
+            })
+        }
+    })
 }
 
 /// A thumbnail as top-down BGRA pixels.

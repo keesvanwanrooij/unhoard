@@ -68,3 +68,37 @@ pub fn parse_system_df(output: &str) -> Vec<DockerUsage> {
         })
         .collect()
 }
+
+/// Space a Docker disk must give back before compacting is offered: below this it is not
+/// worth stopping Docker for.
+pub const COMPACT_MIN_GAIN: u64 = 5 << 30;
+
+/// True when Docker's virtual disk takes at least [`COMPACT_MIN_GAIN`] more than the data
+/// in it.
+pub fn worth_compacting(disk_on_disk: u64, used_inside: u64) -> bool {
+    disk_on_disk.saturating_sub(used_inside) >= COMPACT_MIN_GAIN
+}
+
+/// The bytes in use from `df -B1 <mount>` output: the third number of its last line.
+pub fn parse_df_used(output: &str) -> Option<u64> {
+    output.lines().rev().find_map(|l| {
+        let cols: Vec<&str> = l.split_whitespace().collect();
+        cols.get(2)?.parse().ok()
+    })
+}
+
+/// The `diskpart` script that compacts `vhdx`, which must be a `.vhdx` file in a
+/// folder below `allowed_dir` (Docker's own `wsl` folder). Anything else is refused, so the
+/// one elevated write can only ever touch Docker's disk (S7).
+pub fn compact_script(vhdx: &str, allowed_dir: &str) -> Option<String> {
+    let lower = vhdx.to_lowercase();
+    let dir = allowed_dir.trim_end_matches('\\').to_lowercase();
+    let safe_chars = !vhdx.contains(['"', '\r', '\n', '%']) && !vhdx.contains("..");
+    let inside = lower.starts_with(&format!("{dir}\\"));
+    if !(safe_chars && inside && lower.ends_with(".vhdx")) {
+        return None;
+    }
+    Some(format!(
+        "select vdisk file=\"{vhdx}\"\r\nattach vdisk readonly\r\ncompact vdisk\r\ndetach vdisk\r\nexit\r\n"
+    ))
+}

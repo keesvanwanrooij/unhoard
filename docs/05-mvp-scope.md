@@ -24,7 +24,7 @@ Questions that are still open are listed there under
 | F7 | Photo and video review | Duplicates, near duplicates, bursts, chat media, screenshots, best-shot suggestion; video exact duplicates; no hydration | Similar videos (ffmpeg), local AI categories and faces |
 | F8 | Companion | Scripted speech bubbles, no AI | AI chat with a local model |
 | F9 | Languages | English and Dutch, following the Windows language, switchable | More languages |
-| F10 | CLI | `unhoard scan <path> [--json]` | More commands |
+| F10 | CLI | `unhoard scan`, `suggestions` and `diff`, shipped with the installer | More commands |
 | F11 | Distribution | Per-user installer, portable exe, winget manifest (not submitted) | Code signing, Microsoft Store |
 | – | Optimise | Not in the MVP | The whole check-up, see [Optimise](16-optimise.md) |
 
@@ -42,9 +42,9 @@ These hold for the whole app. Each has at least one automated test (marked T-S�
 | S3 | Cloud files are never moved into the local quarantine. |
 | S4 | Protected paths are never moved or deleted: the Windows folder, Program Files folders, ProgramData internals, user profile roots, drive roots and the quarantine root itself. See [Cleanup and safety](11-cleanup-safety.md#protected-paths). |
 | S5 | Every move writes its manifest entry before the move starts, so a restore is always possible. |
-| S6 | Purge deletes only inside quarantine folders and never follows links out of them. |
-| S7 | The main app never runs elevated. The elevated helper is read-only. |
-| S8 | The MVP opens no network connections. |
+| S6 | Permanent deletion happens in three places only: the purge, inside quarantine folders; "Delete now" for items whose known-location rule has tier Safe (caches that their program makes again), outside sync roots; and emptying the Windows Recycle Bin through Windows. Each follows a preview and a click, checks identity per item, never follows a link and writes the audit log. |
+| S7 | The main app never runs elevated. The elevated helper is read-only. The one elevated write is compacting Docker's own virtual disk with `diskpart` (a fixed script on a verified `.vhdx` under `%LOCALAPPDATA%\Docker\wsl`), after a click and a UAC prompt; it changes no file inside the disk. |
+| S8 | Unhoard opens no connection to another computer. The only connection it ever makes is to Ollama on this PC (`127.0.0.1:11434`), and only while the AI chat is switched on. |
 | S9 | Scan results stay in memory unless the user exports them. Exports and CLI output replace the profile path with `%USERPROFILE%`. Logs contain no file paths unless the user turns on diagnostic logging. |
 | S10 | Freed space is reported only after it is really free (re-measured). |
 
@@ -334,6 +334,12 @@ These hold for the whole app. Each has at least one automated test (marked T-S�
 - AC10.4 The CLI uses the same core as the app: for the same folder it reports the same
   totals (test).
 - AC10.5 The CLI never writes to disk and never opens a network connection.
+- AC10.6 `unhoard suggestions <path> [--json] [--limit <n>]` lists what can be cleaned up,
+  with size, tier, rule and actions, using what Unhoard knows about installed programs,
+  Steam and Ollama.
+- AC10.7 `unhoard diff <old.json> <new.json> [--json] [--min-mb <n>]` lists what grew or
+  shrank between two saved `scan --json` reports, only for paths both measured.
+- AC10.8 The installer puts `unhoard.exe` next to the app.
 - AC10.6 Paths in the output replace the current user's profile path with
   `%USERPROFILE%` (S9, test).
 - AC10.7 A size that could not be read is `null` ("unknown"), never 0.
@@ -474,7 +480,7 @@ placeholders and errors without a real disk or cloud.
 | T-10.2 | the CLI and the app core report the same totals | CLI integration |
 | T-10.3 | CLI output and exports replace the profile path with `%USERPROFILE%` | CLI integration |
 | T-S2 | scanning and classification change no file, timestamp or attribute (temp tree identical before and after) | Windows integration (temp dir) |
-| T-S8 | the MVP binary has no network capability enabled (Tauri capabilities, no HTTP client in the dependency tree) | CI check |
+| T-S8 | the binary has no network capability enabled (Tauri capabilities, no HTTP client in the dependency tree); the only socket code connects to 127.0.0.1:11434 | CI check + app unit |
 | T-P1 | core benchmarks (view query, aggregation, subtree rescan, rule matching, search) on a generated 1-million-entry tree stay within P13–P14 | core benchmark (criterion) |
 | T-P2 | layout benchmarks (relaxation step, treemap, morph, grouping) with 50 and 300 cells | UI benchmark (Vitest bench) |
 | T-P3 | scripted interactions (screen switches, zoom, map toggle, hover, scroll, search) stay within P1–P12 at 4× CPU throttling | UI interaction (Playwright, fake core) |

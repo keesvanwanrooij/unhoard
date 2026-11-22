@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-optimise-updates"
+description = "Enables the optimise_updates command without any pre-configured scope."
+commands.allow = ["optimise_updates"]
+
+[[permission]]
+identifier = "deny-optimise-updates"
+description = "Denies the optimise_updates command without any pre-configured scope."
+commands.deny = ["optimise_updates"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-delete-now"
+description = "Enables the delete_now command without any pre-configured scope."
+commands.allow = ["delete_now"]
+
+[[permission]]
+identifier = "deny-delete-now"
+description = "Denies the delete_now command without any pre-configured scope."
+commands.deny = ["delete_now"]

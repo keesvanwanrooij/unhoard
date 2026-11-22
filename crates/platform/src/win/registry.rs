@@ -1,12 +1,15 @@
 //! What Unhoard reads from the registry: cloud sync roots, Windows' list of installed
-//! programs, the program history (UserAssist) and Steam's folder. Read-only, with limits
-//! on the number and size of entries.
+//! programs, the program history (UserAssist), Steam's folder, startup entries, the page
+//! file and the power mode, with limits on the number and size of entries. The one write is
+//! the startup toggle: a `StartupApproved` value of the current user, as Task Manager
+//! writes it.
 
 use windows::Win32::Foundation::{ERROR_NO_MORE_ITEMS, ERROR_SUCCESS};
 use windows::Win32::System::Registry::{
-    HKEY, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ, REG_BINARY, REG_VALUE_TYPE,
-    RRF_RT_REG_DWORD, RRF_RT_REG_EXPAND_SZ, RRF_RT_REG_SZ, RegCloseKey, RegEnumKeyExW,
-    RegEnumValueW, RegGetValueW, RegOpenKeyExW,
+    HKEY, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ, REG_BINARY, REG_EXPAND_SZ, REG_SZ,
+    REG_VALUE_TYPE, RRF_RT_REG_BINARY, RRF_RT_REG_DWORD, RRF_RT_REG_EXPAND_SZ, RRF_RT_REG_MULTI_SZ,
+    RRF_RT_REG_QWORD, RRF_RT_REG_SZ, RegCloseKey, RegDeleteKeyValueW, RegEnumKeyExW, RegEnumValueW,
+    RegGetValueW, RegOpenKeyExW, RegSetKeyValueW,
 };
 use windows::core::PWSTR;
 
@@ -290,4 +293,247 @@ pub(crate) fn user_assist() -> Vec<(String, Vec<u8>)> {
 pub(crate) fn steam_path() -> Option<String> {
     string_value(HKEY_CURRENT_USER, r"Software\Valve\Steam", "SteamPath")
         .map(|p| p.replace('/', "\\"))
+}
+
+/// Every string value of `subkey`: its name and text, each text at most 2,048 characters.
+fn string_values(root: HKEY, subkey: &str) -> Vec<(String, String)> {
+    let Some(key) = open(root, subkey) else {
+        return vec![];
+    };
+    let mut out = vec![];
+    for index in 0..MAX_ENTRIES {
+        let mut name = vec![0u16; 1024];
+        let mut name_len = name.len() as u32;
+        let mut data = vec![0u16; 2049];
+        let mut data_len = (data.len() * 2) as u32;
+        let mut kind = REG_VALUE_TYPE::default();
+        // SAFETY: `name` and `data` are writable for the lengths passed.
+        let r = unsafe {
+            RegEnumValueW(
+                key,
+                index,
+                Some(PWSTR(name.as_mut_ptr())),
+                &mut name_len,
+                None,
+                Some(&raw mut kind.0),
+                Some(data.as_mut_ptr().cast()),
+                Some(&mut data_len),
+            )
+        };
+        if r == ERROR_NO_MORE_ITEMS {
+            break;
+        }
+        if r != ERROR_SUCCESS || (kind != REG_SZ && kind != REG_EXPAND_SZ) {
+            continue;
+        }
+        out.push((from_wide(&name), from_wide(&data)));
+    }
+    close(key);
+    out
+}
+
+/// A binary value, at most 4 KiB; `None` if it does not exist.
+fn binary_value(root: HKEY, subkey: &str, name: &str) -> Option<Vec<u8>> {
+    let (k, n) = (Wide::new(subkey), Wide::new(name));
+    let mut buf = vec![0u8; MAX_BINARY];
+    let mut len = buf.len() as u32;
+    // SAFETY: `buf` is writable for `len` bytes; both strings are NUL-terminated.
+    let r = unsafe {
+        RegGetValueW(
+            root,
+            k.pcwstr(),
+            n.pcwstr(),
+            RRF_RT_REG_BINARY,
+            None,
+            Some(buf.as_mut_ptr().cast()),
+            Some(&mut len),
+        )
+    };
+    (r == ERROR_SUCCESS).then(|| {
+        buf.truncate(len as usize);
+        buf
+    })
+}
+
+/// True when the multi-string value exists and its first string is not empty.
+fn multi_sz_has_text(root: HKEY, subkey: &str, name: &str) -> Option<bool> {
+    let (k, n) = (Wide::new(subkey), Wide::new(name));
+    let mut buf = vec![0u16; 2048];
+    let mut len = (buf.len() * 2) as u32;
+    // SAFETY: `buf` is writable for `len` bytes; both strings are NUL-terminated.
+    let r = unsafe {
+        RegGetValueW(
+            root,
+            k.pcwstr(),
+            n.pcwstr(),
+            RRF_RT_REG_MULTI_SZ,
+            None,
+            Some(buf.as_mut_ptr().cast()),
+            Some(&mut len),
+        )
+    };
+    (r == ERROR_SUCCESS).then(|| !from_wide(&buf).trim().is_empty())
+}
+
+/// The `Run` keys of the startup list: user or machine, and the matching `StartupApproved`
+/// key. The 32-bit machine key has its own approved key.
+pub(crate) const RUN_KEYS: [(bool, &str, &str); 3] = [
+    (
+        false,
+        r"Software\Microsoft\Windows\CurrentVersion\Run",
+        "Run",
+    ),
+    (
+        true,
+        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+        "Run",
+    ),
+    (
+        true,
+        r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run",
+        "Run32",
+    ),
+];
+
+/// The base of the `StartupApproved` keys.
+pub(crate) const APPROVED: &str =
+    r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved";
+
+/// The startup entries of one `Run` key: name and command.
+pub(crate) fn run_entries(machine: bool, subkey: &str) -> Vec<(String, String)> {
+    let root = if machine {
+        HKEY_LOCAL_MACHINE
+    } else {
+        HKEY_CURRENT_USER
+    };
+    string_values(root, subkey)
+}
+
+/// The `StartupApproved` value of an entry, if Windows wrote one.
+pub(crate) fn approved_value(machine: bool, base: &str, list: &str, name: &str) -> Option<Vec<u8>> {
+    let root = if machine {
+        HKEY_LOCAL_MACHINE
+    } else {
+        HKEY_CURRENT_USER
+    };
+    binary_value(root, &format!(r"{base}\{list}"), name)
+}
+
+/// Writes the current user's `StartupApproved` value of an entry, or removes it for
+/// `None`. Machine-wide values are never written.
+pub(crate) fn set_user_approved(base: &str, list: &str, name: &str, value: Option<&[u8]>) -> bool {
+    let (k, n) = (Wide::new(&format!(r"{base}\{list}")), Wide::new(name));
+    match value {
+        Some(bytes) => {
+            // SAFETY: `bytes` is valid for its length; the key is created when missing.
+            let r = unsafe {
+                RegSetKeyValueW(
+                    HKEY_CURRENT_USER,
+                    k.pcwstr(),
+                    n.pcwstr(),
+                    REG_BINARY.0,
+                    Some(bytes.as_ptr().cast()),
+                    bytes.len() as u32,
+                )
+            };
+            r == ERROR_SUCCESS
+        }
+        None => {
+            // SAFETY: both strings are NUL-terminated.
+            let r = unsafe { RegDeleteKeyValueW(HKEY_CURRENT_USER, k.pcwstr(), n.pcwstr()) };
+            r == ERROR_SUCCESS || r.0 == 2
+        }
+    }
+}
+
+/// Reads a QWORD value; `None` if it does not exist.
+fn qword_value(root: HKEY, subkey: &str, name: &str) -> Option<u64> {
+    let (k, n) = (Wide::new(subkey), Wide::new(name));
+    let mut value = 0u64;
+    let mut len = size_of::<u64>() as u32;
+    // SAFETY: `value` is writable for `len` bytes; both strings are NUL-terminated.
+    let r = unsafe {
+        RegGetValueW(
+            root,
+            k.pcwstr(),
+            n.pcwstr(),
+            RRF_RT_REG_QWORD,
+            None,
+            Some((&raw mut value).cast()),
+            Some(&mut len),
+        )
+    };
+    (r == ERROR_SUCCESS).then_some(value)
+}
+
+/// The dedicated memory of the largest graphics card, as its driver registers it.
+pub(crate) fn video_memory() -> Option<u64> {
+    const DISPLAY: &str =
+        r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}";
+    subkeys(HKEY_LOCAL_MACHINE, DISPLAY)
+        .iter()
+        .filter(|k| k.len() == 4 && k.chars().all(|c| c.is_ascii_digit()))
+        .filter_map(|k| {
+            qword_value(
+                HKEY_LOCAL_MACHINE,
+                &format!(r"{DISPLAY}\{k}"),
+                "HardwareInformation.qwMemorySize",
+            )
+        })
+        .max()
+}
+
+/// Whether a page file is configured.
+pub(crate) fn page_file_on() -> Option<bool> {
+    multi_sz_has_text(
+        HKEY_LOCAL_MACHINE,
+        r"SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management",
+        "PagingFiles",
+    )
+}
+
+/// The power mode on mains power: `bestEfficiency`, `balanced` or `bestPerformance`.
+pub(crate) fn power_mode() -> Option<String> {
+    let guid = string_value(
+        HKEY_LOCAL_MACHINE,
+        r"SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes",
+        "ActiveOverlayAcPowerScheme",
+    )
+    .unwrap_or_default()
+    .to_lowercase();
+    Some(
+        match guid.as_str() {
+            "961cc777-2547-4f9d-8174-7d86181b8a7a" => "bestEfficiency",
+            "ded574b5-45a0-4f42-8737-46345c09c238" => "bestPerformance",
+            _ => "balanced",
+        }
+        .to_string(),
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn f16_t16_2_the_user_toggle_writes_and_undoes_the_exact_value() {
+        let base = format!(r"Software\Unhoard-test-{}", std::process::id());
+        let off = unhoard_core::optimise::disabled_value(133_000_000_000_000_000);
+        assert!(set_user_approved(&base, "Run", "Chat", Some(&off)));
+        assert_eq!(
+            approved_value(false, &base, "Run", "Chat").as_deref(),
+            Some(&off[..])
+        );
+        assert!(set_user_approved(&base, "Run", "Chat", None));
+        assert_eq!(approved_value(false, &base, "Run", "Chat"), None);
+        assert!(
+            set_user_approved(&base, "Run", "Chat", None),
+            "removing twice is fine"
+        );
+        let k = Wide::new(&base);
+        // SAFETY: removes the test key this test created, under the current user.
+        let _ = unsafe {
+            windows::Win32::System::Registry::RegDeleteTreeW(HKEY_CURRENT_USER, k.pcwstr())
+        };
+    }
 }
